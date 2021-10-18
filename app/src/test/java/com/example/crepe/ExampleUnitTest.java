@@ -1,4 +1,4 @@
-package com.example.gigalector;
+package com.example.crepe;
 
 import org.junit.Test;
 
