@@ -5,7 +5,9 @@
       <map>
         <entry key="../crepe/app/src/main/res/drawable/ic_add.xml" value="0.18385416666666668" />
         <entry key="../crepe/app/src/main/res/drawable/ic_launcher_background.xml" value="0.18385416666666668" />
-        <entry key="../crepe/app/src/main/res/layout/activity_main.xml" value="0.375" />
+        <entry key="../crepe/app/src/main/res/drawable/ic_link.xml" value="0.18385416666666668" />
+        <entry key="../crepe/app/src/main/res/layout/activity_main.xml" value="0.20918070699587601" />
+        <entry key="../crepe/app/src/main/res/layout/content_main.xml" value="0.25" />
         <entry key="../crepe/app/src/main/res/layout/fragment_first.xml" value="0.16770833333333332" />
         <entry key="../crepe/app/src/main/res/layout/fragment_second.xml" value="0.16770833333333332" />
       </map>
