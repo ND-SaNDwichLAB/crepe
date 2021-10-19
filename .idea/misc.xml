@@ -3,7 +3,11 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="../crepe/app/src/main/res/layout/activity_main.xml" value="0.1986455981941309" />
+        <entry key="../crepe/app/src/main/res/drawable/ic_add.xml" value="0.18385416666666668" />
+        <entry key="../crepe/app/src/main/res/drawable/ic_launcher_background.xml" value="0.18385416666666668" />
+        <entry key="../crepe/app/src/main/res/layout/activity_main.xml" value="0.375" />
+        <entry key="../crepe/app/src/main/res/layout/fragment_first.xml" value="0.16770833333333332" />
+        <entry key="../crepe/app/src/main/res/layout/fragment_second.xml" value="0.16770833333333332" />
       </map>
     </option>
   </component>
