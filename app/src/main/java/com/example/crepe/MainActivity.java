@@ -2,10 +2,12 @@ package com.example.crepe;
 
 import android.os.Bundle;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.util.Log;
 import android.view.View;
 
 import androidx.appcompat.widget.Toolbar;
@@ -18,15 +20,27 @@ import com.example.crepe.databinding.ActivityMainBinding;
 
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
+    private FloatingActionButton fabBtn;
+    private FloatingActionButton addUrlBtn;
+    private FloatingActionButton createNewBtn;
+
+    // load animations
+//    private Animation fromBottom = AnimationUtils.loadAnimation( this, R.anim.from_bottom );
+//    private Animation toBottom = AnimationUtils.loadAnimation( this, R.anim.to_bottom );
+
+    private Boolean clicked = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -35,19 +49,46 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(binding.toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(true);
 
-
-//        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
-//        appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
-//        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+        // get the fab icons
+        fabBtn = findViewById(R.id.fab);
+        addUrlBtn = findViewById(R.id.fab_url);
+        createNewBtn = findViewById(R.id.fab_add_new);
 
         binding.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+//                Snackbar.make(view, "Fab icon clicked", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+                clicked = !clicked;
+                setVisibility(clicked);
+                setAnimation(clicked);
             }
         });
     }
+
+
+    private void setVisibility(Boolean clicked) {
+        if(clicked) {
+            Log.i("hello", "hello");
+            addUrlBtn.setVisibility(View.VISIBLE);
+            createNewBtn.setVisibility(View.VISIBLE);
+        } else {
+            addUrlBtn.setVisibility(View.INVISIBLE);
+            createNewBtn.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    private void setAnimation(Boolean clicked) {
+//        if(clicked) {
+//            addUrlBtn.startAnimation(fromBottom);
+//            createNewBtn.startAnimation(fromBottom);
+//        } else {
+//            addUrlBtn.startAnimation(toBottom);
+//            createNewBtn.startAnimation(toBottom);
+//        }
+
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -71,10 +112,4 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-//    @Override
-//    public boolean onSupportNavigateUp() {
-//        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
-//        return NavigationUI.navigateUp(navController, appBarConfiguration)
-//                || super.onSupportNavigateUp();
-//    }
 }
