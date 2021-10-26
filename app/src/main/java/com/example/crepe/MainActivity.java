@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton createNewBtn;
 
     // load animations
-//    private Animation fromBottom = AnimationUtils.loadAnimation( this, R.anim.from_bottom );
+    private Animation fromBottom = AnimationUtils.loadAnimation( this, R.anim.from_bottom );
 //    private Animation toBottom = AnimationUtils.loadAnimation( this, R.anim.to_bottom );
 
     private Boolean clicked = false;

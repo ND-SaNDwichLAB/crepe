@@ -15,9 +15,17 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-<!--    <include-->
-<!--        android:id="@+id/include"-->
-<!--        layout="@layout/content_main" />-->
+    <include
+        layout="@layout/collector_card"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="84dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
+        tools:layout_editor_absoluteX="0dp" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"
