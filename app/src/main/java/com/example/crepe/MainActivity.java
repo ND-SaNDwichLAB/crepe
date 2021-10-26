@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton createNewBtn;
 
     // load animations
-    private Animation fromBottom = AnimationUtils.loadAnimation( this, R.anim.from_bottom );
+//    private Animation fromBottom = AnimationUtils.loadAnimation( this, R.anim.from_bottom );
 //    private Animation toBottom = AnimationUtils.loadAnimation( this, R.anim.to_bottom );
 
     private Boolean clicked = false;
@@ -62,6 +62,28 @@ public class MainActivity extends AppCompatActivity {
                 clicked = !clicked;
                 setVisibility(clicked);
                 setAnimation(clicked);
+            }
+        });
+
+        addUrlBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "addUrlBtn icon clicked", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+//                clicked = !clicked;
+//                setVisibility(clicked);
+//                setAnimation(clicked);
+            }
+        });
+
+        createNewBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "createNewBtn icon clicked", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+//                clicked = !clicked;
+//                setVisibility(clicked);
+//                setAnimation(clicked);
             }
         });
     }
