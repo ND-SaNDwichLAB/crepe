@@ -31,16 +31,19 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton addUrlBtn;
     private FloatingActionButton createNewBtn;
 
-    // load animations
-//    private Animation fromBottom = AnimationUtils.loadAnimation( this, R.anim.from_bottom );
-//    private Animation toBottom = AnimationUtils.loadAnimation( this, R.anim.to_bottom );
+    private Animation fromBottom;
+    private Animation toBottom;
 
     private Boolean clicked = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // load animations
+        fromBottom = AnimationUtils.loadAnimation( this, R.anim.from_bottom );
+        toBottom = AnimationUtils.loadAnimation( this, R.anim.to_bottom );
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -54,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
         addUrlBtn = findViewById(R.id.fab_url);
         createNewBtn = findViewById(R.id.fab_add_new);
 
-        binding.fab.setOnClickListener(new View.OnClickListener() {
+        fabBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 //                Snackbar.make(view, "Fab icon clicked", Snackbar.LENGTH_LONG)
@@ -101,13 +104,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setAnimation(Boolean clicked) {
-//        if(clicked) {
-//            addUrlBtn.startAnimation(fromBottom);
-//            createNewBtn.startAnimation(fromBottom);
-//        } else {
-//            addUrlBtn.startAnimation(toBottom);
-//            createNewBtn.startAnimation(toBottom);
-//        }
+        if(clicked) {
+            addUrlBtn.startAnimation(toBottom);
+            createNewBtn.startAnimation(toBottom);
+        } else {
+            addUrlBtn.startAnimation(fromBottom);
+            createNewBtn.startAnimation(fromBottom);
+        }
 
     }
 
