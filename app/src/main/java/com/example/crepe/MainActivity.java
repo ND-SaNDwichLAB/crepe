@@ -64,10 +64,6 @@ public class MainActivity extends AppCompatActivity {
         addUrlBtn = findViewById(R.id.fab_url);
         createNewBtn = findViewById(R.id.fab_add_new);
 
-        // get the popup elements
-        popupCancelBtn = findViewById(R.id.cancelButton);
-        popupNextBtn = findViewById(R.id.nextButton);
-
         fabBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -103,19 +99,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-//        popupCancelBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                dialog.dismiss();
-//            }
-//        });
-//
-//        popupNextBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                dialog.dismiss();
-//            }
-//        });
     }
 
 
@@ -148,6 +131,24 @@ public class MainActivity extends AppCompatActivity {
         dialogBuilder.setView(popupView);
         dialog = dialogBuilder.create();
         dialog.show();
+
+        // get the popup elements
+        popupCancelBtn = (Button) popupView.findViewById(R.id.cancelButton);
+        popupNextBtn = (Button) popupView.findViewById(R.id.nextButton);
+
+        popupCancelBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+
+        popupNextBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
     }
 
 
