@@ -4,18 +4,13 @@ import android.app.AlertDialog;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.util.Log;
 import android.view.View;
 
-import androidx.appcompat.widget.Toolbar;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
 
 import com.example.crepe.databinding.ActivityMainBinding;
 
@@ -38,8 +33,10 @@ public class MainActivity extends AppCompatActivity {
     private Button popupCancelBtn;
     private Button popupNextBtn;
 
-    private Animation fromBottom;
-    private Animation toBottom;
+    private Animation top_appear_anim;
+    private Animation top_disappear_anim;
+    private Animation left_appear_anim;
+    private Animation left_disappear_anim;
 
     private Boolean clicked = false;
 
@@ -49,31 +46,18 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         // load animations
-        fromBottom = AnimationUtils.loadAnimation( this, R.anim.from_bottom );
-        toBottom = AnimationUtils.loadAnimation( this, R.anim.to_bottom );
+        top_appear_anim = AnimationUtils.loadAnimation( this, R.anim.top_appear);
+        top_disappear_anim = AnimationUtils.loadAnimation( this, R.anim.top_disappear);
+        left_appear_anim = AnimationUtils.loadAnimation( this, R.anim.left_appear);
+        left_disappear_anim = AnimationUtils.loadAnimation( this, R.anim.left_disappear);
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(binding.toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(true);
 
         // get the fab icons
         fabBtn = findViewById(R.id.fab);
         addUrlBtn = findViewById(R.id.fab_url);
         createNewBtn = findViewById(R.id.fab_add_new);
-
-        fabBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-//                Snackbar.make(view, "Fab icon clicked", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-                clicked = !clicked;
-                setVisibility(clicked);
-                setAnimation(clicked);
-            }
-        });
 
         addUrlBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -99,15 +83,34 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(binding.toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
+
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        fabBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                clicked = !clicked;
+                Log.i(null, "clicked value: " + clicked);
+                setVisibility(clicked);
+                setAnimation(clicked);
+            }
+        });
+    }
 
     private void setVisibility(Boolean clicked) {
-        if(clicked) {
-            Log.i("hello", "hello");
+        // if the fab icon is clicked, show the small buttons
+        if(!clicked) {
             addUrlBtn.setVisibility(View.VISIBLE);
             createNewBtn.setVisibility(View.VISIBLE);
         } else {
+            // if the fab icon is clicked to be closed, set the visibilities to invisible
             addUrlBtn.setVisibility(View.INVISIBLE);
             createNewBtn.setVisibility(View.INVISIBLE);
         }
@@ -115,11 +118,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void setAnimation(Boolean clicked) {
         if(clicked) {
-            addUrlBtn.startAnimation(toBottom);
-            createNewBtn.startAnimation(toBottom);
+            addUrlBtn.startAnimation(left_appear_anim);
+            createNewBtn.startAnimation(top_appear_anim);
         } else {
-            addUrlBtn.startAnimation(fromBottom);
-            createNewBtn.startAnimation(fromBottom);
+            addUrlBtn.startAnimation(left_disappear_anim);
+            createNewBtn.startAnimation(top_disappear_anim);
         }
 
     }
