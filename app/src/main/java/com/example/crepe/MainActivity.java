@@ -1,5 +1,6 @@
 package com.example.crepe;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -22,6 +23,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -30,6 +32,11 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton fabBtn;
     private FloatingActionButton addUrlBtn;
     private FloatingActionButton createNewBtn;
+
+    private AlertDialog.Builder dialogBuilder;
+    private AlertDialog dialog;
+    private Button popupCancelBtn;
+    private Button popupNextBtn;
 
     private Animation fromBottom;
     private Animation toBottom;
@@ -57,6 +64,10 @@ public class MainActivity extends AppCompatActivity {
         addUrlBtn = findViewById(R.id.fab_url);
         createNewBtn = findViewById(R.id.fab_add_new);
 
+        // get the popup elements
+        popupCancelBtn = findViewById(R.id.cancelButton);
+        popupNextBtn = findViewById(R.id.nextButton);
+
         fabBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -71,24 +82,40 @@ public class MainActivity extends AppCompatActivity {
         addUrlBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "addUrlBtn icon clicked", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+//                Snackbar.make(view, "addUrlBtn icon clicked", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
 //                clicked = !clicked;
 //                setVisibility(clicked);
 //                setAnimation(clicked);
+                createNewPopupBox();
             }
         });
 
         createNewBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "createNewBtn icon clicked", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+//                Snackbar.make(view, "createNewBtn icon clicked", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
 //                clicked = !clicked;
 //                setVisibility(clicked);
 //                setAnimation(clicked);
+                createNewPopupBox();
             }
         });
+
+//        popupCancelBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                dialog.dismiss();
+//            }
+//        });
+//
+//        popupNextBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                dialog.dismiss();
+//            }
+//        });
     }
 
 
@@ -112,6 +139,15 @@ public class MainActivity extends AppCompatActivity {
             createNewBtn.startAnimation(fromBottom);
         }
 
+    }
+
+    public void createNewPopupBox() {
+        dialogBuilder = new AlertDialog.Builder(this);
+        final View popupView = getLayoutInflater().inflate(R.layout.popup_box, null);
+
+        dialogBuilder.setView(popupView);
+        dialog = dialogBuilder.create();
+        dialog.show();
     }
 
 
