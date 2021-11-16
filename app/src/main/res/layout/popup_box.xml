@@ -13,57 +13,80 @@
         android:layout_marginStart="24dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="24dp"
-        android:text="Title of the popup"
-        android:textSize="60px"
+        android:text="ADD NEW COLLECTOR"
+        android:textSize="22sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
 
     <EditText
-        android:id="@+id/popup_field_first"
+        android:id="@+id/popup_URL_field"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="36dp"
-        android:layout_marginEnd="32dp"
-        android:hint="First Text Field"
+        android:layout_height="54dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginEnd="24dp"
+        android:background="@drawable/custom_input"
+        android:hint="https://"
+        android:singleLine="true"
+        android:lineSpacingExtra="5dp"
+        android:paddingStart="12dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/popup_title" />
 
-    <EditText
-        android:id="@+id/popup_field_second"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/Illustration"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="36dp"
-        android:layout_marginEnd="32dp"
-        android:hint="SecondText Field"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="36dp"
+        android:layout_marginTop="20dp"
+        android:background="@color/white"
+        android:paddingStart="2dp"
+        android:paddingEnd="2dp"
+        android:text="Enter URL"
+        android:textSize="14sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/popup_field_first" />
+        app:layout_constraintTop_toBottomOf="@+id/popup_title" />
 
     <Button
         android:id="@+id/nextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="32dp"
-        android:layout_marginBottom="32dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:background="@android:color/transparent"
         android:text="Next"
+        android:textColor="@color/ND_gold"
+        android:textColorHint="@color/ND_gold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/popup_field_second" />
+        app:layout_constraintTop_toBottomOf="@+id/comment_on_URL" />
 
     <Button
         android:id="@+id/cancelButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="32dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="@android:color/transparent"
         android:text="Cancel"
-        app:layout_constraintBottom_toBottomOf="@+id/nextButton"
+        android:textColor="@color/ND_blue"
+        android:textColorHint="@color/ND_blue"
         app:layout_constraintEnd_toStartOf="@+id/nextButton"
-        app:layout_constraintTop_toTopOf="@+id/nextButton" />
+        app:layout_constraintTop_toBottomOf="@+id/comment_on_URL" />
+
+    <TextView
+        android:id="@+id/comment_on_URL"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="36dp"
+        android:layout_marginTop="8dp"
+        android:text="The URL you received from your researcher"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/popup_URL_field" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
