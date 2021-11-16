@@ -6,6 +6,25 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
+
+    =======
+
+    <EditText
+        android:id="@+id/popup_URL_field"
+        android:layout_width="match_parent"
+        android:layout_height="54dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="24dp"
+        android:background="@drawable/custom_input"
+        android:hint="https://"
+        android:lineSpacingExtra="5dp"
+        android:paddingStart="12dp"
+        android:singleLine="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/popup_title" />
+
     <TextView
         android:id="@+id/popup_title"
         android:layout_width="0dp"
@@ -17,57 +36,11 @@
         android:textSize="22sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent" /><![CDATA[
 
+    >>>>>>> eb4ac3f9b8fef3ac2d6e02fadff11b9acaea3786
 
-<<<<<<< HEAD
-    <EditText
-        android:id="@+id/popup_URL_field"
-        android:layout_width="match_parent"
-        android:layout_height="54dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="30dp"
-        android:layout_marginEnd="24dp"
-        android:background="@drawable/custom_input"
-        android:hint="https://"
-        android:singleLine="true"
-        android:lineSpacingExtra="5dp"
-        android:paddingStart="12dp"
-=======
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/popup_field_first"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="32dp"
->>>>>>> eb4ac3f9b8fef3ac2d6e02fadff11b9acaea3786
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/popup_title">
-
-<<<<<<< HEAD
-    <TextView
-        android:id="@+id/Illustration"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="36dp"
-        android:layout_marginTop="20dp"
-        android:background="@color/white"
-        android:paddingStart="2dp"
-        android:paddingEnd="2dp"
-        android:text="Enter URL"
-        android:textSize="14sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/popup_title" />
-=======
-        <com.google.android.material.textfield.TextInputEditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="hint" />
-    </com.google.android.material.textfield.TextInputLayout>
->>>>>>> eb4ac3f9b8fef3ac2d6e02fadff11b9acaea3786
+    ]]>
 
     <Button
         android:id="@+id/nextButton"
@@ -77,29 +50,12 @@
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
         android:background="@android:color/transparent"
-        android:text="Next"
+        android:text="ADD"
         android:textColor="@color/ND_gold"
         android:textColorHint="@color/ND_gold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/comment_on_URL" />
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/popup_field_second"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="32dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/popup_field_first">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="hint" />
-    </com.google.android.material.textfield.TextInputLayout>
 
     <Button
         android:id="@+id/cancelButton"
@@ -123,5 +79,18 @@
         android:text="The URL you received from your researcher"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/popup_URL_field" />
+
+    <TextView
+        android:id="@+id/Hint_enter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="36dp"
+        android:layout_marginTop="16dp"
+        android:background="@color/white"
+        android:paddingStart="2dp"
+        android:paddingEnd="2dp"
+        android:text="Enter URL"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/popup_title" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
