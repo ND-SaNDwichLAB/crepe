@@ -3,7 +3,9 @@ package com.example.crepe;
 import android.app.Activity;
 import android.os.Bundle;
 
-public class CollectorCard extends Activity {
+import androidx.appcompat.app.AppCompatActivity;
+
+public class CollectorCard extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -20,6 +20,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
 
+<<<<<<< HEAD
     <EditText
         android:id="@+id/popup_URL_field"
         android:layout_width="match_parent"
@@ -32,11 +33,21 @@
         android:singleLine="true"
         android:lineSpacingExtra="5dp"
         android:paddingStart="12dp"
+=======
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/popup_field_first"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="32dp"
+>>>>>>> eb4ac3f9b8fef3ac2d6e02fadff11b9acaea3786
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/popup_title" />
+        app:layout_constraintTop_toBottomOf="@+id/popup_title">
 
+<<<<<<< HEAD
     <TextView
         android:id="@+id/Illustration"
         android:layout_width="wrap_content"
@@ -50,6 +61,13 @@
         android:textSize="14sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/popup_title" />
+=======
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="hint" />
+    </com.google.android.material.textfield.TextInputLayout>
+>>>>>>> eb4ac3f9b8fef3ac2d6e02fadff11b9acaea3786
 
     <Button
         android:id="@+id/nextButton"
@@ -65,6 +83,23 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/comment_on_URL" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/popup_field_second"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="32dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/popup_field_first">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="hint" />
+    </com.google.android.material.textfield.TextInputLayout>
 
     <Button
         android:id="@+id/cancelButton"
