@@ -16,8 +16,10 @@
         <entry key="app/src/main/res/layout/content_main.xml" value="0.1" />
         <entry key="app/src/main/res/layout/fragment_first.xml" value="0.23645833333333333" />
         <entry key="app/src/main/res/layout/fragment_second.xml" value="0.23645833333333333" />
+        <entry key="app/src/main/res/layout/nav_header.xml" value="0.13994565217391305" />
         <entry key="app/src/main/res/layout/popup_box.xml" value="0.25416666666666665" />
         <entry key="app/src/main/res/menu/menu_main.xml" value="0.20416666666666666" />
+        <entry key="app/src/main/res/menu/nav_drawer_menu.xml" value="0.17395833333333333" />
       </map>
     </option>
   </component>

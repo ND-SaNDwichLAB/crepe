@@ -5,11 +5,15 @@ import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.text.Layout;
 import android.util.Log;
 import android.view.View;
 
+import androidx.appcompat.widget.Toolbar;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.navigation.ui.AppBarConfiguration;
 
 import com.example.crepe.databinding.ActivityMainBinding;
@@ -28,6 +32,11 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton addUrlBtn;
     private FloatingActionButton createNewBtn;
 
+    private Toolbar appToolbar;
+
+    private ActionBarDrawerToggle sidemenuToggle;
+    private DrawerLayout drawerLayout;
+
     private AlertDialog.Builder dialogBuilder;
     private AlertDialog dialog;
     private Button popupCancelBtn;
@@ -45,6 +54,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // set toolbar
+        appToolbar = findViewById(R.id.app_toolbar);
+        setSupportActionBar(appToolbar);
+//        getSupportActionBar().setDisplayShowTitleEnabled(true);
+
         // load animations
         top_appear_anim = AnimationUtils.loadAnimation( this, R.anim.top_appear);
         top_disappear_anim = AnimationUtils.loadAnimation( this, R.anim.top_disappear);
@@ -54,10 +68,17 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        // sidebar toggle
+        drawerLayout = findViewById(R.id.drawer_layout);
+        sidemenuToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close);
+        drawerLayout.addDrawerListener(sidemenuToggle);
+        sidemenuToggle.syncState();
+
         // get the fab icons
         fabBtn = findViewById(R.id.fab);
         addUrlBtn = findViewById(R.id.fab_url);
         createNewBtn = findViewById(R.id.fab_add_new);
+
 
         addUrlBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -83,9 +104,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(binding.toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(true);
+
 
     }
 
@@ -158,6 +177,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
+        super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
@@ -170,9 +190,9 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
+//        if (id == R.id.action_settings) {
+//            return true;
+//        }
 
         return super.onOptionsItemSelected(item);
     }
