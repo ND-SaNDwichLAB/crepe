@@ -3,8 +3,10 @@ package com.example.crepe;
 import android.app.AlertDialog;
 import android.os.Bundle;
 
+import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -26,13 +28,10 @@ import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity {
 
-    private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
     private FloatingActionButton fabBtn;
     private FloatingActionButton addUrlBtn;
     private FloatingActionButton createNewBtn;
-
-    private Toolbar appToolbar;
 
     private ActionBarDrawerToggle sidemenuToggle;
     private DrawerLayout drawerLayout;
@@ -54,10 +53,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // set toolbar
-        appToolbar = findViewById(R.id.app_toolbar);
-        setSupportActionBar(appToolbar);
-//        getSupportActionBar().setDisplayShowTitleEnabled(true);
 
         // load animations
         top_appear_anim = AnimationUtils.loadAnimation( this, R.anim.top_appear);
@@ -71,8 +66,13 @@ public class MainActivity extends AppCompatActivity {
         // sidebar toggle
         drawerLayout = findViewById(R.id.drawer_layout);
         sidemenuToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close);
+        sidemenuToggle.setDrawerIndicatorEnabled(true);
         drawerLayout.addDrawerListener(sidemenuToggle);
-        sidemenuToggle.syncState();
+
+
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
 
         // get the fab icons
         fabBtn = findViewById(R.id.fab);
@@ -103,9 +103,6 @@ public class MainActivity extends AppCompatActivity {
                 createNewPopupBox();
             }
         });
-
-
-
     }
 
     @Override
@@ -121,6 +118,13 @@ public class MainActivity extends AppCompatActivity {
                 setAnimation(clicked);
             }
         });
+    }
+
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        sidemenuToggle.syncState();
+        super.onPostCreate(savedInstanceState);
+
     }
 
     private void setVisibility(Boolean clicked) {
@@ -189,10 +193,9 @@ public class MainActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-//        if (id == R.id.action_settings) {
-//            return true;
-//        }
+        if(sidemenuToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
 
         return super.onOptionsItemSelected(item);
     }
