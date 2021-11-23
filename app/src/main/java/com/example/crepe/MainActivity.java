@@ -6,6 +6,7 @@ import android.os.Bundle;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,16 +16,21 @@ import android.util.Log;
 import android.view.View;
 
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.ui.AppBarConfiguration;
 
 import com.example.crepe.databinding.ActivityMainBinding;
+import com.google.android.material.navigation.NavigationView;
 
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -35,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ActionBarDrawerToggle sidemenuToggle;
     private DrawerLayout drawerLayout;
+    private NavigationView sidebarNavView;
 
     private AlertDialog.Builder dialogBuilder;
     private AlertDialog dialog;
@@ -63,16 +70,30 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        // display the home fragment
+        // the id here is the id for the nav menu, due to the design of the function.
+        // see details of the function in later sections of this file
+        displaySelectedScreen(R.id.nav_menu_home);
+
         // sidebar toggle
         drawerLayout = findViewById(R.id.drawer_layout);
         sidemenuToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close);
         sidemenuToggle.setDrawerIndicatorEnabled(true);
         drawerLayout.addDrawerListener(sidemenuToggle);
-
-
+        sidebarNavView = findViewById(R.id.sidebarNavView);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
+
+        sidebarNavView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
+                displaySelectedScreen(item.getItemId());
+                drawerLayout.closeDrawer(GravityCompat.START);
+                return true;
+            }
+        });
 
         // get the fab icons
         fabBtn = findViewById(R.id.fab);
@@ -103,6 +124,34 @@ public class MainActivity extends AppCompatActivity {
                 createNewPopupBox();
             }
         });
+    }
+
+    // a function to switch between fragments using the navDrawer
+    private void displaySelectedScreen(int itemId) {
+
+        // initialize a fragment for switching
+        Fragment fragment = null;
+
+        switch (itemId) {
+            case R.id.nav_menu_home:
+                fragment = new HomeFragment();
+                break;
+            case R.id.nav_menu_data:
+                fragment = new DataFragment();
+                break;
+            default:
+                Log.i("Menu Selection", "Menu Item Selection Error: no selection detected");
+                break;
+        }
+
+        //replacing the fragment
+        if (fragment != null) {
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.replace(R.id.content_frame, fragment);
+            ft.commit();
+        }
+
+
     }
 
     @Override
