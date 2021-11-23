@@ -20,7 +20,7 @@ public class DataFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        getActivity().setTitle("My Data");
+        getActivity().setTitle("View My Data");
     }
 
 
