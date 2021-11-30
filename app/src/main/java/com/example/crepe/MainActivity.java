@@ -3,6 +3,7 @@ package com.example.crepe;
 import android.app.Dialog;
 import android.os.Bundle;
 
+import com.example.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilder;
 import com.example.crepe.ui.dialog.CreateCollectorFromURLDialogBuilder;
 import com.example.crepe.ui.main_activity.DataFragment;
 import com.example.crepe.ui.main_activity.HomeFragment;
@@ -49,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
     private Boolean clicked = false;
 
     private CreateCollectorFromURLDialogBuilder createCollectorFromURLDialogBuilder;
-
+    private CreateCollectorFromConfigDialogBuilder createCollectorFromConfigDialogBuilder;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         this.createCollectorFromURLDialogBuilder = new CreateCollectorFromURLDialogBuilder(this);
+        this.createCollectorFromConfigDialogBuilder = new CreateCollectorFromConfigDialogBuilder(this);
 
         // get the fab icons
         fabBtn = findViewById(R.id.fab);
@@ -118,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
 //                clicked = !clicked;
 //                setVisibility(clicked);
 //                setAnimation(clicked);
-                Dialog dialog = createCollectorFromURLDialogBuilder.build();
+                Dialog dialog = createCollectorFromConfigDialogBuilder.build();
                 dialog.show();
             }
         });

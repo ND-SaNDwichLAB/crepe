@@ -41,7 +41,7 @@
         app:layout_constraintTop_toBottomOf="@+id/appText" />
 
     <Button
-        android:id="@+id/cancelButton_add"
+        android:id="@+id/addCollectorFromConfigDialogCancelButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -50,11 +50,11 @@
         android:textColor="@color/ND_blue"
         android:textColorHint="@color/ND_blue"
         android:background="@android:color/transparent"
-        app:layout_constraintEnd_toStartOf="@+id/nextButton_add"
+        app:layout_constraintEnd_toStartOf="@+id/addCollectorFromConfigDialogNextButton"
         app:layout_constraintTop_toBottomOf="@+id/locationText" />
 
     <Button
-        android:id="@+id/nextButton_add"
+        android:id="@+id/addCollectorFromConfigDialogNextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"

@@ -9,21 +9,21 @@ import android.widget.Button;
 
 import com.example.crepe.R;
 
-public class CreateCollectorFromURLDialogBuilder {
+public class CreateCollectorFromConfigDialogBuilder {
 
     private Context c;
     private AlertDialog.Builder dialogBuilder;
-    public CreateCollectorFromURLDialogBuilder(Context c) {
+    public CreateCollectorFromConfigDialogBuilder(Context c) {
         this.c = c;
         this.dialogBuilder = new AlertDialog.Builder(c);
 
     }
 
     public Dialog build(){
-        final View popupView = LayoutInflater.from(c).inflate(R.layout.dialog_add_collector_from_url, null);
+        final View popupView = LayoutInflater.from(c).inflate(R.layout.dialog_add_collector_from_config, null);
         dialogBuilder.setView(popupView);
-        Button popupCancelBtn = (Button) popupView.findViewById(R.id.cancelButton);
-        Button popupNextBtn = (Button) popupView.findViewById(R.id.nextButton);
+        Button popupCancelBtn = (Button) popupView.findViewById(R.id.addCollectorFromConfigDialogCancelButton);
+        Button popupNextBtn = (Button) popupView.findViewById(R.id.addCollectorFromConfigDialogNextButton);
         Dialog dialog = dialogBuilder.create();
         popupCancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
