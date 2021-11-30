@@ -32,34 +32,34 @@
         app:tint="@color/white"
         tools:ignore="SpeakableTextPresentCheck" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_url"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="30dp"
-        android:layout_marginBottom="48dp"
-        android:backgroundTint="@color/ND_blue"
-        android:clickable="true"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/fab"
-        app:srcCompat="@drawable/ic_link"
-        app:tint="@color/white"
-        tools:ignore="SpeakableTextPresentCheck" />
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_url"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="30dp"
+            android:layout_marginBottom="48dp"
+            android:backgroundTint="@color/ND_blue"
+            android:clickable="true"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/fab"
+            app:srcCompat="@drawable/ic_link"
+            app:tint="@color/white"
+            tools:ignore="SpeakableTextPresentCheck" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_add_new"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="30dp"
-        android:layout_marginBottom="36dp"
-        android:backgroundTint="@color/ND_blue"
-        android:clickable="true"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toTopOf="@+id/fab"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/ic_add_new"
-        app:tint="@color/white" />
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_add_new"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="30dp"
+            android:layout_marginBottom="36dp"
+            android:backgroundTint="@color/ND_blue"
+            android:clickable="true"
+            android:visibility="visible"
+            app:layout_constraintBottom_toTopOf="@+id/fab"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:srcCompat="@drawable/ic_add_new"
+            app:tint="@color/white" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

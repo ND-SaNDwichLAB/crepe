@@ -1,6 +1,9 @@
 package com.example.crepe;
 
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
 import com.google.android.material.appbar.AppBarLayout;
@@ -30,9 +33,14 @@ import android.view.MenuItem;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.DatePicker;
+import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+import java.util.Calendar;
+
+public class MainActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
 
     private ActivityMainBinding binding;
     private FloatingActionButton fabBtn;
@@ -52,14 +60,16 @@ public class MainActivity extends AppCompatActivity {
     private Animation top_disappear_anim;
     private Animation left_appear_anim;
     private Animation left_disappear_anim;
-
+    //add config
+    private TextView dateText;
+    private ImageButton strtImgBtn = findViewById(R.id.startImageButton);
+    private ImageButton endImgBtn = findViewById(R.id.endImageButton);
     private Boolean clicked = false;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
 
         // load animations
         top_appear_anim = AnimationUtils.loadAnimation( this, R.anim.top_appear);
@@ -121,7 +131,17 @@ public class MainActivity extends AppCompatActivity {
 //                clicked = !clicked;
 //                setVisibility(clicked);
 //                setAnimation(clicked);
-                createNewPopupBox();
+                createNewAddConfig();
+            }
+        });
+
+        //date picker
+        dateText = findViewById(R.id.startTextView);
+
+        strtImgBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showDatePickerDialog();
             }
         });
     }
@@ -226,6 +246,36 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    public void createNewAddConfig() {
+        dialogBuilder = new AlertDialog.Builder(this);
+        final View addConfigView = getLayoutInflater().inflate(R.layout.add_config, null);
+
+        dialogBuilder.setView(addConfigView);
+        dialog = dialogBuilder.create();
+        dialog.show();
+        strtImgBtn = (ImageButton) addConfigView.findViewById(R.id.startImageButton);
+        endImgBtn = (ImageButton) addConfigView.findViewById(R.id.endImageButton);
+
+
+        // get the popup elements
+//        popupCancelBtn = (Button) popupView.findViewById(R.id.cancelButton_add); //duplication
+//        popupNextBtn = (Button) popupView.findViewById(R.id.nextButton_add);
+//
+//        popupCancelBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                dialog.dismiss();
+//            }
+//        });
+//
+//        popupNextBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                dialog.dismiss();
+//            }
+//        });
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -248,5 +298,24 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    private void showDatePickerDialog(){
+        DatePickerDialog datePickerDialog = new DatePickerDialog(
+                this,
+                this,
+                Calendar.getInstance().get(Calendar.YEAR),
+                Calendar.getInstance().get(Calendar.MONTH),
+                Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
+        );
+        datePickerDialog.show();
+    }
+
+    @Override
+    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+        String date = month + "/" + dayOfMonth + "/" + year;
+        dateText.setText(date);
+    }
+
+
 
 }
