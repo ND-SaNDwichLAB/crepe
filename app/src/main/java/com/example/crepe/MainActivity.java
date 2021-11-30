@@ -1,12 +1,11 @@
 package com.example.crepe;
 
-import android.app.AlertDialog;
-import android.app.DatePickerDialog;
-import android.content.Context;
-import android.content.Intent;
+import android.app.Dialog;
 import android.os.Bundle;
 
-import com.google.android.material.appbar.AppBarLayout;
+import com.example.crepe.ui.dialog.CreateCollectorFromURLDialogBuilder;
+import com.example.crepe.ui.main_activity.DataFragment;
+import com.example.crepe.ui.main_activity.HomeFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.annotation.NonNull;
@@ -14,16 +13,13 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.text.Layout;
 import android.util.Log;
 import android.view.View;
 
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.navigation.ui.AppBarConfiguration;
 
 import com.example.crepe.databinding.ActivityMainBinding;
 import com.google.android.material.navigation.NavigationView;
@@ -32,15 +28,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.Button;
-import android.widget.DatePicker;
-import android.widget.ImageButton;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import java.util.Calendar;
-
-public class MainActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
+public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
     private FloatingActionButton fabBtn;
@@ -51,25 +40,20 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     private DrawerLayout drawerLayout;
     private NavigationView sidebarNavView;
 
-    private AlertDialog.Builder dialogBuilder;
-    private AlertDialog dialog;
-    private Button popupCancelBtn;
-    private Button popupNextBtn;
 
     private Animation top_appear_anim;
     private Animation top_disappear_anim;
     private Animation left_appear_anim;
     private Animation left_disappear_anim;
-    //add config
-    private TextView dateText;
-    private ImageButton strtImgBtn = findViewById(R.id.startImageButton);
-    private ImageButton endImgBtn = findViewById(R.id.endImageButton);
+
     private Boolean clicked = false;
 
+    private CreateCollectorFromURLDialogBuilder createCollectorFromURLDialogBuilder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
 
         // load animations
         top_appear_anim = AnimationUtils.loadAnimation( this, R.anim.top_appear);
@@ -105,6 +89,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
             }
         });
 
+        this.createCollectorFromURLDialogBuilder = new CreateCollectorFromURLDialogBuilder(this);
+
         // get the fab icons
         fabBtn = findViewById(R.id.fab);
         addUrlBtn = findViewById(R.id.fab_url);
@@ -119,7 +105,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 //                clicked = !clicked;
 //                setVisibility(clicked);
 //                setAnimation(clicked);
-                createNewPopupBox();
+                Dialog dialog = createCollectorFromURLDialogBuilder.build();
+                dialog.show();
             }
         });
 
@@ -131,17 +118,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 //                clicked = !clicked;
 //                setVisibility(clicked);
 //                setAnimation(clicked);
-                createNewAddConfig();
-            }
-        });
-
-        //date picker
-        dateText = findViewById(R.id.startTextView);
-
-        strtImgBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showDatePickerDialog();
+                Dialog dialog = createCollectorFromURLDialogBuilder.build();
+                dialog.show();
             }
         });
     }
@@ -219,63 +197,6 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
     }
 
-    public void createNewPopupBox() {
-        dialogBuilder = new AlertDialog.Builder(this);
-        final View popupView = getLayoutInflater().inflate(R.layout.popup_box, null);
-
-        dialogBuilder.setView(popupView);
-        dialog = dialogBuilder.create();
-        dialog.show();
-
-        // get the popup elements
-        popupCancelBtn = (Button) popupView.findViewById(R.id.cancelButton);
-        popupNextBtn = (Button) popupView.findViewById(R.id.nextButton);
-
-        popupCancelBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialog.dismiss();
-            }
-        });
-
-        popupNextBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialog.dismiss();
-            }
-        });
-    }
-
-    public void createNewAddConfig() {
-        dialogBuilder = new AlertDialog.Builder(this);
-        final View addConfigView = getLayoutInflater().inflate(R.layout.add_config, null);
-
-        dialogBuilder.setView(addConfigView);
-        dialog = dialogBuilder.create();
-        dialog.show();
-        strtImgBtn = (ImageButton) addConfigView.findViewById(R.id.startImageButton);
-        endImgBtn = (ImageButton) addConfigView.findViewById(R.id.endImageButton);
-
-
-        // get the popup elements
-//        popupCancelBtn = (Button) popupView.findViewById(R.id.cancelButton_add); //duplication
-//        popupNextBtn = (Button) popupView.findViewById(R.id.nextButton_add);
-//
-//        popupCancelBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                dialog.dismiss();
-//            }
-//        });
-//
-//        popupNextBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                dialog.dismiss();
-//            }
-//        });
-    }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -298,24 +219,5 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
         return super.onOptionsItemSelected(item);
     }
-
-    private void showDatePickerDialog(){
-        DatePickerDialog datePickerDialog = new DatePickerDialog(
-                this,
-                this,
-                Calendar.getInstance().get(Calendar.YEAR),
-                Calendar.getInstance().get(Calendar.MONTH),
-                Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
-        );
-        datePickerDialog.show();
-    }
-
-    @Override
-    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-        String date = month + "/" + dayOfMonth + "/" + year;
-        dateText.setText(date);
-    }
-
-
 
 }
