@@ -1,9 +1,11 @@
 package com.example.crepe;
 
-import android.app.AlertDialog;
+import android.app.Dialog;
 import android.os.Bundle;
 
-import com.google.android.material.appbar.AppBarLayout;
+import com.example.crepe.ui.dialog.CreateCollectorFromURLDialogBuilder;
+import com.example.crepe.ui.main_activity.DataFragment;
+import com.example.crepe.ui.main_activity.HomeFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.annotation.NonNull;
@@ -11,16 +13,13 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.text.Layout;
 import android.util.Log;
 import android.view.View;
 
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.navigation.ui.AppBarConfiguration;
 
 import com.example.crepe.databinding.ActivityMainBinding;
 import com.google.android.material.navigation.NavigationView;
@@ -29,8 +28,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.Button;
-import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -43,10 +40,6 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     private NavigationView sidebarNavView;
 
-    private AlertDialog.Builder dialogBuilder;
-    private AlertDialog dialog;
-    private Button popupCancelBtn;
-    private Button popupNextBtn;
 
     private Animation top_appear_anim;
     private Animation top_disappear_anim;
@@ -55,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Boolean clicked = false;
 
+    private CreateCollectorFromURLDialogBuilder createCollectorFromURLDialogBuilder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,6 +89,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        this.createCollectorFromURLDialogBuilder = new CreateCollectorFromURLDialogBuilder(this);
+
         // get the fab icons
         fabBtn = findViewById(R.id.fab);
         addUrlBtn = findViewById(R.id.fab_url);
@@ -109,7 +105,8 @@ public class MainActivity extends AppCompatActivity {
 //                clicked = !clicked;
 //                setVisibility(clicked);
 //                setAnimation(clicked);
-                createNewPopupBox();
+                Dialog dialog = createCollectorFromURLDialogBuilder.build();
+                dialog.show();
             }
         });
 
@@ -121,7 +118,8 @@ public class MainActivity extends AppCompatActivity {
 //                clicked = !clicked;
 //                setVisibility(clicked);
 //                setAnimation(clicked);
-                createNewPopupBox();
+                Dialog dialog = createCollectorFromURLDialogBuilder.build();
+                dialog.show();
             }
         });
     }
@@ -197,33 +195,6 @@ public class MainActivity extends AppCompatActivity {
             createNewBtn.startAnimation(top_disappear_anim);
         }
 
-    }
-
-    public void createNewPopupBox() {
-        dialogBuilder = new AlertDialog.Builder(this);
-        final View popupView = getLayoutInflater().inflate(R.layout.popup_box, null);
-
-        dialogBuilder.setView(popupView);
-        dialog = dialogBuilder.create();
-        dialog.show();
-
-        // get the popup elements
-        popupCancelBtn = (Button) popupView.findViewById(R.id.cancelButton);
-        popupNextBtn = (Button) popupView.findViewById(R.id.nextButton);
-
-        popupCancelBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialog.dismiss();
-            }
-        });
-
-        popupNextBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialog.dismiss();
-            }
-        });
     }
 
 
