@@ -4,23 +4,27 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.fragment.app.Fragment;
 
 import com.example.crepe.R;
 import com.example.crepe.database.Collector;
 import com.example.crepe.database.DatabaseManager;
+import com.example.crepe.ui.dialog.CollectorCardConstraintLayoutBuilder;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class HomeFragment extends Fragment {
 
     private DatabaseManager dbManager;
-    private ConstraintLayout fragmentInnerConstraintLayout;
     private List<Collector> collectorList;
 
     @Nullable
@@ -38,15 +42,35 @@ public class HomeFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        fragmentInnerConstraintLayout = getView().findViewById(R.id.fragment_home_inner_constraint_layout);
-
-        View collector = getLayoutInflater().inflate(R.layout.collector_card, null);
-        Toast.makeText(this.getActivity(), fragmentInnerConstraintLayout.toString(), Toast.LENGTH_LONG).show();
-        fragmentInnerConstraintLayout.addView(collector);
-
+        initCollectorList();
 
     }
+
+    private void initCollectorList() {
+        CollectorCardConstraintLayoutBuilder builder = new CollectorCardConstraintLayoutBuilder(getActivity());
+        LinearLayout fragmentInnerLinearLayout = getView().findViewById(R.id.fragment_home_inner_linear_layout);
+
+        List<CollectorCard> cards = new ArrayList<>();
+        //TODO: get them from the DB
+
+        CollectorCard collectorCard1 = new CollectorCard("test1", "Test 1", 1, 0);
+        CollectorCard collectorCard2 = new CollectorCard("test2", "Test 2", 1, 0);
+        cards.add(collectorCard1);
+        cards.add(collectorCard2);
+
+        for (CollectorCard collectorCard : cards) {
+            ConstraintLayout collectorCardView = builder.build(collectorCard, fragmentInnerLinearLayout);
+            collectorCardView.setId(View.generateViewId());
+
+            // Toast.makeText(this.getActivity(), fragmentInnerConstraintLayout.toString(), Toast.LENGTH_LONG).show();
+            fragmentInnerLinearLayout.addView(collectorCardView);
+            // TODO: add proper constraints programmatically (https://developer.android.com/reference/androidx/constraintlayout/widget/ConstraintSet)
+
+        }
+
+    }
+
+
 
 
 }
