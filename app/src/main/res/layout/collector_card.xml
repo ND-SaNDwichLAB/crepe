@@ -43,14 +43,16 @@
                 android:layout_height="60dp"
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="20dp"
-                android:adjustViewBounds="false"
                 android:soundEffectsEnabled="false"
-                android:src="@drawable/ic_icons8_uber_app"
+                android:src="@mipmap/ic_uber_icon"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:shapeAppearanceOverlay="@style/Circular"
+                app:shapeAppearanceOverlay="@style/circular"
+                android:scaleType="centerCrop"
+                android:adjustViewBounds="true"
                 app:strokeColor="@color/ND_gold"
-                app:strokeWidth="2dp" />
+                app:strokeWidth="2dp"
+                />
 
             <TextView
                 android:id="@+id/collectorDataText"

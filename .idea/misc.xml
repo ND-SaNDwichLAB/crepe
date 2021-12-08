@@ -10,9 +10,12 @@
         <entry key="../crepe/app/src/main/res/layout/content_main.xml" value="0.25" />
         <entry key="../crepe/app/src/main/res/layout/fragment_first.xml" value="0.16770833333333332" />
         <entry key="../crepe/app/src/main/res/layout/fragment_second.xml" value="0.16770833333333332" />
+        <entry key="app/src/main/res/drawable/ic_icons8_uber_app.xml" value="0.24722222222222223" />
+        <entry key="app/src/main/res/drawable/ic_link.xml" value="0.24722222222222223" />
+        <entry key="app/src/main/res/drawable/uber_icon.xml" value="0.24722222222222223" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.23645833333333333" />
         <entry key="app/src/main/res/layout/add_config.xml" value="0.21197916666666666" />
-        <entry key="app/src/main/res/layout/collector_card.xml" value="0.33096975020963165" />
+        <entry key="app/src/main/res/layout/collector_card.xml" value="0.4977134766151229" />
         <entry key="app/src/main/res/layout/content_main.xml" value="0.1" />
         <entry key="app/src/main/res/layout/fragment_data.xml" value="0.21614583333333334" />
         <entry key="app/src/main/res/layout/fragment_first.xml" value="0.23645833333333333" />
@@ -30,5 +33,12 @@
   </component>
   <component name="ProjectType">
     <option name="id" value="Android" />
+  </component>
+  <component name="VisualizationToolProject">
+    <option name="state">
+      <ProjectState>
+        <option name="scale" value="0.4977134766151229" />
+      </ProjectState>
+    </option>
   </component>
 </project>
