@@ -3,6 +3,8 @@ package com.example.crepe;
 import android.app.Dialog;
 import android.os.Bundle;
 
+import com.example.crepe.database.Collector;
+import com.example.crepe.database.DatabaseManager;
 import com.example.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilder;
 import com.example.crepe.ui.dialog.CreateCollectorFromURLDialogBuilder;
 import com.example.crepe.ui.main_activity.DataFragment;
@@ -29,6 +31,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Toast;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -47,13 +52,35 @@ public class MainActivity extends AppCompatActivity {
     private Animation left_appear_anim;
     private Animation left_disappear_anim;
 
+    // clicked toggle variable for fab icons
     private Boolean clicked = false;
+
+    // TODO: modify this for real code, below is just for testing
+    private Collector testCollector;
+    private Collector testCollector2;
+    private DatabaseManager dbManager;
 
     private CreateCollectorFromURLDialogBuilder createCollectorFromURLDialogBuilder;
     private CreateCollectorFromConfigDialogBuilder createCollectorFromConfigDialogBuilder;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // TODO: modify this for real code, below is just for testing
+        // TODO: also move this to a separate test data handler class
+        dbManager = new DatabaseManager(this);
+        try {
+            testCollector = new Collector("1", "1", "uber", "some collector name", 100, 100, "what", "https");
+            testCollector2 = new Collector("2", "1", "doordash", "some collector name", 100, 100, "what", "https");
+            Boolean addResult = dbManager.addOne(testCollector);
+            Boolean addResult2 = dbManager.addOne(testCollector2);
+            List<Collector> allCollectors = dbManager.getAllCollectors();
+//            Toast.makeText(MainActivity.this, "All Collectors: " + allCollectors.size(), Toast.LENGTH_LONG).show();
+        }
+        catch (Exception e) {
+            Toast.makeText(MainActivity.this, "Error Creating Collector", Toast.LENGTH_SHORT).show();
+        }
 
 
         // load animations
