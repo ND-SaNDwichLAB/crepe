@@ -36,6 +36,8 @@ public class CreateCollectorFromConfigDialogBuilder {
             @Override
             public void onClick(View view) {
                 dialog.dismiss();
+                CreateCollectorFromConfigDialogBuilderSpecifyData newPopup = new CreateCollectorFromConfigDialogBuilderSpecifyData(c);
+                newPopup.build();
             }
         });
         return dialog;
