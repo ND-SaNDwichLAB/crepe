@@ -22,8 +22,8 @@ public class CreateCollectorFromURLDialogBuilder {
     public Dialog build(){
         final View popupView = LayoutInflater.from(c).inflate(R.layout.dialog_add_collector_from_url, null);
         dialogBuilder.setView(popupView);
-        Button popupCancelBtn = (Button) popupView.findViewById(R.id.cancelButton);
-        Button popupNextBtn = (Button) popupView.findViewById(R.id.nextButton);
+        Button popupCancelBtn = (Button) popupView.findViewById(R.id.AddFromUrlCancelButton);
+        Button popupNextBtn = (Button) popupView.findViewById(R.id.AddFromUrlAddButton);
         Dialog dialog = dialogBuilder.create();
         popupCancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override

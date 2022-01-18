@@ -1,24 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/popup_box"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
     <EditText
-        android:id="@+id/popup_URL_field"
+        android:id="@+id/popup_graph_query_field"
         android:layout_width="match_parent"
-        android:layout_height="54dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="24dp"
         android:background="@drawable/custom_input"
-        android:hint="https://"
+        android:hint="Price Label from NewTaskWindow\nDeparture from NewTaskWindow\nDestination from NewTaskWindow\nDuration from NewTaskWindow"
         android:lineSpacingExtra="5dp"
-        android:paddingStart="12dp"
+        android:paddingStart="24dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
         android:singleLine="true"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/popup_title" />
 
@@ -29,14 +30,14 @@
         android:layout_marginStart="24dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="24dp"
-        android:text="ADD NEW COLLECTOR"
+        android:text="SPECIFY DATA TO COLLECT"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/AddFromUrlAddButton"
+        android:id="@+id/AddConfigDataFieldCreateButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -48,30 +49,30 @@
         android:textColorHint="@color/ND_gold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/comment_on_URL" />
+        app:layout_constraintTop_toBottomOf="@+id/comment_on_graph_query" />
 
     <Button
-        android:id="@+id/AddFromUrlCancelButton"
+        android:id="@+id/AddConfigDataFieldBackButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:background="@android:color/transparent"
-        android:text="Cancel"
+        android:text="BACK"
         android:textColor="@color/ND_blue"
         android:textColorHint="@color/ND_blue"
-        app:layout_constraintEnd_toStartOf="@+id/AddFromUrlAddButton"
-        app:layout_constraintTop_toBottomOf="@+id/comment_on_URL" />
+        app:layout_constraintEnd_toStartOf="@+id/AddConfigDataFieldCreateButton"
+        app:layout_constraintTop_toBottomOf="@+id/comment_on_graph_query" />
 
     <TextView
-        android:id="@+id/comment_on_URL"
+        android:id="@+id/comment_on_graph_query"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="36dp"
         android:layout_marginTop="8dp"
-        android:text="The URL you received from your researcher"
+        android:text="The data field to collect from the app"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/popup_URL_field" />
+        app:layout_constraintTop_toBottomOf="@+id/popup_graph_query_field" />
 
     <TextView
         android:id="@+id/Hint_enter"
@@ -82,8 +83,18 @@
         android:background="@color/white"
         android:paddingStart="2dp"
         android:paddingEnd="2dp"
-        android:text="Enter URL"
+        android:text="Data Field"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/popup_title" />
 
+    <ImageView
+        android:id="@+id/close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:align_parentRight="true"
+        android:src="@drawable/ic_baseline_close_24"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
