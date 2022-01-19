@@ -40,6 +40,10 @@ public class Collector {
                 '}';
     }
 
+    public String idToString() {
+        return "Collector with id: " + collectorID;
+    }
+
     public String getCollectorID() {
         return collectorID;
     }

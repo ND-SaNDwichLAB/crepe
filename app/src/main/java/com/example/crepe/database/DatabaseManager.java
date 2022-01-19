@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 
@@ -23,6 +24,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     public static final String COLUMN_MODE = "mode";
     public static final String COLUMN_TARGET_SERVER_IP = "targetServerIP";
 
+    // constructor
     public DatabaseManager(@Nullable Context context) {
         super(context, "crepe.db", null, 1);
     }
@@ -30,7 +32,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
     // will be called the first time a database is accessed.
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
-        // generate a new table
+        // generate new table
+        // a table for collectors
         String createTableStatement = "CREATE TABLE " + COLLECTOR_TABLE + " (" + COLUMN_COLLECTOR_ID + " VARCHAR PRIMARY KEY, " +
                 "            " + COLUMN_CREATOR_USER_ID + " VARCHAR, " +
                 "            " + COLUMN_APP_NAME + " VARCHAR, " +
@@ -71,6 +74,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         }
     }
 
+    // a method to get all collectors in the database
     public List<Collector> getAllCollectors() {
         List<Collector> collectorList = new ArrayList<>();
 
@@ -100,6 +104,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
         else {
             // do nothing since it's empty
+            Log.i("", "The collector list is empty.");
         }
         cursor.close();
         db.close();

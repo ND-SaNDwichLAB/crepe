@@ -51,7 +51,7 @@ public class HomeFragment extends Fragment {
         LinearLayout fragmentInnerLinearLayout = getView().findViewById(R.id.fragment_home_inner_linear_layout);
 
         List<CollectorCard> cards = new ArrayList<>();
-        //TODO: get them from the DB
+        //TODO: First get them from the DB
 
         CollectorCard collectorCard1 = new CollectorCard("test1", "Test 1", 1, 0);
         CollectorCard collectorCard2 = new CollectorCard("test2", "Test 2", 1, 0);
