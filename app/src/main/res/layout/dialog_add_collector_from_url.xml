@@ -7,7 +7,7 @@
     android:layout_height="wrap_content">
 
     <EditText
-        android:id="@+id/popup_URL_field"
+        android:id="@+id/urlEditText"
         android:layout_width="match_parent"
         android:layout_height="54dp"
         android:layout_marginStart="24dp"
@@ -20,10 +20,10 @@
         android:singleLine="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/popup_title" />
+        app:layout_constraintTop_toBottomOf="@+id/urlPopupTitle" />
 
     <TextView
-        android:id="@+id/popup_title"
+        android:id="@+id/urlPopupTitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
@@ -36,22 +36,22 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/AddFromUrlAddButton"
+        android:id="@+id/addFromUrlAddButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="24dp"
         android:background="@android:color/transparent"
         android:text="ADD"
         android:textColor="@color/ND_gold"
         android:textColorHint="@color/ND_gold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/comment_on_URL" />
+        app:layout_constraintTop_toBottomOf="@+id/commentOnUrl" />
 
     <Button
-        android:id="@+id/AddFromUrlCancelButton"
+        android:id="@+id/addFromUrlCancelButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -60,21 +60,21 @@
         android:text="Cancel"
         android:textColor="@color/ND_blue"
         android:textColorHint="@color/ND_blue"
-        app:layout_constraintEnd_toStartOf="@+id/AddFromUrlAddButton"
-        app:layout_constraintTop_toBottomOf="@+id/comment_on_URL" />
+        app:layout_constraintEnd_toStartOf="@+id/addFromUrlAddButton"
+        app:layout_constraintTop_toBottomOf="@+id/commentOnUrl" />
 
     <TextView
-        android:id="@+id/comment_on_URL"
+        android:id="@+id/commentOnUrl"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="36dp"
         android:layout_marginTop="8dp"
         android:text="The URL you received from your researcher"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/popup_URL_field" />
+        app:layout_constraintTop_toBottomOf="@+id/urlEditText" />
 
     <TextView
-        android:id="@+id/Hint_enter"
+        android:id="@+id/hintEnterUrl"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="36dp"
@@ -84,6 +84,6 @@
         android:paddingEnd="2dp"
         android:text="Enter URL"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/popup_title" />
+        app:layout_constraintTop_toBottomOf="@+id/urlPopupTitle" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
