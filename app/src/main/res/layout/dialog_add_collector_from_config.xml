@@ -8,11 +8,11 @@
 
 
     <TextView
-        android:id="@+id/addTitle"
+        android:id="@+id/configPopupTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="24dp"
         android:text="ADD A NEW COLLECTOR"
         android:textSize="20sp"
         app:layout_constraintStart_toStartOf="parent"
@@ -38,20 +38,20 @@
         android:lineSpacingExtra="5dp"
         android:paddingStart="12dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/appText" />
+        app:layout_constraintTop_toBottomOf="@+id/appHintText" />
 
     <Button
         android:id="@+id/addCollectorFromConfigDialogCancelButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="16dp"
+        android:background="@android:color/transparent"
         android:text="CANCEL"
         android:textColor="@color/ND_blue"
         android:textColorHint="@color/ND_blue"
-        android:background="@android:color/transparent"
         app:layout_constraintEnd_toStartOf="@+id/addCollectorFromConfigDialogNextButton"
-        app:layout_constraintTop_toBottomOf="@+id/locationText" />
+        app:layout_constraintTop_toBottomOf="@+id/locationHintText" />
 
     <Button
         android:id="@+id/addCollectorFromConfigDialogNextButton"
@@ -59,17 +59,17 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="24dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="24dp"
+        android:background="@android:color/transparent"
         android:text="NEXT"
         android:textColor="@color/ND_gold"
         android:textColorHint="@color/ND_gold"
-        android:background="@android:color/transparent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/locationText" />
+        app:layout_constraintTop_toBottomOf="@+id/locationHintText" />
 
     <TextView
-        android:id="@+id/appText"
+        android:id="@+id/appHintText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
@@ -79,7 +79,7 @@
         app:layout_constraintTop_toBottomOf="@+id/appSpinner" />
 
     <TextView
-        android:id="@+id/locationText"
+        android:id="@+id/locationHintText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
@@ -96,7 +96,7 @@
         android:layout_marginTop="24dp"
         android:text="startDate"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/addTitle" />
+        app:layout_constraintTop_toBottomOf="@+id/configPopupTitle" />
 
     <TextView
         android:id="@+id/endTextView"
@@ -106,7 +106,7 @@
         android:layout_marginTop="24dp"
         android:text="endDate"
         app:layout_constraintStart_toEndOf="@+id/startImageButton"
-        app:layout_constraintTop_toBottomOf="@+id/addTitle" />
+        app:layout_constraintTop_toBottomOf="@+id/configPopupTitle" />
 
     <ImageButton
         android:id="@+id/startImageButton"
@@ -116,7 +116,7 @@
         android:layout_marginTop="16dp"
         android:clickable="true"
         app:layout_constraintStart_toEndOf="@+id/startTextView"
-        app:layout_constraintTop_toBottomOf="@+id/addTitle"
+        app:layout_constraintTop_toBottomOf="@+id/configPopupTitle"
         app:srcCompat="@android:drawable/ic_menu_month" />
 
     <ImageButton
@@ -127,6 +127,6 @@
         android:layout_marginTop="16dp"
         android:clickable="true"
         app:layout_constraintStart_toEndOf="@+id/endTextView"
-        app:layout_constraintTop_toBottomOf="@+id/addTitle"
+        app:layout_constraintTop_toBottomOf="@+id/configPopupTitle"
         app:srcCompat="@android:drawable/ic_menu_month" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -10,36 +10,36 @@ import android.widget.ImageButton;
 
 import com.example.crepe.R;
 
-public class CreateCollectorFromConfigDialogBuilderGraphQuery {
+public class CreateCollectorFromConfigDialogBuilderDescription {
     private Context c;
     private AlertDialog.Builder dialogBuilder;
-    public CreateCollectorFromConfigDialogBuilderGraphQuery(Context c) {
+
+    public CreateCollectorFromConfigDialogBuilderDescription(Context c){
         this.c = c;
         this.dialogBuilder = new AlertDialog.Builder(c);
     }
 
-    public Dialog build(){
-        final View popupView = LayoutInflater.from(c).inflate(R.layout.dialog_add_collector_from_config_graph_query,null);
+    public Dialog build() {
+        final View popupView = LayoutInflater.from(c).inflate(R.layout.dialog_add_collector_from_config_description, null);
         dialogBuilder.setView(popupView);
-        Button popupNxtBtn = (Button) popupView.findViewById(R.id.graphQueryNextButton);
-        Button popupBckBtn = (Button) popupView.findViewById(R.id.graphQueryBackButton);
-        ImageButton closeImg = (ImageButton) popupView.findViewById(R.id.closeGraphQueryPopupImageButton);
+        Button popupCrtBtn = (Button) popupView.findViewById(R.id.descriptionCreateButton);
+        Button popupBckBtn = (Button) popupView.findViewById(R.id.descriptionBackButton);
+        ImageButton closeImg = (ImageButton) popupView.findViewById(R.id.closeDescriptionImageButton);
+
         Dialog dialog = dialogBuilder.create();
 
         popupBckBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 dialog.dismiss();
+                CreateCollectorFromConfigDialogBuilderGraphQuery prevPopup = new CreateCollectorFromConfigDialogBuilderGraphQuery(c);
+                prevPopup.build();
             }
         });
 
-        popupNxtBtn.setOnClickListener(new View.OnClickListener() {
+        popupCrtBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                dialog.dismiss();
-                CreateCollectorFromConfigDialogBuilderDataField nextPopup = new CreateCollectorFromConfigDialogBuilderDataField(c);
-                Dialog newDialog = nextPopup.build();
-                newDialog.show();
             }
         });
 
@@ -51,7 +51,6 @@ public class CreateCollectorFromConfigDialogBuilderGraphQuery {
         });
 
         return dialog;
+
     }
-
-
 }

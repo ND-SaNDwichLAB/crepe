@@ -6,7 +6,7 @@
     android:layout_height="wrap_content">
 
     <EditText
-        android:id="@+id/popup_graph_query_field"
+        android:id="@+id/graphQueryEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
@@ -24,67 +24,43 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/openAppButton" />
 
-    <TextView
-        android:id="@+id/popup_title"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="24dp"
-        android:text="SPECIFY DATA TO COLLECT"
-        android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <Button
         android:id="@+id/graphQueryBackButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="16dp"
         android:background="@android:color/transparent"
         android:text="BACK"
         android:textColor="@color/ND_blue"
         android:textColorHint="@color/ND_blue"
         app:layout_constraintEnd_toStartOf="@+id/graphQueryNextButton"
-        app:layout_constraintTop_toBottomOf="@+id/comment_on_graph_query" />
+        app:layout_constraintTop_toBottomOf="@+id/commentOnGraphQuery" />
 
     <Button
         android:id="@+id/graphQueryNextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="24dp"
         android:background="@android:color/transparent"
         android:text="NEXT"
         android:textColor="@color/ND_gold"
         android:textColorHint="@color/ND_gold"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/comment_on_graph_query" />
+        app:layout_constraintTop_toBottomOf="@+id/commentOnGraphQuery" />
 
     <TextView
-        android:id="@+id/comment_on_graph_query"
+        android:id="@+id/commentOnGraphQuery"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="36dp"
         android:layout_marginTop="8dp"
         android:text="Alternatively, use a graphy query to specify "
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/popup_graph_query_field" />
-
-    <TextView
-        android:id="@+id/Hint_enter"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="36dp"
-        android:layout_marginTop="8dp"
-        android:background="@color/white"
-        android:paddingStart="2dp"
-        android:paddingEnd="2dp"
-        android:text="Graph Query"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/openAppButton" />
+        app:layout_constraintTop_toBottomOf="@+id/graphQueryEditText" />
 
     <Button
         android:id="@+id/openAppButton"
@@ -96,25 +72,52 @@
         android:text="Open Uber App"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/comment_on_openAppButton" />
+        app:layout_constraintTop_toBottomOf="@+id/commentOnOpenAppButton" />
 
     <TextView
-        android:id="@+id/comment_on_openAppButton"
+        android:id="@+id/commentOnOpenAppButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginTop="16dp"
         android:text="Demonstrate in the Uber APP "
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/popup_title" />
+        app:layout_constraintTop_toBottomOf="@+id/graphQueryPopupTitle" />
 
-    <ImageView
-        android:id="@+id/closePopupButton"
+    <TextView
+        android:id="@+id/graphQueryPopupTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="24dp"
+        android:text="SPECIFY DATA TO COLLECT"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/hintEnterGraphQuery"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:src="@drawable/ic_baseline_close_24"
+        android:layout_marginStart="36dp"
+        android:layout_marginTop="8dp"
+        android:background="@color/white"
+        android:paddingStart="2dp"
+        android:paddingEnd="2dp"
+        android:text="Graph Query"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/openAppButton" />
+
+    <ImageButton
+        android:id="@+id/closeGraphQueryPopupImageButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="14dp"
+        android:layout_marginEnd="14dp"
+        android:background="@null"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_baseline_close_24" />
 </androidx.constraintlayout.widget.ConstraintLayout>
