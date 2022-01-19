@@ -23,7 +23,7 @@ public class CreateCollectorFromConfigDialogBuilderGraphQuery {
     public Dialog build(){
         final View popupView = LayoutInflater.from(c).inflate(R.layout.dialog_add_collector_from_config_graph_query,null);
         dialogBuilder.setView(popupView);
-        Button popupNxtBtn = (Button) popupView.findViewById(R.id.AddFromUrlAddButton);
+        Button popupNxtBtn = (Button) popupView.findViewById(R.id.graphQueryNextButton);
         Button popupBckBtn = (Button) popupView.findViewById(R.id.graphQueryBackButton);
         Dialog dialog = dialogBuilder.create();
 

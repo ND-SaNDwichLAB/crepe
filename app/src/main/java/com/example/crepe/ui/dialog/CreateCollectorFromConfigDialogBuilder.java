@@ -37,7 +37,8 @@ public class CreateCollectorFromConfigDialogBuilder {
             public void onClick(View view) {
                 dialog.dismiss();
                 CreateCollectorFromConfigDialogBuilderGraphQuery newPopup = new CreateCollectorFromConfigDialogBuilderGraphQuery(c);
-                newPopup.build();
+                Dialog newDialog = newPopup.build();
+                newDialog.show();
             }
         });
         return dialog;
