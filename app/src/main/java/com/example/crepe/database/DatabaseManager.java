@@ -52,12 +52,12 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     }
 
-    public Boolean addOne(Collector collector) {
+    public Boolean addOneCollector(Collector collector) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
         cv.put(COLUMN_COLLECTOR_ID, collector.getCollectorID());
         cv.put(COLUMN_CREATOR_USER_ID, collector.getCreatorUserID());
-        cv.put(COLUMN_NAME, collector.getName());
+        cv.put(COLUMN_NAME, collector.getDescription());
         cv.put(COLUMN_APP_NAME, collector.getAppName());
         cv.put(COLUMN_MODE, collector.getMode());
         cv.put(COLUMN_TIME_CREATED, collector.getTimeCreated());
@@ -66,12 +66,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
         long insert = db.insert(COLLECTOR_TABLE, null, cv);
 
-        if (insert == -1) {
-            return false;
-        }
-        else {
-            return true;
-        }
+        return insert != -1;
     }
 
     // a method to get all collectors in the database

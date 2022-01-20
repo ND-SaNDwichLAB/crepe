@@ -5,19 +5,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.fragment.app.Fragment;
 
 import com.example.crepe.R;
 import com.example.crepe.database.Collector;
 import com.example.crepe.database.DatabaseManager;
-import com.example.crepe.ui.dialog.CollectorCardConstraintLayoutBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,12 +45,9 @@ public class HomeFragment extends Fragment {
     private void initCollectorList() {
         CollectorCardConstraintLayoutBuilder builder = new CollectorCardConstraintLayoutBuilder(getActivity());
         LinearLayout fragmentInnerLinearLayout = getView().findViewById(R.id.fragment_home_inner_linear_layout);
-
-        List<CollectorCard> cards = new ArrayList<>();
-
         for (Collector collector : collectorList) {
-            CollectorCard card = new CollectorCard(collector.getCollectorID(), collector.getAppName(), collector.getTimeCreated(), collector.getTimeLastEdited());
-            ConstraintLayout collectorCardView = builder.build(card, fragmentInnerLinearLayout);
+
+            ConstraintLayout collectorCardView = builder.build(collector, fragmentInnerLinearLayout);
             collectorCardView.setId(View.generateViewId());
 
             // Toast.makeText(this.getActivity(), fragmentInnerConstraintLayout.toString(), Toast.LENGTH_LONG).show();
