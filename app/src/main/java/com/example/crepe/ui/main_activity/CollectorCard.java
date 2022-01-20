@@ -60,7 +60,7 @@ public class CollectorCard {
 
     public Boolean inflateCollectorCard (Context context) {
 
-        // TODO: inflate a new collector card with the parameters
+        // TODO: 1. inflate a new collector card with the parameters
 
 
         return true;

@@ -31,7 +31,6 @@ public class HomeFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        // TODO: get all elements from database, use them to create collectorCard
         dbManager = new DatabaseManager(this.getActivity());
         collectorList = dbManager.getAllCollectors();
         Toast.makeText(this.getActivity(), "Collector number: " + collectorList.size(), Toast.LENGTH_LONG).show();
@@ -51,22 +50,16 @@ public class HomeFragment extends Fragment {
         LinearLayout fragmentInnerLinearLayout = getView().findViewById(R.id.fragment_home_inner_linear_layout);
 
         List<CollectorCard> cards = new ArrayList<>();
-        //TODO: First get them from the DB
 
-        CollectorCard collectorCard1 = new CollectorCard("test1", "Test 1", 1, 0);
-        CollectorCard collectorCard2 = new CollectorCard("test2", "Test 2", 1, 0);
-        cards.add(collectorCard1);
-        cards.add(collectorCard2);
-
-        for (CollectorCard collectorCard : cards) {
-            ConstraintLayout collectorCardView = builder.build(collectorCard, fragmentInnerLinearLayout);
+        for (Collector collector : collectorList) {
+            CollectorCard card = new CollectorCard(collector.getCollectorID(), collector.getAppName(), collector.getTimeCreated(), collector.getTimeLastEdited());
+            ConstraintLayout collectorCardView = builder.build(card, fragmentInnerLinearLayout);
             collectorCardView.setId(View.generateViewId());
 
             // Toast.makeText(this.getActivity(), fragmentInnerConstraintLayout.toString(), Toast.LENGTH_LONG).show();
             fragmentInnerLinearLayout.addView(collectorCardView);
-            // TODO: add proper constraints programmatically (https://developer.android.com/reference/androidx/constraintlayout/widget/ConstraintSet)
-
         }
+
 
     }
 
