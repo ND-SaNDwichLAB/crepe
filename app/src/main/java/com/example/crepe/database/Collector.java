@@ -2,7 +2,7 @@ package com.example.crepe.database;
 
 public class Collector {
 
-    // TODO: change log - changed String name to description
+    // TODO: database schema - changed String name to description
 
     private String collectorID;
     private String creatorUserID;

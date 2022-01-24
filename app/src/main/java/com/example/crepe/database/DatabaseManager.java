@@ -19,10 +19,26 @@ public class DatabaseManager extends SQLiteOpenHelper {
     public static final String COLUMN_CREATOR_USER_ID = "creatorUserID";
     public static final String COLUMN_APP_NAME = "appName";
     public static final String COLUMN_NAME = "name";
-    public static final String COLUMN_TIME_CREATED = "timeCreated";
-    public static final String COLUMN_TIME_LAST_EDITED = "timeLastEdited";
+    public static final String COLUMN_COLLECTOR_TIME_CREATED = "collectorTimeCreated";
+    public static final String COLUMN_COLLECTOR_TIME_LAST_EDITED = "collectorTimeLastEdited";
     public static final String COLUMN_MODE = "mode";
     public static final String COLUMN_TARGET_SERVER_IP = "targetServerIP";
+    public static final String USER_TABLE = "user";
+    public static final String COLUMN_USER_ID = "userId";
+    public static final String COLUMN_USER_NAME = "userName";
+    public static final String DATA_TABLE = "data";
+    public static final String COLUMN_DATA_ID = "dataId";
+    public static final String COLUMN_TIMESTAMP = "timestamp";
+    public static final String COLUMN_DATA_CONTENT = "dataContent";
+    private static final String COLUMN_USER_TIME_CREATED = "userTimeCreated";
+    private static final String COLUMN_USER_LAST_TIME_EDITED = "userTimeLastEdited";
+    private static final String DATAFIELD_TABLE = "datafield";
+    private static final String COLUMN_DATAFIELD_ID = "datafieldId";
+    private static final String COLUMN_GRAPH_QUERY = "graphQuery";
+    private static final String COLUMN_DATAFIELD_NAME = "datafieldName";
+    private static final String COLUMN_DATAFIELD_TIME_CREATED = "datafieldTimeCreated";
+    private static final String COLUMN_DATAFIELD_TIME_LAST_EDITED = "datafieldTimeLastEdited";
+    private static final String COLUMN_DATAFIELD_IS_DEMONSTRATED = "datafieldIsDemonstrated";
 
     // constructor
     public DatabaseManager(@Nullable Context context) {
@@ -32,18 +48,44 @@ public class DatabaseManager extends SQLiteOpenHelper {
     // will be called the first time a database is accessed.
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
-        // generate new table
+        // generate new tables
         // a table for collectors
-        String createTableStatement = "CREATE TABLE " + COLLECTOR_TABLE + " (" + COLUMN_COLLECTOR_ID + " VARCHAR PRIMARY KEY, " +
+        String createCollectorTableStatement = "CREATE TABLE " + COLLECTOR_TABLE + " (" + COLUMN_COLLECTOR_ID + " VARCHAR PRIMARY KEY, " +
                 "            " + COLUMN_CREATOR_USER_ID + " VARCHAR, " +
                 "            " + COLUMN_APP_NAME + " VARCHAR, " +
                 "            " + COLUMN_NAME + " VARCHAR, " +
-                "            " + COLUMN_TIME_CREATED + " BIGINT NOT NULL, " +
-                "            " + COLUMN_TIME_LAST_EDITED + " BIGINT, " +
+                "            " + COLUMN_COLLECTOR_TIME_CREATED + " BIGINT NOT NULL, " +
+                "            " + COLUMN_COLLECTOR_TIME_LAST_EDITED + " BIGINT, " +
                 "            " + COLUMN_MODE + " VARCHAR, " +
                 "            " + COLUMN_TARGET_SERVER_IP + " VARCHAR)";
 
-        sqLiteDatabase.execSQL(createTableStatement);
+        sqLiteDatabase.execSQL(createCollectorTableStatement);
+
+        String createUserTableStatement = "CREATE TABLE " + USER_TABLE + " (" + COLUMN_USER_ID + " VARCHAR PRIMARY KEY, " +
+                "            " + COLUMN_USER_NAME + " VARCHAR, " +
+                "            " + COLUMN_USER_TIME_CREATED + " BIGINT, " +
+                "            " + COLUMN_USER_LAST_TIME_EDITED + " BIGINT)";
+
+        sqLiteDatabase.execSQL(createUserTableStatement);
+
+        String createDataTableStatement = "CREATE TABLE " + DATA_TABLE + " (" + COLUMN_DATA_ID + " VARCHAR PRIMARY KEY, " +
+                "            " + COLUMN_TIMESTAMP + " BIGINT, " + 
+                "            " + COLUMN_DATA_CONTENT + "VARCHAR, " +
+                "            " + "FOREIGN KEY(" + COLUMN_DATAFIELD_ID + ") REFERENCES " + DATAFIELD_TABLE + "(" + COLUMN_DATAFIELD_ID + "), " +
+                "            " + "FOREIGN KEY(" + COLUMN_USER_ID + ") REFERENCES " + USER_TABLE + "(" + COLUMN_USER_ID + "))" ;
+
+        sqLiteDatabase.execSQL(createDataTableStatement);
+
+        String createDataFieldTableStatement = "CREATE TABLE " + DATAFIELD_TABLE + " (" + COLUMN_DATAFIELD_ID + " VARCHAR PRIMARY KEY, " +
+                "            " + COLUMN_GRAPH_QUERY + " VARCHAR, " +
+                "            " + COLUMN_DATAFIELD_NAME + " VARCHAR, " +
+                "            " + COLUMN_DATAFIELD_TIME_CREATED + " BIGINT, " +
+                "            " + COLUMN_DATAFIELD_TIME_LAST_EDITED + " BIGINT, " +
+                "            " + COLUMN_DATAFIELD_IS_DEMONSTRATED + " BOOLEAN, " +
+                "            " + "FOREIGN KEY(" + COLUMN_COLLECTOR_ID + ") REFERENCES " + COLLECTOR_TABLE + "(" + COLUMN_COLLECTOR_ID + ")) ";
+
+        sqLiteDatabase.execSQL(createDataFieldTableStatement);
+
     }
 
     // called if the database version number changes. prevents the app from crashing
@@ -60,8 +102,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
         cv.put(COLUMN_NAME, collector.getDescription());
         cv.put(COLUMN_APP_NAME, collector.getAppName());
         cv.put(COLUMN_MODE, collector.getMode());
-        cv.put(COLUMN_TIME_CREATED, collector.getTimeCreated());
-        cv.put(COLUMN_TIME_LAST_EDITED, collector.getTimeLastEdited());
+        cv.put(COLUMN_COLLECTOR_TIME_CREATED, collector.getTimeCreated());
+        cv.put(COLUMN_COLLECTOR_TIME_LAST_EDITED, collector.getTimeLastEdited());
         cv.put(COLUMN_TARGET_SERVER_IP, collector.getTargetServerIP());
 
         long insert = db.insert(COLLECTOR_TABLE, null, cv);
@@ -105,4 +147,102 @@ public class DatabaseManager extends SQLiteOpenHelper {
         db.close();
         return collectorList;
     }
+
+    public Boolean addOneUser(User user) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+
+        cv.put(COLUMN_USER_ID, user.getUserId());
+        cv.put(COLUMN_USER_NAME, user.getName());
+        cv.put(COLUMN_USER_TIME_CREATED, user.getTimeCreated());
+        cv.put(COLUMN_USER_LAST_TIME_EDITED, user.getTimeLastEdited());
+
+        long insert = db.insert(USER_TABLE, null, cv);
+
+        return insert != -1;
+    }
+
+    public List<User> getAllUsers() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        List<User> userList = new ArrayList<>();
+        String getAllUsersQuery = "SELECT * FROM " + USER_TABLE;
+
+        Cursor cursor = db.rawQuery(getAllUsersQuery, null);
+
+        if(cursor.moveToFirst()) {
+            do {
+                String userId = cursor.getString(0);
+                String userName = cursor.getString(1);
+                long userTimeCreated = cursor.getLong(2);
+                long userTimelastEdited = cursor.getLong(3);
+
+                User receivedUser = new User(userId, userName, userTimeCreated, userTimelastEdited);
+
+                userList.add(receivedUser);
+
+            } while(cursor.moveToNext());
+        } else {
+            Log.i("", "The user list is empty.");
+        }
+
+        cursor.close();
+        db.close();
+        return userList;
+    }
+
+    public Boolean addData(Data data) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+
+        cv.put(COLUMN_DATA_ID, data.getDataId());
+        cv.put(COLUMN_DATAFIELD_ID, data.getDataFieldId());
+        cv.put(COLUMN_USER_ID, data.getUserId());
+        cv.put(COLUMN_TIMESTAMP, data.getTimestamp());
+        cv.put(COLUMN_DATA_CONTENT, data.getDataContent());
+
+        long result = db.insert(DATA_TABLE, null, cv);
+
+        return result != -1;
+    }
+
+    public List<Data> getAllData() {
+        List<Data> dataList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        String getAllDataQuery = "SELECT * FROM " + DATA_TABLE;
+
+        Cursor cursor = db.rawQuery(getAllDataQuery, null);
+
+        if(cursor.moveToFirst()) {
+            do {
+
+                String dataId = cursor.getString(0);
+                String dataFieldId = cursor.getString(1);
+                String userId = cursor.getString(2);
+                Long timestamp = cursor.getLong(3);
+                String dataContent = cursor.getString(4);
+
+                Data receivedData = new Data(dataId, dataFieldId, userId, timestamp, dataContent);
+
+                dataList.add(receivedData);
+
+            } while (cursor.moveToNext());
+        } else {
+            Log.i("", "The data list is empty.");
+        }
+
+        db.close();
+        cursor.close();
+
+        return dataList;
+    }
+
+
+//    public Boolean addOneDataField(DataField dataField) {
+//        SQLiteDatabase db = this.getWritableDatabase();
+//        ContentValues cv = new ContentValues();
+//
+//        cv.put(COLUMN_DATAFIELD_ID, dataField.getDataFieldId());
+//        cv.put(COLUMN_COLLECTOR_ID, dataField.getCollectorId());
+//    }
+
 }
