@@ -16,6 +16,7 @@
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.23645833333333333" />
         <entry key="app/src/main/res/layout/add_config.xml" value="0.21197916666666666" />
         <entry key="app/src/main/res/layout/collector_card.xml" value="0.4977134766151229" />
+        <entry key="app/src/main/res/layout/collector_info.xml" value="0.29270833333333335" />
         <entry key="app/src/main/res/layout/content_main.xml" value="0.1" />
         <entry key="app/src/main/res/layout/dialog_add_collecotr_from_config_data_field.xml" value="0.21971830985915494" />
         <entry key="app/src/main/res/layout/dialog_add_collector_from_config.xml" value="0.21197916666666666" />
@@ -34,7 +35,7 @@
     </option>
   </component>
   <component name="ExternalStorageConfigurationManager" enabled="true" />
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_15" project-jdk-name="11" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_X" project-jdk-name="11" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">

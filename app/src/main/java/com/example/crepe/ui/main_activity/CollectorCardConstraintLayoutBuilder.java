@@ -16,13 +16,21 @@ public class CollectorCardConstraintLayoutBuilder {
     private TextView collectorDescriptionTextView;
     private TextView scheduleStartTextView;
     private TextView scheduleEndTextView;
+    private ConstraintLayout collectorLayout;
 
     public CollectorCardConstraintLayoutBuilder(Context c) {
         this.c = c;
     }
 
-    public ConstraintLayout build(Collector collector, ViewGroup rootView) {
-        ConstraintLayout collectorLayout = (ConstraintLayout) LayoutInflater.from(c).inflate(R.layout.collector_card, rootView, false);
+    public ConstraintLayout build(Collector collector, ViewGroup rootView, String layoutType) {
+
+        if(layoutType == "cardLayout") {
+            // if for home fragment, build a card layout
+            collectorLayout = (ConstraintLayout) LayoutInflater.from(c).inflate(R.layout.collector_card, rootView, false);
+        } else {
+            // if for data fragment, build a info layout without a card appearance
+            collectorLayout = (ConstraintLayout) LayoutInflater.from(c).inflate(R.layout.collector_info, rootView, false);
+        }
 
         // get the app name textfield from the card and populate it with app name
         appNameTextView = (TextView) collectorLayout.findViewById(R.id.collectorTitle);

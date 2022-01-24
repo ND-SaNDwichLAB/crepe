@@ -16,7 +16,6 @@ import com.example.crepe.R;
 import com.example.crepe.database.Collector;
 import com.example.crepe.database.DatabaseManager;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class HomeFragment extends Fragment {
@@ -47,7 +46,7 @@ public class HomeFragment extends Fragment {
         LinearLayout fragmentInnerLinearLayout = getView().findViewById(R.id.fragment_home_inner_linear_layout);
         for (Collector collector : collectorList) {
 
-            ConstraintLayout collectorCardView = builder.build(collector, fragmentInnerLinearLayout);
+            ConstraintLayout collectorCardView = builder.build(collector, fragmentInnerLinearLayout, "cardLayout");
             collectorCardView.setId(View.generateViewId());
 
             // Toast.makeText(this.getActivity(), fragmentInnerConstraintLayout.toString(), Toast.LENGTH_LONG).show();
