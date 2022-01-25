@@ -10,17 +10,18 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class DatabaseManager extends SQLiteOpenHelper {
 
     public static final String COLLECTOR_TABLE = "collector";
-    public static final String COLUMN_COLLECTOR_ID = "collectorID";
-    public static final String COLUMN_CREATOR_USER_ID = "creatorUserID";
+    public static final String COLUMN_COLLECTOR_ID = "collectorId";
+    public static final String COLUMN_CREATOR_USER_ID = "creatorUserId";
     public static final String COLUMN_APP_NAME = "appName";
     public static final String COLUMN_NAME = "name";
-    public static final String COLUMN_COLLECTOR_TIME_CREATED = "collectorTimeCreated";
-    public static final String COLUMN_COLLECTOR_TIME_LAST_EDITED = "collectorTimeLastEdited";
+    public static final String COLUMN_COLLECTOR_TIME_CREATED = "timeCreated";
+    public static final String COLUMN_COLLECTOR_TIME_LAST_EDITED = "timeLastEdited";
     public static final String COLUMN_MODE = "mode";
     public static final String COLUMN_TARGET_SERVER_IP = "targetServerIP";
     public static final String USER_TABLE = "user";
@@ -40,6 +41,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
     private static final String COLUMN_DATAFIELD_TIME_LAST_EDITED = "datafieldTimeLastEdited";
     private static final String COLUMN_DATAFIELD_IS_DEMONSTRATED = "datafieldIsDemonstrated";
 
+    private static final List<String> tableList = new ArrayList<>(Arrays.asList(USER_TABLE, COLLECTOR_TABLE, DATA_TABLE, DATAFIELD_TABLE));
+
     // constructor
     public DatabaseManager(@Nullable Context context) {
         super(context, "crepe.db", null, 1);
@@ -48,9 +51,10 @@ public class DatabaseManager extends SQLiteOpenHelper {
     // will be called the first time a database is accessed.
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
+
         // generate new tables
         // a table for collectors
-        String createCollectorTableStatement = "CREATE TABLE " + COLLECTOR_TABLE + " (" + COLUMN_COLLECTOR_ID + " VARCHAR PRIMARY KEY, " +
+        String createCollectorTableStatement = "CREATE TABLE IF NOT EXISTS " + COLLECTOR_TABLE + " (" + COLUMN_COLLECTOR_ID + " VARCHAR PRIMARY KEY, " +
                 "            " + COLUMN_CREATOR_USER_ID + " VARCHAR, " +
                 "            " + COLUMN_APP_NAME + " VARCHAR, " +
                 "            " + COLUMN_NAME + " VARCHAR, " +
@@ -61,22 +65,15 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
         sqLiteDatabase.execSQL(createCollectorTableStatement);
 
-        String createUserTableStatement = "CREATE TABLE " + USER_TABLE + " (" + COLUMN_USER_ID + " VARCHAR PRIMARY KEY, " +
+        String createUserTableStatement = "CREATE TABLE IF NOT EXISTS " + USER_TABLE + " (" + COLUMN_USER_ID + " VARCHAR PRIMARY KEY, " +
                 "            " + COLUMN_USER_NAME + " VARCHAR, " +
                 "            " + COLUMN_USER_TIME_CREATED + " BIGINT, " +
                 "            " + COLUMN_USER_LAST_TIME_EDITED + " BIGINT)";
 
         sqLiteDatabase.execSQL(createUserTableStatement);
 
-        String createDataTableStatement = "CREATE TABLE " + DATA_TABLE + " (" + COLUMN_DATA_ID + " VARCHAR PRIMARY KEY, " +
-                "            " + COLUMN_TIMESTAMP + " BIGINT, " + 
-                "            " + COLUMN_DATA_CONTENT + "VARCHAR, " +
-                "            " + "FOREIGN KEY(" + COLUMN_DATAFIELD_ID + ") REFERENCES " + DATAFIELD_TABLE + "(" + COLUMN_DATAFIELD_ID + "), " +
-                "            " + "FOREIGN KEY(" + COLUMN_USER_ID + ") REFERENCES " + USER_TABLE + "(" + COLUMN_USER_ID + "))" ;
-
-        sqLiteDatabase.execSQL(createDataTableStatement);
-
-        String createDataFieldTableStatement = "CREATE TABLE " + DATAFIELD_TABLE + " (" + COLUMN_DATAFIELD_ID + " VARCHAR PRIMARY KEY, " +
+        String createDataFieldTableStatement = "CREATE TABLE IF NOT EXISTS " + DATAFIELD_TABLE + " (" + COLUMN_DATAFIELD_ID + " VARCHAR PRIMARY KEY, " +
+                "            " + COLUMN_COLLECTOR_ID + " VARCHAR, " +
                 "            " + COLUMN_GRAPH_QUERY + " VARCHAR, " +
                 "            " + COLUMN_DATAFIELD_NAME + " VARCHAR, " +
                 "            " + COLUMN_DATAFIELD_TIME_CREATED + " BIGINT, " +
@@ -86,6 +83,16 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
         sqLiteDatabase.execSQL(createDataFieldTableStatement);
 
+        String createDataTableStatement = "CREATE TABLE IF NOT EXISTS " + DATA_TABLE + " (" + COLUMN_DATA_ID + " VARCHAR PRIMARY KEY, " +
+                "            " + COLUMN_DATAFIELD_ID + " VARCHAR, " +
+                "            " + COLUMN_USER_ID + " VARCHAR, " +
+                "            " + COLUMN_TIMESTAMP + " BIGINT, " +
+                "            " + COLUMN_DATA_CONTENT + "VARCHAR, " +
+                "            " + "FOREIGN KEY(" + COLUMN_DATAFIELD_ID + ") REFERENCES " + DATAFIELD_TABLE + "(" + COLUMN_DATAFIELD_ID + "), " +
+                "            " + "FOREIGN KEY(" + COLUMN_USER_ID + ") REFERENCES " + USER_TABLE + "(" + COLUMN_USER_ID + "))" ;
+
+        sqLiteDatabase.execSQL(createDataTableStatement);
+
     }
 
     // called if the database version number changes. prevents the app from crashing
@@ -94,17 +101,27 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     }
 
+    // clear all 4 tables in the database
+    public void clearDatabase() {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        for(String tableName: tableList) {
+            db.delete(tableName, null, null);
+        }
+        Log.i("", "Clear database success!");
+    }
+
     public Boolean addOneCollector(Collector collector) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
-        cv.put(COLUMN_COLLECTOR_ID, collector.getCollectorID());
-        cv.put(COLUMN_CREATOR_USER_ID, collector.getCreatorUserID());
+        cv.put(COLUMN_COLLECTOR_ID, collector.getCollectorId());
+        cv.put(COLUMN_CREATOR_USER_ID, collector.getCreatorUserId());
         cv.put(COLUMN_NAME, collector.getDescription());
         cv.put(COLUMN_APP_NAME, collector.getAppName());
         cv.put(COLUMN_MODE, collector.getMode());
         cv.put(COLUMN_COLLECTOR_TIME_CREATED, collector.getTimeCreated());
         cv.put(COLUMN_COLLECTOR_TIME_LAST_EDITED, collector.getTimeLastEdited());
-        cv.put(COLUMN_TARGET_SERVER_IP, collector.getTargetServerIP());
+        cv.put(COLUMN_TARGET_SERVER_IP, collector.getTargetServerIp());
 
         long insert = db.insert(COLLECTOR_TABLE, null, cv);
 
@@ -239,7 +256,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     public List<Data> getDataForCollector(Collector collector) {
         List<Data> dataList = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        String getAllDataQuery = "SELECT * FROM " + DATA_TABLE + " WHERE " + COLUMN_COLLECTOR_ID + " = \"" + collector.getCollectorID() + "\";";
+        String getAllDataQuery = "SELECT * FROM " + DATA_TABLE + " WHERE " + COLUMN_COLLECTOR_ID + " = \"" + collector.getCollectorId() + "\";";
 
         Cursor cursor = db.rawQuery(getAllDataQuery, null);
 
@@ -320,7 +337,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     public List<Datafield> getDatafieldForCollector(Collector collector) {
         List<Datafield> dataList = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        String getAllDataQuery = "SELECT * FROM " + DATAFIELD_TABLE + " WHERE " + COLUMN_COLLECTOR_ID + " = \"" + collector.getCollectorID() + "\";";
+        String getAllDataQuery = "SELECT * FROM " + DATAFIELD_TABLE + " WHERE " + COLUMN_COLLECTOR_ID + " = \"" + collector.getCollectorId() + "\";";
 
         Cursor cursor = db.rawQuery(getAllDataQuery, null);
 

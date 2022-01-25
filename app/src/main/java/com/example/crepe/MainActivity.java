@@ -72,12 +72,11 @@ public class MainActivity extends AppCompatActivity {
         // TODO: also move this to a separate test data handler class
         dbManager = new DatabaseManager(this);
         try {
+            dbManager.clearDatabase();
             testCollector = new Collector("1", "1", "Uber", "description for a Uber collector", 100, 100, "what", "https");
             testCollector2 = new Collector("2", "1", "Doordash", "description for a Doordash collector", 100, 100, "what", "https");
-            testCollector3 = new Collector("3", "1", "Lyft", "description for a Lyft collector", 100, 100, "what", "https");
             Boolean addResult = dbManager.addOneCollector(testCollector);
-            Boolean addResult2 = dbManager.addOneCollector(testCollector2);
-            Boolean addResult3 = dbManager.addOneCollector(testCollector3);
+//            Boolean addResult2 = dbManager.addOneCollector(testCollector2);
             List<Collector> allCollectors = dbManager.getAllCollectors();
 //            Toast.makeText(MainActivity.this, "All Collectors: " + allCollectors.size(), Toast.LENGTH_LONG).show();
         }
