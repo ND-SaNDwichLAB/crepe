@@ -2,7 +2,7 @@ package com.example.crepe.database;
 
 import java.util.Calendar;
 
-public class DataField {
+public class Datafield {
 
     private String dataFieldId;
     private String collectorId; // foreign key
@@ -14,7 +14,7 @@ public class DataField {
 
     private Boolean isDemonstrated;
 
-    public DataField(String dataFieldId, String collectorId, String graphQuery, String name, Boolean isDemonstrated) {
+    public Datafield(String dataFieldId, String collectorId, String graphQuery, String name, Boolean isDemonstrated) {
         this.dataFieldId = dataFieldId;
         this.collectorId = collectorId;
         this.graphQuery = graphQuery;
@@ -24,7 +24,7 @@ public class DataField {
         this.isDemonstrated = isDemonstrated;
     }
 
-    public DataField(String dataFieldId, String collectorId, String graphQuery, String name, long timeCreated, long timelastEdited, Boolean isDemonstrated) {
+    public Datafield(String dataFieldId, String collectorId, String graphQuery, String name, long timeCreated, long timelastEdited, Boolean isDemonstrated) {
         this.dataFieldId = dataFieldId;
         this.collectorId = collectorId;
         this.graphQuery = graphQuery;

@@ -236,13 +236,117 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return dataList;
     }
 
+    public List<Data> getDataForCollector(Collector collector) {
+        List<Data> dataList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        String getAllDataQuery = "SELECT * FROM " + DATA_TABLE + " WHERE " + COLUMN_COLLECTOR_ID + " = \"" + collector.getCollectorID() + "\";";
 
-//    public Boolean addOneDataField(DataField dataField) {
-//        SQLiteDatabase db = this.getWritableDatabase();
-//        ContentValues cv = new ContentValues();
-//
-//        cv.put(COLUMN_DATAFIELD_ID, dataField.getDataFieldId());
-//        cv.put(COLUMN_COLLECTOR_ID, dataField.getCollectorId());
-//    }
+        Cursor cursor = db.rawQuery(getAllDataQuery, null);
+
+        if(cursor.moveToFirst()) {
+            do {
+
+                String dataId = cursor.getString(0);
+                String dataFieldId = cursor.getString(1);
+                String userId = cursor.getString(2);
+                Long timestamp = cursor.getLong(3);
+                String dataContent = cursor.getString(4);
+
+                Data receivedData = new Data(dataId, dataFieldId, userId, timestamp, dataContent);
+
+                dataList.add(receivedData);
+
+            } while (cursor.moveToNext());
+        } else {
+            Log.i("", "Cannot find data for the specified collector ID. Try another collector instead?");
+        }
+
+        db.close();
+        cursor.close();
+
+        return dataList;
+    }
+
+
+    public Boolean addOneDataField(Datafield dataField) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+
+        cv.put(COLUMN_DATAFIELD_ID, dataField.getDataFieldId());
+        cv.put(COLUMN_COLLECTOR_ID, dataField.getCollectorId());
+        cv.put(COLUMN_GRAPH_QUERY, dataField.getGraphQuery());
+        cv.put(COLUMN_NAME, dataField.getName());
+        cv.put(COLUMN_DATAFIELD_TIME_CREATED, dataField.getTimeCreated());
+        cv.put(COLUMN_DATAFIELD_TIME_LAST_EDITED, dataField.getTimelastEdited());
+        cv.put(COLUMN_DATAFIELD_IS_DEMONSTRATED, dataField.getDemonstrated());
+
+        long result = db.insert(DATAFIELD_TABLE, null, cv);
+
+        return result != -1;
+    }
+
+    public List<Datafield> getAllDatafields() {
+        List<Datafield> dataList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        String getAllDataQuery = "SELECT * FROM " + DATAFIELD_TABLE;
+
+        Cursor cursor = db.rawQuery(getAllDataQuery, null);
+
+        if(cursor.moveToFirst()) {
+            do {
+
+                String dataFieldId = cursor.getString(0);
+                String collectorId = cursor.getString(1);
+                String graphQuery = cursor.getString(2);
+                String name = cursor.getString(3);
+                Long timeCreated = cursor.getLong(4);
+                Long timeLastEdited = cursor.getLong(5);
+                Boolean isDemonstrated = cursor.getInt(6) != 0;
+                Datafield receivedDatafield = new Datafield(dataFieldId, collectorId, graphQuery, name, timeCreated, timeLastEdited, isDemonstrated);
+
+                dataList.add(receivedDatafield);
+
+            } while (cursor.moveToNext());
+        } else {
+            Log.i("", "The datafield list is empty.");
+        }
+
+        db.close();
+        cursor.close();
+
+        return dataList;
+    }
+
+    public List<Datafield> getDatafieldForCollector(Collector collector) {
+        List<Datafield> dataList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        String getAllDataQuery = "SELECT * FROM " + DATAFIELD_TABLE + " WHERE " + COLUMN_COLLECTOR_ID + " = \"" + collector.getCollectorID() + "\";";
+
+        Cursor cursor = db.rawQuery(getAllDataQuery, null);
+
+        if(cursor.moveToFirst()) {
+            do {
+
+                String dataFieldId = cursor.getString(0);
+                String collectorId = cursor.getString(1);
+                String graphQuery = cursor.getString(2);
+                String name = cursor.getString(3);
+                Long timeCreated = cursor.getLong(4);
+                Long timeLastEdited = cursor.getLong(5);
+                Boolean isDemonstrated = cursor.getInt(6) != 0;
+                Datafield receivedDatafield = new Datafield(dataFieldId, collectorId, graphQuery, name, timeCreated, timeLastEdited, isDemonstrated);
+
+                dataList.add(receivedDatafield);
+
+            } while (cursor.moveToNext());
+        } else {
+            Log.i("", "Cannot find datafield for the specified collector ID. Try another collector instead?");
+        }
+
+        db.close();
+        cursor.close();
+
+        return dataList;
+    }
 
 }
