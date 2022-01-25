@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
@@ -106,7 +107,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
 
         for(String tableName: tableList) {
-            db.delete(tableName, null, null);
+            db.delete(tableName, "1", null);
         }
         Log.i("", "Clear database success!");
     }
@@ -126,6 +127,18 @@ public class DatabaseManager extends SQLiteOpenHelper {
         long insert = db.insert(COLLECTOR_TABLE, null, cv);
 
         return insert != -1;
+    }
+
+    public void removeCollectorById(String collectorId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        // the result equals to the number of entries being deleted
+
+        int result = db.delete(COLLECTOR_TABLE, "collectorId = " + collectorId, null);
+        if(result > 0) {
+            Log.i("database", "successfully deleted " + result + " collectors with id " + collectorId);
+        } else {
+            Log.i("database", "remove collector error, current collectors: " + getAllCollectors().toString());
+        }
     }
 
     // a method to get all collectors in the database
@@ -179,6 +192,18 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return insert != -1;
     }
 
+    public void removeUserById(String userId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        // the result equals to the number of entries being deleted
+
+        int result = db.delete(USER_TABLE, "userId = " + userId, null);
+        if(result > 0) {
+            Log.i("database", "successfully deleted " + result + " users with id " + userId);
+        } else {
+            Log.i("database", "remove user error, current users: " + getAllUsers().toString());
+        }
+    }
+
     public List<User> getAllUsers() {
         SQLiteDatabase db = this.getReadableDatabase();
         List<User> userList = new ArrayList<>();
@@ -220,6 +245,42 @@ public class DatabaseManager extends SQLiteOpenHelper {
         long result = db.insert(DATA_TABLE, null, cv);
 
         return result != -1;
+    }
+
+    public void removeDataById(String dataId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        // the result equals to the number of entries being deleted
+
+        int result = db.delete(DATA_TABLE, "dataId = " + dataId, null);
+        if(result > 0) {
+            Log.i("database", "successfully deleted " + result + " data entries with id " + dataId);
+        } else {
+            Log.i("database", "remove data entry by data id error, current data entries: " + getAllData().toString());
+        }
+    }
+
+    public void removeDataByDatafieldId(String datafieldId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        // the result equals to the number of entries being deleted
+
+        int result = db.delete(DATA_TABLE, "datafieldId = " + datafieldId, null);
+        if(result > 0) {
+            Log.i("database", "successfully deleted " + result + " data entries from datafield " + datafieldId);
+        } else {
+            Log.i("database", "remove data entry by datafield Id error, current data entries: " + getAllData().toString());
+        }
+    }
+
+    public void removeDataByUserId(String userId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        // the result equals to the number of entries being deleted
+
+        int result = db.delete(DATA_TABLE, "userId = " + userId, null);
+        if(result > 0) {
+            Log.i("database", "successfully deleted " + result + " data entries from user " + userId);
+        } else {
+            Log.i("database", "remove data entry by user id error, current data entries: " + getAllData().toString());
+        }
     }
 
     public List<Data> getAllData() {
@@ -301,6 +362,31 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
         return result != -1;
     }
+
+    public void removeDatafieldById(String datafieldId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        // the result equals to the number of entries being deleted
+
+        int result = db.delete(DATAFIELD_TABLE, "datafieldId = " + datafieldId, null);
+        if(result > 0) {
+            Log.i("database", "successfully deleted " + result + " datafield with id " + datafieldId);
+        } else {
+            Log.i("database", "remove datafield by id error, current datafields: " + getAllDatafields().toString());
+        }
+    }
+    public void removeDatafieldByCollectorId(String collectorId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        // the result equals to the number of entries being deleted
+
+        int result = db.delete(DATAFIELD_TABLE, "collectorId = " + collectorId, null);
+        if(result > 0) {
+            Log.i("database", "successfully deleted " + result + " datafield from collector " + collectorId);
+        } else {
+            Log.i("database", "remove datafield by collector id error, current datafields: " + getAllDatafields().toString());
+        }
+    }
+
+    // TODO: database schema – don't need name from data field cuz it doesn't make much sense, and data field id is sufficient
 
     public List<Datafield> getAllDatafields() {
         List<Datafield> dataList = new ArrayList<>();
