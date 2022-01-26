@@ -71,12 +71,13 @@ public class MainActivity extends AppCompatActivity {
         // TODO: modify this for real code, below is just for testing
         // TODO: also move this to a separate test data handler class
         dbManager = new DatabaseManager(this);
+        dbManager.getReadableDatabase();
         try {
-            dbManager.clearDatabase();
+             dbManager.clearDatabase();
             testCollector = new Collector("1", "1", "Uber", "description for a Uber collector", 100, 100, "what", "https");
             testCollector2 = new Collector("2", "1", "Doordash", "description for a Doordash collector", 100, 100, "what", "https");
             Boolean addResult = dbManager.addOneCollector(testCollector);
-//            Boolean addResult2 = dbManager.addOneCollector(testCollector2);
+            Boolean addResult2 = dbManager.addOneCollector(testCollector2);
             List<Collector> allCollectors = dbManager.getAllCollectors();
 //            Toast.makeText(MainActivity.this, "All Collectors: " + allCollectors.size(), Toast.LENGTH_LONG).show();
         }

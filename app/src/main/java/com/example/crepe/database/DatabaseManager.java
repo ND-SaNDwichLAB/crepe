@@ -42,7 +42,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     private static final String COLUMN_DATAFIELD_TIME_LAST_EDITED = "datafieldTimeLastEdited";
     private static final String COLUMN_DATAFIELD_IS_DEMONSTRATED = "datafieldIsDemonstrated";
 
-    private static final List<String> tableList = new ArrayList<>(Arrays.asList(USER_TABLE, COLLECTOR_TABLE, DATA_TABLE, DATAFIELD_TABLE));
+    private static final List<String> tableList = new ArrayList<>(Arrays.asList(COLLECTOR_TABLE, USER_TABLE, DATA_TABLE, DATAFIELD_TABLE));
 
     // constructor
     public DatabaseManager(@Nullable Context context) {
