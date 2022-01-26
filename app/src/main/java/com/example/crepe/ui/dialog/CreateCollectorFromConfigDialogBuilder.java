@@ -3,6 +3,7 @@ package com.example.crepe.ui.dialog;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -17,6 +18,7 @@ import androidx.fragment.app.FragmentManager;
 
 import com.example.crepe.R;
 import com.example.crepe.database.Collector;
+import com.example.crepe.database.DatabaseManager;
 import com.google.android.material.datepicker.MaterialDatePicker;
 
 public class CreateCollectorFromConfigDialogBuilder {
@@ -36,6 +38,11 @@ public class CreateCollectorFromConfigDialogBuilder {
         this.c = c;
         this.dialogBuilder = new AlertDialog.Builder(c);
         this.currentScreen = "buildDialogFromConfig";
+        // generate an id based on existing collector quantity for collector
+        DatabaseManager dbManager = new DatabaseManager(c);
+        Integer collectorQuantity = dbManager.getAllCollectors().size();
+        String collectorId = String.valueOf(collectorQuantity + 1);
+        this.collector = new Collector(collectorId);
     }
 
     public Dialog build() {
