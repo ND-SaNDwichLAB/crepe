@@ -33,16 +33,17 @@ public class CreateCollectorFromConfigDialogBuilder {
     private View popupView;
     private Dialog dialog;
 
-
     public CreateCollectorFromConfigDialogBuilder(Context c) {
         this.c = c;
         this.dialogBuilder = new AlertDialog.Builder(c);
         this.currentScreen = "buildDialogFromConfig";
+
         // generate an id based on existing collector quantity for collector
         DatabaseManager dbManager = new DatabaseManager(c);
         Integer collectorQuantity = dbManager.getAllCollectors().size();
         String collectorId = String.valueOf(collectorQuantity + 1);
         this.collector = new Collector(collectorId);
+
     }
 
     public Dialog build() {
@@ -90,7 +91,7 @@ public class CreateCollectorFromConfigDialogBuilder {
                     }
                 });
 
-                startImgBtn.setOnClickListener(new View.OnClickListener() {
+                endImgBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
 
@@ -109,7 +110,13 @@ public class CreateCollectorFromConfigDialogBuilder {
                     @Override
                     public void onClick(View view) {
                         // update info for collector
-                        //collector.getAppName();
+//                        String appName = appDropDown.getSelectedItem().toString();
+//                                if (appName != someDefaultValue) {
+//                                    collector.setAppName(appName);
+//                                } else {
+//                                    // set the border of spinner to red
+//                                }
+//
                         //collector.getTimeCreated();
                         //collector.getTimeLastEdited();
 

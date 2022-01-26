@@ -131,11 +131,6 @@ public class MainActivity extends AppCompatActivity {
         addUrlBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                Snackbar.make(view, "addUrlBtn icon clicked", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//                clicked = !clicked;
-//                setVisibility(clicked);
-//                setAnimation(clicked);
                 Dialog dialog = createCollectorFromURLDialogBuilder.build();
                 dialog.show();
             }
