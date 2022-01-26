@@ -10,7 +10,22 @@
         <entry key="../crepe/app/src/main/res/layout/content_main.xml" value="0.25" />
         <entry key="../crepe/app/src/main/res/layout/fragment_first.xml" value="0.16770833333333332" />
         <entry key="../crepe/app/src/main/res/layout/fragment_second.xml" value="0.16770833333333332" />
+        <entry key="app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.16944444444444445" />
+        <entry key="app/src/main/res/drawable/custom_image_button.xml" value="0.23055555555555557" />
+        <entry key="app/src/main/res/drawable/custom_input.xml" value="0.18229166666666666" />
+        <entry key="app/src/main/res/drawable/custom_spinner.xml" value="0.19739583333333333" />
+        <entry key="app/src/main/res/drawable/ic_action_back.xml" value="0.23055555555555557" />
+        <entry key="app/src/main/res/drawable/ic_add_new.xml" value="0.23055555555555557" />
+        <entry key="app/src/main/res/drawable/ic_baseline_arrow_drop_down_24.xml" value="0.16944444444444445" />
+        <entry key="app/src/main/res/drawable/ic_baseline_calendar_today_24.xml" value="0.16944444444444445" />
+        <entry key="app/src/main/res/drawable/ic_baseline_close_24.xml" value="0.23055555555555557" />
+        <entry key="app/src/main/res/drawable/ic_baseline_email_24.xml" value="0.23055555555555557" />
+        <entry key="app/src/main/res/drawable/ic_baseline_keyboard_arrow_down_24.xml" value="0.23055555555555557" />
+        <entry key="app/src/main/res/drawable/ic_chart.xml" value="0.16944444444444445" />
+        <entry key="app/src/main/res/drawable/ic_edit.xml" value="0.23055555555555557" />
+        <entry key="app/src/main/res/drawable/ic_home.xml" value="0.23055555555555557" />
         <entry key="app/src/main/res/drawable/ic_icons8_uber_app.xml" value="0.24722222222222223" />
+        <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.23055555555555557" />
         <entry key="app/src/main/res/drawable/ic_link.xml" value="0.24722222222222223" />
         <entry key="app/src/main/res/drawable/uber_icon.xml" value="0.24722222222222223" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.23645833333333333" />
@@ -18,10 +33,12 @@
         <entry key="app/src/main/res/layout/collector_card.xml" value="0.4977134766151229" />
         <entry key="app/src/main/res/layout/content_main.xml" value="0.1" />
         <entry key="app/src/main/res/layout/dialog_add_collecotr_from_config_data_field.xml" value="0.21971830985915494" />
-        <entry key="app/src/main/res/layout/dialog_add_collector_from_config.xml" value="0.21197916666666666" />
+        <entry key="app/src/main/res/layout/dialog_add_collector_from_config.xml" value="0.2722083146537436" />
+        <entry key="app/src/main/res/layout/dialog_add_collector_from_config_data_field.xml" value="0.18125" />
         <entry key="app/src/main/res/layout/dialog_add_collector_from_config_description.xml" value="0.2246153846153846" />
-        <entry key="app/src/main/res/layout/dialog_add_collector_from_config_graph_query.xml" value="0.40272161608408424" />
+        <entry key="app/src/main/res/layout/dialog_add_collector_from_config_graph_query.xml" value="0.4485776805251641" />
         <entry key="app/src/main/res/layout/dialog_add_collector_from_config_specify_data.xml" value="0.27395833333333336" />
+        <entry key="app/src/main/res/layout/dialog_add_collector_from_config_success_message.xml" value="0.24739583333333334" />
         <entry key="app/src/main/res/layout/dialog_add_collector_from_url.xml" value="0.21666666666666667" />
         <entry key="app/src/main/res/layout/fragment_data.xml" value="0.21614583333333334" />
         <entry key="app/src/main/res/layout/fragment_first.xml" value="0.23645833333333333" />

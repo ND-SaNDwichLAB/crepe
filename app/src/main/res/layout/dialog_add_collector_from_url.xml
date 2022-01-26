@@ -16,7 +16,7 @@
         android:background="@drawable/custom_input"
         android:hint="https://"
         android:lineSpacingExtra="5dp"
-        android:paddingStart="12dp"
+        android:paddingStart="16dp"
         android:singleLine="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
