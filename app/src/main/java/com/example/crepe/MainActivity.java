@@ -58,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
     // TODO: modify this for real code, below is just for testing
     private Collector testCollector;
     private Collector testCollector2;
+    private Collector testCollector3;
     private DatabaseManager dbManager;
 
     private CreateCollectorFromURLDialogBuilder createCollectorFromURLDialogBuilder;
@@ -71,10 +72,11 @@ public class MainActivity extends AppCompatActivity {
         // TODO: also move this to a separate test data handler class
         dbManager = new DatabaseManager(this);
         try {
-            testCollector = new Collector("1", "1", "uber", "some collector name", 100, 100, "what", "https");
-            testCollector2 = new Collector("2", "1", "doordash", "some collector name", 100, 100, "what", "https");
-            Boolean addResult = dbManager.addOne(testCollector);
-            Boolean addResult2 = dbManager.addOne(testCollector2);
+            dbManager.clearDatabase();
+            testCollector = new Collector("1", "1", "Uber", "description for a Uber collector", 100, 100, "what", "https");
+            testCollector2 = new Collector("2", "1", "Doordash", "description for a Doordash collector", 100, 100, "what", "https");
+            Boolean addResult = dbManager.addOneCollector(testCollector);
+//            Boolean addResult2 = dbManager.addOneCollector(testCollector2);
             List<Collector> allCollectors = dbManager.getAllCollectors();
 //            Toast.makeText(MainActivity.this, "All Collectors: " + allCollectors.size(), Toast.LENGTH_LONG).show();
         }

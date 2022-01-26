@@ -2,58 +2,64 @@ package com.example.crepe.database;
 
 public class Collector {
 
-    private String collectorID;
-    private String creatorUserID;
+    // TODO: database schema - changed String name to description
+
+    private String collectorId;
+    private String creatorUserId;
     private String appName;
-    private String name;
+    private String description;
     private long timeCreated;
     private long timeLastEdited;
     private String mode;
-    private String targetServerIP;
+    private String targetServerIp;
 
-    public Collector(String collectorID, String creatorUserID, String appName, String name, long timeCreated, long timeLastEdited, String mode, String targetServerIP) {
-        this.collectorID = collectorID;
-        this.creatorUserID = creatorUserID;
+    public Collector(String collectorId, String creatorUserID, String appName, String description, long timeCreated, long timeLastEdited, String mode, String targetServerIp) {
+        this.collectorId = collectorId;
+        this.creatorUserId = creatorUserID;
         this.appName = appName;
-        this.name = name;
+        this.description = description;
         this.timeCreated = timeCreated;
         this.timeLastEdited = timeLastEdited;
         this.mode = mode;
-        this.targetServerIP = targetServerIP;
+        this.targetServerIp = targetServerIp;
     }
 
-    public Collector(String collectorID) {
-        this.collectorID = collectorID;
+    public Collector(String collectorId) {
+        this.collectorId = collectorId;
     }
 
     @Override
     public String toString() {
         return "Collector{" +
-                "collectorID='" + collectorID + '\'' +
-                ", creatorUserID='" + creatorUserID + '\'' +
+                "collectorId='" + collectorId + '\'' +
+                ", creatorUserId='" + creatorUserId + '\'' +
                 ", appName='" + appName + '\'' +
-                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
                 ", timeCreated=" + timeCreated +
                 ", timeLastEdited=" + timeLastEdited +
                 ", mode='" + mode + '\'' +
-                ", targetServerIP='" + targetServerIP + '\'' +
+                ", targetServerIP='" + targetServerIp + '\'' +
                 '}';
     }
 
-    public String getCollectorID() {
-        return collectorID;
+    public String idToString() {
+        return "Collector with id: " + collectorId;
     }
 
-    public void setCollectorID(String collectorID) {
-        this.collectorID = collectorID;
+    public String getCollectorId() {
+        return collectorId;
     }
 
-    public String getCreatorUserID() {
-        return creatorUserID;
+    public void setCollectorId(String collectorId) {
+        this.collectorId = collectorId;
     }
 
-    public void setCreatorUserID(String creatorUserID) {
-        this.creatorUserID = creatorUserID;
+    public String getCreatorUserId() {
+        return creatorUserId;
+    }
+
+    public void setCreatorUserId(String creatorUserId) {
+        this.creatorUserId = creatorUserId;
     }
 
     public String getAppName() {
@@ -64,12 +70,12 @@ public class Collector {
         this.appName = appName;
     }
 
-    public String getName() {
-        return name;
+    public String getDescription() {
+        return description;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public long getTimeCreated() {
@@ -96,11 +102,11 @@ public class Collector {
         this.mode = mode;
     }
 
-    public String getTargetServerIP() {
-        return targetServerIP;
+    public String getTargetServerIp() {
+        return targetServerIp;
     }
 
-    public void setTargetServerIP(String targetServerIP) {
-        this.targetServerIP = targetServerIP;
+    public void setTargetServerIp(String targetServerIp) {
+        this.targetServerIp = targetServerIp;
     }
 }
