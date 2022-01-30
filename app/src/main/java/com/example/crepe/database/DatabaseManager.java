@@ -10,6 +10,8 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
+import com.example.crepe.MainActivity;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -24,7 +26,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     public static final String COLUMN_COLLECTOR_TIME_CREATED = "timeCreated";
     public static final String COLUMN_COLLECTOR_TIME_LAST_EDITED = "timeLastEdited";
     public static final String COLUMN_MODE = "mode";
-    public static final String COLUMN_TARGET_SERVER_IP = "targetServerIP";
+    public static final String COLUMN_TARGET_SERVER_IP = "targetServerIp";
     public static final String USER_TABLE = "user";
     public static final String COLUMN_USER_ID = "userId";
     public static final String COLUMN_USER_NAME = "userName";
@@ -44,6 +46,40 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     private static final List<String> tableList = new ArrayList<>(Arrays.asList(COLLECTOR_TABLE, USER_TABLE, DATA_TABLE, DATAFIELD_TABLE));
 
+    // Create table statements
+    private final String createCollectorTableStatement = "CREATE TABLE IF NOT EXISTS " + COLLECTOR_TABLE + " (" + COLUMN_COLLECTOR_ID + " VARCHAR PRIMARY KEY, " +
+            "            " + COLUMN_CREATOR_USER_ID + " VARCHAR, " +
+            "            " + COLUMN_APP_NAME + " VARCHAR, " +
+            "            " + COLUMN_NAME + " VARCHAR, " +
+            "            " + COLUMN_COLLECTOR_TIME_CREATED + " BIGINT NOT NULL, " +
+            "            " + COLUMN_COLLECTOR_TIME_LAST_EDITED + " BIGINT, " +
+            "            " + COLUMN_MODE + " VARCHAR, " +
+            "            " + COLUMN_TARGET_SERVER_IP + " VARCHAR);";
+
+
+    private final String createUserTableStatement = "CREATE TABLE IF NOT EXISTS " + USER_TABLE + " (" + COLUMN_USER_ID + " VARCHAR PRIMARY KEY, " +
+            "            " + COLUMN_USER_NAME + " VARCHAR, " +
+            "            " + COLUMN_USER_TIME_CREATED + " BIGINT, " +
+            "            " + COLUMN_USER_LAST_TIME_EDITED + " BIGINT);";
+
+    private final String createDataFieldTableStatement = "CREATE TABLE IF NOT EXISTS " + DATAFIELD_TABLE + " (" + COLUMN_DATAFIELD_ID + " VARCHAR PRIMARY KEY, " +
+            "            " + COLUMN_COLLECTOR_ID + " VARCHAR, " +
+            "            " + COLUMN_GRAPH_QUERY + " VARCHAR, " +
+            "            " + COLUMN_DATAFIELD_NAME + " VARCHAR, " +
+            "            " + COLUMN_DATAFIELD_TIME_CREATED + " BIGINT, " +
+            "            " + COLUMN_DATAFIELD_TIME_LAST_EDITED + " BIGINT, " +
+            "            " + COLUMN_DATAFIELD_IS_DEMONSTRATED + " BOOLEAN, " +
+            "            " + "FOREIGN KEY(" + COLUMN_COLLECTOR_ID + ") REFERENCES " + COLLECTOR_TABLE + "(" + COLUMN_COLLECTOR_ID + "));";
+
+    private final String createDataTableStatement = "CREATE TABLE IF NOT EXISTS " + DATA_TABLE + " (" + COLUMN_DATA_ID + " VARCHAR PRIMARY KEY, " +
+            "            " + COLUMN_DATAFIELD_ID + " VARCHAR, " +
+            "            " + COLUMN_USER_ID + " VARCHAR, " +
+            "            " + COLUMN_TIMESTAMP + " BIGINT, " +
+            "            " + COLUMN_DATA_CONTENT + "VARCHAR, " +
+            "            " + "FOREIGN KEY(" + COLUMN_DATAFIELD_ID + ") REFERENCES " + DATAFIELD_TABLE + "(" + COLUMN_DATAFIELD_ID + "), " +
+            "            " + "FOREIGN KEY(" + COLUMN_USER_ID + ") REFERENCES " + USER_TABLE + "(" + COLUMN_USER_ID + "));" ;
+
+
     // constructor
     public DatabaseManager(@Nullable Context context) {
         super(context, "crepe.db", null, 1);
@@ -52,46 +88,10 @@ public class DatabaseManager extends SQLiteOpenHelper {
     // will be called the first time a database is accessed.
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
-
         // generate new tables
-        // a table for collectors
-        String createCollectorTableStatement = "CREATE TABLE IF NOT EXISTS " + COLLECTOR_TABLE + " (" + COLUMN_COLLECTOR_ID + " VARCHAR PRIMARY KEY, " +
-                "            " + COLUMN_CREATOR_USER_ID + " VARCHAR, " +
-                "            " + COLUMN_APP_NAME + " VARCHAR, " +
-                "            " + COLUMN_NAME + " VARCHAR, " +
-                "            " + COLUMN_COLLECTOR_TIME_CREATED + " BIGINT NOT NULL, " +
-                "            " + COLUMN_COLLECTOR_TIME_LAST_EDITED + " BIGINT, " +
-                "            " + COLUMN_MODE + " VARCHAR, " +
-                "            " + COLUMN_TARGET_SERVER_IP + " VARCHAR)";
-
         sqLiteDatabase.execSQL(createCollectorTableStatement);
-
-        String createUserTableStatement = "CREATE TABLE IF NOT EXISTS " + USER_TABLE + " (" + COLUMN_USER_ID + " VARCHAR PRIMARY KEY, " +
-                "            " + COLUMN_USER_NAME + " VARCHAR, " +
-                "            " + COLUMN_USER_TIME_CREATED + " BIGINT, " +
-                "            " + COLUMN_USER_LAST_TIME_EDITED + " BIGINT)";
-
         sqLiteDatabase.execSQL(createUserTableStatement);
-
-        String createDataFieldTableStatement = "CREATE TABLE IF NOT EXISTS " + DATAFIELD_TABLE + " (" + COLUMN_DATAFIELD_ID + " VARCHAR PRIMARY KEY, " +
-                "            " + COLUMN_COLLECTOR_ID + " VARCHAR, " +
-                "            " + COLUMN_GRAPH_QUERY + " VARCHAR, " +
-                "            " + COLUMN_DATAFIELD_NAME + " VARCHAR, " +
-                "            " + COLUMN_DATAFIELD_TIME_CREATED + " BIGINT, " +
-                "            " + COLUMN_DATAFIELD_TIME_LAST_EDITED + " BIGINT, " +
-                "            " + COLUMN_DATAFIELD_IS_DEMONSTRATED + " BOOLEAN, " +
-                "            " + "FOREIGN KEY(" + COLUMN_COLLECTOR_ID + ") REFERENCES " + COLLECTOR_TABLE + "(" + COLUMN_COLLECTOR_ID + ")) ";
-
         sqLiteDatabase.execSQL(createDataFieldTableStatement);
-
-        String createDataTableStatement = "CREATE TABLE IF NOT EXISTS " + DATA_TABLE + " (" + COLUMN_DATA_ID + " VARCHAR PRIMARY KEY, " +
-                "            " + COLUMN_DATAFIELD_ID + " VARCHAR, " +
-                "            " + COLUMN_USER_ID + " VARCHAR, " +
-                "            " + COLUMN_TIMESTAMP + " BIGINT, " +
-                "            " + COLUMN_DATA_CONTENT + "VARCHAR, " +
-                "            " + "FOREIGN KEY(" + COLUMN_DATAFIELD_ID + ") REFERENCES " + DATAFIELD_TABLE + "(" + COLUMN_DATAFIELD_ID + "), " +
-                "            " + "FOREIGN KEY(" + COLUMN_USER_ID + ") REFERENCES " + USER_TABLE + "(" + COLUMN_USER_ID + "))" ;
-
         sqLiteDatabase.execSQL(createDataTableStatement);
 
     }
@@ -103,13 +103,13 @@ public class DatabaseManager extends SQLiteOpenHelper {
     }
 
     // clear all 4 tables in the database
-    public void clearDatabase() {
+    public void clearDatabase(Context c) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         for(String tableName: tableList) {
             db.delete(tableName, "1", null);
         }
-        Log.i("", "Clear database success!");
+        Toast.makeText(c, "Clear database success!", Toast.LENGTH_SHORT).show();
     }
 
     public Boolean addOneCollector(Collector collector) {
