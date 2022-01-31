@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
             testCollector = new Collector("1", "1", "Uber", "description for a Uber collector", 100, 100, "what", "https");
             testCollector2 = new Collector("2", "1", "Doordash", "description for a Doordash collector", 100, 100, "what", "https");
             Boolean addResult = dbManager.addOneCollector(testCollector);
-            Boolean addResult2 = dbManager.addOneCollector(testCollector2);
+//            Boolean addResult2 = dbManager.addOneCollector(testCollector2);
 
         }
         catch (Exception e) {
