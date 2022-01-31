@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
         createNewBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Dialog dialog = createCollectorFromConfigDialogBuilder.build();
+                Dialog dialog = createCollectorFromConfigDialogBuilder.updateCurrentView();
                 dialog.show();
             }
         });
