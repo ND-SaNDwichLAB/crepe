@@ -1,6 +1,7 @@
 package com.example.crepe;
 
 import android.app.Dialog;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 
 import com.example.crepe.database.Collector;
@@ -33,6 +34,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Toast;
 
+import java.security.DomainCombiner;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -67,24 +69,25 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // TODO: modify this for real code, below is just for testing
-        // TODO: also move this to a separate test data handler class
         dbManager = new DatabaseManager(this);
-        dbManager.getReadableDatabase();
         try {
-             dbManager.clearDatabase();
+            dbManager.clearDatabase(MainActivity.this);
+        } catch (Exception e) {
+            Toast.makeText(MainActivity.this, "Error clearing database", Toast.LENGTH_SHORT).show();
+        }
+        try {
+
             testCollector = new Collector("1", "1", "Uber", "description for a Uber collector", 100, 100, "what", "https");
             testCollector2 = new Collector("2", "1", "Doordash", "description for a Doordash collector", 100, 100, "what", "https");
             Boolean addResult = dbManager.addOneCollector(testCollector);
-            Boolean addResult2 = dbManager.addOneCollector(testCollector2);
-            List<Collector> allCollectors = dbManager.getAllCollectors();
-//            Toast.makeText(MainActivity.this, "All Collectors: " + allCollectors.size(), Toast.LENGTH_LONG).show();
+//            Boolean addResult2 = dbManager.addOneCollector(testCollector2);
+
         }
         catch (Exception e) {
             Toast.makeText(MainActivity.this, "Error Creating Collector", Toast.LENGTH_SHORT).show();
         }
 
+//        List<Collector> allCollectors = dbManager.getAllCollectors();
 
         // load animations
         top_appear_anim = AnimationUtils.loadAnimation( this, R.anim.top_appear);

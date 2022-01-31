@@ -14,6 +14,8 @@ import androidx.fragment.app.Fragment;
 import com.example.crepe.R;
 import com.example.crepe.database.Collector;
 import com.example.crepe.database.DatabaseManager;
+import com.example.crepe.ui.chart.CollectorDataLineChartBuilder;
+import com.github.mikephil.charting.charts.LineChart;
 
 import java.util.List;
 
@@ -47,9 +49,17 @@ public class DataFragment extends Fragment {
         LinearLayout fragmentInnerLinearLayout = getView().findViewById(R.id.data_fragment_inner_linear_layout);
 
         for(Collector collector: collectorList) {
+            // display basic info for the collector
             ConstraintLayout collectorInfoView = builder.build(collector, fragmentInnerLinearLayout, "infoLayout");
             collectorInfoView.setId(View.generateViewId());
             fragmentInnerLinearLayout.addView(collectorInfoView);
+
+            // add the data vis for the corresponding collector
+            // programmatically create a LineChart
+            CollectorDataLineChartBuilder chartBuilder = new CollectorDataLineChartBuilder(this.getContext(), collector);
+            LineChart lineChart = chartBuilder.build();
+
+            fragmentInnerLinearLayout.addView(lineChart); // add the programmatically created chart
         }
     }
 
