@@ -157,7 +157,8 @@ public class MainActivity extends AppCompatActivity {
 
         switch (itemId) {
             case R.id.nav_menu_home:
-                fragment = new HomeFragment();
+                // Change this back
+                fragment = new DataFragment();
                 break;
             case R.id.nav_menu_data:
                 fragment = new DataFragment();

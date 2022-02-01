@@ -1,11 +1,15 @@
 package com.example.crepe.ui.chart;
 
+import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
+import android.util.DisplayMetrics;
 
 import com.example.crepe.database.Collector;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
@@ -30,6 +34,7 @@ public class CollectorDataLineChartBuilder {
         this.collector = collector;
     }
 
+    // the parameter width is the screen width, used to position the chart properly
     public LineChart build() {
 
         // fake some data
@@ -49,25 +54,50 @@ public class CollectorDataLineChartBuilder {
         }
 
         LineDataSet dataSet = new LineDataSet(entries, "Label"); // add entries to dataset
+        dataSet.setDrawCircles(false);
+        dataSet.setLineWidth(2f);
+        dataSet.setColor(Color.parseColor("#223651"));
 
+        // set attributes for x axis
         XAxis xAxis = lineChart.getXAxis();
         xAxis.setLabelCount(5);
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setTextSize(10f);
         xAxis.setDrawGridLines(false);
+        xAxis.setGridLineWidth(0);
         xAxis.setGranularity(1f); // only intervals of 1 day
 
         ValueFormatter xAxisFormatter = new DayAxisValueFormatter(lineChart);
         xAxis.setValueFormatter(xAxisFormatter);
+
+        // set attributes for y axis
+        YAxis yAxisLeft = lineChart.getAxisLeft();
+        YAxis yAxisRight = lineChart.getAxisRight();
+        yAxisLeft.setGridLineWidth(1f);
+        yAxisLeft.setGridColor(Color.parseColor("#DADADA"));
+        yAxisRight.setDrawLabels(false);
+        yAxisLeft.setDrawAxisLine(false);
+        yAxisRight.setDrawAxisLine(false);
+        yAxisLeft.setTextSize(10f);
+
+
         // set the min height of the chart
-        lineChart.setMinimumHeight(1000);
-        // set the description
-        Description chartDescription = lineChart.getDescription();
-        chartDescription.setText("The Amount of Data You Have Contributed");
-        chartDescription.setTextSize(13);
-        chartDescription.setPosition(850, 50);
+        lineChart.setMinimumHeight(700);
+        // clear the description, use a textLayout for the title
+        lineChart.setDescription(null);
+        // disable interaction with the chart
+        lineChart.setTouchEnabled(false);
+        lineChart.setDragEnabled(false);
+        lineChart.setScaleEnabled(false);
+
+        lineChart.setNoDataText("There's not data to be displayed currently.");
 
         LineData lineData = new LineData(dataSet);
         lineChart.setData(lineData);
+        lineChart.setExtraOffsets(40, 40, 40, 20);
+
+        lineChart.getLegend().setEnabled(false);
+
         lineChart.invalidate(); // refresh
 
         return lineChart;

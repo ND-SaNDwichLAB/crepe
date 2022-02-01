@@ -1,6 +1,8 @@
 package com.example.crepe.ui.main_activity;
 
+import android.app.Activity;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,8 +58,16 @@ public class DataFragment extends Fragment {
 
             // add the data vis for the corresponding collector
             // programmatically create a LineChart
+
+            // first, get the width of the page so the chart can be properly positioned
+            DisplayMetrics displayMetrics = new DisplayMetrics();
+            getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+            int width = displayMetrics.widthPixels;
+
             CollectorDataLineChartBuilder chartBuilder = new CollectorDataLineChartBuilder(this.getContext(), collector);
             LineChart lineChart = chartBuilder.build();
+
+            // add x/y axis label and chart title
 
             fragmentInnerLinearLayout.addView(lineChart); // add the programmatically created chart
         }
