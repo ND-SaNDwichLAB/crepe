@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/collectorDetailTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:text="UBER COLLECTOR DETAIL"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/collectorDataFieldTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="48dp"
+        android:layout_marginTop="36dp"
+        android:text="Data Fields"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/collectorDetailTitle" />
+
+    <TextView
+        android:id="@+id/collectorResearcherContactTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Researcher Contact"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="@+id/collectorDetailDataField"
+        app:layout_constraintTop_toBottomOf="@+id/collectorDetailDataField" />
+
+    <TextView
+        android:id="@+id/collectorDetailDataField"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="Price Label from NewTaskWindow \nDeparture from NewTaskWindow \nDestination from NewTaskWindow \nDuration from NewTaskWindow"
+        app:layout_constraintStart_toStartOf="@+id/collectorDataFieldTitle"
+        app:layout_constraintTop_toBottomOf="@+id/collectorDataFieldTitle" />
+
+    <TextView
+        android:id="@+id/collectorResearcherContact"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="Yuwen Lu, University of Notre Dame \nEmail: yuwenlu@nd.edu"
+        app:layout_constraintStart_toStartOf="@+id/collectorResearcherContactTitle"
+        app:layout_constraintTop_toBottomOf="@+id/collectorResearcherContactTitle" />
+
+    <Button
+        android:id="@+id/collectorDeleteButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="24dp"
+        android:text="DELETE"
+        android:background="@android:color/transparent"
+        android:textColor="@color/ND_blue"
+        android:textColorHint="@color/ND_blue"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/collectorCloseButton"
+        app:layout_constraintTop_toBottomOf="@+id/collectorResearcherContact"
+        app:layout_constraintVertical_bias="0.501" />
+
+    <Button
+        android:id="@+id/collectorCloseButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="24dp"
+        android:background="@android:color/transparent"
+        android:text="CLOSE"
+        android:textColor="@color/ND_gold"
+        android:textColorHint="@color/ND_gold"
+        app:layout_constraintBottom_toBottomOf="@+id/collectorDeleteButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/collectorResearcherContact" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -8,12 +8,12 @@ import android.view.View;
 import com.example.crepe.R;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
-public class CreateCollectorFromConfigDialogBuilderSpecifyData {
+public class CreateCollectorFromURLDialogSuccessMessage {
     private Context c;
     private MaterialAlertDialogBuilder alertDialogBuilder;
 
     // Constructor
-    public CreateCollectorFromConfigDialogBuilderSpecifyData (Context c) {
+    public CreateCollectorFromURLDialogSuccessMessage(Context c) {
         this.c = c;
         this.alertDialogBuilder = new MaterialAlertDialogBuilder(c);
     }
@@ -21,10 +21,8 @@ public class CreateCollectorFromConfigDialogBuilderSpecifyData {
     public void build() {
 
         alertDialogBuilder.setTitle("SPECIFY DATA TO COLLECT")
-                            .setMessage("Some Supporting Message");
-
-        alertDialogBuilder.setNegativeButton(c.getResources().getString(R.string.back), null);
-        alertDialogBuilder.setPositiveButton(c.getResources().getString(R.string.next), null);
+                            .setMessage("The Uber collector is added and is scheduled to start on 01/11/2021.");
+        alertDialogBuilder.setPositiveButton(c.getResources().getString(R.string.close), null);
 
         alertDialogBuilder.show();
     }
