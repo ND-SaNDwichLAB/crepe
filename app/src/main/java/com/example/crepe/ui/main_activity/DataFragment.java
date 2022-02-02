@@ -3,10 +3,12 @@ package com.example.crepe.ui.main_activity;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -64,10 +66,14 @@ public class DataFragment extends Fragment {
             getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
             int width = displayMetrics.widthPixels;
 
-            CollectorDataLineChartBuilder chartBuilder = new CollectorDataLineChartBuilder(this.getContext(), collector);
+            CollectorDataLineChartBuilder chartBuilder = new CollectorDataLineChartBuilder(this.getContext(), getActivity(), collector);
             LineChart lineChart = chartBuilder.build();
 
-            // add x/y axis label and chart title
+            // add y axis label and chart title
+            Pair<TextView, LinearLayout.LayoutParams> lineChartTitle = chartBuilder.buildChartTitle();
+            fragmentInnerLinearLayout.addView(lineChartTitle.first, lineChartTitle.second);
+            Pair<TextView, LinearLayout.LayoutParams> lineChartYAxisLabel = chartBuilder.buildChartYAxisLabels();
+            fragmentInnerLinearLayout.addView(lineChartYAxisLabel.first, lineChartYAxisLabel.second);
 
             fragmentInnerLinearLayout.addView(lineChart); // add the programmatically created chart
         }

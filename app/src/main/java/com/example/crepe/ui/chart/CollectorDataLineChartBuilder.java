@@ -3,7 +3,13 @@ package com.example.crepe.ui.chart;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.util.DisplayMetrics;
+import android.util.Pair;
+import android.view.Gravity;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.example.crepe.database.Collector;
 import com.github.mikephil.charting.charts.LineChart;
@@ -14,6 +20,7 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.ValueFormatter;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 
 
 import java.lang.reflect.Array;
@@ -26,12 +33,14 @@ public class CollectorDataLineChartBuilder {
     LineChart lineChart;
     Collector collector;
     Context context;
+    Activity activity;
 
 
 
-    public CollectorDataLineChartBuilder(Context context, Collector collector) {
+    public CollectorDataLineChartBuilder(Context context, Activity activity, Collector collector) {
         this.lineChart = new LineChart(context);
         this.collector = collector;
+        this.activity = activity;
     }
 
     // the parameter width is the screen width, used to position the chart properly
@@ -63,6 +72,7 @@ public class CollectorDataLineChartBuilder {
         xAxis.setLabelCount(5);
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setTextSize(10f);
+        xAxis.setTextColor(Color.parseColor("#1C2B34"));
         xAxis.setDrawGridLines(false);
         xAxis.setGridLineWidth(0);
         xAxis.setGranularity(1f); // only intervals of 1 day
@@ -79,6 +89,7 @@ public class CollectorDataLineChartBuilder {
         yAxisLeft.setDrawAxisLine(false);
         yAxisRight.setDrawAxisLine(false);
         yAxisLeft.setTextSize(10f);
+        yAxisLeft.setTextColor(Color.parseColor("#1C2B34"));
 
 
         // set the min height of the chart
@@ -94,13 +105,39 @@ public class CollectorDataLineChartBuilder {
 
         LineData lineData = new LineData(dataSet);
         lineChart.setData(lineData);
-        lineChart.setExtraOffsets(40, 40, 40, 20);
+        lineChart.setExtraOffsets(40, 0, 40, 20);
 
         lineChart.getLegend().setEnabled(false);
 
         lineChart.invalidate(); // refresh
 
         return lineChart;
+
+    }
+
+    public Pair<TextView, LinearLayout.LayoutParams> buildChartYAxisLabels() {
+        TextView yAxisLabel = new TextView(activity);
+        yAxisLabel.setText("Daily Data \n (MB)");
+        yAxisLabel.setTextSize(10f);
+        yAxisLabel.setTextColor(Color.parseColor("#1C2B34"));
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        params.gravity = Gravity.LEFT | Gravity.CENTER_VERTICAL;
+        params.setMargins(70, 100, 0, 0);
+
+        return new Pair<>(yAxisLabel, params);
+    }
+
+    public Pair<TextView, LinearLayout.LayoutParams> buildChartTitle() {
+        TextView chartTitle = new TextView(activity);
+        chartTitle.setText("Daily Volume of Collected Data");
+        chartTitle.setTextSize(14f);
+        chartTitle.setTypeface(null, Typeface.BOLD);
+        chartTitle.setTextColor(Color.parseColor("#1C2B34"));
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        params.gravity = Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL;
+        params.setMargins(0, 120, 0, -50);
+
+        return new Pair<>(chartTitle, params);
 
     }
 
