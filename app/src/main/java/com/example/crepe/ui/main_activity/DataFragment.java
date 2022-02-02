@@ -55,8 +55,13 @@ public class DataFragment extends Fragment {
         for(Collector collector: collectorList) {
             // display basic info for the collector
             ConstraintLayout collectorInfoView = builder.build(collector, fragmentInnerLinearLayout, "infoLayout");
+
+            // add extra margin to the top of the view
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            params.setMargins(0, 55, 0, 0);
+
             collectorInfoView.setId(View.generateViewId());
-            fragmentInnerLinearLayout.addView(collectorInfoView);
+            fragmentInnerLinearLayout.addView(collectorInfoView, params);
 
             // add the data vis for the corresponding collector
             // programmatically create a LineChart
@@ -67,13 +72,15 @@ public class DataFragment extends Fragment {
             int width = displayMetrics.widthPixels;
 
             CollectorDataLineChartBuilder chartBuilder = new CollectorDataLineChartBuilder(this.getContext(), getActivity(), collector);
-            LineChart lineChart = chartBuilder.build();
 
             // add y axis label and chart title
             Pair<TextView, LinearLayout.LayoutParams> lineChartTitle = chartBuilder.buildChartTitle();
             fragmentInnerLinearLayout.addView(lineChartTitle.first, lineChartTitle.second);
             Pair<TextView, LinearLayout.LayoutParams> lineChartYAxisLabel = chartBuilder.buildChartYAxisLabels();
             fragmentInnerLinearLayout.addView(lineChartYAxisLabel.first, lineChartYAxisLabel.second);
+
+            // add the chart itself
+            LineChart lineChart = chartBuilder.build();
 
             fragmentInnerLinearLayout.addView(lineChart); // add the programmatically created chart
         }

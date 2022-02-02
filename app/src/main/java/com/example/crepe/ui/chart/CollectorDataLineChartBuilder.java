@@ -93,7 +93,7 @@ public class CollectorDataLineChartBuilder {
 
 
         // set the min height of the chart
-        lineChart.setMinimumHeight(700);
+        lineChart.setMinimumHeight(500);
         // clear the description, use a textLayout for the title
         lineChart.setDescription(null);
         // disable interaction with the chart
