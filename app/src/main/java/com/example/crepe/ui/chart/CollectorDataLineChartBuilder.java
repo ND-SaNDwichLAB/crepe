@@ -33,14 +33,14 @@ public class CollectorDataLineChartBuilder {
     LineChart lineChart;
     Collector collector;
     Context context;
-    Activity activity;
 
 
 
-    public CollectorDataLineChartBuilder(Context context, Activity activity, Collector collector) {
+
+    public CollectorDataLineChartBuilder(Context context, Collector collector) {
         this.lineChart = new LineChart(context);
         this.collector = collector;
-        this.activity = activity;
+        this.context = context;
     }
 
     // the parameter width is the screen width, used to position the chart properly
@@ -116,7 +116,7 @@ public class CollectorDataLineChartBuilder {
     }
 
     public Pair<TextView, LinearLayout.LayoutParams> buildChartYAxisLabels() {
-        TextView yAxisLabel = new TextView(activity);
+        TextView yAxisLabel = new TextView(context);
         yAxisLabel.setText("Daily Data \n (MB)");
         yAxisLabel.setTextSize(10f);
         yAxisLabel.setTextColor(Color.parseColor("#1C2B34"));
@@ -128,7 +128,7 @@ public class CollectorDataLineChartBuilder {
     }
 
     public Pair<TextView, LinearLayout.LayoutParams> buildChartTitle() {
-        TextView chartTitle = new TextView(activity);
+        TextView chartTitle = new TextView(context);
         chartTitle.setText("Daily Volume of Collected Data");
         chartTitle.setTextSize(14f);
         chartTitle.setTypeface(null, Typeface.BOLD);

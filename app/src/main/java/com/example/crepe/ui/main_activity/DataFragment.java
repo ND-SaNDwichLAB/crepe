@@ -49,14 +49,19 @@ public class DataFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         getActivity().setTitle("View My Data");
 
-        // load collector information from database
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
         initCollectorInfoLayout();
+
     }
 
     // function to init collector information from database on data fragment
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void initCollectorInfoLayout() {
-        CollectorCardConstraintLayoutBuilder builder = new CollectorCardConstraintLayoutBuilder(getActivity());
+        CollectorCardConstraintLayoutBuilder builder = new CollectorCardConstraintLayoutBuilder(getContext());
 
         LinearLayout fragmentInnerLinearLayout = getView().findViewById(R.id.data_fragment_inner_linear_layout);
 
@@ -74,7 +79,7 @@ public class DataFragment extends Fragment {
             // add the data vis for the corresponding collector
             // programmatically create a LineChart
 
-            CollectorDataLineChartBuilder chartBuilder = new CollectorDataLineChartBuilder(this.getContext(), getActivity(), collector);
+            CollectorDataLineChartBuilder chartBuilder = new CollectorDataLineChartBuilder(getContext(), collector);
 
             // add y axis label and chart title
             Pair<TextView, LinearLayout.LayoutParams> lineChartTitle = chartBuilder.buildChartTitle();

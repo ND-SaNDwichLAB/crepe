@@ -1,0 +1,258 @@
+package com.example.crepe.ui.dialog;
+
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.Spinner;
+
+import com.example.crepe.R;
+import com.example.crepe.database.Collector;
+import com.example.crepe.database.DatabaseManager;
+
+public class CollectorConfigurationDialogWrapper  {
+
+    private AlertDialog dialog;
+    private Context context;
+    private String currentScreenState;
+    private Collector collector;
+
+    CollectorConfigurationDialogWrapper (Context context, AlertDialog dialog, Collector collector){
+        this.context = context;
+        this.dialog = dialog;
+        this.collector = collector;
+        this.currentScreenState = "buildDialogFromConfig";
+    }
+
+    public void updateCurrentView() {
+        View dialogMainView;
+
+        //Dialog newScreen = new Dialog(c);
+        switch(currentScreenState){
+            case "buildDialogFromConfig":
+                dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_add_collector_from_config, null);
+                dialog.setContentView(dialogMainView);
+
+                //buttons
+                Button popupCancelBtn = (Button) dialogMainView.findViewById(R.id.addCollectorFromConfigDialogCancelButton);
+                Button popupNextBtn = (Button) dialogMainView.findViewById(R.id.addCollectorFromConfigDialogNextButton);
+
+                //spinners
+                Spinner appDropDown = (Spinner)dialogMainView.findViewById(R.id.appSpinner);
+                Spinner locationDropDown = (Spinner) dialogMainView.findViewById(R.id.locationSpinner);
+                String[] appItems = new String[]{"Uber", "Doordash", "Grubhub"};
+                ArrayAdapter<String> appAdapter = new ArrayAdapter<String>(context.getApplicationContext(), android.R.layout.simple_spinner_dropdown_item, appItems);
+                appAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                appDropDown.setAdapter(appAdapter);
+                String[] locationItems = new String[]{"Local", "Remote"};
+                ArrayAdapter<String> locationAdapter = new ArrayAdapter<String>(context.getApplicationContext(), android.R.layout.simple_spinner_dropdown_item, locationItems);
+                locationAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                locationDropDown.setAdapter(locationAdapter);
+
+                //date picker buttons and textview
+                ImageButton startImgBtn = (ImageButton)dialogMainView.findViewById(R.id.startImageButton);
+                ImageButton endImgBtn = (ImageButton)dialogMainView.findViewById(R.id.endImageButton);
+                EditText startDateText = (EditText)dialogMainView.findViewById(R.id.startDateText);
+                EditText endDateText = (EditText)dialogMainView.findViewById(R.id.endDateText);
+
+                // TODO: set the widget value according to the collector object
+
+                //MaterialDatePicker
+//                MaterialDatePicker.Builder builder = MaterialDatePicker.Builder.datePicker();
+//                builder.setTitleText("SELECT THE START DATE");
+//                builder.setSelection(MaterialDatePicker.todayInUtcMilliseconds());
+//                final MaterialDatePicker startMaterialDatePicker = builder.build();
+//                Dialog datePickerDialog = builder.create();
+//
+//                startImgBtn.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        startMaterialDatePicker.show(startMaterialDatePicker.getParentFragmentManager(), "start_date_picker");
+//
+//                    }
+//                });
+//
+//                endImgBtn.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//
+//                    }
+//                });
+
+                popupCancelBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        dialog.dismiss();
+                    }
+                });
+
+                popupNextBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        // update info for collector
+//                        String appName = appDropDown.getSelectedItem().toString();
+//                                if (appName != someDefaultValue) {
+//                                    collector.setAppName(appName);
+//                                } else {
+//                                    // set the border of spinner to red
+//                                }
+//
+                        //collector.getTimeCreated();
+                        //collector.getTimeLastEdited();
+
+                        //TODO: update the collector object according to the widget values
+
+                        // update currentScreen String value
+                        currentScreenState = "buildDialogFromConfigGraphQuery";
+                        // recursively call itself with new currentScreen String value
+                        updateCurrentView();
+
+//                        dialog.dismiss();
+//                        CreateCollectorFromConfigDialogBuilderGraphQuery nextPopup = new CreateCollectorFromConfigDialogBuilderGraphQuery(c);
+//                        Dialog newDialog = nextPopup.build();
+//                        newDialog.show();
+                    }
+                });
+
+                break;
+
+
+            case "buildDialogFromConfigGraphQuery":
+                dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_add_collector_from_config_graph_query, null);
+                dialog.setContentView(dialogMainView);
+
+                Button graphQueryNxtBtn = (Button) dialogMainView.findViewById(R.id.graphQueryNextButton);
+                Button graphQueryBckBtn = (Button) dialogMainView.findViewById(R.id.graphQueryBackButton);
+                ImageButton graphQueryCloseImg = (ImageButton) dialogMainView.findViewById(R.id.closeGraphQueryPopupImageButton);
+
+                graphQueryBckBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        // update currentScreen String value
+                        currentScreenState = "buildDialogFromConfig";
+                        // recursively call itself with new currentScreen String value
+                        updateCurrentView();
+
+                    }
+                });
+
+                graphQueryNxtBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+
+                        // update currentScreen String value
+                        currentScreenState = "buildDialogFromConfigDataField";
+                        // recursively call itself with new currentScreen String value
+                        updateCurrentView();
+
+                    }
+                });
+
+                graphQueryCloseImg.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        dialog.dismiss();
+                    }
+                });
+
+
+                break;
+
+            case "buildDialogFromConfigDataField": ;
+                dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_add_collector_from_config_data_field, null);
+                dialog.setContentView(dialogMainView);
+
+                Button dataFieldNxtBtn = (Button) dialogMainView.findViewById(R.id.dataFieldNextButton);
+                Button dataFieldBckBtn = (Button) dialogMainView.findViewById(R.id.dataFieldBackButton);
+                ImageButton dataFieldCloseImg = (ImageButton) dialogMainView.findViewById(R.id.closeDataFieldImageButton);
+
+                dataFieldBckBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        // update currentScreen String value
+                        currentScreenState = "buildDialogFromConfigGraphQuery";
+
+                        // recursively call itself with new currentScreen String value
+                        updateCurrentView();
+                    }
+                });
+
+                dataFieldNxtBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+
+                        // update currentScreen String value
+                        currentScreenState = "buildDialogFromConfigDescription";
+
+                        // recursively call itself with new currentScreen String value
+                        updateCurrentView();
+                    }
+                });
+
+
+                break;
+
+            case "buildDialogFromConfigDescription":
+                dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_add_collector_from_config_description, null);
+                dialog.setContentView(dialogMainView);
+
+                Button descriptionCreateBtn = (Button) dialogMainView.findViewById(R.id.descriptionCreateButton);
+                Button descriptionBckBtn = (Button) dialogMainView.findViewById(R.id.descriptionBackButton);
+                ImageButton descriptionCloseImg = (ImageButton) dialogMainView.findViewById(R.id.closeDescriptionImageButton);
+
+
+                descriptionBckBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        // update currentScreen String value
+                        currentScreenState = "buildDialogFromConfigDataField";
+                        // recursively call itself with new currentScreen String value
+                        updateCurrentView();
+                    }
+                });
+
+                descriptionCreateBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+
+                        // TODO: write the object to the DB
+                        // update currentScreen String value
+                        currentScreenState = "buildDialogFromConfigSuccessMessage";
+                        // recursively call itself with new currentScreen String value
+                        updateCurrentView();
+                    }
+                });
+
+                break;
+
+            case "buildDialogFromConfigSuccessMessage":;
+                dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_add_collector_from_config_success_message, null);
+                dialog.setContentView(dialogMainView);
+
+                Button closeSuccessMessage = (Button) dialogMainView.findViewById(R.id.closeSuccessMessagePopupButton);
+
+                break;
+
+
+
+            default:
+                throw new IllegalStateException("Unexpected value: " + currentScreenState);
+
+        }
+    }
+
+
+   public void show() {
+        dialog.show();
+        updateCurrentView();
+   }
+
+    public Dialog getDialog() {
+        return dialog;
+    }
+}

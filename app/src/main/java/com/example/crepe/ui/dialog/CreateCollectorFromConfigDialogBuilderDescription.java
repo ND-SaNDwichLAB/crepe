@@ -10,6 +10,7 @@ import android.widget.ImageButton;
 
 import com.example.crepe.R;
 
+@Deprecated
 public class CreateCollectorFromConfigDialogBuilderDescription {
     private Context c;
     private AlertDialog.Builder dialogBuilder;

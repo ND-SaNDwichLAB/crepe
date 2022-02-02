@@ -27,7 +27,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     public static final String COLUMN_COLLECTOR_TIME_LAST_EDITED = "timeLastEdited";
     public static final String COLUMN_MODE = "mode";
     public static final String COLUMN_TARGET_SERVER_IP = "targetServerIp";
-    public static final String USER_TABLE = "user";
+    public static final String USER_TABLE = "usertable";
     public static final String COLUMN_USER_ID = "userId";
     public static final String COLUMN_USER_NAME = "userName";
     public static final String DATA_TABLE = "data";

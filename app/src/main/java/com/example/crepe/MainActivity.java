@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import com.example.crepe.database.Collector;
 import com.example.crepe.database.DatabaseManager;
+import com.example.crepe.ui.dialog.CollectorConfigurationDialogWrapper;
 import com.example.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilder;
 import com.example.crepe.ui.dialog.CreateCollectorFromURLDialogBuilder;
 import com.example.crepe.ui.main_activity.DataFragment;
@@ -143,8 +144,8 @@ public class MainActivity extends AppCompatActivity {
         createNewBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Dialog dialog = createCollectorFromConfigDialogBuilder.updateCurrentView();
-                dialog.show();
+                CollectorConfigurationDialogWrapper wrapper = createCollectorFromConfigDialogBuilder.buildDialogWrapperWithNewCollector();
+                wrapper.show();
             }
         });
     }
