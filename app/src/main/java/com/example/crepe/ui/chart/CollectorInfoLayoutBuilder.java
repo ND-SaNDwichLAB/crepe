@@ -4,13 +4,21 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.util.DisplayMetrics;
 import android.util.Pair;
 import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.RequiresApi;
+import androidx.constraintlayout.widget.ConstraintLayout;
+
+import com.example.crepe.R;
 import com.example.crepe.database.Collector;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Description;
@@ -29,22 +37,31 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
-public class CollectorDataLineChartBuilder {
-    LineChart lineChart;
-    Collector collector;
+public class CollectorInfoLayoutBuilder {
     Context context;
+    LineChart lineChart;
+    LinearLayout containerLayout;
 
 
-
-
-    public CollectorDataLineChartBuilder(Context context, Collector collector) {
-        this.lineChart = new LineChart(context);
-        this.collector = collector;
+    // we will use the following constructor more often, because we initialize
+    public CollectorInfoLayoutBuilder(Context context) {
         this.context = context;
+        this.lineChart = new LineChart(context);
+        this.containerLayout = new LinearLayout(context);
+    }
+
+    public ConstraintLayout buildCollectorInfoView(Collector collector) {
+        ConstraintLayout collectorInfoLayout = (ConstraintLayout) LayoutInflater.from(context).inflate(R.layout.collector_info, containerLayout, false);
+        TextView appNameTextView = (TextView) collectorInfoLayout.findViewById(R.id.collectorTitle);
+        appNameTextView.setText(collector.getAppName());
+
+        TextView collectorDescriptionTextView = (TextView) collectorInfoLayout.findViewById(R.id.collectorDataDescription);
+        collectorDescriptionTextView.setText(collector.getDescription());
+        return collectorInfoLayout;
     }
 
     // the parameter width is the screen width, used to position the chart properly
-    public LineChart build() {
+    public LineChart buildChart(Collector collector) {
 
         // fake some data
         Integer dataPointNum = 10;
@@ -139,6 +156,68 @@ public class CollectorDataLineChartBuilder {
 
         return new Pair<>(chartTitle, params);
 
+    }
+
+    public Pair<TextView, LinearLayout.LayoutParams> buildSampleDataPieceTitle() {
+        TextView sampleDataTitle = new TextView(context);
+        sampleDataTitle.setText("Sample of Collected Data");
+        sampleDataTitle.setTextColor(Color.parseColor("#1C2B34"));
+        sampleDataTitle.setTypeface(null, Typeface.BOLD);
+        LinearLayout.LayoutParams sampleDataTitleParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        sampleDataTitleParams.gravity = Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL;
+        sampleDataTitleParams.setMargins(0, 120, 0, 0);
+        return new Pair<>(sampleDataTitle, sampleDataTitleParams);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public Pair<TextView, LinearLayout.LayoutParams> buildSampleDataPiece(Collector collector) {
+        String sampleData = "{\n" +
+                "\t\tu_id: 0038291,\n" +
+                "\t\ttime: 01012021, \n" +
+                "\t\tprice: 2.09, \n" +
+                "\t\tdestination: \"2098 Murray Ave\",\n" +
+                "\t\tstart: \"220 Fifth Ave\", \n" +
+                "\t\tduration: 10 min \n}";
+        TextView sampleDataText = new TextView(context);
+        sampleDataText.setText((CharSequence) sampleData);
+        sampleDataText.setTypeface(context.getResources().getFont(R.font.courier_prime_regular));
+        LinearLayout.LayoutParams sampleDataContentParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        sampleDataContentParams.gravity = Gravity.LEFT | Gravity.CENTER_VERTICAL;
+        sampleDataContentParams.setMargins(70, 20, 0, 0);
+
+        return new Pair<>(sampleDataText, sampleDataContentParams);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public LinearLayout build(Collector collector) {
+        ConstraintLayout collectorInfoViewLayout = buildCollectorInfoView(collector);
+        collectorInfoViewLayout.setId(View.generateViewId());
+        containerLayout.addView(collectorInfoViewLayout);
+
+        Pair<TextView, LinearLayout.LayoutParams> chartTitlePair = buildChartTitle();
+        chartTitlePair.first.setId(View.generateViewId());
+        containerLayout.addView(chartTitlePair.first, chartTitlePair.second);
+
+        LineChart lineChart = buildChart(collector);
+        if(lineChart.getParent() != null) {
+            ((ViewGroup) lineChart.getParent()).removeView(lineChart);
+        }
+        lineChart.setId(View.generateViewId());
+        containerLayout.addView(lineChart);
+
+        Pair<TextView, LinearLayout.LayoutParams> chartYAxisLabelPair = buildChartYAxisLabels();
+        chartYAxisLabelPair.first.setId(View.generateViewId());
+        containerLayout.addView(chartYAxisLabelPair.first, chartYAxisLabelPair.second);
+
+        Pair<TextView, LinearLayout.LayoutParams> sampleDataTitlePair = buildSampleDataPieceTitle();
+        sampleDataTitlePair.first.setId(View.generateViewId());
+        containerLayout.addView(sampleDataTitlePair.first, sampleDataTitlePair.second);
+
+        Pair<TextView, LinearLayout.LayoutParams> sampleDataPiecePair = buildSampleDataPiece(collector);
+        sampleDataPiecePair.first.setId(View.generateViewId());
+        containerLayout.addView(sampleDataPiecePair.first, sampleDataPiecePair.second);
+
+        return containerLayout;
     }
 
     public class DayAxisValueFormatter extends ValueFormatter {
