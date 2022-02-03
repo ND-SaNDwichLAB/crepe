@@ -40,17 +40,15 @@ import java.util.Random;
 public class CollectorInfoLayoutBuilder {
     Context context;
     LineChart lineChart;
-    LinearLayout containerLayout;
 
 
     // we will use the following constructor more often, because we initialize
     public CollectorInfoLayoutBuilder(Context context) {
         this.context = context;
         this.lineChart = new LineChart(context);
-        this.containerLayout = new LinearLayout(context);
     }
 
-    public ConstraintLayout buildCollectorInfoView(Collector collector) {
+    public ConstraintLayout buildCollectorInfoView(Collector collector, ViewGroup containerLayout) {
         ConstraintLayout collectorInfoLayout = (ConstraintLayout) LayoutInflater.from(context).inflate(R.layout.collector_info, containerLayout, false);
         TextView appNameTextView = (TextView) collectorInfoLayout.findViewById(R.id.collectorTitle);
         appNameTextView.setText(collector.getAppName());
@@ -190,7 +188,9 @@ public class CollectorInfoLayoutBuilder {
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public LinearLayout build(Collector collector) {
-        ConstraintLayout collectorInfoViewLayout = buildCollectorInfoView(collector);
+        LinearLayout containerLayout = new LinearLayout(context);
+
+        ConstraintLayout collectorInfoViewLayout = buildCollectorInfoView(collector, containerLayout);
         collectorInfoViewLayout.setId(View.generateViewId());
         containerLayout.addView(collectorInfoViewLayout);
 
