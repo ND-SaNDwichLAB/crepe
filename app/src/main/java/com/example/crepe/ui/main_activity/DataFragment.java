@@ -99,9 +99,9 @@ public class DataFragment extends Fragment {
 //            Pair<TextView, LinearLayout.LayoutParams> sampleDataPair = collectorInfoLayoutBuilder.buildSampleDataPiece();
 //            sampleDataPair.first.setId(View.generateViewId());
 //
-            if (collectorDetailView.getParent() != null ) {
-                ((ViewGroup) collectorDetailView.getParent()).removeView(collectorDetailView);
-            }
+//if (collectorDetailView.getParent() != null ) {
+//    ((ViewGroup) collectorDetailView.getParent()).removeView(collectorDetailView);
+//}
             collectorDetailView.setId(View.generateViewId());
             fragmentInnerLinearLayout.addView(collectorDetailView);
         }

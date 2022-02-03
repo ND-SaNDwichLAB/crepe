@@ -39,13 +39,11 @@ import java.util.Random;
 
 public class CollectorInfoLayoutBuilder {
     Context context;
-    LineChart lineChart;
 
 
     // we will use the following constructor more often, because we initialize
     public CollectorInfoLayoutBuilder(Context context) {
         this.context = context;
-        this.lineChart = new LineChart(context);
     }
 
     public ConstraintLayout buildCollectorInfoView(Collector collector, ViewGroup containerLayout) {
@@ -59,7 +57,9 @@ public class CollectorInfoLayoutBuilder {
     }
 
     // the parameter width is the screen width, used to position the chart properly
-    public LineChart buildChart(Collector collector) {
+    public LinearLayout buildChart(Collector collector) {
+        LineChart lineChart;
+        lineChart = new LineChart(context);
 
         // fake some data
         Integer dataPointNum = 10;
@@ -126,8 +126,16 @@ public class CollectorInfoLayoutBuilder {
 
         lineChart.invalidate(); // refresh
 
-        return lineChart;
 
+        LinearLayout linearLayout = new LinearLayout(context);
+        linearLayout.setOrientation(LinearLayout.VERTICAL);
+
+        if(lineChart.getParent() != null) {
+            ((ViewGroup) lineChart.getParent()).removeView(lineChart);
+        }
+        linearLayout.addView(lineChart);
+
+        return linearLayout;
     }
 
     public Pair<TextView, LinearLayout.LayoutParams> buildChartYAxisLabels() {
@@ -189,6 +197,7 @@ public class CollectorInfoLayoutBuilder {
     @RequiresApi(api = Build.VERSION_CODES.O)
     public LinearLayout build(Collector collector) {
         LinearLayout containerLayout = new LinearLayout(context);
+        containerLayout.setOrientation(LinearLayout.VERTICAL);
 
         ConstraintLayout collectorInfoViewLayout = buildCollectorInfoView(collector, containerLayout);
         collectorInfoViewLayout.setId(View.generateViewId());
@@ -198,16 +207,16 @@ public class CollectorInfoLayoutBuilder {
         chartTitlePair.first.setId(View.generateViewId());
         containerLayout.addView(chartTitlePair.first, chartTitlePair.second);
 
-        LineChart lineChart = buildChart(collector);
-        if(lineChart.getParent() != null) {
-            ((ViewGroup) lineChart.getParent()).removeView(lineChart);
-        }
-        lineChart.setId(View.generateViewId());
-        containerLayout.addView(lineChart);
 
         Pair<TextView, LinearLayout.LayoutParams> chartYAxisLabelPair = buildChartYAxisLabels();
         chartYAxisLabelPair.first.setId(View.generateViewId());
         containerLayout.addView(chartYAxisLabelPair.first, chartYAxisLabelPair.second);
+
+        LinearLayout lineChart = buildChart(collector);
+
+        lineChart.setId(View.generateViewId());
+        containerLayout.addView(lineChart);
+
 
         Pair<TextView, LinearLayout.LayoutParams> sampleDataTitlePair = buildSampleDataPieceTitle();
         sampleDataTitlePair.first.setId(View.generateViewId());
@@ -216,6 +225,8 @@ public class CollectorInfoLayoutBuilder {
         Pair<TextView, LinearLayout.LayoutParams> sampleDataPiecePair = buildSampleDataPiece(collector);
         sampleDataPiecePair.first.setId(View.generateViewId());
         containerLayout.addView(sampleDataPiecePair.first, sampleDataPiecePair.second);
+
+
 
         return containerLayout;
     }
