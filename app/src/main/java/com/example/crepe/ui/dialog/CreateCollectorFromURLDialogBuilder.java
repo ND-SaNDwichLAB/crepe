@@ -35,7 +35,11 @@ public class CreateCollectorFromURLDialogBuilder {
         popupNextBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 dialog.dismiss();
+                CreateCollectorFromURLDialogSuccessMessage nextPopup = new CreateCollectorFromURLDialogSuccessMessage(c);
+                nextPopup.build();
+
             }
         });
         return dialog;

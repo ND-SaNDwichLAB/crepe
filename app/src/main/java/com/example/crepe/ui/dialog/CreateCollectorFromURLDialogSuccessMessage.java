@@ -1,9 +1,7 @@
 package com.example.crepe.ui.dialog;
 
-import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
-import android.view.LayoutInflater;
-import android.view.View;
 
 import com.example.crepe.R;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -18,13 +16,14 @@ public class CreateCollectorFromURLDialogSuccessMessage {
         this.alertDialogBuilder = new MaterialAlertDialogBuilder(c);
     }
 
-    public void build() {
+    public Dialog build() {
 
         alertDialogBuilder.setTitle("SPECIFY DATA TO COLLECT")
                             .setMessage("The Uber collector is added and is scheduled to start on 01/11/2021.");
         alertDialogBuilder.setPositiveButton(c.getResources().getString(R.string.close), null);
 
         alertDialogBuilder.show();
+        return null;
     }
 
 }

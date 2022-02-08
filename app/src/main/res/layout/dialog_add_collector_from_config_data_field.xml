@@ -54,6 +54,7 @@
         android:layout_marginTop="24dp"
         android:layout_marginEnd="24dp"
         android:background="@drawable/custom_input"
+        android:inputType="textMultiLine"
         android:hint="Price Label from NewTaskWindow\nDeparture from NewTaskWindow\nDestination from NewTaskWindow\nDuration from NewTaskWindow"
         android:lineSpacingExtra="5dp"
         android:paddingStart="16dp"
