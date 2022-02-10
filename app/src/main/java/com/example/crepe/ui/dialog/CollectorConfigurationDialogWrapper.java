@@ -61,24 +61,24 @@ public class CollectorConfigurationDialogWrapper  {
                 locationDropDown.setAdapter(locationAdapter);
 
                 //date picker buttons and textview
-                ImageButton startImgBtn = (ImageButton)dialogMainView.findViewById(R.id.startImageButton);
-                ImageButton endImgBtn = (ImageButton)dialogMainView.findViewById(R.id.endImageButton);
+                ImageButton startDateCalendarBtn = (ImageButton)dialogMainView.findViewById(R.id.startImageButton);
+                ImageButton endDateCalendarBtn = (ImageButton)dialogMainView.findViewById(R.id.endImageButton);
                 EditText startDateText = (EditText)dialogMainView.findViewById(R.id.startDateText);
                 EditText endDateText = (EditText)dialogMainView.findViewById(R.id.endDateText);
 
                 // TODO: set the widget value according to the collector object
-                startImgBtn.setOnClickListener(new View.OnClickListener() {
+                startDateCalendarBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        //MaterialDatePicker
-                        MaterialDatePicker.Builder datePickerBuilder = MaterialDatePicker.Builder.datePicker();
-                        datePickerBuilder.setTitleText("SELECT THE START DATE");
-                        datePickerBuilder.setSelection(MaterialDatePicker.todayInUtcMilliseconds());
-                        final MaterialDatePicker startMaterialDatePicker = datePickerBuilder.build();
+                        // Use the MaterialDatePicker from Material Design
+                        MaterialDatePicker.Builder collectorStartDatePickerBuilder = MaterialDatePicker.Builder.datePicker();
+                        collectorStartDatePickerBuilder.setTitleText("SELECT THE COLLECTOR START DATE");
+                        collectorStartDatePickerBuilder.setSelection(MaterialDatePicker.todayInUtcMilliseconds());
+                        final MaterialDatePicker collectorStartDatePicker = collectorStartDatePickerBuilder.build();
 
-                        startMaterialDatePicker.show(((MainActivity) context).getSupportFragmentManager(), "tag");
+                        collectorStartDatePicker.show(((MainActivity) context).getSupportFragmentManager(), "tag");
 
-                        startMaterialDatePicker.addOnPositiveButtonClickListener( new MaterialPickerOnPositiveButtonClickListener<Long>() {
+                        collectorStartDatePicker.addOnPositiveButtonClickListener( new MaterialPickerOnPositiveButtonClickListener<Long>() {
                             @Override public void onPositiveButtonClick(Long selection) {
                                 collector.setCollectorStartTime(selection.longValue());
                             }
@@ -86,10 +86,23 @@ public class CollectorConfigurationDialogWrapper  {
                     }
                 });
 
-                endImgBtn.setOnClickListener(new View.OnClickListener() {
+                // TODO: change the two fields into one
+                endDateCalendarBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        // Use the Material DatePicker from Material Design
+                        MaterialDatePicker.Builder collectorEndDatePickerBuilder = MaterialDatePicker.Builder.datePicker();
+                        collectorEndDatePickerBuilder.setTitleText("SELECT THE COLLECTOR END DATE");
+                        collectorEndDatePickerBuilder.setSelection(MaterialDatePicker.todayInUtcMilliseconds());
+                        final MaterialDatePicker collectorEndDatePicker = collectorEndDatePickerBuilder.build();
 
+                        collectorEndDatePicker.show(((MainActivity) context).getSupportFragmentManager(), "tag");
+
+                        collectorEndDatePicker.addOnPositiveButtonClickListener( new MaterialPickerOnPositiveButtonClickListener<Long>() {
+                            @Override public void onPositiveButtonClick(Long selection) {
+                                collector.setCollectorEndTime(selection.longValue());
+                            }
+                        });
                     }
                 });
 
@@ -111,7 +124,7 @@ public class CollectorConfigurationDialogWrapper  {
                                 } else {
                                     // set the border of spinner to red
                                     Context currentContext = context.getApplicationContext();
-                                    Toast.makeText(currentContext,"Please select a app!",Toast.LENGTH_LONG).show();
+                                    Toast.makeText(currentContext,"Please select an app!",Toast.LENGTH_LONG).show();
                                     f = 1;
                                 }
                         long startDate = startDateText.getSelectionStart();
