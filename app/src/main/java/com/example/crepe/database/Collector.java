@@ -1,5 +1,10 @@
 package com.example.crepe.database;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
+
 public class Collector {
 
     // TODO: database schema - changed String name to description
@@ -103,12 +108,28 @@ public class Collector {
         return collectorStartTime;
     }
 
+    public String getCollectorStartTimeString() {
+        Date date = new Date(collectorStartTime);
+        DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+        dateFormat.setTimeZone(TimeZone.getDefault());
+
+        return dateFormat.format(date);
+    }
+
     public void setCollectorStartTime(long collectorStartTime) {
         this.collectorStartTime = collectorStartTime;
     }
 
     public long getCollectorEndTime() {
         return collectorEndTime;
+    }
+
+    public String getCollectorEndTimeString() {
+        Date date = new Date(collectorEndTime);
+        DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+        dateFormat.setTimeZone(TimeZone.getDefault());
+
+        return dateFormat.format(date);
     }
 
     public void setCollectorEndTime(long collectorEndTime) {

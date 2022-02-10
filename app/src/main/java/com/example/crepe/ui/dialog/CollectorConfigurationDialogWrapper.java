@@ -81,6 +81,7 @@ public class CollectorConfigurationDialogWrapper  {
                         collectorStartDatePicker.addOnPositiveButtonClickListener( new MaterialPickerOnPositiveButtonClickListener<Long>() {
                             @Override public void onPositiveButtonClick(Long selection) {
                                 collector.setCollectorStartTime(selection.longValue());
+                                startDateText.setText(collector.getCollectorStartTimeString(), null);
                             }
                         });
                     }
@@ -100,9 +101,23 @@ public class CollectorConfigurationDialogWrapper  {
 
                         collectorEndDatePicker.addOnPositiveButtonClickListener( new MaterialPickerOnPositiveButtonClickListener<Long>() {
                             @Override public void onPositiveButtonClick(Long selection) {
-                                collector.setCollectorEndTime(selection.longValue());
+                                // Validate if the end date is later than the start date,
+                                // otherwise toast a message
+
+                                long endDateSelectionValue = selection.longValue();
+
+                                if (endDateSelectionValue > collector.getCollectorStartTime()) {
+                                    collector.setCollectorEndTime(endDateSelectionValue);
+                                    endDateText.setText(collector.getCollectorEndTimeString(), null);
+                                } else {
+                                    Toast.makeText(context, "Please select a date later than your start date (" + collector.getCollectorStartTimeString() + ")", Toast.LENGTH_LONG).show();
+                                }
+
+
+
                             }
                         });
+
                     }
                 });
 

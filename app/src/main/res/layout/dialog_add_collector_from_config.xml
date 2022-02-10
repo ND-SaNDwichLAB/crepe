@@ -172,13 +172,11 @@
         android:id="@+id/endImageButton"
         android:layout_width="39dp"
         android:layout_height="39dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="24dp"
         android:layout_marginEnd="4dp"
         android:background="@android:color/transparent"
         android:clickable="true"
         app:layout_constraintEnd_toEndOf="@+id/endDateText"
-        app:layout_constraintTop_toBottomOf="@+id/configPopupTitle"
+        app:layout_constraintTop_toTopOf="@+id/endDateText"
         app:srcCompat="@drawable/ic_baseline_calendar_today_24" />
 
     <TextView
