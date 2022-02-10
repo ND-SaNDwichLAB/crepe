@@ -14,7 +14,7 @@
         android:layout_marginStart="24dp"
         android:layout_marginTop="24dp"
         android:text="ADD A NEW COLLECTOR"
-        android:textSize="20sp"
+        android:textSize="19sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -23,7 +23,7 @@
         android:layout_width="144dp"
         android:layout_height="40dp"
         android:layout_marginStart="24dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="35dp"
         android:background="@drawable/custom_input"
         android:hint="12/22/2021"
         android:lineSpacingExtra="5dp"
@@ -39,7 +39,7 @@
         android:id="@+id/endDateText"
         android:layout_width="144dp"
         android:layout_height="40dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="35dp"
         android:layout_marginEnd="24dp"
         android:background="@drawable/custom_input"
         android:hint="12/23/2021"
@@ -135,10 +135,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="36dp"
-        android:layout_marginTop="14dp"
+        android:layout_marginTop="27dp"
+        android:background="@color/white"
         android:paddingStart="2dp"
         android:paddingEnd="2dp"
-        android:background="@color/white"
         android:text="Start Date"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/configPopupTitle" />
@@ -148,11 +148,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="12dp"
-        android:layout_marginTop="14dp"
+        android:layout_marginTop="27dp"
+        android:background="@color/white"
         android:paddingStart="2dp"
         android:paddingEnd="2dp"
         android:text="End Date"
-        android:background="@color/white"
         app:layout_constraintStart_toStartOf="@+id/endDateText"
         app:layout_constraintTop_toBottomOf="@+id/configPopupTitle" />
 
