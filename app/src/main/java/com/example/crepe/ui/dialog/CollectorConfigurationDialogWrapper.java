@@ -12,6 +12,7 @@ import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.example.crepe.MainActivity;
 import com.example.crepe.R;
 import com.example.crepe.database.Collector;
 import com.example.crepe.database.DatabaseManager;
@@ -66,20 +67,19 @@ public class CollectorConfigurationDialogWrapper  {
                 EditText endDateText = (EditText)dialogMainView.findViewById(R.id.endDateText);
 
                 // TODO: set the widget value according to the collector object
+                startImgBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        //MaterialDatePicker
+                        MaterialDatePicker.Builder datePickerBuilder = MaterialDatePicker.Builder.datePicker();
+                        datePickerBuilder.setTitleText("SELECT THE START DATE");
+                        datePickerBuilder.setSelection(MaterialDatePicker.todayInUtcMilliseconds());
+                        final MaterialDatePicker startMaterialDatePicker = datePickerBuilder.build();
 
-                //MaterialDatePicker
-//                MaterialDatePicker.Builder datePickerBuilder = MaterialDatePicker.Builder.datePicker();
-//                datePickerBuilder.setTitleText("SELECT THE START DATE");
-//                datePickerBuilder.setSelection(MaterialDatePicker.todayInUtcMilliseconds());
-//                final MaterialDatePicker startMaterialDatePicker = datePickerBuilder.build();
-//
-//                startImgBtn.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View view) {
-//                        startMaterialDatePicker.show(startMaterialDatePicker.getChildFragmentManager(), "tag");
-//
-//                    }
-//                });
+                        startMaterialDatePicker.show(((MainActivity) context).getSupportFragmentManager(), "tag");
+
+                    }
+                });
 
                 endImgBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
