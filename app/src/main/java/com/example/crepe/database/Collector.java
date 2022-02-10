@@ -17,10 +17,11 @@ public class Collector {
     private String targetServerIp;
     private long collectorStartTime;
     private long collectorEndTime;
+    private String collectorGraphQuery;
     private String collectorAppDataFields;
 
 
-    public Collector(String collectorId, String creatorUserID, String appName, String description, String mode, String targetServerIp, long collectorStartTime, long collectorEndTime, String collectorAppDataFields) {
+    public Collector(String collectorId, String creatorUserID, String appName, String description, String mode, String targetServerIp, long collectorStartTime, long collectorEndTime, String collectorGraphQuery, String collectorAppDataFields) {
         this.collectorId = collectorId;
         this.creatorUserId = creatorUserID;
         this.appName = appName;
@@ -29,6 +30,7 @@ public class Collector {
         this.targetServerIp = targetServerIp;
         this.collectorStartTime = collectorStartTime;
         this.collectorEndTime = collectorEndTime;
+        this.collectorGraphQuery = collectorGraphQuery;
         this.collectorAppDataFields = collectorAppDataFields;
     }
 
@@ -45,6 +47,7 @@ public class Collector {
                 ", description='" + description + '\'' +
                 ", collectorStartTime=" + collectorStartTime +
                 ", collectorEndTime=" + collectorEndTime +
+                ", collectorGraphQuery=" + collectorGraphQuery +
                 ", collectorAppDataFields= " + collectorAppDataFields +
                 ", mode='" + mode + '\'' +
                 ", targetServerIP='" + targetServerIp + '\'' +
@@ -144,4 +147,11 @@ public class Collector {
         this.collectorAppDataFields = collectorAppDataFields;
     }
 
+    public String getCollectorGraphQuery() {
+        return collectorGraphQuery;
+    }
+
+    public void setCollectorGraphQuery(String collectorGraphQuery) {
+        this.collectorGraphQuery = collectorGraphQuery;
+    }
 }
