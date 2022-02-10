@@ -23,8 +23,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
     public static final String COLUMN_CREATOR_USER_ID = "creatorUserId";
     public static final String COLUMN_APP_NAME = "appName";
     public static final String COLUMN_NAME = "name";
-    public static final String COLUMN_COLLECTOR_TIME_CREATED = "timeCreated";
-    public static final String COLUMN_COLLECTOR_TIME_LAST_EDITED = "timeLastEdited";
+    public static final String COLUMN_COLLECTOR_START_TIME = "collectorStartTime";
+    public static final String COLUMN_COLLECTOR_END_TIME = "collectorEndTime";
+    public static final String COLUMN_COLLECTOR_APP_DATA_FIELDS = "collectorAppDataFields";
     public static final String COLUMN_MODE = "mode";
     public static final String COLUMN_TARGET_SERVER_IP = "targetServerIp";
     public static final String USER_TABLE = "usertable";
@@ -51,11 +52,11 @@ public class DatabaseManager extends SQLiteOpenHelper {
             "            " + COLUMN_CREATOR_USER_ID + " VARCHAR, " +
             "            " + COLUMN_APP_NAME + " VARCHAR, " +
             "            " + COLUMN_NAME + " VARCHAR, " +
-            "            " + COLUMN_COLLECTOR_TIME_CREATED + " BIGINT NOT NULL, " +
-            "            " + COLUMN_COLLECTOR_TIME_LAST_EDITED + " BIGINT, " +
             "            " + COLUMN_MODE + " VARCHAR, " +
-            "            " + COLUMN_TARGET_SERVER_IP + " VARCHAR);";
-
+            "            " + COLUMN_TARGET_SERVER_IP + " VARCHAR, " +
+            "            " + COLUMN_COLLECTOR_START_TIME + " BIGINT, " +
+            "            " + COLUMN_COLLECTOR_END_TIME + " BIGINT, " +
+            "            " + COLUMN_COLLECTOR_APP_DATA_FIELDS + " VARCHAR);";
 
     private final String createUserTableStatement = "CREATE TABLE IF NOT EXISTS " + USER_TABLE + " (" + COLUMN_USER_ID + " VARCHAR PRIMARY KEY, " +
             "            " + COLUMN_USER_NAME + " VARCHAR, " +
@@ -120,9 +121,10 @@ public class DatabaseManager extends SQLiteOpenHelper {
         cv.put(COLUMN_NAME, collector.getDescription());
         cv.put(COLUMN_APP_NAME, collector.getAppName());
         cv.put(COLUMN_MODE, collector.getMode());
-        cv.put(COLUMN_COLLECTOR_TIME_CREATED, collector.getTimeCreated());
-        cv.put(COLUMN_COLLECTOR_TIME_LAST_EDITED, collector.getTimeLastEdited());
         cv.put(COLUMN_TARGET_SERVER_IP, collector.getTargetServerIp());
+        cv.put(COLUMN_COLLECTOR_START_TIME, collector.getCollectorStartTime());
+        cv.put(COLUMN_COLLECTOR_END_TIME, collector.getCollectorEndTime());
+        cv.put(COLUMN_COLLECTOR_APP_DATA_FIELDS, collector.getCollectorAppDataFields());
 
         long insert = db.insert(COLLECTOR_TABLE, null, cv);
 
@@ -158,12 +160,13 @@ public class DatabaseManager extends SQLiteOpenHelper {
                 String creatorUserID = cursor.getString(1);
                 String appName = cursor.getString(2);
                 String name = cursor.getString(3);
-                long timeCreated = cursor.getLong(4);
-                long timeLastEdited = cursor.getLong(5);
-                String mode = cursor.getString(6);
-                String targetServerIP = cursor.getString(7);
+                String mode = cursor.getString(4);
+                String targetServerIP = cursor.getString(5);
+                long collectorStartTime = cursor.getLong(6);
+                long collectorEndTime = cursor.getLong(7);
+                String collectorAppDataFields = cursor.getString(8);
 
-                Collector receivedCollector = new Collector(collectorID, creatorUserID, appName, name, timeCreated, timeLastEdited, mode, targetServerIP);
+                Collector receivedCollector = new Collector(collectorID, creatorUserID, appName, name, mode, targetServerIP, collectorStartTime, collectorEndTime, collectorAppDataFields);
                 collectorList.add(receivedCollector);
 
             } while(cursor.moveToNext());

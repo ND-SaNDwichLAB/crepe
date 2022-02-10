@@ -80,7 +80,7 @@ public class CollectorConfigurationDialogWrapper  {
 
                         startMaterialDatePicker.addOnPositiveButtonClickListener( new MaterialPickerOnPositiveButtonClickListener<Long>() {
                             @Override public void onPositiveButtonClick(Long selection) {
-                                Toast.makeText(context, startMaterialDatePicker.getSelection().toString(), Toast.LENGTH_LONG).show();
+                                collector.setCollectorStartTime(selection.longValue());
                             }
                         });
                     }

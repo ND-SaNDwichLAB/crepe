@@ -8,20 +8,23 @@ public class Collector {
     private String creatorUserId;
     private String appName;
     private String description;
-    private long timeCreated;
-    private long timeLastEdited;
     private String mode;
     private String targetServerIp;
+    private long collectorStartTime;
+    private long collectorEndTime;
+    private String collectorAppDataFields;
 
-    public Collector(String collectorId, String creatorUserID, String appName, String description, long timeCreated, long timeLastEdited, String mode, String targetServerIp) {
+
+    public Collector(String collectorId, String creatorUserID, String appName, String description, String mode, String targetServerIp, long collectorStartTime, long collectorEndTime, String collectorAppDataFields) {
         this.collectorId = collectorId;
         this.creatorUserId = creatorUserID;
         this.appName = appName;
         this.description = description;
-        this.timeCreated = timeCreated;
-        this.timeLastEdited = timeLastEdited;
         this.mode = mode;
         this.targetServerIp = targetServerIp;
+        this.collectorStartTime = collectorStartTime;
+        this.collectorEndTime = collectorEndTime;
+        this.collectorAppDataFields = collectorAppDataFields;
     }
 
     public Collector(String collectorId) {
@@ -35,8 +38,9 @@ public class Collector {
                 ", creatorUserId='" + creatorUserId + '\'' +
                 ", appName='" + appName + '\'' +
                 ", description='" + description + '\'' +
-                ", timeCreated=" + timeCreated +
-                ", timeLastEdited=" + timeLastEdited +
+                ", collectorStartTime=" + collectorStartTime +
+                ", collectorEndTime=" + collectorEndTime +
+                ", collectorAppDataFields= " + collectorAppDataFields +
                 ", mode='" + mode + '\'' +
                 ", targetServerIP='" + targetServerIp + '\'' +
                 '}';
@@ -78,22 +82,6 @@ public class Collector {
         this.description = description;
     }
 
-    public long getTimeCreated() {
-        return timeCreated;
-    }
-
-    public void setTimeCreated(long timeCreated) {
-        this.timeCreated = timeCreated;
-    }
-
-    public long getTimeLastEdited() {
-        return timeLastEdited;
-    }
-
-    public void setTimeLastEdited(long timeLastEdited) {
-        this.timeLastEdited = timeLastEdited;
-    }
-
     public String getMode() {
         return mode;
     }
@@ -109,4 +97,30 @@ public class Collector {
     public void setTargetServerIp(String targetServerIp) {
         this.targetServerIp = targetServerIp;
     }
+
+
+    public long getCollectorStartTime() {
+        return collectorStartTime;
+    }
+
+    public void setCollectorStartTime(long collectorStartTime) {
+        this.collectorStartTime = collectorStartTime;
+    }
+
+    public long getCollectorEndTime() {
+        return collectorEndTime;
+    }
+
+    public void setCollectorEndTime(long collectorEndTime) {
+        this.collectorEndTime = collectorEndTime;
+    }
+
+    public String getCollectorAppDataFields() {
+        return collectorAppDataFields;
+    }
+
+    public void setCollectorAppDataFields(String collectorAppDataFields) {
+        this.collectorAppDataFields = collectorAppDataFields;
+    }
+
 }
