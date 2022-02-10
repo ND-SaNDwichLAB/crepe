@@ -17,7 +17,7 @@ import com.example.crepe.R;
 import com.example.crepe.database.Collector;
 import com.example.crepe.database.DatabaseManager;
 import com.google.android.material.datepicker.MaterialDatePicker;
-
+import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 
 
 public class CollectorConfigurationDialogWrapper  {
@@ -78,6 +78,11 @@ public class CollectorConfigurationDialogWrapper  {
 
                         startMaterialDatePicker.show(((MainActivity) context).getSupportFragmentManager(), "tag");
 
+                        startMaterialDatePicker.addOnPositiveButtonClickListener( new MaterialPickerOnPositiveButtonClickListener<Long>() {
+                            @Override public void onPositiveButtonClick(Long selection) {
+                                Toast.makeText(context, startMaterialDatePicker.getSelection().toString(), Toast.LENGTH_LONG).show();
+                            }
+                        });
                     }
                 });
 
