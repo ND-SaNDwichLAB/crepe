@@ -37,7 +37,6 @@ public class CollectorConfigurationDialogWrapper  {
     public void updateCurrentView() {
         View dialogMainView;
 
-        //Dialog newScreen = new Dialog(c);
         switch(currentScreenState){
             case "buildDialogFromConfig":
                 dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_add_collector_from_config, null);
@@ -65,6 +64,15 @@ public class CollectorConfigurationDialogWrapper  {
                 ImageButton endDateCalendarBtn = (ImageButton)dialogMainView.findViewById(R.id.endImageButton);
                 EditText startDateText = (EditText)dialogMainView.findViewById(R.id.startDateText);
                 EditText endDateText = (EditText)dialogMainView.findViewById(R.id.endDateText);
+
+                // update field values based on current collector information, mostly used when coming back from next dialogs
+                if(Long.valueOf(collector.getCollectorStartTime()) != 0) {
+                    startDateText.setText(collector.getCollectorStartTimeString());
+                }
+                if(Long.valueOf(collector.getCollectorEndTime()) != 0) {
+                    endDateText.setText(collector.getCollectorEndTimeString());
+                }
+
 
                 // TODO: set the widget value according to the collector object
                 startDateCalendarBtn.setOnClickListener(new View.OnClickListener() {
