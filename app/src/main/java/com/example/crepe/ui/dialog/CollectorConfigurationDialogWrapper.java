@@ -19,6 +19,9 @@ import com.example.crepe.database.DatabaseManager;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 
 public class CollectorConfigurationDialogWrapper  {
 
@@ -42,24 +45,43 @@ public class CollectorConfigurationDialogWrapper  {
                 dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_add_collector_from_config, null);
                 dialog.setContentView(dialogMainView);
 
-                //buttons
+                // buttons
                 Button popupCancelBtn = (Button) dialogMainView.findViewById(R.id.addCollectorFromConfigDialogCancelButton);
                 Button popupNextBtn = (Button) dialogMainView.findViewById(R.id.addCollectorFromConfigDialogNextButton);
 
-                //spinners
+                // spinners
                 Spinner appDropDown = (Spinner)dialogMainView.findViewById(R.id.appSpinner);
                 Spinner locationDropDown = (Spinner) dialogMainView.findViewById(R.id.locationSpinner);
+
+                // app spinner
                 String[] appItems = new String[]{" ","Uber", "Doordash", "Grubhub"};
                 ArrayAdapter<String> appAdapter = new ArrayAdapter<String>(context.getApplicationContext(), android.R.layout.simple_spinner_dropdown_item, appItems);
                 appAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 appDropDown.setAdapter(appAdapter);
+                if (collector.getAppName() != null) {
+                    int i;
+                    for (i = 1; i < appItems.length; i++) {
+                        if (collector.getAppName() == appItems[i])
+                            break;
+                    }
+                    appDropDown.setSelection(i);
+                }
 
+                // location spinner
                 String[] locationItems = new String[]{" ","Local", "Remote"};
                 ArrayAdapter<String> locationAdapter = new ArrayAdapter<String>(context.getApplicationContext(), android.R.layout.simple_spinner_dropdown_item, locationItems);
                 locationAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 locationDropDown.setAdapter(locationAdapter);
+                if (collector.getMode() != null) {
+                    int i;
+                    for (i = 1; i < locationItems.length; i++) {
+                        if (collector.getMode() == locationItems[i])
+                            break;
+                    }
+                    locationDropDown.setSelection(i);
+                }
 
-                //date picker buttons and textview
+                // date picker buttons and textview
                 ImageButton startDateCalendarBtn = (ImageButton)dialogMainView.findViewById(R.id.startImageButton);
                 ImageButton endDateCalendarBtn = (ImageButton)dialogMainView.findViewById(R.id.endImageButton);
                 EditText startDateText = (EditText)dialogMainView.findViewById(R.id.startDateText);
@@ -69,10 +91,22 @@ public class CollectorConfigurationDialogWrapper  {
                 if(Long.valueOf(collector.getCollectorStartTime()) != 0) {
                     startDateText.setText(collector.getCollectorStartTimeString());
                 }
+                else {
+                    Calendar c = Calendar.getInstance();
+                    SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+                    String currentDate = df.format(c.getTime());
+                    startDateText.setText(currentDate);
+                }
                 if(Long.valueOf(collector.getCollectorEndTime()) != 0) {
                     endDateText.setText(collector.getCollectorEndTimeString());
                 }
-
+                else {
+                    Calendar c = Calendar.getInstance();
+                    c.add(Calendar.DAY_OF_YEAR,1);
+                    SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+                    String currentDate = df.format(c.getTime());
+                    endDateText.setText(currentDate);
+                }
 
                 // TODO: set the widget value according to the collector object
                 startDateCalendarBtn.setOnClickListener(new View.OnClickListener() {
@@ -111,7 +145,6 @@ public class CollectorConfigurationDialogWrapper  {
                             @Override public void onPositiveButtonClick(Long selection) {
                                 // Validate if the end date is later than the start date,
                                 // otherwise toast a message
-
                                 long endDateSelectionValue = selection.longValue();
 
                                 if (endDateSelectionValue > collector.getCollectorStartTime()) {
@@ -120,9 +153,6 @@ public class CollectorConfigurationDialogWrapper  {
                                 } else {
                                     Toast.makeText(context, "Please select a date later than your start date (" + collector.getCollectorStartTimeString() + ")", Toast.LENGTH_LONG).show();
                                 }
-
-
-
                             }
                         });
 
@@ -139,38 +169,42 @@ public class CollectorConfigurationDialogWrapper  {
                 popupNextBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        int f = 0;
+                        int blankFlag = 0;
                         // update info for collector
                         String appName = appDropDown.getSelectedItem().toString();
-                                if (appName != " ") {
-                                    collector.setAppName(appName);
-                                } else {
-                                    // set the border of spinner to red
-                                    Context currentContext = context.getApplicationContext();
-                                    Toast.makeText(currentContext,"Please select an app!",Toast.LENGTH_LONG).show();
-                                    f = 1;
-                                }
-                        long startDate = startDateText.getSelectionStart();
-                        //collector.setCollectorId();
-                        long endDate = endDateText.getSelectionEnd();
-                        //collector.setCollectorId();
+                        if (appName != " ") {
+                            collector.setAppName(appName);
+                        } else {
+                            // set the border of spinner to red
+                            Context currentContext = context.getApplicationContext();
+                            Toast.makeText(currentContext,"Please select an app!",Toast.LENGTH_LONG).show();
+                            blankFlag = 1;
+                        }
+
+                        String location = locationDropDown.getSelectedItem().toString();
+                        if (location != " ") {
+                            collector.setMode(location);
+                        } else {
+                            // set the border of spinner to red
+                            Context currentContext = context.getApplicationContext();
+                            Toast.makeText(currentContext,"Please select a location!",Toast.LENGTH_LONG).show();
+                            blankFlag = 1;
+                        }
+
 
                         //TODO: update the collector object according to the widget values
-                        if (f == 0) {
+                        if (blankFlag == 0) {
                             // update currentScreen String value
                             currentScreenState = "buildDialogFromConfigGraphQuery";
                             // recursively call itself with new currentScreen String value
                             updateCurrentView();
                         }
 
-//                        dialog.dismiss();
-//                        CreateCollectorFromConfigDialogBuilderGraphQuery nextPopup = new CreateCollectorFromConfigDialogBuilderGraphQuery(c);
-//                        Dialog newDialog = nextPopup.build();
-//                        newDialog.show();
                     }
                 });
-
                 break;
+
+
 
 
             case "buildDialogFromConfigGraphQuery":
@@ -180,6 +214,11 @@ public class CollectorConfigurationDialogWrapper  {
                 Button graphQueryNxtBtn = (Button) dialogMainView.findViewById(R.id.graphQueryNextButton);
                 Button graphQueryBckBtn = (Button) dialogMainView.findViewById(R.id.graphQueryBackButton);
                 ImageButton graphQueryCloseImg = (ImageButton) dialogMainView.findViewById(R.id.closeGraphQueryPopupImageButton);
+                EditText graphQueryEditTxt = (EditText) dialogMainView.findViewById(R.id.graphQueryEditText);
+
+                if (collector.getCollectorGraphQuery() != null) {
+                    graphQueryEditTxt.setText(collector.getCollectorGraphQuery());
+                }
 
                 graphQueryBckBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -195,12 +234,24 @@ public class CollectorConfigurationDialogWrapper  {
                 graphQueryNxtBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        // upadate
-                        // update currentScreen String value
-                        currentScreenState = "buildDialogFromConfigDataField";
-                        // recursively call itself with new currentScreen String value
-                        updateCurrentView();
-
+                        int blankFlag = 0;
+                        // get graph query
+                        String graphQueryContent = graphQueryEditTxt.getText().toString();
+                        if (graphQueryContent != null){
+                            // TODO: finish graph query
+                            collector.setCollectorGraphQuery(graphQueryContent);
+                        } else {
+                            // remind user to add graph query
+                            Context currentContext = context.getApplicationContext();
+                            Toast.makeText(currentContext,"Please type in the graph query!",Toast.LENGTH_LONG).show();
+                            blankFlag = 1;
+                        }
+                        if (blankFlag == 0) {
+                            // update currentScreen String value
+                            currentScreenState = "buildDialogFromConfigDataField";
+                            // recursively call itself with new currentScreen String value
+                            updateCurrentView();
+                        }
                     }
                 });
 
@@ -210,9 +261,10 @@ public class CollectorConfigurationDialogWrapper  {
                         dialog.dismiss();
                     }
                 });
-
-
                 break;
+
+
+
 
             case "buildDialogFromConfigDataField": ;
                 dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_add_collector_from_config_data_field, null);
@@ -221,13 +273,17 @@ public class CollectorConfigurationDialogWrapper  {
                 Button dataFieldNxtBtn = (Button) dialogMainView.findViewById(R.id.dataFieldNextButton);
                 Button dataFieldBckBtn = (Button) dialogMainView.findViewById(R.id.dataFieldBackButton);
                 ImageButton dataFieldCloseImg = (ImageButton) dialogMainView.findViewById(R.id.closeDataFieldImageButton);
+                EditText dataFieldEditText = (EditText) dialogMainView.findViewById(R.id.dataFieldEditText);
+
+                if (collector.getCollectorAppDataFields() != null) {
+                    dataFieldEditText.setText(collector.getCollectorAppDataFields());
+                }
 
                 dataFieldBckBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         // update currentScreen String value
                         currentScreenState = "buildDialogFromConfigGraphQuery";
-
                         // recursively call itself with new currentScreen String value
                         updateCurrentView();
                     }
@@ -236,7 +292,9 @@ public class CollectorConfigurationDialogWrapper  {
                 dataFieldNxtBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-
+                        // write data field into collector
+                        String dataFieldContent = dataFieldEditText.getText().toString();
+                        collector.setCollectorAppDataFields(dataFieldContent);
                         // update currentScreen String value
                         currentScreenState = "buildDialogFromConfigDescription";
 
@@ -251,9 +309,10 @@ public class CollectorConfigurationDialogWrapper  {
                         dialog.dismiss();
                     }
                 });
-
-
                 break;
+
+
+
 
             case "buildDialogFromConfigDescription":
                 dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_add_collector_from_config_description, null);
@@ -278,8 +337,9 @@ public class CollectorConfigurationDialogWrapper  {
                     @Override
                     public void onClick(View view) {
 
-                        // TODO: write the object to the DB
+                        // write description into collector
                         String descriptionText = descriptionEditText.getText().toString();
+                        collector.setDescription(descriptionText);
 
                         // update currentScreen String value
                         currentScreenState = "buildDialogFromConfigSuccessMessage";
@@ -297,6 +357,9 @@ public class CollectorConfigurationDialogWrapper  {
 
                 break;
 
+
+
+
             case "buildDialogFromConfigSuccessMessage":;
                 dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_add_collector_from_config_success_message, null);
                 dialog.setContentView(dialogMainView);
@@ -305,8 +368,8 @@ public class CollectorConfigurationDialogWrapper  {
                 closeSuccessMessage.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-
                         // TODO: write the object to the DB
+
                         // update currentScreen String value
                         currentScreenState = "buildDialogFromConfigSuccessMessage";
                         // recursively call itself with new currentScreen String value
@@ -314,6 +377,7 @@ public class CollectorConfigurationDialogWrapper  {
                     }
                 });
                 break;
+
 
 
 

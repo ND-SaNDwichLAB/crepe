@@ -16,7 +16,7 @@ import com.example.crepe.R;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Calendar;
-
+@Deprecated
 public class AddConfig extends AppCompatActivity {
     private TextView dateText;
     private ImageButton imgBtn = findViewById(R.id.startImageButton);
