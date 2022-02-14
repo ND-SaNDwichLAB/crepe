@@ -392,8 +392,4 @@ public class CollectorConfigurationDialogWrapper  {
         dialog.show();
         updateCurrentView();
    }
-
-    public Dialog getDialog() {
-        return dialog;
-    }
 }
