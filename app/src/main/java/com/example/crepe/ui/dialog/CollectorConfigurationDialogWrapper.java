@@ -3,6 +3,12 @@ package com.example.crepe.ui.dialog;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.content.res.Resources;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -22,8 +28,10 @@ import com.google.gson.Gson;
 
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Calendar;
+import java.util.List;
 
 
 public class CollectorConfigurationDialogWrapper  {
@@ -48,6 +56,8 @@ public class CollectorConfigurationDialogWrapper  {
                 dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_add_collector_from_config, null);
                 dialog.setContentView(dialogMainView);
 
+                // TODO: set the collector's creatorUserId to the app user's id, also change in database to make collector's creatorUserId field as foreign key
+
                 // buttons
                 Button popupCancelBtn = (Button) dialogMainView.findViewById(R.id.addCollectorFromConfigDialogCancelButton);
                 Button popupNextBtn = (Button) dialogMainView.findViewById(R.id.addCollectorFromConfigDialogNextButton);
@@ -57,7 +67,13 @@ public class CollectorConfigurationDialogWrapper  {
                 Spinner locationDropDown = (Spinner) dialogMainView.findViewById(R.id.locationSpinner);
 
                 // app spinner
-                String[] appItems = new String[]{" ","Uber", "Doordash", "Grubhub"};
+                // TODO: QUESTION if this is the correct way
+                String[] appItems = {""};
+                try {
+                    appItems = getAllInstalledAppInfo();
+                } catch (PackageManager.NameNotFoundException e) {
+                    e.getMessage();
+                }
                 ArrayAdapter<String> appAdapter = new ArrayAdapter<String>(context.getApplicationContext(), android.R.layout.simple_spinner_dropdown_item, appItems);
                 appAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 appDropDown.setAdapter(appAdapter);
@@ -111,7 +127,6 @@ public class CollectorConfigurationDialogWrapper  {
                     endDateText.setText(currentDate);
                 }
 
-                // TODO: set the widget value according to the collector object
                 startDateCalendarBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -132,7 +147,6 @@ public class CollectorConfigurationDialogWrapper  {
                     }
                 });
 
-                // TODO: change the two fields into one
                 endDateCalendarBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -195,7 +209,6 @@ public class CollectorConfigurationDialogWrapper  {
                         }
 
 
-                        //TODO: update the collector object according to the widget values
                         if (blankFlag == 0) {
                             // update currentScreen String value
                             currentScreenState = "buildDialogFromConfigGraphQuery";
@@ -241,7 +254,6 @@ public class CollectorConfigurationDialogWrapper  {
                         // get graph query
                         String graphQueryContent = graphQueryEditTxt.getText().toString();
                         if (graphQueryContent != null){
-                            // TODO: finish graph query
                             collector.setCollectorGraphQuery(graphQueryContent);
                         } else {
                             // remind user to add graph query
@@ -406,9 +418,39 @@ public class CollectorConfigurationDialogWrapper  {
         }
     }
 
+    public String[] getAllInstalledAppInfo() throws PackageManager.NameNotFoundException {
+        final Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
+        mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
 
-   public void show() {
+        // get list of all the apps installed
+        List<ResolveInfo> ril = context.getPackageManager().queryIntentActivities(mainIntent, 0);
+        List<String> componentList = new ArrayList<String>();
+        String name = null;
+        int i = 0;
+
+        // get size of ril and create a list
+        String[] apps = new String[ril.size()];
+        for (ResolveInfo ri : ril) {
+            if (ri.activityInfo != null) {
+                // get package
+                Resources res = context.getPackageManager().getResourcesForApplication(ri.activityInfo.applicationInfo);
+                // if activity label res is found
+                if (ri.activityInfo.labelRes != 0) {
+                    name = res.getString(ri.activityInfo.labelRes);
+                } else {
+                    name = ri.activityInfo.applicationInfo.loadLabel(
+                            context.getPackageManager()).toString();
+                }
+                apps[i] = name;
+                i++;
+            }
+        }
+        Toast.makeText(context, ril.size() + " apps are installed on this phone", Toast.LENGTH_LONG).show();
+        return apps;
+    }
+
+    public void show() {
         dialog.show();
         updateCurrentView();
-   }
+    }
 }

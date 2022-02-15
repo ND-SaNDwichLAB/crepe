@@ -28,7 +28,6 @@ public class CreateCollectorFromConfigDialogBuilder {
     private AlertDialog.Builder builder;
 
 
-    //TODO: collectorID, creatorUSerID
     private CollectorConfigurationDialogWrapper collectorConfigurationDialogWrapper;
 
     public CreateCollectorFromConfigDialogBuilder(Context c) {
