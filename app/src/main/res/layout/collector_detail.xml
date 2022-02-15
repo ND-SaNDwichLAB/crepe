@@ -51,7 +51,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:text="Yuwen Lu, University of Notre Dame \nEmail: yuwenlu@nd.edu"
+        android:text="Yuwen Lu, University of Notre Dame \nEmail: ylu23@nd.edu"
         app:layout_constraintStart_toStartOf="@+id/collectorResearcherContactTitle"
         app:layout_constraintTop_toBottomOf="@+id/collectorResearcherContactTitle" />
 

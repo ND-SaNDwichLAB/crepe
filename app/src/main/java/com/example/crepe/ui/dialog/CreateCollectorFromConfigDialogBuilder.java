@@ -48,7 +48,7 @@ public class CreateCollectorFromConfigDialogBuilder {
 
     public CollectorConfigurationDialogWrapper buildDialogWrapperWithExistingCollector(Collector collector) {
         AlertDialog dialog = builder.create();
-        collectorConfigurationDialogWrapper = new CollectorConfigurationDialogWrapper(c, dialog,  collector);
+        collectorConfigurationDialogWrapper = new CollectorConfigurationDialogWrapper(c, dialog, collector);
         return collectorConfigurationDialogWrapper;
     }
 }
