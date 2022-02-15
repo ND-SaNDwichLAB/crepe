@@ -3,6 +3,12 @@ package com.example.crepe.ui.dialog;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.content.res.Resources;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -19,11 +25,22 @@ import com.example.crepe.database.DatabaseManager;
 import com.example.crepe.ui.main_activity.HomeFragment;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
+import com.google.gson.Gson;
 
+<<<<<<< HEAD
 import java.text.ParsePosition;
+=======
+import java.io.UnsupportedEncodingException;
+>>>>>>> 86f4c7a70738e7f4f9dd409dfb6edc1b0efbe053
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Calendar;
+<<<<<<< HEAD
 import java.util.Date;
+=======
+import java.util.List;
+>>>>>>> 86f4c7a70738e7f4f9dd409dfb6edc1b0efbe053
 
 
 public class CollectorConfigurationDialogWrapper  {
@@ -47,6 +64,12 @@ public class CollectorConfigurationDialogWrapper  {
             case "buildDialogFromConfig":
                 dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_add_collector_from_config, null);
                 dialog.setContentView(dialogMainView);
+<<<<<<< HEAD
+=======
+
+                // TODO: set the collector's creatorUserId to the app user's id, also change in database to make collector's creatorUserId field as foreign key
+
+>>>>>>> 86f4c7a70738e7f4f9dd409dfb6edc1b0efbe053
                 // buttons
                 Button popupCancelBtn = (Button) dialogMainView.findViewById(R.id.addCollectorFromConfigDialogCancelButton);
                 Button popupNextBtn = (Button) dialogMainView.findViewById(R.id.addCollectorFromConfigDialogNextButton);
@@ -55,7 +78,13 @@ public class CollectorConfigurationDialogWrapper  {
                 Spinner locationDropDown = (Spinner) dialogMainView.findViewById(R.id.locationSpinner);
 
                 // app spinner
-                String[] appItems = new String[]{" ","Uber", "Doordash", "Grubhub"};
+                // TODO: QUESTION if this is the correct way
+                String[] appItems = {""};
+                try {
+                    appItems = getAllInstalledAppInfo();
+                } catch (PackageManager.NameNotFoundException e) {
+                    e.getMessage();
+                }
                 ArrayAdapter<String> appAdapter = new ArrayAdapter<String>(context.getApplicationContext(), android.R.layout.simple_spinner_dropdown_item, appItems);
                 appAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 appDropDown.setAdapter(appAdapter);
@@ -110,7 +139,6 @@ public class CollectorConfigurationDialogWrapper  {
                     endDateText.setText(currentDate);
                 }
 
-                // TODO: set the widget value according to the collector object
                 startDateCalendarBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -131,7 +159,6 @@ public class CollectorConfigurationDialogWrapper  {
                     }
                 });
 
-                // TODO: change the two fields into one
                 endDateCalendarBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -205,7 +232,6 @@ public class CollectorConfigurationDialogWrapper  {
                         collector.setCollectorEndTime(endDate.getTime());
 
 
-                        //TODO: update the collector object according to the widget values
                         if (blankFlag == 0) {
                             // update currentScreen String value
                             currentScreenState = "buildDialogFromConfigGraphQuery";
@@ -361,6 +387,22 @@ public class CollectorConfigurationDialogWrapper  {
                         String descriptionText = descriptionEditText.getText().toString();
                         collector.setDescription(descriptionText);
 
+                        // TODO: QUESTION – what's the best way to encode url?
+                        // Create url for current collector
+                        Gson gson = new Gson();
+                        String collectorJson = gson.toJson(collector);
+                        try {
+                            byte[] collectorEncode = Base64.getEncoder().encode(collectorJson.getBytes("UTF-8"));
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
+
+                        // save the collector to database
+                        // TODO: check if every field is filled
+                        // TODO: add a callback to refresh homepage every time
+                        DatabaseManager dbManager = new DatabaseManager(context);
+                        dbManager.addOneCollector(collector);
+
                         // update currentScreen String value
                         currentScreenState = "buildDialogFromConfigSuccessMessage";
                         // recursively call itself with new currentScreen String value
@@ -406,12 +448,16 @@ public class CollectorConfigurationDialogWrapper  {
                 closeSuccessMessage.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+<<<<<<< HEAD
                         // TODO: write the object to the DB
                         DatabaseManager dbManager = new DatabaseManager(context);
                         dbManager.addOneCollector(collector);
+=======
+>>>>>>> 86f4c7a70738e7f4f9dd409dfb6edc1b0efbe053
 
                         // update currentScreen String value
                         currentScreenState = "buildDialogFromConfigSuccessMessage";
+
                         // recursively call itself with new currentScreen String value
                         dialog.dismiss();
                     }
@@ -427,9 +473,43 @@ public class CollectorConfigurationDialogWrapper  {
         }
     }
 
+    public String[] getAllInstalledAppInfo() throws PackageManager.NameNotFoundException {
+        final Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
+        mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
 
-   public void show() {
+        // get list of all the apps installed
+        List<ResolveInfo> ril = context.getPackageManager().queryIntentActivities(mainIntent, 0);
+        List<String> componentList = new ArrayList<String>();
+        String name = null;
+        int i = 0;
+
+        // get size of ril and create a list
+        String[] apps = new String[ril.size()];
+        for (ResolveInfo ri : ril) {
+            if (ri.activityInfo != null) {
+                // get package
+                Resources res = context.getPackageManager().getResourcesForApplication(ri.activityInfo.applicationInfo);
+                // if activity label res is found
+                if (ri.activityInfo.labelRes != 0) {
+                    name = res.getString(ri.activityInfo.labelRes);
+                } else {
+                    name = ri.activityInfo.applicationInfo.loadLabel(
+                            context.getPackageManager()).toString();
+                }
+                apps[i] = name;
+                i++;
+            }
+        }
+        Toast.makeText(context, ril.size() + " apps are installed on this phone", Toast.LENGTH_LONG).show();
+        return apps;
+    }
+
+    public void show() {
         dialog.show();
         updateCurrentView();
+<<<<<<< HEAD
    }
+=======
+    }
+>>>>>>> 86f4c7a70738e7f4f9dd409dfb6edc1b0efbe053
 }

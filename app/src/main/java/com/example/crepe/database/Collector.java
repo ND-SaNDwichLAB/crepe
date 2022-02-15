@@ -6,9 +6,6 @@ import java.util.Date;
 import java.util.TimeZone;
 
 public class Collector {
-
-    // TODO: database schema - changed String name to description
-
     private String collectorId;
     private String creatorUserId;
     private String appName;

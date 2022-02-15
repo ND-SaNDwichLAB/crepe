@@ -7,10 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 import android.widget.Toast;
-
 import androidx.annotation.Nullable;
-
-import com.example.crepe.MainActivity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -393,8 +390,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
             Log.i("database", "remove datafield by collector id error, current datafields: " + getAllDatafields().toString());
         }
     }
-
-    // TODO: database schema – don't need name from data field cuz it doesn't make much sense, and data field id is sufficient
 
     public List<Datafield> getAllDatafields() {
         List<Datafield> dataList = new ArrayList<>();
