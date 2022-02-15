@@ -27,20 +27,20 @@ import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 import com.google.gson.Gson;
 
-<<<<<<< HEAD
+
 import java.text.ParsePosition;
-=======
+
 import java.io.UnsupportedEncodingException;
->>>>>>> 86f4c7a70738e7f4f9dd409dfb6edc1b0efbe053
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Calendar;
-<<<<<<< HEAD
+
 import java.util.Date;
-=======
+
 import java.util.List;
->>>>>>> 86f4c7a70738e7f4f9dd409dfb6edc1b0efbe053
+
 
 
 public class CollectorConfigurationDialogWrapper  {
@@ -64,12 +64,9 @@ public class CollectorConfigurationDialogWrapper  {
             case "buildDialogFromConfig":
                 dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_add_collector_from_config, null);
                 dialog.setContentView(dialogMainView);
-<<<<<<< HEAD
-=======
 
                 // TODO: set the collector's creatorUserId to the app user's id, also change in database to make collector's creatorUserId field as foreign key
 
->>>>>>> 86f4c7a70738e7f4f9dd409dfb6edc1b0efbe053
                 // buttons
                 Button popupCancelBtn = (Button) dialogMainView.findViewById(R.id.addCollectorFromConfigDialogCancelButton);
                 Button popupNextBtn = (Button) dialogMainView.findViewById(R.id.addCollectorFromConfigDialogNextButton);
@@ -389,13 +386,13 @@ public class CollectorConfigurationDialogWrapper  {
 
                         // TODO: QUESTION – what's the best way to encode url?
                         // Create url for current collector
-                        Gson gson = new Gson();
-                        String collectorJson = gson.toJson(collector);
-                        try {
-                            byte[] collectorEncode = Base64.getEncoder().encode(collectorJson.getBytes("UTF-8"));
-                        } catch (UnsupportedEncodingException e) {
-                            e.printStackTrace();
-                        }
+//                        Gson gson = new Gson();
+//                        String collectorJson = gson.toJson(collector);
+//                        try {
+//                            byte[] collectorEncode = Base64.getEncoder().encode(collectorJson.getBytes("UTF-8"));
+//                        } catch (UnsupportedEncodingException e) {
+//                            e.printStackTrace();
+//                        }
 
                         // save the collector to database
                         // TODO: check if every field is filled
@@ -448,12 +445,10 @@ public class CollectorConfigurationDialogWrapper  {
                 closeSuccessMessage.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-<<<<<<< HEAD
                         // TODO: write the object to the DB
                         DatabaseManager dbManager = new DatabaseManager(context);
                         dbManager.addOneCollector(collector);
-=======
->>>>>>> 86f4c7a70738e7f4f9dd409dfb6edc1b0efbe053
+
 
                         // update currentScreen String value
                         currentScreenState = "buildDialogFromConfigSuccessMessage";
@@ -507,9 +502,9 @@ public class CollectorConfigurationDialogWrapper  {
     public void show() {
         dialog.show();
         updateCurrentView();
-<<<<<<< HEAD
+
    }
-=======
+
     }
->>>>>>> 86f4c7a70738e7f4f9dd409dfb6edc1b0efbe053
-}
+
+
