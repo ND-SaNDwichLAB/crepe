@@ -58,7 +58,6 @@ public class MainActivity extends AppCompatActivity {
     // clicked toggle variable for fab icons
     private Boolean clicked = false;
 
-    // TODO: modify this for real code, below is just for testing
     private Collector testCollector;
     private Collector testCollector2;
     private Collector testCollector3;

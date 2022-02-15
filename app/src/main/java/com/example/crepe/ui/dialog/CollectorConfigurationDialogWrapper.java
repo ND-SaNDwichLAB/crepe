@@ -354,6 +354,12 @@ public class CollectorConfigurationDialogWrapper  {
                             e.printStackTrace();
                         }
 
+                        // save the collector to database
+                        // TODO: check if every field is filled
+                        // TODO: add a callback to refresh homepage every time
+                        DatabaseManager dbManager = new DatabaseManager(context);
+                        dbManager.addOneCollector(collector);
+
                         // update currentScreen String value
                         currentScreenState = "buildDialogFromConfigSuccessMessage";
                         // recursively call itself with new currentScreen String value
@@ -381,11 +387,10 @@ public class CollectorConfigurationDialogWrapper  {
                 closeSuccessMessage.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        // TODO: write the object to DB
 
                         // update currentScreen String value
-
                         currentScreenState = "buildDialogFromConfigSuccessMessage";
+
                         // recursively call itself with new currentScreen String value
                         dialog.dismiss();
                     }
