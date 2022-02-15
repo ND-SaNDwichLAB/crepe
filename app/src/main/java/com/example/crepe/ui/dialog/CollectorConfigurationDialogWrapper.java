@@ -18,8 +18,11 @@ import com.example.crepe.database.Collector;
 import com.example.crepe.database.DatabaseManager;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
+import com.google.gson.Gson;
 
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
+import java.util.Base64;
 import java.util.Calendar;
 
 
@@ -341,6 +344,16 @@ public class CollectorConfigurationDialogWrapper  {
                         String descriptionText = descriptionEditText.getText().toString();
                         collector.setDescription(descriptionText);
 
+                        // TODO: QUESTION – what's the best way to encode url?
+                        // Create url for current collector
+                        Gson gson = new Gson();
+                        String collectorJson = gson.toJson(collector);
+                        try {
+                            byte[] collectorEncode = Base64.getEncoder().encode(collectorJson.getBytes("UTF-8"));
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
+
                         // update currentScreen String value
                         currentScreenState = "buildDialogFromConfigSuccessMessage";
                         // recursively call itself with new currentScreen String value
@@ -368,9 +381,10 @@ public class CollectorConfigurationDialogWrapper  {
                 closeSuccessMessage.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        // TODO: write the object to the DB
+                        // TODO: write the object to DB
 
                         // update currentScreen String value
+
                         currentScreenState = "buildDialogFromConfigSuccessMessage";
                         // recursively call itself with new currentScreen String value
                         dialog.dismiss();
