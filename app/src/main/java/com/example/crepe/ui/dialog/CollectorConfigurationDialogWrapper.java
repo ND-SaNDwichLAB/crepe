@@ -385,6 +385,9 @@ public class CollectorConfigurationDialogWrapper  {
                         collector.setDescription(descriptionText);
 
                         // TODO: QUESTION – what's the best way to encode url?
+                        // TODO: Create a new class to handle url generation e.g. collectorUrlManager
+                        //      1. create url
+                        //      2. get collector from url
                         // Create url for current collector
 //                        Gson gson = new Gson();
 //                        String collectorJson = gson.toJson(collector);
@@ -474,7 +477,7 @@ public class CollectorConfigurationDialogWrapper  {
 
         // get list of all the apps installed
         List<ResolveInfo> ril = context.getPackageManager().queryIntentActivities(mainIntent, 0);
-        List<String> componentList = new ArrayList<String>();
+//        List<String> componentList = new ArrayList<String>();
         String name = null;
         int i = 0;
 
