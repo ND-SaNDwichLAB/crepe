@@ -1,8 +1,11 @@
 package com.example.crepe.ui.main_activity;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -32,14 +35,33 @@ public class CollectorCardConstraintLayoutBuilder {
             collectorLayout = (ConstraintLayout) LayoutInflater.from(c).inflate(R.layout.collector_info, rootView, false);
         }
 
-        // get the app name textfield from the card and populate it with app name
+        // get the app name text field from the card and populate it with app name
         appNameTextView = (TextView) collectorLayout.findViewById(R.id.collectorTitle);
         appNameTextView.setText(collector.getAppName());
 
         collectorDescriptionTextView = (TextView) collectorLayout.findViewById(R.id.collectorDataDescription);
         collectorDescriptionTextView.setText(collector.getDescription());
 
+        scheduleStartTextView = (TextView) collectorLayout.findViewById(R.id.startTime);
+        scheduleStartTextView.setText("Started: "+collector.getCollectorStartTimeString());
+        scheduleEndTextView = (TextView) collectorLayout.findViewById(R.id.endTime);
+        scheduleEndTextView.setText("Scheduled end: "+collector.getCollectorEndTimeString());
+
+
+        Button detailBtn = (Button) collectorLayout.findViewById(R.id.detailButton);
+
+        detailBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                CollectorCardDetailBuilder cardDetailBuilder = new CollectorCardDetailBuilder(c, collector);
+                Dialog newDialog = cardDetailBuilder.build();
+                newDialog.show();
+
+            }
+        });
+
         //TODO: finish customize the layout based on info from card
+
 
         return collectorLayout;
     }

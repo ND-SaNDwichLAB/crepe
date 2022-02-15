@@ -139,6 +139,8 @@ public class Collector {
         this.collectorEndTime = collectorEndTime;
     }
 
+
+
     public String getCollectorAppDataFields() {
         return collectorAppDataFields;
     }

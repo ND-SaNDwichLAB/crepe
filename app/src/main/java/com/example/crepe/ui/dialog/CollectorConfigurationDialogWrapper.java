@@ -16,11 +16,14 @@ import com.example.crepe.MainActivity;
 import com.example.crepe.R;
 import com.example.crepe.database.Collector;
 import com.example.crepe.database.DatabaseManager;
+import com.example.crepe.ui.main_activity.HomeFragment;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 
+import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 
 public class CollectorConfigurationDialogWrapper  {
@@ -44,11 +47,9 @@ public class CollectorConfigurationDialogWrapper  {
             case "buildDialogFromConfig":
                 dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_add_collector_from_config, null);
                 dialog.setContentView(dialogMainView);
-
                 // buttons
                 Button popupCancelBtn = (Button) dialogMainView.findViewById(R.id.addCollectorFromConfigDialogCancelButton);
                 Button popupNextBtn = (Button) dialogMainView.findViewById(R.id.addCollectorFromConfigDialogNextButton);
-
                 // spinners
                 Spinner appDropDown = (Spinner)dialogMainView.findViewById(R.id.appSpinner);
                 Spinner locationDropDown = (Spinner) dialogMainView.findViewById(R.id.locationSpinner);
@@ -82,6 +83,7 @@ public class CollectorConfigurationDialogWrapper  {
                 }
 
                 // date picker buttons and textview
+                // TODO：if the user directly type the date
                 ImageButton startDateCalendarBtn = (ImageButton)dialogMainView.findViewById(R.id.startImageButton);
                 ImageButton endDateCalendarBtn = (ImageButton)dialogMainView.findViewById(R.id.endImageButton);
                 EditText startDateText = (EditText)dialogMainView.findViewById(R.id.startDateText);
@@ -170,7 +172,7 @@ public class CollectorConfigurationDialogWrapper  {
                     @Override
                     public void onClick(View view) {
                         int blankFlag = 0;
-                        // update info for collector
+                        // update app info
                         String appName = appDropDown.getSelectedItem().toString();
                         if (appName != " ") {
                             collector.setAppName(appName);
@@ -181,6 +183,7 @@ public class CollectorConfigurationDialogWrapper  {
                             blankFlag = 1;
                         }
 
+                        // update location info
                         String location = locationDropDown.getSelectedItem().toString();
                         if (location != " ") {
                             collector.setMode(location);
@@ -190,6 +193,16 @@ public class CollectorConfigurationDialogWrapper  {
                             Toast.makeText(currentContext,"Please select a location!",Toast.LENGTH_LONG).show();
                             blankFlag = 1;
                         }
+
+                        // update date info
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+                        ParsePosition pp1 = new ParsePosition(0);
+                        Date startDate = dateFormat.parse(startDateText.getText().toString(),pp1);
+                        collector.setCollectorStartTime(startDate.getTime());
+
+                        ParsePosition pp2 = new ParsePosition(1);
+                        Date endDate = dateFormat.parse(endDateText.getText().toString(),pp2);
+                        collector.setCollectorEndTime(endDate.getTime());
 
 
                         //TODO: update the collector object according to the widget values
@@ -210,12 +223,14 @@ public class CollectorConfigurationDialogWrapper  {
             case "buildDialogFromConfigGraphQuery":
                 dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_add_collector_from_config_graph_query, null);
                 dialog.setContentView(dialogMainView);
-
                 Button graphQueryNxtBtn = (Button) dialogMainView.findViewById(R.id.graphQueryNextButton);
                 Button graphQueryBckBtn = (Button) dialogMainView.findViewById(R.id.graphQueryBackButton);
                 ImageButton graphQueryCloseImg = (ImageButton) dialogMainView.findViewById(R.id.closeGraphQueryPopupImageButton);
                 EditText graphQueryEditTxt = (EditText) dialogMainView.findViewById(R.id.graphQueryEditText);
 
+                // TODO: finish graph query
+
+                // show graph query info in the collector if available
                 if (collector.getCollectorGraphQuery() != null) {
                     graphQueryEditTxt.setText(collector.getCollectorGraphQuery());
                 }
@@ -238,7 +253,6 @@ public class CollectorConfigurationDialogWrapper  {
                         // get graph query
                         String graphQueryContent = graphQueryEditTxt.getText().toString();
                         if (graphQueryContent != null){
-                            // TODO: finish graph query
                             collector.setCollectorGraphQuery(graphQueryContent);
                         } else {
                             // remind user to add graph query
@@ -266,7 +280,7 @@ public class CollectorConfigurationDialogWrapper  {
 
 
 
-            case "buildDialogFromConfigDataField": ;
+            case "buildDialogFromConfigDataField":
                 dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_add_collector_from_config_data_field, null);
                 dialog.setContentView(dialogMainView);
 
@@ -275,6 +289,7 @@ public class CollectorConfigurationDialogWrapper  {
                 ImageButton dataFieldCloseImg = (ImageButton) dialogMainView.findViewById(R.id.closeDataFieldImageButton);
                 EditText dataFieldEditText = (EditText) dialogMainView.findViewById(R.id.dataFieldEditText);
 
+                // show data fields info in the collector if available
                 if (collector.getCollectorAppDataFields() != null) {
                     dataFieldEditText.setText(collector.getCollectorAppDataFields());
                 }
@@ -323,6 +338,11 @@ public class CollectorConfigurationDialogWrapper  {
                 ImageButton descriptionCloseImg = (ImageButton) dialogMainView.findViewById(R.id.closeDescriptionImageButton);
                 EditText descriptionEditText = (EditText) dialogMainView.findViewById(R.id.descriptionEditText);
 
+                // show description in the collector if available
+                if (collector.getDescription() != null) {
+                    descriptionEditText.setText(collector.getDescription());
+                }
+
                 descriptionBckBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -360,15 +380,35 @@ public class CollectorConfigurationDialogWrapper  {
 
 
 
-            case "buildDialogFromConfigSuccessMessage":;
+            case "buildDialogFromConfigSuccessMessage":
                 dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_add_collector_from_config_success_message, null);
                 dialog.setContentView(dialogMainView);
 
                 Button closeSuccessMessage = (Button) dialogMainView.findViewById(R.id.closeSuccessMessagePopupButton);
+                ImageButton shareUrlLinkButton = (ImageButton) dialogMainView.findViewById(R.id.shareUrlImageButton);
+                ImageButton shareEmailLinkButton = (ImageButton) dialogMainView.findViewById(R.id.shareUrlImageButton);
+
+                shareEmailLinkButton.setOnClickListener(new View.OnClickListener(){
+                    @Override
+                    public void onClick(View view) {
+                        // share email link
+                    }
+                });
+
+                shareUrlLinkButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        // share url link
+                    }
+                });
+
+
                 closeSuccessMessage.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         // TODO: write the object to the DB
+                        DatabaseManager dbManager = new DatabaseManager(context);
+                        dbManager.addOneCollector(collector);
 
                         // update currentScreen String value
                         currentScreenState = "buildDialogFromConfigSuccessMessage";
@@ -392,8 +432,4 @@ public class CollectorConfigurationDialogWrapper  {
         dialog.show();
         updateCurrentView();
    }
-
-    public Dialog getDialog() {
-        return dialog;
-    }
 }

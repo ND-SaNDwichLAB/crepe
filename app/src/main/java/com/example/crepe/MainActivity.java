@@ -150,6 +150,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+
     // a function to switch between fragments using the navDrawer
     private void displaySelectedScreen(int itemId) {
 
