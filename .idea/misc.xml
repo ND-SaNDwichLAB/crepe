@@ -46,6 +46,7 @@
         <entry key="app/src/main/res/layout/dialog_add_collector_from_config_specify_data.xml" value="0.27395833333333336" />
         <entry key="app/src/main/res/layout/dialog_add_collector_from_config_success_message.xml" value="0.24739583333333334" />
         <entry key="app/src/main/res/layout/dialog_add_collector_from_url.xml" value="0.21666666666666667" />
+        <entry key="app/src/main/res/layout/dialog_add_collector_from_url_collector_info.xml" value="0.2713541666666667" />
         <entry key="app/src/main/res/layout/fragment_data.xml" value="0.21614583333333334" />
         <entry key="app/src/main/res/layout/fragment_first.xml" value="0.23645833333333333" />
         <entry key="app/src/main/res/layout/fragment_home.xml" value="0.16510416666666666" />

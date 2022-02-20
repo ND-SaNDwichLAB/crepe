@@ -27,30 +27,24 @@ import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 import com.google.gson.Gson;
 
-
 import java.text.ParsePosition;
-
 import java.io.UnsupportedEncodingException;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Calendar;
-
 import java.util.Date;
-
 import java.util.List;
 
 
-
-public class CollectorConfigurationDialogWrapper  {
+public class CollectorConfigurationDialogWrapper {
 
     private AlertDialog dialog;
     private Context context;
     private String currentScreenState;
     private Collector collector;
 
-    CollectorConfigurationDialogWrapper (Context context, AlertDialog dialog, Collector collector){
+    CollectorConfigurationDialogWrapper(Context context, AlertDialog dialog, Collector collector) {
         this.context = context;
         this.dialog = dialog;
         this.collector = collector;
@@ -60,18 +54,15 @@ public class CollectorConfigurationDialogWrapper  {
     public void updateCurrentView() {
         View dialogMainView;
 
-        switch(currentScreenState){
+        switch (currentScreenState) {
             case "buildDialogFromConfig":
                 dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_add_collector_from_config, null);
                 dialog.setContentView(dialogMainView);
-
-                // TODO: set the collector's creatorUserId to the app user's id, also change in database to make collector's creatorUserId field as foreign key
-
                 // buttons
                 Button popupCancelBtn = (Button) dialogMainView.findViewById(R.id.addCollectorFromConfigDialogCancelButton);
                 Button popupNextBtn = (Button) dialogMainView.findViewById(R.id.addCollectorFromConfigDialogNextButton);
                 // spinners
-                Spinner appDropDown = (Spinner)dialogMainView.findViewById(R.id.appSpinner);
+                Spinner appDropDown = (Spinner) dialogMainView.findViewById(R.id.appSpinner);
                 Spinner locationDropDown = (Spinner) dialogMainView.findViewById(R.id.locationSpinner);
 
                 // app spinner
@@ -95,7 +86,7 @@ public class CollectorConfigurationDialogWrapper  {
                 }
 
                 // location spinner
-                String[] locationItems = new String[]{" ","Local", "Remote"};
+                String[] locationItems = new String[]{" ", "Local", "Remote"};
                 ArrayAdapter<String> locationAdapter = new ArrayAdapter<String>(context.getApplicationContext(), android.R.layout.simple_spinner_dropdown_item, locationItems);
                 locationAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 locationDropDown.setAdapter(locationAdapter);
@@ -110,27 +101,25 @@ public class CollectorConfigurationDialogWrapper  {
 
                 // date picker buttons and textview
                 // TODO：if the user directly type the date
-                ImageButton startDateCalendarBtn = (ImageButton)dialogMainView.findViewById(R.id.startImageButton);
-                ImageButton endDateCalendarBtn = (ImageButton)dialogMainView.findViewById(R.id.endImageButton);
-                EditText startDateText = (EditText)dialogMainView.findViewById(R.id.startDateText);
-                EditText endDateText = (EditText)dialogMainView.findViewById(R.id.endDateText);
+                ImageButton startDateCalendarBtn = (ImageButton) dialogMainView.findViewById(R.id.startImageButton);
+                ImageButton endDateCalendarBtn = (ImageButton) dialogMainView.findViewById(R.id.endImageButton);
+                EditText startDateText = (EditText) dialogMainView.findViewById(R.id.startDateText);
+                EditText endDateText = (EditText) dialogMainView.findViewById(R.id.endDateText);
 
                 // update field values based on current collector information, mostly used when coming back from next dialogs
-                if(Long.valueOf(collector.getCollectorStartTime()) != 0) {
+                if (Long.valueOf(collector.getCollectorStartTime()) != 0) {
                     startDateText.setText(collector.getCollectorStartTimeString());
-                }
-                else {
+                } else {
                     Calendar c = Calendar.getInstance();
                     SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
                     String currentDate = df.format(c.getTime());
                     startDateText.setText(currentDate);
                 }
-                if(Long.valueOf(collector.getCollectorEndTime()) != 0) {
+                if (Long.valueOf(collector.getCollectorEndTime()) != 0) {
                     endDateText.setText(collector.getCollectorEndTimeString());
-                }
-                else {
+                } else {
                     Calendar c = Calendar.getInstance();
-                    c.add(Calendar.DAY_OF_YEAR,1);
+                    c.add(Calendar.DAY_OF_YEAR, 1);
                     SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
                     String currentDate = df.format(c.getTime());
                     endDateText.setText(currentDate);
@@ -147,8 +136,9 @@ public class CollectorConfigurationDialogWrapper  {
 
                         collectorStartDatePicker.show(((MainActivity) context).getSupportFragmentManager(), "tag");
 
-                        collectorStartDatePicker.addOnPositiveButtonClickListener( new MaterialPickerOnPositiveButtonClickListener<Long>() {
-                            @Override public void onPositiveButtonClick(Long selection) {
+                        collectorStartDatePicker.addOnPositiveButtonClickListener(new MaterialPickerOnPositiveButtonClickListener<Long>() {
+                            @Override
+                            public void onPositiveButtonClick(Long selection) {
                                 collector.setCollectorStartTime(selection.longValue());
                                 startDateText.setText(collector.getCollectorStartTimeString(), null);
                             }
@@ -167,8 +157,9 @@ public class CollectorConfigurationDialogWrapper  {
 
                         collectorEndDatePicker.show(((MainActivity) context).getSupportFragmentManager(), "tag");
 
-                        collectorEndDatePicker.addOnPositiveButtonClickListener( new MaterialPickerOnPositiveButtonClickListener<Long>() {
-                            @Override public void onPositiveButtonClick(Long selection) {
+                        collectorEndDatePicker.addOnPositiveButtonClickListener(new MaterialPickerOnPositiveButtonClickListener<Long>() {
+                            @Override
+                            public void onPositiveButtonClick(Long selection) {
                                 // Validate if the end date is later than the start date,
                                 // otherwise toast a message
                                 long endDateSelectionValue = selection.longValue();
@@ -203,7 +194,7 @@ public class CollectorConfigurationDialogWrapper  {
                         } else {
                             // set the border of spinner to red
                             Context currentContext = context.getApplicationContext();
-                            Toast.makeText(currentContext,"Please select an app!",Toast.LENGTH_LONG).show();
+                            Toast.makeText(currentContext, "Please select an app!", Toast.LENGTH_LONG).show();
                             blankFlag = 1;
                         }
 
@@ -214,18 +205,18 @@ public class CollectorConfigurationDialogWrapper  {
                         } else {
                             // set the border of spinner to red
                             Context currentContext = context.getApplicationContext();
-                            Toast.makeText(currentContext,"Please select a location!",Toast.LENGTH_LONG).show();
+                            Toast.makeText(currentContext, "Please select a location!", Toast.LENGTH_LONG).show();
                             blankFlag = 1;
                         }
 
                         // update date info
                         SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
                         ParsePosition pp1 = new ParsePosition(0);
-                        Date startDate = dateFormat.parse(startDateText.getText().toString(),pp1);
+                        Date startDate = dateFormat.parse(startDateText.getText().toString(), pp1);
                         collector.setCollectorStartTime(startDate.getTime());
 
                         ParsePosition pp2 = new ParsePosition(1);
-                        Date endDate = dateFormat.parse(endDateText.getText().toString(),pp2);
+                        Date endDate = dateFormat.parse(endDateText.getText().toString(), pp2);
                         collector.setCollectorEndTime(endDate.getTime());
 
 
@@ -239,8 +230,6 @@ public class CollectorConfigurationDialogWrapper  {
                     }
                 });
                 break;
-
-
 
 
             case "buildDialogFromConfigGraphQuery":
@@ -275,12 +264,12 @@ public class CollectorConfigurationDialogWrapper  {
                         int blankFlag = 0;
                         // get graph query
                         String graphQueryContent = graphQueryEditTxt.getText().toString();
-                        if (graphQueryContent != null){
+                        if (graphQueryContent != null) {
                             collector.setCollectorGraphQuery(graphQueryContent);
                         } else {
                             // remind user to add graph query
                             Context currentContext = context.getApplicationContext();
-                            Toast.makeText(currentContext,"Please type in the graph query!",Toast.LENGTH_LONG).show();
+                            Toast.makeText(currentContext, "Please type in the graph query!", Toast.LENGTH_LONG).show();
                             blankFlag = 1;
                         }
                         if (blankFlag == 0) {
@@ -299,8 +288,6 @@ public class CollectorConfigurationDialogWrapper  {
                     }
                 });
                 break;
-
-
 
 
             case "buildDialogFromConfigDataField":
@@ -350,8 +337,6 @@ public class CollectorConfigurationDialogWrapper  {
                 break;
 
 
-
-
             case "buildDialogFromConfigDescription":
                 dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_add_collector_from_config_description, null);
                 dialog.setContentView(dialogMainView);
@@ -389,13 +374,13 @@ public class CollectorConfigurationDialogWrapper  {
                         //      1. create url
                         //      2. get collector from url
                         // Create url for current collector
-//                        Gson gson = new Gson();
-//                        String collectorJson = gson.toJson(collector);
-//                        try {
-//                            byte[] collectorEncode = Base64.getEncoder().encode(collectorJson.getBytes("UTF-8"));
-//                        } catch (UnsupportedEncodingException e) {
-//                            e.printStackTrace();
-//                        }
+                        Gson gson = new Gson();
+                        String collectorJson = gson.toJson(collector);
+                        try {
+                            byte[] collectorEncode = Base64.getEncoder().encode(collectorJson.getBytes("UTF-8"));
+                        } catch (UnsupportedEncodingException e) {
+                            e.printStackTrace();
+                        }
 
                         // save the collector to database
                         // TODO: check if every field is filled
@@ -420,8 +405,6 @@ public class CollectorConfigurationDialogWrapper  {
                 break;
 
 
-
-
             case "buildDialogFromConfigSuccessMessage":
                 dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_add_collector_from_config_success_message, null);
                 dialog.setContentView(dialogMainView);
@@ -430,7 +413,7 @@ public class CollectorConfigurationDialogWrapper  {
                 ImageButton shareUrlLinkButton = (ImageButton) dialogMainView.findViewById(R.id.shareUrlImageButton);
                 ImageButton shareEmailLinkButton = (ImageButton) dialogMainView.findViewById(R.id.shareUrlImageButton);
 
-                shareEmailLinkButton.setOnClickListener(new View.OnClickListener(){
+                shareEmailLinkButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         // share email link
@@ -448,21 +431,15 @@ public class CollectorConfigurationDialogWrapper  {
                 closeSuccessMessage.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        // TODO: write the object to the DB
-                        DatabaseManager dbManager = new DatabaseManager(context);
-                        dbManager.addOneCollector(collector);
 
-
-                        // update currentScreen String value
-                        currentScreenState = "buildDialogFromConfigSuccessMessage";
+                                // update currentScreen String value
+                                currentScreenState = "buildDialogFromConfigSuccessMessage";
 
                         // recursively call itself with new currentScreen String value
                         dialog.dismiss();
                     }
                 });
                 break;
-
-
 
 
             default:
@@ -505,9 +482,5 @@ public class CollectorConfigurationDialogWrapper  {
     public void show() {
         dialog.show();
         updateCurrentView();
-
-   }
-
     }
-
-
+}
