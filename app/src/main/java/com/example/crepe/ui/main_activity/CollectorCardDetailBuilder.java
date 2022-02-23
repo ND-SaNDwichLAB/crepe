@@ -6,6 +6,8 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,13 +34,14 @@ public class CollectorCardDetailBuilder {
         TextView collectorDataField = (TextView) popupView.findViewById(R.id.collectorDetailDataField);
         Button closeBtn = (Button) popupView.findViewById(R.id.collectorCloseButton);
         Button deleteBtn = (Button) popupView.findViewById(R.id.collectorDeleteButton);
+        Switch enableSwitch = (Switch) popupView.findViewById(R.id.collectorStatusSwitch);
 
         collectorDataField.setText(collector.getDescription());
 
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO：delete the collector
+                //TODO：delete the collector?
                 Toast.makeText(c, "Collector (ID:" + collector.getCollectorId() + ") is deleted", Toast.LENGTH_LONG).show();
                 DatabaseManager dbManager = new DatabaseManager(c);
                 dbManager.removeCollectorById(collector.getCollectorId());
@@ -50,6 +53,17 @@ public class CollectorCardDetailBuilder {
             @Override
             public void onClick(View view) {
                 dialog.dismiss();
+            }
+        });
+
+        enableSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if (isChecked){
+                    collector.setCollectorStatus("running");
+                } else {
+                    collector.setCollectorStatus("disabled");
+                }
             }
         });
 

@@ -100,7 +100,6 @@ public class CollectorConfigurationDialogWrapper {
                 }
 
                 // date picker buttons and textview
-                // TODO：if the user directly type the date
                 ImageButton startDateCalendarBtn = (ImageButton) dialogMainView.findViewById(R.id.startImageButton);
                 ImageButton endDateCalendarBtn = (ImageButton) dialogMainView.findViewById(R.id.endImageButton);
                 EditText startDateText = (EditText) dialogMainView.findViewById(R.id.startDateText);
@@ -364,6 +363,15 @@ public class CollectorConfigurationDialogWrapper {
                 descriptionCreateBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        long today = Calendar.getInstance().getTime().getTime();
+                        // change collector status
+                        if (today > collector.getCollectorEndTime() ){
+                            collector.setCollectorStatus("expired");
+                        } else if (today < collector.getCollectorStartTime()){
+                            collector.setCollectorStatus("not yet started");
+                        } else {
+                            collector.setCollectorStatus("running");
+                        }
 
                         // write description into collector
                         String descriptionText = descriptionEditText.getText().toString();

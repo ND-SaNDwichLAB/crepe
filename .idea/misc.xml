@@ -15,13 +15,18 @@
         <entry key="app/src/main/res/drawable/custom_image_button.xml" value="0.23055555555555557" />
         <entry key="app/src/main/res/drawable/custom_input.xml" value="0.18229166666666666" />
         <entry key="app/src/main/res/drawable/custom_spinner.xml" value="0.19739583333333333" />
+        <entry key="app/src/main/res/drawable/custom_switch_color.xml" value="0.1935" />
         <entry key="app/src/main/res/drawable/ic_action_back.xml" value="0.23055555555555557" />
         <entry key="app/src/main/res/drawable/ic_add_new.xml" value="0.23055555555555557" />
         <entry key="app/src/main/res/drawable/ic_baseline_arrow_drop_down_24.xml" value="0.16944444444444445" />
         <entry key="app/src/main/res/drawable/ic_baseline_calendar_today_24.xml" value="0.16944444444444445" />
+        <entry key="app/src/main/res/drawable/ic_baseline_circle_12_grey.xml" value="0.1935" />
+        <entry key="app/src/main/res/drawable/ic_baseline_circle_12_yellow.xml" value="0.1935" />
+        <entry key="app/src/main/res/drawable/ic_baseline_circle_24_green.xml" value="0.1935" />
         <entry key="app/src/main/res/drawable/ic_baseline_close_24.xml" value="0.23055555555555557" />
         <entry key="app/src/main/res/drawable/ic_baseline_email_24.xml" value="0.23055555555555557" />
         <entry key="app/src/main/res/drawable/ic_baseline_keyboard_arrow_down_24.xml" value="0.23055555555555557" />
+        <entry key="app/src/main/res/drawable/ic_baseline_link_24.xml" value="0.1935" />
         <entry key="app/src/main/res/drawable/ic_chart.xml" value="0.16944444444444445" />
         <entry key="app/src/main/res/drawable/ic_edit.xml" value="0.23055555555555557" />
         <entry key="app/src/main/res/drawable/ic_home.xml" value="0.23055555555555557" />
@@ -33,7 +38,7 @@
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.23645833333333333" />
         <entry key="app/src/main/res/layout/add_config.xml" value="0.21197916666666666" />
         <entry key="app/src/main/res/layout/anychart_line_chart.xml" value="0.1" />
-        <entry key="app/src/main/res/layout/collector_card.xml" value="0.4977134766151229" />
+        <entry key="app/src/main/res/layout/collector_card.xml" value="0.34414978027343757" />
         <entry key="app/src/main/res/layout/collector_detail.xml" value="0.35034841671413763" />
         <entry key="app/src/main/res/layout/collector_info.xml" value="0.29270833333333335" />
         <entry key="app/src/main/res/layout/content_main.xml" value="0.1" />

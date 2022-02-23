@@ -45,16 +45,15 @@
                 android:layout_height="60dp"
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="20dp"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop"
                 android:soundEffectsEnabled="false"
                 android:src="@mipmap/ic_uber_icon"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:shapeAppearanceOverlay="@style/circular"
-                android:scaleType="centerCrop"
-                android:adjustViewBounds="true"
                 app:strokeColor="@color/ND_gold"
-                app:strokeWidth="2dp"
-                />
+                app:strokeWidth="2dp" />
 
             <TextView
                 android:id="@+id/collectorDataDescription"
@@ -104,7 +103,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/endTime" />
 
             <TextView
-                android:id="@+id/runningLight"
+                android:id="@+id/collectorStatusText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
@@ -112,6 +111,16 @@
                 android:text="Running"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/runningLightImageView"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginEnd="4dp"
+                app:layout_constraintEnd_toStartOf="@+id/collectorStatusText"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_baseline_circle_24_green" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>

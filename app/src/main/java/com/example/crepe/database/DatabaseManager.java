@@ -26,6 +26,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
     public static final String COLUMN_COLLECTOR_APP_DATA_FIELDS = "collectorAppDataFields";
     public static final String COLUMN_MODE = "mode";
     public static final String COLUMN_TARGET_SERVER_IP = "targetServerIp";
+    public static final String COLUMN_COLLECTOR_STATUS = "collectorStatus";
+
     public static final String USER_TABLE = "usertable";
     public static final String COLUMN_USER_ID = "userId";
     public static final String COLUMN_USER_NAME = "userName";
@@ -56,7 +58,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
             "            " + COLUMN_COLLECTOR_START_TIME + " BIGINT, " +
             "            " + COLUMN_COLLECTOR_END_TIME + " BIGINT, " +
             "            " + COLUMN_COLLECTOR_GRAPH_QUERY + " VARCHAR, " +
-            "            " + COLUMN_COLLECTOR_APP_DATA_FIELDS + " VARCHAR);";
+            "            " + COLUMN_COLLECTOR_APP_DATA_FIELDS + " VARCHAR, " +
+            "            " + COLUMN_COLLECTOR_STATUS + " VARCHAR)";
 
     private final String createUserTableStatement = "CREATE TABLE IF NOT EXISTS " + USER_TABLE + " (" + COLUMN_USER_ID + " VARCHAR PRIMARY KEY, " +
             "            " + COLUMN_USER_NAME + " VARCHAR, " +
@@ -126,6 +129,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         cv.put(COLUMN_COLLECTOR_END_TIME, collector.getCollectorEndTime());
         cv.put(COLUMN_COLLECTOR_GRAPH_QUERY, collector.getCollectorGraphQuery());
         cv.put(COLUMN_COLLECTOR_APP_DATA_FIELDS, collector.getCollectorAppDataFields());
+        cv.put(COLUMN_COLLECTOR_STATUS, collector.getCollectorStatus());
 
         long insert = db.insert(COLLECTOR_TABLE, null, cv);
 
@@ -167,8 +171,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                 long collectorEndTime = cursor.getLong(7);
                 String collectorGraphQuery = cursor.getString(8);
                 String collectorAppDataFields = cursor.getString(9);
+                String collectorStatus = cursor.getString(10);
 
-                Collector receivedCollector = new Collector(collectorID, creatorUserID, appName, name, mode, targetServerIP, collectorStartTime, collectorEndTime, collectorGraphQuery, collectorAppDataFields);
+                Collector receivedCollector = new Collector(collectorID, creatorUserID, appName, name, mode, targetServerIP, collectorStartTime, collectorEndTime, collectorGraphQuery, collectorAppDataFields, collectorStatus);
                 collectorList.add(receivedCollector);
 
             } while(cursor.moveToNext());

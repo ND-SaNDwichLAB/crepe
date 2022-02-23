@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -20,6 +21,8 @@ public class CollectorCardConstraintLayoutBuilder {
     private TextView scheduleStartTextView;
     private TextView scheduleEndTextView;
     private ConstraintLayout collectorLayout;
+    private TextView collectorStatusTxt;
+    private ImageView collectorStatusImg;
 
     public CollectorCardConstraintLayoutBuilder(Context c) {
         this.c = c;
@@ -46,6 +49,23 @@ public class CollectorCardConstraintLayoutBuilder {
         scheduleStartTextView.setText("Started: "+collector.getCollectorStartTimeString());
         scheduleEndTextView = (TextView) collectorLayout.findViewById(R.id.endTime);
         scheduleEndTextView.setText("Scheduled end: "+collector.getCollectorEndTimeString());
+
+        // get the app status and display it
+        collectorStatusImg = (ImageView) collectorLayout.findViewById(R.id.runningLightImageView);
+        collectorStatusTxt = (TextView) collectorLayout.findViewById(R.id.collectorStatusText);
+        if (collector.getCollectorStatus() == "running"){
+            collectorStatusTxt.setText("Running");
+            collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_24_green);
+        } else if (collector.getCollectorStatus() == "disabled"){
+            collectorStatusTxt.setText("Disabled");
+            collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_12_grey);
+        } else if (collector.getCollectorStatus() == "expired"){
+            collectorStatusTxt.setText("Expired");
+            collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_12_yellow);
+        } else {
+            collectorStatusTxt.setText("Not yet started");
+            collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_12_yellow);
+        }
 
 
         Button detailBtn = (Button) collectorLayout.findViewById(R.id.detailButton);
