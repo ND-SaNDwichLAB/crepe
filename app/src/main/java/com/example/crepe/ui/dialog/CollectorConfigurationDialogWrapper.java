@@ -78,7 +78,7 @@ public class CollectorConfigurationDialogWrapper {
                 appDropDown.setAdapter(appAdapter);
                 if (collector.getAppName() != null) {
                     int i;
-                    for (i = 1; i < appItems.length; i++) {
+                    for (i = 0; i < appItems.length; i++) {
                         if (collector.getAppName() == appItems[i])
                             break;
                     }
