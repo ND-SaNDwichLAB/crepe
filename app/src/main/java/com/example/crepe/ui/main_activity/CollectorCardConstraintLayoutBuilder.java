@@ -53,13 +53,13 @@ public class CollectorCardConstraintLayoutBuilder {
         // get the app status and display it
         collectorStatusImg = (ImageView) collectorLayout.findViewById(R.id.runningLightImageView);
         collectorStatusTxt = (TextView) collectorLayout.findViewById(R.id.collectorStatusText);
-        if (collector.getCollectorStatus() == "running"){
+        if (collector.getCollectorStatus().equals("running")){
             collectorStatusTxt.setText("Running");
             collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_24_green);
-        } else if (collector.getCollectorStatus() == "disabled"){
+        } else if (collector.getCollectorStatus().equals("disabled")){
             collectorStatusTxt.setText("Disabled");
             collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_12_grey);
-        } else if (collector.getCollectorStatus() == "expired"){
+        } else if (collector.getCollectorStatus().equals("expired")){
             collectorStatusTxt.setText("Expired");
             collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_12_yellow);
         } else {

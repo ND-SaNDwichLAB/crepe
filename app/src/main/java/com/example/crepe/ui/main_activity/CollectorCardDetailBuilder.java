@@ -43,6 +43,7 @@ public class CollectorCardDetailBuilder {
             public void onClick(View view) {
                 //TODO：delete the collector?
                 Toast.makeText(c, "Collector (ID:" + collector.getCollectorId() + ") is deleted", Toast.LENGTH_LONG).show();
+                collector.setCollectorStatus("deleted");
                 DatabaseManager dbManager = new DatabaseManager(c);
                 dbManager.removeCollectorById(collector.getCollectorId());
                 dialog.dismiss();

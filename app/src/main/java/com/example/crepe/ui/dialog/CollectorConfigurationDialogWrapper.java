@@ -440,9 +440,8 @@ public class CollectorConfigurationDialogWrapper {
                     @Override
                     public void onClick(View view) {
 
-                                // update currentScreen String value
-                                currentScreenState = "buildDialogFromConfigSuccessMessage";
-
+                        // update currentScreen String value
+                        currentScreenState = "buildDialogFromConfigSuccessMessage";
                         // recursively call itself with new currentScreen String value
                         dialog.dismiss();
                     }

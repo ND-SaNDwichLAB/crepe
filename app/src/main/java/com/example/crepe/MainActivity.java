@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
         try {
 
             testCollector = new Collector("1", "1", "Uber", "description for a Uber collector", "what", "https", 100, 100, "graphQuery","DataFields","running");
-            testCollector2 = new Collector("2", "1", "Doordash", "description for a Doordash collector", "what", "https", 100, 100, "graphQuery","DataFields","disabled");
+            testCollector2 = new Collector("2", "1", "Doordash", "description for a Doordash collector", "what", "https", 139148015, 1491789595, "graphQuery","DataFields","disabled");
             Boolean addResult = dbManager.addOneCollector(testCollector);
             Boolean addResult2 = dbManager.addOneCollector(testCollector2);
 

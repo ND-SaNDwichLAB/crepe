@@ -42,7 +42,7 @@ public class HomeFragment extends Fragment {
 
     }
 
-    private void initCollectorList() {
+    public void initCollectorList() {
         CollectorCardConstraintLayoutBuilder builder = new CollectorCardConstraintLayoutBuilder(getActivity());
         LinearLayout fragmentInnerLinearLayout = getView().findViewById(R.id.fragment_home_inner_linear_layout);
         for (Collector collector : collectorList) {
