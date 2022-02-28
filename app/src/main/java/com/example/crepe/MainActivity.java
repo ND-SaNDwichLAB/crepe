@@ -137,6 +137,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Dialog dialog = createCollectorFromURLDialogBuilder.build();
                 dialog.show();
+                displaySelectedScreen(R.id.nav_menu_home);
             }
         });
 
@@ -145,6 +146,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 CollectorConfigurationDialogWrapper wrapper = createCollectorFromConfigDialogBuilder.buildDialogWrapperWithNewCollector();
                 wrapper.show();
+
             }
         });
     }

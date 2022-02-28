@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -31,6 +32,8 @@ import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 
 
+import org.w3c.dom.Text;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Date;
@@ -48,11 +51,35 @@ public class CollectorInfoLayoutBuilder {
 
     public ConstraintLayout buildCollectorInfoView(Collector collector, ViewGroup containerLayout) {
         ConstraintLayout collectorInfoLayout = (ConstraintLayout) LayoutInflater.from(context).inflate(R.layout.collector_info, containerLayout, false);
+        // get the app name text field from the card and populate it with app name
         TextView appNameTextView = (TextView) collectorInfoLayout.findViewById(R.id.collectorTitle);
         appNameTextView.setText(collector.getAppName());
 
         TextView collectorDescriptionTextView = (TextView) collectorInfoLayout.findViewById(R.id.collectorDataDescription);
         collectorDescriptionTextView.setText(collector.getDescription());
+
+        TextView scheduleStartTextView = (TextView) collectorInfoLayout.findViewById(R.id.startTime);
+        scheduleStartTextView.setText("Started: "+collector.getCollectorStartTimeString());
+        TextView scheduleEndTextView = (TextView) collectorInfoLayout.findViewById(R.id.endTime);
+        scheduleEndTextView.setText("Scheduled end: "+collector.getCollectorEndTimeString());
+
+        // get the app status and display it
+        ImageView collectorStatusImg = (ImageView) collectorInfoLayout.findViewById(R.id.statusImageView);
+        TextView collectorStatusTxt = (TextView) collectorInfoLayout.findViewById(R.id.statusText);
+        if (collector.getCollectorStatus().equals("running")){
+            collectorStatusTxt.setText("Running");
+            collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_24_green);
+        } else if (collector.getCollectorStatus().equals("disabled")){
+            collectorStatusTxt.setText("Disabled");
+            collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_12_grey);
+        } else if (collector.getCollectorStatus().equals("expired")){
+            collectorStatusTxt.setText("Expired");
+            collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_12_yellow);
+        } else {
+            collectorStatusTxt.setText("Not yet started");
+            collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_12_yellow);
+        }
+
         return collectorInfoLayout;
     }
 

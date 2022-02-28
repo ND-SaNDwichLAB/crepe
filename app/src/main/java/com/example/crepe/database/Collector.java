@@ -114,8 +114,8 @@ public class Collector {
     public String getCollectorStartTimeString() {
         Date date = new Date(collectorStartTime);
         DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
-        dateFormat.setTimeZone(TimeZone.getDefault());
-
+        // force the timezone to be utc because of bug in material design. All time operations will be in utc
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         return dateFormat.format(date);
     }
 
@@ -128,9 +128,12 @@ public class Collector {
     }
 
     public String getCollectorEndTimeString() {
+
         Date date = new Date(collectorEndTime);
         DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
-        dateFormat.setTimeZone(TimeZone.getDefault());
+//        DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss.SSSZ");
+        // force the timezone to be utc because of bug in material design. All time operations will be in utc
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
         return dateFormat.format(date);
     }

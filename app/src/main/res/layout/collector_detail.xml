@@ -78,7 +78,7 @@
         android:layout_marginTop="24dp"
         android:layout_marginEnd="24dp"
         android:background="@android:color/transparent"
-        android:text="CLOSE"
+        android:text="DONE"
         android:textColor="@color/ND_gold"
         android:textColorHint="@color/ND_gold"
         app:layout_constraintBottom_toBottomOf="@+id/collectorDeleteButton"
