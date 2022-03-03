@@ -29,8 +29,6 @@ public class HomeFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         dbManager = new DatabaseManager(this.getActivity());
-        collectorList = dbManager.getAllCollectors();
-        Toast.makeText(this.getActivity(), "Collector number: " + collectorList.size(), Toast.LENGTH_LONG).show();
 
         return inflater.inflate(R.layout.fragment_home, container, false);
     }
@@ -39,12 +37,16 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         initCollectorList();
-
     }
 
-    private void initCollectorList() {
+
+
+    public void initCollectorList() {
+        collectorList = dbManager.getAllCollectors();
+        Toast.makeText(this.getActivity(), "Collector number: " + collectorList.size(), Toast.LENGTH_LONG).show();
         CollectorCardConstraintLayoutBuilder builder = new CollectorCardConstraintLayoutBuilder(getActivity());
         LinearLayout fragmentInnerLinearLayout = getView().findViewById(R.id.fragment_home_inner_linear_layout);
+        fragmentInnerLinearLayout.removeAllViews();
         for (Collector collector : collectorList) {
 
             ConstraintLayout collectorCardView = builder.build(collector, fragmentInnerLinearLayout, "cardLayout");
