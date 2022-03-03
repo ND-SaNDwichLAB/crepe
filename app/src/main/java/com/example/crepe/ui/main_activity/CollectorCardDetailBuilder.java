@@ -12,6 +12,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
+
 import com.example.crepe.R;
 import com.example.crepe.database.Collector;
 import com.example.crepe.database.DatabaseManager;
@@ -78,6 +82,7 @@ public class CollectorCardDetailBuilder {
                 }
             }
         });
+
 
         return dialog;
     }

@@ -76,7 +76,6 @@ public class CollectorCardConstraintLayoutBuilder {
                 CollectorCardDetailBuilder cardDetailBuilder = new CollectorCardDetailBuilder(c, collector);
                 Dialog newDialog = cardDetailBuilder.build();
                 newDialog.show();
-
             }
         });
 
