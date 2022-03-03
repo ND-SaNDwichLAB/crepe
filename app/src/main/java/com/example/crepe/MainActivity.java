@@ -66,6 +66,8 @@ public class MainActivity extends AppCompatActivity {
     private CreateCollectorFromURLDialogBuilder createCollectorFromURLDialogBuilder;
     private CreateCollectorFromConfigDialogBuilder createCollectorFromConfigDialogBuilder;
 
+    private Fragment currentFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -123,8 +125,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Runnable refreshCollectorListRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (currentFragment instanceof  HomeFragment) {
+                    ((HomeFragment) currentFragment).initCollectorList();
+                }
+            }
+        };
         this.createCollectorFromURLDialogBuilder = new CreateCollectorFromURLDialogBuilder(this);
-        this.createCollectorFromConfigDialogBuilder = new CreateCollectorFromConfigDialogBuilder(this);
+        this.createCollectorFromConfigDialogBuilder = new CreateCollectorFromConfigDialogBuilder(this, refreshCollectorListRunnable);
 
         // get the fab icons
         fabBtn = findViewById(R.id.fab);
@@ -156,15 +166,14 @@ public class MainActivity extends AppCompatActivity {
     private void displaySelectedScreen(int itemId) {
 
         // initialize a fragment for switching
-        Fragment fragment = null;
 
         switch (itemId) {
             case R.id.nav_menu_home:
                 // Change this back
-                fragment = new HomeFragment();
+                currentFragment = new HomeFragment();
                 break;
             case R.id.nav_menu_data:
-                fragment = new DataFragment();
+                currentFragment = new DataFragment();
                 break;
             default:
                 Log.i("Menu Selection", "Menu Item Selection Error: no selection detected");
@@ -172,9 +181,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         //replacing the fragment
-        if (fragment != null) {
+        if (currentFragment != null) {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.replace(R.id.content_frame, fragment);
+            ft.replace(R.id.content_frame, currentFragment);
             ft.commit();
         }
 

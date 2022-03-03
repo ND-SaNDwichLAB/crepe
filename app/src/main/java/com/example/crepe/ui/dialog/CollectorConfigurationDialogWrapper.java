@@ -43,12 +43,14 @@ public class CollectorConfigurationDialogWrapper {
     private Context context;
     private String currentScreenState;
     private Collector collector;
+    private Runnable refreshCollectorListRunnable;
 
-    CollectorConfigurationDialogWrapper(Context context, AlertDialog dialog, Collector collector) {
+    CollectorConfigurationDialogWrapper(Context context, AlertDialog dialog, Collector collector, Runnable refreshCollectorListRunnable) {
         this.context = context;
         this.dialog = dialog;
         this.collector = collector;
         this.currentScreenState = "buildDialogFromConfig";
+        this.refreshCollectorListRunnable = refreshCollectorListRunnable;
     }
 
     public void updateCurrentView() {
@@ -400,6 +402,7 @@ public class CollectorConfigurationDialogWrapper {
                         currentScreenState = "buildDialogFromConfigSuccessMessage";
                         // recursively call itself with new currentScreen String value
                         updateCurrentView();
+                        refreshCollectorListRunnable.run();
                     }
                 });
 
