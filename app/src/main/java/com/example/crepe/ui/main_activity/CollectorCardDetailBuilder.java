@@ -10,6 +10,7 @@ import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.example.crepe.R;
 import com.example.crepe.database.Collector;
@@ -35,6 +36,11 @@ public class CollectorCardDetailBuilder {
         Button closeBtn = (Button) popupView.findViewById(R.id.collectorCloseButton);
         Button deleteBtn = (Button) popupView.findViewById(R.id.collectorDeleteButton);
         Switch enableSwitch = (Switch) popupView.findViewById(R.id.collectorStatusSwitch);
+        if(collector.getCollectorStatus().equals("disabled")){
+            enableSwitch.setChecked(false);
+        } else{
+            enableSwitch.setChecked(true);
+        }
 
         collectorDataField.setText(collector.getDescription());
 
@@ -43,6 +49,7 @@ public class CollectorCardDetailBuilder {
             public void onClick(View view) {
                 //TODO：delete the collector?
                 Toast.makeText(c, "Collector (ID:" + collector.getCollectorId() + ") is deleted", Toast.LENGTH_LONG).show();
+                collector.setCollectorStatus("deleted");
                 DatabaseManager dbManager = new DatabaseManager(c);
                 dbManager.removeCollectorById(collector.getCollectorId());
                 dialog.dismiss();
@@ -52,6 +59,11 @@ public class CollectorCardDetailBuilder {
         closeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(enableSwitch.isChecked()){
+                    collector.setCollectorStatus("running");
+                } else {
+                    collector.setCollectorStatus("disabled");
+                }
                 dialog.dismiss();
             }
         });

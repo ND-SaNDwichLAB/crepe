@@ -39,8 +39,6 @@ public class HomeFragment extends Fragment {
         initCollectorList();
     }
 
-
-
     public void initCollectorList() {
         collectorList = dbManager.getAllCollectors();
         Toast.makeText(this.getActivity(), "Collector number: " + collectorList.size(), Toast.LENGTH_LONG).show();
