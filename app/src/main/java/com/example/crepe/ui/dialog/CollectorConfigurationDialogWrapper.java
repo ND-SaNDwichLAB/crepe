@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.crepe.MainActivity;
@@ -240,6 +241,14 @@ public class CollectorConfigurationDialogWrapper {
                 Button graphQueryBckBtn = (Button) dialogMainView.findViewById(R.id.graphQueryBackButton);
                 ImageButton graphQueryCloseImg = (ImageButton) dialogMainView.findViewById(R.id.closeGraphQueryPopupImageButton);
                 EditText graphQueryEditTxt = (EditText) dialogMainView.findViewById(R.id.graphQueryEditText);
+
+                // update interface elements based on the specified app in the previous popup box
+                Button openAppButton = (Button) dialogMainView.findViewById(R.id.openAppButton);
+                TextView commentOnOpenAppButton = (TextView) dialogMainView.findViewById(R.id.commentOnOpenAppButton);
+                String appName = collector.getAppName();
+                openAppButton.setText("Open " + appName);
+                commentOnOpenAppButton.setText("Demonstrate in the " + appName +" app");
+
 
                 // TODO: finish graph query
 
