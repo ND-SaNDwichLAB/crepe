@@ -169,6 +169,10 @@ public class CollectorConfigurationDialogWrapper {
                                 if (endDateSelectionValue > collector.getCollectorStartTime()) {
                                     collector.setCollectorEndTime(endDateSelectionValue);
                                     endDateText.setText(collector.getCollectorEndTimeString(), null);
+
+                                    // After successfully set the collector's end time, automatically set its status
+                                    collector.autoSetCollectorStatus();
+
                                 } else {
                                     Toast.makeText(context, "Please select a date later than your start date (" + collector.getCollectorStartTimeString() + ")", Toast.LENGTH_LONG).show();
                                 }
@@ -374,16 +378,6 @@ public class CollectorConfigurationDialogWrapper {
                 descriptionCreateBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        long today = Calendar.getInstance().getTime().getTime();
-                        // change collector status
-                        if (today > collector.getCollectorEndTime() ){
-                            collector.setCollectorStatus("expired");
-                        } else if (today < collector.getCollectorStartTime()){
-                            collector.setCollectorStatus("not yet started");
-                        } else {
-                            collector.setCollectorStatus("running");
-                        }
-
                         // write description into collector
                         String descriptionText = descriptionEditText.getText().toString();
                         collector.setDescription(descriptionText);
@@ -410,8 +404,8 @@ public class CollectorConfigurationDialogWrapper {
                         // update currentScreen String value
                         currentScreenState = "buildDialogFromConfigSuccessMessage";
                         // recursively call itself with new currentScreen String value
-                        updateCurrentView();
                         refreshCollectorListRunnable.run();
+                        updateCurrentView();
                     }
                 });
 

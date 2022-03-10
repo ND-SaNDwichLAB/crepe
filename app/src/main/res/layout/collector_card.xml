@@ -72,7 +72,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="16dp"
-                android:text="Started:  MM DD, YYYY"
+                android:text="Start:  MM DD, YYYY"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/collectorImg" />
 
@@ -82,7 +82,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="8dp"
-                android:text="Scheduled end:  MM DD, YYYY"
+                android:text="End:  MM DD, YYYY"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/startTime" />
 

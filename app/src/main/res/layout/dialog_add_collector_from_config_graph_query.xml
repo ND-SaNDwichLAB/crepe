@@ -97,19 +97,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/hintEnterGraphQuery"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="36dp"
-        android:layout_marginTop="8dp"
-        android:background="@color/white"
-        android:paddingStart="2dp"
-        android:paddingEnd="2dp"
-        android:text="Graph Query"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/openAppButton" />
-
     <ImageButton
         android:id="@+id/closeGraphQueryPopupImageButton"
         android:layout_width="48dp"

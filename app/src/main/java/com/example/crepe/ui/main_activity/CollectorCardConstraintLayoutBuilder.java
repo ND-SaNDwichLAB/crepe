@@ -24,12 +24,28 @@ public class CollectorCardConstraintLayoutBuilder {
     private TextView collectorStatusTxt;
     private ImageView collectorStatusImg;
 
+
+    // some constants for collector status
+    public static final String DELETED = "deleted";
+    public static final String DISABLED = "disabled";
+    public static final String ACTIVE = "active";
+    public static final String NOTYETSTARTED = "notYetStarted";
+    public static final String EXPIRED = "expired";
+
+
     public CollectorCardConstraintLayoutBuilder(Context c) {
         this.c = c;
     }
 
     public ConstraintLayout build(Collector collector, ViewGroup rootView, String layoutType) {
 
+        // if the collector is deleted, don't display anything.
+        // We handle deletion in our app in this way so database manipulation can be easier
+        if (collector.getCollectorStatus().equals(DELETED)) {
+            return null;
+        }
+
+        // else
         if(layoutType == "cardLayout") {
             // if for home fragment, build a card layout
             collectorLayout = (ConstraintLayout) LayoutInflater.from(c).inflate(R.layout.collector_card, rootView, false);
@@ -43,25 +59,33 @@ public class CollectorCardConstraintLayoutBuilder {
         appNameTextView.setText(collector.getAppName());
 
         collectorDescriptionTextView = (TextView) collectorLayout.findViewById(R.id.collectorDataDescription);
-        collectorDescriptionTextView.setText(collector.getDescription());
+        if (collector.getDescription() != null) {
+            collectorDescriptionTextView.setText(collector.getDescription());
+        }
 
         scheduleStartTextView = (TextView) collectorLayout.findViewById(R.id.startTime);
-        scheduleStartTextView.setText("Started: "+collector.getCollectorStartTimeString());
+        scheduleStartTextView.setText("Start Time: "+collector.getCollectorStartTimeString());
         scheduleEndTextView = (TextView) collectorLayout.findViewById(R.id.endTime);
-        scheduleEndTextView.setText("Scheduled end: "+collector.getCollectorEndTimeString());
+        scheduleEndTextView.setText("End Time: "+collector.getCollectorEndTimeString());
 
         // get the app status and display it
         collectorStatusImg = (ImageView) collectorLayout.findViewById(R.id.runningLightImageView);
         collectorStatusTxt = (TextView) collectorLayout.findViewById(R.id.collectorStatusText);
-        if (collector.getCollectorStatus().equals("running")){
-            collectorStatusTxt.setText("Running");
-            collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_24_green);
-        } else if (collector.getCollectorStatus().equals("disabled")){
+        // if the collector is disabled:
+        if (collector.getCollectorStatus().equals(DISABLED)){
             collectorStatusTxt.setText("Disabled");
             collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_12_grey);
-        } else if (collector.getCollectorStatus().equals("expired")){
+        }
+
+        // if the collector is neither deleted nor disabled, refresh its status based on current time
+        collector.autoSetCollectorStatus();
+
+        if (collector.getCollectorStatus().equals(ACTIVE)){
+            collectorStatusTxt.setText("Running");
+            collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_24_green);
+        } else if (collector.getCollectorStatus().equals(EXPIRED)){
             collectorStatusTxt.setText("Expired");
-            collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_12_yellow);
+            collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_12_grey);
         } else {
             collectorStatusTxt.setText("Not yet started");
             collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_12_yellow);
@@ -80,7 +104,6 @@ public class CollectorCardConstraintLayoutBuilder {
             }
         });
 
-        //TODO: finish customize the layout based on info from card
 
 
         return collectorLayout;

@@ -47,11 +47,10 @@ public class CollectorCardDetailBuilder {
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO：delete the collector?
                 Toast.makeText(c, "Collector (ID:" + collector.getCollectorId() + ") is deleted", Toast.LENGTH_LONG).show();
-                collector.setCollectorStatus("deleted");
-                DatabaseManager dbManager = new DatabaseManager(c);
-                dbManager.removeCollectorById(collector.getCollectorId());
+                // This will only set the status of collector to deleted,
+                // it will still be present in database but won't be displayed
+                collector.deleteCollector();
                 dialog.dismiss();
             }
         });
@@ -60,9 +59,9 @@ public class CollectorCardDetailBuilder {
             @Override
             public void onClick(View view) {
                 if(enableSwitch.isChecked()){
-                    collector.setCollectorStatus("running");
+                    collector.activateCollector();
                 } else {
-                    collector.setCollectorStatus("disabled");
+                    collector.disableCollector();
                 }
                 dialog.dismiss();
             }
@@ -72,9 +71,9 @@ public class CollectorCardDetailBuilder {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 if (isChecked){
-                    collector.setCollectorStatus("running");
+                    collector.activateCollector();
                 } else {
-                    collector.setCollectorStatus("disabled");
+                    collector.disableCollector();
                 }
             }
         });
