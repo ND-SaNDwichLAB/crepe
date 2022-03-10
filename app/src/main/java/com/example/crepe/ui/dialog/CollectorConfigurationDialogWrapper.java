@@ -45,6 +45,7 @@ public class CollectorConfigurationDialogWrapper {
     private String currentScreenState;
     private Collector collector;
     private Runnable refreshCollectorListRunnable;
+    private DatabaseManager dbManager;
 
     CollectorConfigurationDialogWrapper(Context context, AlertDialog dialog, Collector collector, Runnable refreshCollectorListRunnable) {
         this.context = context;
@@ -52,6 +53,7 @@ public class CollectorConfigurationDialogWrapper {
         this.collector = collector;
         this.currentScreenState = "buildDialogFromConfig";
         this.refreshCollectorListRunnable = refreshCollectorListRunnable;
+        this.dbManager = new DatabaseManager(context);
     }
 
     public void updateCurrentView() {
@@ -170,9 +172,6 @@ public class CollectorConfigurationDialogWrapper {
                                     collector.setCollectorEndTime(endDateSelectionValue);
                                     endDateText.setText(collector.getCollectorEndTimeString(), null);
 
-                                    // After successfully set the collector's end time, automatically set its status
-                                    collector.autoSetCollectorStatus();
-
                                 } else {
                                     Toast.makeText(context, "Please select a date later than your start date (" + collector.getCollectorStartTimeString() + ")", Toast.LENGTH_LONG).show();
                                 }
@@ -225,6 +224,10 @@ public class CollectorConfigurationDialogWrapper {
                         Date endDate = dateFormat.parse(endDateText.getText().toString(), pp2);
                         collector.setCollectorEndTime(endDate.getTime());
 
+                        // After successfully set the collector's end time, automatically set its status
+                        collector.autoSetCollectorStatus();
+                        // Update in database as well
+                        dbManager.updateCollectorStatus(collector);
 
                         if (blankFlag == 0) {
                             // update currentScreen String value

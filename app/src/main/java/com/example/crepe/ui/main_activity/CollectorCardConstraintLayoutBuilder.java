@@ -2,6 +2,7 @@ package com.example.crepe.ui.main_activity;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.example.crepe.R;
 import com.example.crepe.database.Collector;
+import com.example.crepe.database.DatabaseManager;
 
 public class CollectorCardConstraintLayoutBuilder {
     private Context c;
@@ -23,6 +25,8 @@ public class CollectorCardConstraintLayoutBuilder {
     private ConstraintLayout collectorLayout;
     private TextView collectorStatusTxt;
     private ImageView collectorStatusImg;
+    private Runnable refreshCollectorListRunnable;
+    private DatabaseManager dbManager;
 
 
     // some constants for collector status
@@ -33,8 +37,10 @@ public class CollectorCardConstraintLayoutBuilder {
     public static final String EXPIRED = "expired";
 
 
-    public CollectorCardConstraintLayoutBuilder(Context c) {
+    public CollectorCardConstraintLayoutBuilder(Context c, Runnable refreshCollectorListRunnable) {
         this.c = c;
+        this.refreshCollectorListRunnable = refreshCollectorListRunnable;
+        this.dbManager = new DatabaseManager(c);
     }
 
     public ConstraintLayout build(Collector collector, ViewGroup rootView, String layoutType) {
@@ -42,6 +48,7 @@ public class CollectorCardConstraintLayoutBuilder {
         // if the collector is deleted, don't display anything.
         // We handle deletion in our app in this way so database manipulation can be easier
         if (collector.getCollectorStatus().equals(DELETED)) {
+            Log.e("collector", "This collector for " + collector.getAppName() + " is deleted, thus will not be displayed.");
             return null;
         }
 
@@ -75,21 +82,24 @@ public class CollectorCardConstraintLayoutBuilder {
         if (collector.getCollectorStatus().equals(DISABLED)){
             collectorStatusTxt.setText("Disabled");
             collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_12_grey);
-        }
-
-        // if the collector is neither deleted nor disabled, refresh its status based on current time
-        collector.autoSetCollectorStatus();
-
-        if (collector.getCollectorStatus().equals(ACTIVE)){
-            collectorStatusTxt.setText("Running");
-            collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_24_green);
-        } else if (collector.getCollectorStatus().equals(EXPIRED)){
-            collectorStatusTxt.setText("Expired");
-            collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_12_grey);
         } else {
-            collectorStatusTxt.setText("Not yet started");
-            collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_12_yellow);
+            // if the collector is neither deleted nor disabled, refresh its status based on current time
+            collector.autoSetCollectorStatus();
+            // also update in the database
+            dbManager.updateCollectorStatus(collector);
+            if (collector.getCollectorStatus().equals(ACTIVE)){
+                collectorStatusTxt.setText("Running");
+                collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_24_green);
+            } else if (collector.getCollectorStatus().equals(EXPIRED)){
+                collectorStatusTxt.setText("Expired");
+                collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_12_grey);
+            } else {
+                collectorStatusTxt.setText("Not yet started");
+                collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_12_yellow);
+            }
         }
+
+
 
 
         Button detailBtn = (Button) collectorLayout.findViewById(R.id.detailButton);
@@ -97,7 +107,7 @@ public class CollectorCardConstraintLayoutBuilder {
         detailBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                CollectorCardDetailBuilder cardDetailBuilder = new CollectorCardDetailBuilder(c, collector);
+                CollectorCardDetailBuilder cardDetailBuilder = new CollectorCardDetailBuilder(c, collector, refreshCollectorListRunnable);
                 Dialog newDialog = cardDetailBuilder.build();
                 newDialog.show();
 

@@ -20,11 +20,15 @@ public class CollectorCardDetailBuilder {
     private Context c;
     private AlertDialog.Builder dialogBuilder;
     private Collector collector;
+    private Runnable refreshCollectorListRunnable;
+    private DatabaseManager dbManager;
 
-    public CollectorCardDetailBuilder(Context c, Collector collector) {
+    public CollectorCardDetailBuilder(Context c, Collector collector, Runnable refreshCollectorListRunnable) {
         this.c = c;
         this.dialogBuilder = new AlertDialog.Builder(c);
         this.collector = collector;
+        this.refreshCollectorListRunnable = refreshCollectorListRunnable;
+        this.dbManager = new DatabaseManager(c);
     }
 
     public Dialog build() {
@@ -38,6 +42,7 @@ public class CollectorCardDetailBuilder {
         Switch enableSwitch = (Switch) popupView.findViewById(R.id.collectorStatusSwitch);
         if(collector.getCollectorStatus().equals("disabled")){
             enableSwitch.setChecked(false);
+            enableSwitch.setText("Disabled");
         } else{
             enableSwitch.setChecked(true);
         }
@@ -51,6 +56,10 @@ public class CollectorCardDetailBuilder {
                 // This will only set the status of collector to deleted,
                 // it will still be present in database but won't be displayed
                 collector.deleteCollector();
+                dbManager.updateCollectorStatus(collector);
+
+                // update the home fragment list
+                refreshCollectorListRunnable.run();
                 dialog.dismiss();
             }
         });
@@ -60,9 +69,13 @@ public class CollectorCardDetailBuilder {
             public void onClick(View view) {
                 if(enableSwitch.isChecked()){
                     collector.activateCollector();
+                    dbManager.updateCollectorStatus(collector);
                 } else {
                     collector.disableCollector();
+                    dbManager.updateCollectorStatus(collector);
                 }
+                // update the home fragment list
+                refreshCollectorListRunnable.run();
                 dialog.dismiss();
             }
         });
@@ -70,10 +83,11 @@ public class CollectorCardDetailBuilder {
         enableSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                if (isChecked){
-                    collector.activateCollector();
+                // Commented the following block out, don't feel it's necessary because the collector status is updated at the closeBtn onclicklistener
+                if (!isChecked){
+                    enableSwitch.setText("Disabled");
                 } else {
-                    collector.disableCollector();
+                    enableSwitch.setText("Enabled");
                 }
             }
         });

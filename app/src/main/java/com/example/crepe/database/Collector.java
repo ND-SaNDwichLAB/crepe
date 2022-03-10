@@ -190,7 +190,8 @@ public class Collector {
 
 
     // The collectorStatus will be set based on current time and the collector's start and end time
-    public void autoSetCollectorStatus() {
+    // The return value indicates if the status is changed: true for changed, false for unchanged
+    public Boolean autoSetCollectorStatus() {
 
         long currentTime = System.currentTimeMillis();
         // There are 5 statuses for the collector:
@@ -199,14 +200,17 @@ public class Collector {
         //                      the statuses are represented in camel case (e.g. notYetStarted)
         // by default, the collectors won't be deleted or disabled,
         // so we only need to allocate it based on current time
+        String newStatus;
         if (currentTime < this.collectorStartTime) {
-            this.collectorStatus = NOTYETSTARTED;
+            newStatus = NOTYETSTARTED;
         } else if (currentTime <= this.collectorEndTime) {
-            this.collectorStatus = ACTIVE;
+            newStatus = ACTIVE;
         } else {
-            this.collectorStatus = EXPIRED;
+            newStatus = EXPIRED;
         }
+        this.collectorStatus = newStatus;
 
+        return collectorStatus != newStatus;
     }
 
     // We also provide a set status function to manually set the status to an arbitrary value
