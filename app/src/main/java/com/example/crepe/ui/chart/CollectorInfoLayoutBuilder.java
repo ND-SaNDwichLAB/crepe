@@ -1,17 +1,14 @@
 package com.example.crepe.ui.chart;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Build;
-import android.util.DisplayMetrics;
 import android.util.Pair;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -22,21 +19,15 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import com.example.crepe.R;
 import com.example.crepe.database.Collector;
 import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.ValueFormatter;
-import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 
 
-import org.w3c.dom.Text;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -50,7 +41,7 @@ public class CollectorInfoLayoutBuilder {
     }
 
     public ConstraintLayout buildCollectorInfoView(Collector collector, ViewGroup containerLayout) {
-        ConstraintLayout collectorInfoLayout = (ConstraintLayout) LayoutInflater.from(context).inflate(R.layout.collector_info, containerLayout, false);
+        ConstraintLayout collectorInfoLayout = (ConstraintLayout) LayoutInflater.from(context).inflate(R.layout.collector_info_for_data_fragment, containerLayout, false);
         // get the app name text field from the card and populate it with app name
         TextView appNameTextView = (TextView) collectorInfoLayout.findViewById(R.id.collectorTitle);
         appNameTextView.setText(collector.getAppName());
@@ -74,7 +65,7 @@ public class CollectorInfoLayoutBuilder {
             collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_12_grey);
         } else if (collector.getCollectorStatus().equals("expired")){
             collectorStatusTxt.setText("Expired");
-            collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_12_yellow);
+            collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_12_grey);
         } else {
             collectorStatusTxt.setText("Not yet started");
             collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_12_yellow);
@@ -223,6 +214,12 @@ public class CollectorInfoLayoutBuilder {
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public LinearLayout build(Collector collector) {
+
+        // if the collector is in deleted status, don't display anything
+        if(collector.isDeleted()) {
+            return null;
+        }
+
         LinearLayout containerLayout = new LinearLayout(context);
         containerLayout.setOrientation(LinearLayout.VERTICAL);
 

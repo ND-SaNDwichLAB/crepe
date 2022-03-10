@@ -58,7 +58,7 @@ public class CollectorCardConstraintLayoutBuilder {
             collectorLayout = (ConstraintLayout) LayoutInflater.from(c).inflate(R.layout.collector_card, rootView, false);
         } else {
             // if for data fragment, build a info layout without a card appearance
-            collectorLayout = (ConstraintLayout) LayoutInflater.from(c).inflate(R.layout.collector_info, rootView, false);
+            collectorLayout = (ConstraintLayout) LayoutInflater.from(c).inflate(R.layout.collector_info_for_data_fragment, rootView, false);
         }
 
         // get the app name text field from the card and populate it with app name
