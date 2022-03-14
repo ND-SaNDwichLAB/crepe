@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.crepe.MainActivity;
@@ -44,6 +45,7 @@ public class CollectorConfigurationDialogWrapper {
     private String currentScreenState;
     private Collector collector;
     private Runnable refreshCollectorListRunnable;
+    private DatabaseManager dbManager;
 
     CollectorConfigurationDialogWrapper(Context context, AlertDialog dialog, Collector collector, Runnable refreshCollectorListRunnable) {
         this.context = context;
@@ -51,6 +53,7 @@ public class CollectorConfigurationDialogWrapper {
         this.collector = collector;
         this.currentScreenState = "buildDialogFromConfig";
         this.refreshCollectorListRunnable = refreshCollectorListRunnable;
+        this.dbManager = new DatabaseManager(context);
     }
 
     public void updateCurrentView() {
@@ -168,6 +171,7 @@ public class CollectorConfigurationDialogWrapper {
                                 if (endDateSelectionValue > collector.getCollectorStartTime()) {
                                     collector.setCollectorEndTime(endDateSelectionValue);
                                     endDateText.setText(collector.getCollectorEndTimeString(), null);
+
                                 } else {
                                     Toast.makeText(context, "Please select a date later than your start date (" + collector.getCollectorStartTimeString() + ")", Toast.LENGTH_LONG).show();
                                 }
@@ -220,6 +224,10 @@ public class CollectorConfigurationDialogWrapper {
                         Date endDate = dateFormat.parse(endDateText.getText().toString(), pp2);
                         collector.setCollectorEndTime(endDate.getTime());
 
+                        // After successfully set the collector's end time, automatically set its status
+                        collector.autoSetCollectorStatus();
+                        // Update in database as well
+                        dbManager.updateCollectorStatus(collector);
 
                         if (blankFlag == 0) {
                             // update currentScreen String value
@@ -240,6 +248,14 @@ public class CollectorConfigurationDialogWrapper {
                 Button graphQueryBckBtn = (Button) dialogMainView.findViewById(R.id.graphQueryBackButton);
                 ImageButton graphQueryCloseImg = (ImageButton) dialogMainView.findViewById(R.id.closeGraphQueryPopupImageButton);
                 EditText graphQueryEditTxt = (EditText) dialogMainView.findViewById(R.id.graphQueryEditText);
+
+                // update interface elements based on the specified app in the previous popup box
+                Button openAppButton = (Button) dialogMainView.findViewById(R.id.openAppButton);
+                TextView commentOnOpenAppButton = (TextView) dialogMainView.findViewById(R.id.commentOnOpenAppButton);
+                String appName = collector.getAppName();
+                openAppButton.setText("Open " + appName);
+                commentOnOpenAppButton.setText("Demonstrate in the " + appName +" app");
+
 
                 // TODO: finish graph query
 
@@ -365,16 +381,6 @@ public class CollectorConfigurationDialogWrapper {
                 descriptionCreateBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        long today = Calendar.getInstance().getTime().getTime();
-                        // change collector status
-                        if (today > collector.getCollectorEndTime() ){
-                            collector.setCollectorStatus("expired");
-                        } else if (today < collector.getCollectorStartTime()){
-                            collector.setCollectorStatus("not yet started");
-                        } else {
-                            collector.setCollectorStatus("running");
-                        }
-
                         // write description into collector
                         String descriptionText = descriptionEditText.getText().toString();
                         collector.setDescription(descriptionText);
@@ -401,8 +407,8 @@ public class CollectorConfigurationDialogWrapper {
                         // update currentScreen String value
                         currentScreenState = "buildDialogFromConfigSuccessMessage";
                         // recursively call itself with new currentScreen String value
-                        updateCurrentView();
                         refreshCollectorListRunnable.run();
+                        updateCurrentView();
                     }
                 });
 

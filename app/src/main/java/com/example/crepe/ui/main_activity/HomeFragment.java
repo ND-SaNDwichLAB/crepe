@@ -1,6 +1,7 @@
 package com.example.crepe.ui.main_activity;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,22 +44,32 @@ public class HomeFragment extends Fragment {
     public void initCollectorList() {
         collectorList = dbManager.getAllCollectors();
         Toast.makeText(this.getActivity(), "Collector number: " + collectorList.size(), Toast.LENGTH_LONG).show();
-        CollectorCardConstraintLayoutBuilder builder = new CollectorCardConstraintLayoutBuilder(getActivity());
+        CollectorCardConstraintLayoutBuilder builder = new CollectorCardConstraintLayoutBuilder(getActivity(), homeFragmentRefreshCollectorListRunnable);
         LinearLayout fragmentInnerLinearLayout = getView().findViewById(R.id.fragment_home_inner_linear_layout);
         fragmentInnerLinearLayout.removeAllViews();
         for (Collector collector : collectorList) {
 
-            ConstraintLayout collectorCardView = builder.build(collector, fragmentInnerLinearLayout, "cardLayout");
-            collectorCardView.setId(View.generateViewId());
+                ConstraintLayout collectorCardView = builder.build(collector, fragmentInnerLinearLayout, "cardLayout");
+                // if the cardView is not null, meaning the collector is not in deleted status
+                if(collectorCardView != null) {
+                    collectorCardView.setId(View.generateViewId());
 
-            // Toast.makeText(this.getActivity(), fragmentInnerConstraintLayout.toString(), Toast.LENGTH_LONG).show();
-            fragmentInnerLinearLayout.addView(collectorCardView);
+                    // Toast.makeText(this.getActivity(), fragmentInnerConstraintLayout.toString(), Toast.LENGTH_LONG).show();
+                    fragmentInnerLinearLayout.addView(collectorCardView);
+                }
 
 
         }
 
 
     }
+
+    Runnable homeFragmentRefreshCollectorListRunnable = new Runnable() {
+        @Override
+        public void run() {
+            initCollectorList();
+        }
+    };
 
 
 

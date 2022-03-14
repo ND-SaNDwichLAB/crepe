@@ -1,5 +1,7 @@
 package com.example.crepe.database;
 
+import android.util.Log;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -18,6 +20,30 @@ public class Collector {
     private String collectorAppDataFields;
     private String collectorStatus;
 
+    // some constants for collector status
+    public static final String DELETED = "deleted";
+    public static final String DISABLED = "disabled";
+    public static final String ACTIVE = "active";
+    public static final String NOTYETSTARTED = "notYetStarted";
+    public static final String EXPIRED = "expired";
+
+
+    public Collector(String collectorId, String creatorUserID, String appName, String description, String mode, String targetServerIp, long collectorStartTime, long collectorEndTime, String collectorGraphQuery, String collectorAppDataFields) {
+        this.collectorId = collectorId;
+        this.creatorUserId = creatorUserID;
+        this.appName = appName;
+        this.description = description;
+        this.mode = mode;
+        this.targetServerIp = targetServerIp;
+        this.collectorStartTime = collectorStartTime;
+        this.collectorEndTime = collectorEndTime;
+        this.collectorGraphQuery = collectorGraphQuery;
+        this.collectorAppDataFields = collectorAppDataFields;
+
+        // auto generate the status of the collector based on current time
+        this.autoSetCollectorStatus();
+
+    }
 
     public Collector(String collectorId, String creatorUserID, String appName, String description, String mode, String targetServerIp, long collectorStartTime, long collectorEndTime, String collectorGraphQuery, String collectorAppDataFields, String collectorStatus) {
         this.collectorId = collectorId;
@@ -162,8 +188,49 @@ public class Collector {
     public String getCollectorStatus() {return collectorStatus;}
 
 
+    // The collectorStatus will be set based on current time and the collector's start and end time
+    // The return value indicates if the status is changed: true for changed, false for unchanged
+    public Boolean autoSetCollectorStatus() {
+
+        long currentTime = System.currentTimeMillis();
+        // There are 5 statuses for the collector:
+        // 1. deleted (will not be displayed on client phones)
+        // 2. not deleted (will be displayed on phones) -- not yet started, active, expired based on time, disabled
+        //                      the statuses are represented in camel case (e.g. notYetStarted)
+        // by default, the collectors won't be deleted or disabled,
+        // so we only need to allocate it based on current time
+        String newStatus;
+        if (currentTime < this.collectorStartTime) {
+            newStatus = NOTYETSTARTED;
+        } else if (currentTime <= this.collectorEndTime) {
+            newStatus = ACTIVE;
+        } else {
+            newStatus = EXPIRED;
+        }
+        this.collectorStatus = newStatus;
+
+        return collectorStatus != newStatus;
+    }
+
+    // We also provide a set status function to manually set the status to an arbitrary value
     public void setCollectorStatus(String collectorStatus) {
-        this.collectorStatus = collectorStatus;
+        if (collectorStatus == DELETED || collectorStatus == DISABLED || collectorStatus == NOTYETSTARTED || collectorStatus == ACTIVE || collectorStatus == EXPIRED) {
+            this.collectorStatus = collectorStatus;
+        } else {
+            Log.e("collector", "The input status is not valid (must be deleted, disabled, notYetStarted, active, or expired)");
+        }
+    }
+
+    public void activateCollector() {
+        this.collectorStatus = ACTIVE;
+    }
+
+    public void deleteCollector() {
+        this.collectorStatus = DELETED;
+    }
+
+    public void disableCollector() {
+        this.collectorStatus = DISABLED;
     }
 
 }
