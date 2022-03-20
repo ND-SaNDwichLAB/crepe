@@ -9,13 +9,6 @@ public class User {
     private long timeCreated;
     private long timeLastEdited;
 
-    public User(String userId, String name) {
-        this.userId = userId;
-        this.name = name;
-        this.timeCreated = Calendar.getInstance().getTimeInMillis();
-        this.timeLastEdited = timeCreated;
-    }
-
     public User(String userId, String name, long timeCreated, long timeLastEdited) {
         this.userId = userId;
         this.name = name;

@@ -1,14 +1,11 @@
 package com.example.crepe.ui.dialog;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -23,7 +20,6 @@ import com.example.crepe.MainActivity;
 import com.example.crepe.R;
 import com.example.crepe.database.Collector;
 import com.example.crepe.database.DatabaseManager;
-import com.example.crepe.ui.main_activity.HomeFragment;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 import com.google.gson.Gson;
@@ -31,7 +27,6 @@ import com.google.gson.Gson;
 import java.text.ParsePosition;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
@@ -74,13 +69,15 @@ public class CollectorConfigurationDialogWrapper {
                 // TODO: QUESTION if this is the correct way
                 String[] appItems = {""};
                 try {
-                    appItems = getAllInstalledAppInfo();
+                    appItems = getAllInstalledAppNames();
                 } catch (PackageManager.NameNotFoundException e) {
                     e.getMessage();
                 }
                 ArrayAdapter<String> appAdapter = new ArrayAdapter<String>(context.getApplicationContext(), android.R.layout.simple_spinner_dropdown_item, appItems);
                 appAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 appDropDown.setAdapter(appAdapter);
+
+                // When coming back from later popups using back button, if there's previously a selection made
                 if (collector.getAppName() != null) {
                     int i;
                     for (i = 0; i < appItems.length; i++) {
@@ -95,6 +92,7 @@ public class CollectorConfigurationDialogWrapper {
                 ArrayAdapter<String> locationAdapter = new ArrayAdapter<String>(context.getApplicationContext(), android.R.layout.simple_spinner_dropdown_item, locationItems);
                 locationAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 locationDropDown.setAdapter(locationAdapter);
+                // When coming back from later popups using back button, if there's previously a selection made
                 if (collector.getMode() != null) {
                     int i;
                     for (i = 1; i < locationItems.length; i++) {
@@ -465,11 +463,12 @@ public class CollectorConfigurationDialogWrapper {
         }
     }
 
-    public String[] getAllInstalledAppInfo() throws PackageManager.NameNotFoundException {
+    public String[] getAllInstalledAppNames() throws PackageManager.NameNotFoundException {
         final Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
         mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
 
         // get list of all the apps installed
+        // ril stands for ResolveInfoList
         List<ResolveInfo> ril = context.getPackageManager().queryIntentActivities(mainIntent, 0);
 //        List<String> componentList = new ArrayList<String>();
         String name = null;
@@ -492,7 +491,7 @@ public class CollectorConfigurationDialogWrapper {
                 i++;
             }
         }
-        Toast.makeText(context, ril.size() + " apps are installed on this phone", Toast.LENGTH_LONG).show();
+//        Toast.makeText(context, ril.size() + " apps are installed on this phone", Toast.LENGTH_LONG).show();
         return apps;
     }
 

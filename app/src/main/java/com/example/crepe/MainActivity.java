@@ -2,10 +2,12 @@ package com.example.crepe;
 
 import android.app.Dialog;
 import android.database.sqlite.SQLiteDatabase;
+import android.provider.Settings;
 import android.os.Bundle;
 
 import com.example.crepe.database.Collector;
 import com.example.crepe.database.DatabaseManager;
+import com.example.crepe.database.User;
 import com.example.crepe.ui.dialog.CollectorConfigurationDialogWrapper;
 import com.example.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilder;
 import com.example.crepe.ui.dialog.CreateCollectorFromURLDialogBuilder;
@@ -36,6 +38,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.Toast;
 
 import java.security.DomainCombiner;
+import java.util.Calendar;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -68,9 +71,14 @@ public class MainActivity extends AppCompatActivity {
 
     private Fragment currentFragment;
 
+    // the unique id extracted from the user's device, used as their user id
+    private String androidId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // TODO: this is test code, clean database and generate example collectors
         dbManager = new DatabaseManager(this);
         try {
             dbManager.clearDatabase(MainActivity.this);
@@ -89,7 +97,21 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(MainActivity.this, "Error Creating Collector", Toast.LENGTH_SHORT).show();
         }
 
-//        List<Collector> allCollectors = dbManager.getAllCollectors();
+        // Check for the device's unique IMEI ID, see if it's already in the database
+        // If not, add the new user to database
+        androidId = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
+        if(androidId == null) {
+            Log.e("User id", "Fail to retrieve device id, userid is null");
+        } else {
+            if (!dbManager.checkIfUserExists(androidId)) {
+                long currentTime = Calendar.getInstance().getTimeInMillis();
+
+                // Create a new user object, with name being an empty string
+                User user = new User(androidId, "", currentTime, currentTime);
+                dbManager.addOneUser(user);
+            }
+        }
+
 
         // load animations
         top_appear_anim = AnimationUtils.loadAnimation( this, R.anim.top_appear);

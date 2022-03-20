@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 
 public class DatabaseManager extends SQLiteOpenHelper {
@@ -114,6 +115,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             db.delete(tableName, "1", null);
         }
         Toast.makeText(c, "Clear database success!", Toast.LENGTH_SHORT).show();
+        db.close();
     }
 
     public Boolean addOneCollector(Collector collector) {
@@ -132,7 +134,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         cv.put(COLUMN_COLLECTOR_STATUS, collector.getCollectorStatus());
 
         long insert = db.insert(COLLECTOR_TABLE, null, cv);
-
+        db.close();
         return insert != -1;
     }
 
@@ -146,6 +148,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         } else {
             Log.i("database", "remove collector error, current collectors: " + getAllCollectors().toString());
         }
+        db.close();
     }
 
     // a method to get all collectors in the database
@@ -198,8 +201,56 @@ public class DatabaseManager extends SQLiteOpenHelper {
         cv.put(COLUMN_USER_LAST_TIME_EDITED, user.getTimeLastEdited());
 
         long insert = db.insert(USER_TABLE, null, cv);
-
+        db.close();
         return insert != -1;
+    }
+
+    public Boolean checkIfUserExists(String userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String query = "SELECT * FROM " + USER_TABLE + " WHERE " + COLUMN_USER_ID + " = \"" + userId + "\"";
+        Cursor cursor = db.rawQuery(query, null);
+        int cursorCount = cursor.getCount();
+
+        db.close();
+        cursor.close();
+
+        if (cursorCount <= 0) {
+
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    public Boolean addOneUser(String userId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+
+        long timeCreated = Calendar.getInstance().getTimeInMillis();
+
+        cv.put(COLUMN_USER_ID, userId);
+        // use empty string for current user name, will change later using function updateUserName
+        cv.put(COLUMN_USER_NAME, "");
+        cv.put(COLUMN_USER_TIME_CREATED, timeCreated);
+        // use the current time for last edited
+        cv.put(COLUMN_USER_LAST_TIME_EDITED, timeCreated);
+
+        long insert = db.insert(USER_TABLE, null, cv);
+        db.close();
+        return insert != -1;
+    }
+
+    // Use this function to update the database when the user set their name in the left panel
+    public Boolean updateUserName(String userId, String username) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put(COLUMN_USER_NAME, username);
+        // rows represent the number of rows updated
+        int rows = db.update(USER_TABLE, cv,  "userId = ?" , new String[] {userId} );
+
+        db.close();
+        return (rows > 0);
     }
 
     public void removeUserById(String userId) {
@@ -212,6 +263,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         } else {
             Log.i("database", "remove user error, current users: " + getAllUsers().toString());
         }
+        db.close();
     }
 
     public List<User> getAllUsers() {
@@ -253,7 +305,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         cv.put(COLUMN_DATA_CONTENT, data.getDataContent());
 
         long result = db.insert(DATA_TABLE, null, cv);
-
+        db.close();
         return result != -1;
     }
 
@@ -267,6 +319,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         } else {
             Log.i("database", "remove data entry by data id error, current data entries: " + getAllData().toString());
         }
+        db.close();
     }
 
     public void removeDataByDatafieldId(String datafieldId) {
@@ -279,6 +332,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         } else {
             Log.i("database", "remove data entry by datafield Id error, current data entries: " + getAllData().toString());
         }
+        db.close();
     }
 
     public void removeDataByUserId(String userId) {
@@ -291,6 +345,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         } else {
             Log.i("database", "remove data entry by user id error, current data entries: " + getAllData().toString());
         }
+        db.close();
     }
 
     public List<Data> getAllData() {
@@ -369,7 +424,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         cv.put(COLUMN_DATAFIELD_IS_DEMONSTRATED, dataField.getDemonstrated());
 
         long result = db.insert(DATAFIELD_TABLE, null, cv);
-
+        db.close();
         return result != -1;
     }
 
@@ -383,6 +438,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         } else {
             Log.i("database", "remove datafield by id error, current datafields: " + getAllDatafields().toString());
         }
+        db.close();
     }
     public void removeDatafieldByCollectorId(String collectorId) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -394,6 +450,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         } else {
             Log.i("database", "remove datafield by collector id error, current datafields: " + getAllDatafields().toString());
         }
+        db.close();
     }
 
     public List<Datafield> getAllDatafields() {

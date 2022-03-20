@@ -1,7 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.crepe">
-    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"/>
+    // used to get all packages information when creating collectors
+<!--    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />-->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+        </intent>
+    </queries>
+    // used to identify each device and manage user profiles
+    <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE" tools:ignore="ProtectedPermissions" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
