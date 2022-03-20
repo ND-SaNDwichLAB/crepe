@@ -23,6 +23,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
@@ -35,6 +36,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.security.DomainCombiner;
@@ -51,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
     private ActionBarDrawerToggle sidemenuToggle;
     private DrawerLayout drawerLayout;
     private NavigationView sidebarNavView;
+    private View navHeader;
 
 
     private Animation top_appear_anim;
@@ -100,15 +103,18 @@ public class MainActivity extends AppCompatActivity {
         // Check for the device's unique IMEI ID, see if it's already in the database
         // If not, add the new user to database
         androidId = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
+        Boolean userExists = false;
         if(androidId == null) {
             Log.e("User id", "Fail to retrieve device id, userid is null");
         } else {
-            if (!dbManager.checkIfUserExists(androidId)) {
+            userExists = dbManager.checkIfUserExists(androidId);
+            if (!userExists) {
                 long currentTime = Calendar.getInstance().getTimeInMillis();
 
                 // Create a new user object, with name being an empty string
                 User user = new User(androidId, "", currentTime, currentTime);
                 dbManager.addOneUser(user);
+                userExists = true;
             }
         }
 
@@ -132,7 +138,19 @@ public class MainActivity extends AppCompatActivity {
         sidemenuToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close);
         sidemenuToggle.setDrawerIndicatorEnabled(true);
         drawerLayout.addDrawerListener(sidemenuToggle);
+
+        // set sidebar use name based on user profile
         sidebarNavView = findViewById(R.id.sidebarNavView);
+        navHeader = sidebarNavView.getHeaderView(0);
+        TextView userNameTextView = navHeader.findViewById(R.id.userName);
+        if (userExists) {
+            String username = dbManager.getUsername(androidId);
+            if (!username.isEmpty()) {
+                userNameTextView.setText(username);
+            }
+            // else the text will be default "set username"
+        }
+
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);

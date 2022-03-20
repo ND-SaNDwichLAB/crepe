@@ -241,6 +241,20 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return insert != -1;
     }
 
+    public String getUsername(String userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT " + COLUMN_USER_NAME + " from " + USER_TABLE + " where " + COLUMN_USER_ID + "= \"" + userId + "\"";
+
+        Cursor cursor = db.rawQuery(query, null);
+        cursor.moveToFirst();
+        int usernameColumnIndex = cursor.getColumnIndex(COLUMN_USER_NAME);
+        String username = cursor.getString(usernameColumnIndex);
+
+        db.close();
+        cursor.close();
+        return username;
+    }
+
     // Use this function to update the database when the user set their name in the left panel
     public Boolean updateUserName(String userId, String username) {
         SQLiteDatabase db = this.getWritableDatabase();
