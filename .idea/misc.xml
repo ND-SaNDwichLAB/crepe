@@ -42,6 +42,7 @@
         <entry key="app/src/main/res/layout/collector_card.xml" value="0.34414978027343757" />
         <entry key="app/src/main/res/layout/collector_detail.xml" value="0.35034841671413763" />
         <entry key="app/src/main/res/layout/collector_info.xml" value="0.29270833333333335" />
+        <entry key="app/src/main/res/layout/collector_info_for_data_fragment.xml" value="0.15552178318135765" />
         <entry key="app/src/main/res/layout/content_main.xml" value="0.1" />
         <entry key="app/src/main/res/layout/data_vis_line_chart.xml" value="0.16822916666666668" />
         <entry key="app/src/main/res/layout/dialog_add_collecotr_from_config_data_field.xml" value="0.21971830985915494" />
@@ -58,6 +59,7 @@
         <entry key="app/src/main/res/layout/fragment_home.xml" value="0.16510416666666666" />
         <entry key="app/src/main/res/layout/fragment_second.xml" value="0.23645833333333333" />
         <entry key="app/src/main/res/layout/nav_header.xml" value="0.26144816080729166" />
+        <entry key="app/src/main/res/layout/popup_set_username.xml" value="0.5236073901179593" />
         <entry key="app/src/main/res/menu/menu_main.xml" value="0.16510416666666666" />
         <entry key="app/src/main/res/menu/nav_drawer_menu.xml" value="0.16510416666666666" />
       </map>
