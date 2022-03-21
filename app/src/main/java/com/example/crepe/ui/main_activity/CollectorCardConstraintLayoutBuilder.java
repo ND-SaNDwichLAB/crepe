@@ -2,6 +2,11 @@ package com.example.crepe.ui.main_activity;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,12 +14,17 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.example.crepe.R;
 import com.example.crepe.database.Collector;
 import com.example.crepe.database.DatabaseManager;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class CollectorCardConstraintLayoutBuilder {
     private Context c;
@@ -99,7 +109,18 @@ public class CollectorCardConstraintLayoutBuilder {
             }
         }
 
-
+        // App logo
+        ImageView appImg = (ImageView) collectorLayout.findViewById(R.id.collectorImg);
+        try{
+            Drawable appImage = getAppImage(collector.getAppName());
+            if (appImage == null){
+                appImg.setImageResource(R.drawable.nd_logo);
+            } else {
+                appImg.setImageDrawable(appImage);
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            e.getMessage();
+        }
 
 
         Button detailBtn = (Button) collectorLayout.findViewById(R.id.detailButton);
@@ -108,7 +129,7 @@ public class CollectorCardConstraintLayoutBuilder {
             @Override
             public void onClick(View view) {
                 CollectorCardDetailBuilder cardDetailBuilder = new CollectorCardDetailBuilder(c, collector, refreshCollectorListRunnable);
-                Dialog newDialog = cardDetailBuilder.build();
+                Dialog newDialog =cardDetailBuilder.build();
                 newDialog.show();
             }
         });
@@ -116,6 +137,40 @@ public class CollectorCardConstraintLayoutBuilder {
 
 
         return collectorLayout;
+    }
+
+    public Drawable getAppImage(String appName) throws PackageManager.NameNotFoundException {
+        final Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
+        mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+
+        // get list of all the apps installed
+        List<ResolveInfo> ril = c.getPackageManager().queryIntentActivities(mainIntent, 0);
+//        List<String> componentList = new ArrayList<String>();
+        String name = null;
+        Drawable image = null;
+        String packageName = "com.example.crepe";
+
+
+        // get size of ril and create a list
+        Map<String, Drawable> apps = new HashMap<String, Drawable>();
+        for (ResolveInfo ri : ril) {
+            if (ri.activityInfo != null) {
+                // get package
+                Resources res = c.getPackageManager().getResourcesForApplication(ri.activityInfo.applicationInfo);
+                // if activity label res is found
+                if (ri.activityInfo.labelRes != 0) {
+                    name = res.getString(ri.activityInfo.labelRes);
+                } else {
+                    name = ri.activityInfo.applicationInfo.loadLabel(
+                            c.getPackageManager()).toString();
+
+                }
+                packageName = ri.activityInfo.packageName;
+                image = c.getPackageManager().getApplicationIcon(packageName);
+                apps.put(name,image);
+            }
+        }
+        return apps.get(appName);
     }
 
 }

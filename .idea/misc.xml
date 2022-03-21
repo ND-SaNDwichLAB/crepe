@@ -28,6 +28,7 @@
         <entry key="app/src/main/res/drawable/ic_baseline_email_24.xml" value="0.23055555555555557" />
         <entry key="app/src/main/res/drawable/ic_baseline_keyboard_arrow_down_24.xml" value="0.23055555555555557" />
         <entry key="app/src/main/res/drawable/ic_baseline_link_24.xml" value="0.1935" />
+        <entry key="app/src/main/res/drawable/ic_baseline_mail_outline_24.xml" value="0.204" />
         <entry key="app/src/main/res/drawable/ic_chart.xml" value="0.16944444444444445" />
         <entry key="app/src/main/res/drawable/ic_edit.xml" value="0.23055555555555557" />
         <entry key="app/src/main/res/drawable/ic_home.xml" value="0.23055555555555557" />
@@ -42,6 +43,7 @@
         <entry key="app/src/main/res/layout/collector_card.xml" value="0.34414978027343757" />
         <entry key="app/src/main/res/layout/collector_detail.xml" value="0.35034841671413763" />
         <entry key="app/src/main/res/layout/collector_info.xml" value="0.29270833333333335" />
+        <entry key="app/src/main/res/layout/collector_info_for_data_fragment.xml" value="0.6785171508789063" />
         <entry key="app/src/main/res/layout/content_main.xml" value="0.1" />
         <entry key="app/src/main/res/layout/data_vis_line_chart.xml" value="0.16822916666666668" />
         <entry key="app/src/main/res/layout/dialog_add_collecotr_from_config_data_field.xml" value="0.21971830985915494" />
