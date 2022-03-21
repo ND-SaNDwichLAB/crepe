@@ -233,4 +233,8 @@ public class Collector {
         this.collectorStatus = DISABLED;
     }
 
+    public Boolean isDeleted() {
+        return this.collectorStatus.equals(DELETED);
+    }
+
 }

@@ -2,6 +2,8 @@ package com.example.crepe.ui.dialog;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
@@ -28,6 +30,7 @@ import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 import com.google.gson.Gson;
 
+import java.nio.charset.StandardCharsets;
 import java.text.ParsePosition;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
@@ -71,7 +74,6 @@ public class CollectorConfigurationDialogWrapper {
                 Spinner locationDropDown = (Spinner) dialogMainView.findViewById(R.id.locationSpinner);
 
                 // app spinner
-                // TODO: QUESTION if this is the correct way
                 String[] appItems = {""};
                 try {
                     appItems = getAllInstalledAppInfo();
@@ -385,22 +387,8 @@ public class CollectorConfigurationDialogWrapper {
                         String descriptionText = descriptionEditText.getText().toString();
                         collector.setDescription(descriptionText);
 
-                        // TODO: QUESTION – what's the best way to encode url?
-                        // TODO: Create a new class to handle url generation e.g. collectorUrlManager
-                        //      1. create url
-                        //      2. get collector from url
-                        // Create url for current collector
-                        Gson gson = new Gson();
-                        String collectorJson = gson.toJson(collector);
-                        try {
-                            byte[] collectorEncode = Base64.getEncoder().encode(collectorJson.getBytes("UTF-8"));
-                        } catch (UnsupportedEncodingException e) {
-                            e.printStackTrace();
-                        }
-
                         // save the collector to database
-                        // TODO: check if every field is filled
-                        // TODO: add a callback to refresh homepage every time
+                        // add a callback to refresh homepage every time
                         DatabaseManager dbManager = new DatabaseManager(context);
                         dbManager.addOneCollector(collector);
 
@@ -426,6 +414,20 @@ public class CollectorConfigurationDialogWrapper {
                 dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_add_collector_from_config_success_message, null);
                 dialog.setContentView(dialogMainView);
 
+                // TODO: QUESTION – what's the best way to encode url?
+                // TODO: Create a new class to handle url generation e.g. collectorUrlManager
+                //      1. create url
+                //      2. get collector from url
+                // Create url for current collector
+                Gson gson = new Gson();
+                String collectorJson = gson.toJson(collector);
+//                try {
+                    //byte[] collectorURL = Base64.getEncoder().encode(collectorJson.getBytes(StandardCharsets.UTF_8));
+                    String collectorURL = Base64.getEncoder().encodeToString(collectorJson.getBytes(StandardCharsets.UTF_8));
+//                } catch (UnsupportedEncodingException e) {
+//                    e.printStackTrace();
+//                }
+
                 Button closeSuccessMessage = (Button) dialogMainView.findViewById(R.id.closeSuccessMessagePopupButton);
                 ImageButton shareUrlLinkButton = (ImageButton) dialogMainView.findViewById(R.id.shareUrlImageButton);
                 ImageButton shareEmailLinkButton = (ImageButton) dialogMainView.findViewById(R.id.shareUrlImageButton);
@@ -434,6 +436,7 @@ public class CollectorConfigurationDialogWrapper {
                     @Override
                     public void onClick(View view) {
                         // share email link
+
                     }
                 });
 
@@ -441,6 +444,10 @@ public class CollectorConfigurationDialogWrapper {
                     @Override
                     public void onClick(View view) {
                         // share url link
+                        ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                        ClipData clip = ClipData.newPlainText("share URL", collectorURL);
+                        clipboard.setPrimaryClip(clip);
+                        Toast.makeText(context," Copied URL to clipboard", Toast.LENGTH_LONG).show();
                     }
                 });
 

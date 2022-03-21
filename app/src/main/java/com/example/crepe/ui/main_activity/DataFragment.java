@@ -64,46 +64,13 @@ public class DataFragment extends Fragment {
             // display basic info for the collector
             LinearLayout collectorDetailView = collectorInfoLayoutBuilder.build(collector);
 
-//            // add extra margin to the top of the view
-//            LinearLayout.LayoutParams collectorInfoParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-//            collectorInfoParams.setMargins(0, 55, 0, 0);
-//
-//            collectorInfoView.setId(View.generateViewId());
-//            fragmentInnerLinearLayout.addView(collectorInfoView, collectorInfoParams);
-//
-//            // add the data vis for the corresponding collector
-//            // programmatically create a LineChart
-//
-//
-//
-//            // add y axis label and chart title
-//            Pair<TextView, LinearLayout.LayoutParams> lineChartTitle = collectorInfoLayoutBuilder.buildChartTitle();
-//            lineChartTitle.first.setId(View.generateViewId());
-//            fragmentInnerLinearLayout.addView(lineChartTitle.first, lineChartTitle.second);
-//            Pair<TextView, LinearLayout.LayoutParams> lineChartYAxisLabel = collectorInfoLayoutBuilder.buildChartYAxisLabels();
-//            lineChartYAxisLabel.first.setId(View.generateViewId());
-//            fragmentInnerLinearLayout.addView(lineChartYAxisLabel.first, lineChartYAxisLabel.second);
-//
-//            // add the chart itself
-//            LineChart lineChart = collectorInfoLayoutBuilder.buildChart();
-//            lineChart.setId(View.generateViewId());
-//            fragmentInnerLinearLayout.addView(lineChart);
-//
-//            // add a sample data piece for the corresponding collector
-//            // First, add section title
-//            Pair<TextView, LinearLayout.LayoutParams> sampleDataTitlePair = collectorInfoLayoutBuilder.buildSampleDataPieceTitle();
-//            sampleDataTitlePair.first.setId(View.generateViewId());
-//            fragmentInnerLinearLayout.addView(sampleDataTitlePair.first, sampleDataTitlePair.second);
-//
-//            // this is example hard-coded string, needs to be changed later
-//            Pair<TextView, LinearLayout.LayoutParams> sampleDataPair = collectorInfoLayoutBuilder.buildSampleDataPiece();
-//            sampleDataPair.first.setId(View.generateViewId());
-//
-//if (collectorDetailView.getParent() != null ) {
-//    ((ViewGroup) collectorDetailView.getParent()).removeView(collectorDetailView);
-//}
-            collectorDetailView.setId(View.generateViewId());
-            fragmentInnerLinearLayout.addView(collectorDetailView);
+            // if the collectorDetailView is not null, meaning it's not in deleted status
+            if (collectorDetailView != null) {
+                collectorDetailView.setId(View.generateViewId());
+                fragmentInnerLinearLayout.addView(collectorDetailView);
+            }   // otherwise don't display anything
+
+
         }
     }
 
