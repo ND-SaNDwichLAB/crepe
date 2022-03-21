@@ -3,6 +3,7 @@ package com.example.crepe.ui.chart;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.Pair;
 import android.view.Gravity;
@@ -29,15 +30,18 @@ import com.github.mikephil.charting.formatter.ValueFormatter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 public class CollectorInfoLayoutBuilder {
     Context context;
+    Map<String, Drawable> apps;
 
 
     // we will use the following constructor more often, because we initialize
-    public CollectorInfoLayoutBuilder(Context context) {
+    public CollectorInfoLayoutBuilder(Context context, Map<String, Drawable> apps) {
         this.context = context;
+        this.apps = apps;
     }
 
     public ConstraintLayout buildCollectorInfoView(Collector collector, ViewGroup containerLayout) {
@@ -69,6 +73,15 @@ public class CollectorInfoLayoutBuilder {
         } else {
             collectorStatusTxt.setText("Not yet started");
             collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_12_yellow);
+        }
+
+        // get App logo
+        ImageView appImg = (ImageView) collectorInfoLayout.findViewById(R.id.collectorImg);
+        Drawable appImage = apps.get(collector.getAppName());
+        if (appImage == null){
+            appImg.setImageResource(R.drawable.nd_logo);
+        } else {
+            appImg.setImageDrawable(appImage);
         }
 
         return collectorInfoLayout;
