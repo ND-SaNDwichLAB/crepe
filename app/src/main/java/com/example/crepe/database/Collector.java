@@ -169,7 +169,6 @@ public class Collector {
     }
 
 
-
     public String getCollectorAppDataFields() {
         return collectorAppDataFields;
     }

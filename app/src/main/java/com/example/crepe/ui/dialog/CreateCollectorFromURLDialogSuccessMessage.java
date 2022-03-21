@@ -18,7 +18,7 @@ public class CreateCollectorFromURLDialogSuccessMessage {
 
     public Dialog build() {
 
-        alertDialogBuilder.setTitle("SPECIFY DATA TO COLLECT")
+        alertDialogBuilder.setTitle("SUCCESSFULLY ADDED COLLECTOR")
                             .setMessage("The Uber collector is added and is scheduled to start on 01/11/2021.");
         alertDialogBuilder.setPositiveButton(c.getResources().getString(R.string.close), null);
 

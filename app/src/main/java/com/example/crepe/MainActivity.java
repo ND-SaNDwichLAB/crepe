@@ -1,6 +1,7 @@
 package com.example.crepe;
 
 import android.app.Dialog;
+import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.Settings;
 import android.os.Bundle;
@@ -169,7 +170,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 if (currentFragment instanceof  HomeFragment) {
-                    ((HomeFragment) currentFragment).initCollectorList();
+                    try {
+                        ((HomeFragment) currentFragment).initCollectorList();
+                    } catch (PackageManager.NameNotFoundException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         };

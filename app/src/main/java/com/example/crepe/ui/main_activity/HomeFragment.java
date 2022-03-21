@@ -1,5 +1,10 @@
 package com.example.crepe.ui.main_activity;
 
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,12 +18,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.crepe.R;
 import com.example.crepe.database.Collector;
 import com.example.crepe.database.DatabaseManager;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class HomeFragment extends Fragment {
 
@@ -38,38 +46,80 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         getActivity().setTitle("Crepe");
-        initCollectorList();
+        try {
+            initCollectorList();
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
-    public void initCollectorList() {
+    public void initCollectorList() throws PackageManager.NameNotFoundException {
         collectorList = dbManager.getAllCollectors();
         Toast.makeText(this.getActivity(), "Collector number: " + collectorList.size(), Toast.LENGTH_LONG).show();
-        CollectorCardConstraintLayoutBuilder builder = new CollectorCardConstraintLayoutBuilder(getActivity(), homeFragmentRefreshCollectorListRunnable);
+        //get all installed apps
+        Map<String, Drawable> apps = getAppImage();
+        CollectorCardConstraintLayoutBuilder builder = new CollectorCardConstraintLayoutBuilder(getActivity(), homeFragmentRefreshCollectorListRunnable,apps);
+
         LinearLayout fragmentInnerLinearLayout = getView().findViewById(R.id.fragment_home_inner_linear_layout);
         fragmentInnerLinearLayout.removeAllViews();
         for (Collector collector : collectorList) {
 
                 ConstraintLayout collectorCardView = builder.build(collector, fragmentInnerLinearLayout, "cardLayout");
                 // if the cardView is not null, meaning the collector is not in deleted status
-                if(collectorCardView != null) {
+                if (collectorCardView != null) {
                     collectorCardView.setId(View.generateViewId());
 
                     // Toast.makeText(this.getActivity(), fragmentInnerConstraintLayout.toString(), Toast.LENGTH_LONG).show();
                     fragmentInnerLinearLayout.addView(collectorCardView);
                 }
-
-
         }
-
-
     }
 
     Runnable homeFragmentRefreshCollectorListRunnable = new Runnable() {
         @Override
         public void run() {
-            initCollectorList();
+            try {
+                initCollectorList();
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+            }
         }
     };
+
+
+    public Map<String, Drawable> getAppImage() throws PackageManager.NameNotFoundException {
+        final Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
+        mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+
+        // get list of all the apps installed
+        List<ResolveInfo> ril = getContext().getPackageManager().queryIntentActivities(mainIntent, 0);
+//        List<String> componentList = new ArrayList<String>();
+        String name = null;
+        Drawable image = null;
+        String packageName = "com.example.crepe";
+
+
+        // get size of ril and create a list
+        Map<String, Drawable> apps = new HashMap<String, Drawable>();
+        for (ResolveInfo ri : ril) {
+            if (ri.activityInfo != null) {
+                // get package
+                Resources res = getContext().getPackageManager().getResourcesForApplication(ri.activityInfo.applicationInfo);
+                // if activity label res is found
+                if (ri.activityInfo.labelRes != 0) {
+                    name = res.getString(ri.activityInfo.labelRes);
+                } else {
+                    name = ri.activityInfo.applicationInfo.loadLabel(
+                            getContext().getPackageManager()).toString();
+
+                }
+                packageName = ri.activityInfo.packageName;
+                image = getContext().getPackageManager().getApplicationIcon(packageName);
+                apps.put(name,image);
+            }
+        }
+        return apps;
+    }
 
 
 
