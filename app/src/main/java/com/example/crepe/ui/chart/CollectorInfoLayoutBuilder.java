@@ -37,6 +37,12 @@ public class CollectorInfoLayoutBuilder {
     Context context;
     Map<String, Drawable> apps;
 
+    public static final String DELETED = "deleted";
+    public static final String DISABLED = "disabled";
+    public static final String ACTIVE = "active";
+    public static final String NOTYETSTARTED = "notYetStarted";
+    public static final String EXPIRED = "expired";
+
 
     // we will use the following constructor more often, because we initialize
     public CollectorInfoLayoutBuilder(Context context, Map<String, Drawable> apps) {
@@ -61,13 +67,13 @@ public class CollectorInfoLayoutBuilder {
         // get the app status and display it
         ImageView collectorStatusImg = (ImageView) collectorInfoLayout.findViewById(R.id.statusImageView);
         TextView collectorStatusTxt = (TextView) collectorInfoLayout.findViewById(R.id.statusText);
-        if (collector.getCollectorStatus().equals("running")){
+        if (collector.getCollectorStatus().equals(ACTIVE)){
             collectorStatusTxt.setText("Running");
             collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_24_green);
-        } else if (collector.getCollectorStatus().equals("disabled")){
+        } else if (collector.getCollectorStatus().equals(DISABLED)){
             collectorStatusTxt.setText("Disabled");
             collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_12_grey);
-        } else if (collector.getCollectorStatus().equals("expired")){
+        } else if (collector.getCollectorStatus().equals(EXPIRED)){
             collectorStatusTxt.setText("Expired");
             collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_12_grey);
         } else {
