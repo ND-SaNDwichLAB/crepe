@@ -6,7 +6,7 @@
     android:layout_height="wrap_content">
 
     <EditText
-        android:id="@+id/descriptionEditText"
+        android:id="@+id/userNameEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
@@ -24,10 +24,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/descriptionPopupTitle" />
+        app:layout_constraintTop_toBottomOf="@+id/setUsernamePopupTitle" />
 
     <TextView
-        android:id="@+id/descriptionPopupTitle"
+        android:id="@+id/setUsernamePopupTitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
@@ -40,7 +40,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/descriptionCreateButton"
+        android:id="@+id/setUsernameCreateButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -52,10 +52,10 @@
         android:textColorHint="@color/ND_gold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/commentOnDescription" />
+        app:layout_constraintTop_toBottomOf="@+id/commentOnSetUsername" />
 
     <Button
-        android:id="@+id/descriptionBackButton"
+        android:id="@+id/setUsernameBackButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -64,11 +64,11 @@
         android:text="CANCEL"
         android:textColor="@color/ND_blue"
         android:textColorHint="@color/ND_blue"
-        app:layout_constraintEnd_toStartOf="@+id/descriptionCreateButton"
-        app:layout_constraintTop_toBottomOf="@+id/commentOnDescription" />
+        app:layout_constraintEnd_toStartOf="@+id/setUsernameCreateButton"
+        app:layout_constraintTop_toBottomOf="@+id/commentOnSetUsername" />
 
     <TextView
-        android:id="@+id/commentOnDescription"
+        android:id="@+id/commentOnSetUsername"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="36dp"
@@ -77,10 +77,10 @@
         android:text="Set the name for your profile, max 18 characters"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/descriptionEditText" />
+        app:layout_constraintTop_toBottomOf="@+id/userNameEditText" />
 
     <TextView
-        android:id="@+id/hintEnterDescription"
+        android:id="@+id/hintUsernameDescription"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="36dp"
@@ -90,18 +90,7 @@
         android:paddingEnd="2dp"
         android:text="Username"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/descriptionPopupTitle" />
-
-    <ImageButton
-        android:id="@+id/closeDescriptionImageButton"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginTop="14dp"
-        android:layout_marginEnd="14dp"
-        android:background="@null"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_baseline_close_24"  />
+        app:layout_constraintTop_toBottomOf="@+id/setUsernamePopupTitle" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

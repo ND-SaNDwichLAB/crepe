@@ -3,6 +3,7 @@ package com.example.crepe;
 import android.app.Dialog;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
+import android.media.Image;
 import android.provider.Settings;
 import android.os.Bundle;
 
@@ -12,6 +13,7 @@ import com.example.crepe.database.User;
 import com.example.crepe.ui.dialog.CollectorConfigurationDialogWrapper;
 import com.example.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilder;
 import com.example.crepe.ui.dialog.CreateCollectorFromURLDialogBuilder;
+import com.example.crepe.ui.dialog.SetUsernameDialogBuilder;
 import com.example.crepe.ui.main_activity.DataFragment;
 import com.example.crepe.ui.main_activity.HomeFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -37,6 +39,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -143,7 +146,21 @@ public class MainActivity extends AppCompatActivity {
         // set sidebar use name based on user profile
         sidebarNavView = findViewById(R.id.sidebarNavView);
         navHeader = sidebarNavView.getHeaderView(0);
+
         TextView userNameTextView = navHeader.findViewById(R.id.userName);
+
+        // TODO:call set username popup
+        ImageButton setName = (ImageButton) navHeader.findViewById(R.id.setUsernameImageButton);
+        setName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SetUsernameDialogBuilder nextPopup = new SetUsernameDialogBuilder(currentFragment.getActivity(), androidId);
+                Dialog newDialog = nextPopup.build();
+                newDialog.show();
+                userNameTextView.setText(dbManager.getUsername(androidId));
+            }
+        });
+
         if (userExists) {
             String username = dbManager.getUsername(androidId);
             if (!username.isEmpty()) {
