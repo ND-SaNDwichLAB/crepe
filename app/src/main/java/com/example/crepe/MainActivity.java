@@ -70,7 +70,6 @@ public class MainActivity extends AppCompatActivity {
 
     private Collector testCollector;
     private Collector testCollector2;
-    private Collector testCollector3;
     private DatabaseManager dbManager;
 
     private CreateCollectorFromURLDialogBuilder createCollectorFromURLDialogBuilder;

@@ -32,12 +32,14 @@ public class DatabaseManager extends SQLiteOpenHelper {
     public static final String USER_TABLE = "usertable";
     public static final String COLUMN_USER_ID = "userId";
     public static final String COLUMN_USER_NAME = "userName";
+
     public static final String DATA_TABLE = "data";
     public static final String COLUMN_DATA_ID = "dataId";
     public static final String COLUMN_TIMESTAMP = "timestamp";
     public static final String COLUMN_DATA_CONTENT = "dataContent";
     private static final String COLUMN_USER_TIME_CREATED = "userTimeCreated";
     private static final String COLUMN_USER_LAST_TIME_EDITED = "userTimeLastEdited";
+
     private static final String DATAFIELD_TABLE = "datafield";
     private static final String COLUMN_DATAFIELD_ID = "datafieldId";
     private static final String COLUMN_GRAPH_QUERY = "graphQuery";
@@ -98,7 +100,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(createUserTableStatement);
         sqLiteDatabase.execSQL(createDataFieldTableStatement);
         sqLiteDatabase.execSQL(createDataTableStatement);
-
+        System.out.println("create table success");
     }
 
     // called if the database version number changes. prevents the app from crashing
