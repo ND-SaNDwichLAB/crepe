@@ -93,8 +93,8 @@ public class MainActivity extends AppCompatActivity {
         }
         try {
 
-            testCollector = new Collector("1", "1", "Uber", "description for a Uber collector", "what", "https", 100, 100, "graphQuery","DataFields","active");
-            testCollector2 = new Collector("2", "1", "Doordash", "description for a Doordash collector", "what", "https", 139148015, 1491789595, "graphQuery","DataFields","active");
+            testCollector = new Collector("6", "1", "Uber", "description for a Uber collector", "what", "https", 100, 100, "graphQuery","DataFields","active");
+            testCollector2 = new Collector("7", "1", "Doordash", "description for a Doordash collector", "what", "https", 139148015, 1491789595, "graphQuery","DataFields","active");
             Boolean addResult = dbManager.addOneCollector(testCollector);
             Boolean addResult2 = dbManager.addOneCollector(testCollector2);
 
@@ -194,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         };
-        this.createCollectorFromURLDialogBuilder = new CreateCollectorFromURLDialogBuilder(this);
+        this.createCollectorFromURLDialogBuilder = new CreateCollectorFromURLDialogBuilder(this, refreshCollectorListRunnable);
         this.createCollectorFromConfigDialogBuilder = new CreateCollectorFromConfigDialogBuilder(this, refreshCollectorListRunnable);
 
         // get the fab icons

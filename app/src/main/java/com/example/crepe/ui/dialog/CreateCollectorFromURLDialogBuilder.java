@@ -12,12 +12,9 @@ import android.widget.Toast;
 import com.example.crepe.R;
 import com.example.crepe.database.Collector;
 import com.example.crepe.database.DatabaseManager;
+import com.example.crepe.network.ServerCollectorCommunicationManager;
+import com.example.crepe.network.VolleyCallback;
 import com.google.gson.Gson;
-
-import java.net.URL;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 
 public class CreateCollectorFromURLDialogBuilder {
 
@@ -25,9 +22,10 @@ public class CreateCollectorFromURLDialogBuilder {
     private AlertDialog.Builder dialogBuilder;
     private Runnable refreshCollectorListRunnable;
 
-    public CreateCollectorFromURLDialogBuilder(Context c) {
+    public CreateCollectorFromURLDialogBuilder(Context c, Runnable runnable) {
         this.c = c;
         this.dialogBuilder = new AlertDialog.Builder(c);
+        this.refreshCollectorListRunnable = runnable;
 
     }
 
@@ -52,22 +50,30 @@ public class CreateCollectorFromURLDialogBuilder {
                 // decode URL
                 Gson gson = new Gson();
                 if (urlText.getText() != null) {
-                    byte[] result = Base64.getDecoder().decode(urlText.getText().toString());
-                    String collectorJson = result.toString();
-                    Collector newCollector = gson.fromJson(collectorJson, Collector.class);
+                    ServerCollectorCommunicationManager serverCollectorCommunicationManager = new ServerCollectorCommunicationManager(c);
+                    serverCollectorCommunicationManager.downloadJsonFromServer(new VolleyCallback() {
+                        @Override
+                        public void onSuccess(Collector result) {
+                            // TODO: check if the return object is null
+                            // if (collector is null)
+                            // Toast message
 
-                    // add to the collector database
-                    DatabaseManager dbManager = new DatabaseManager(c);
-                    dbManager.addOneCollector(newCollector);
+                            // else: add to the collector database
+                            DatabaseManager dbManager = new DatabaseManager(c);
+                            dbManager.addOneCollector(result);
 
-                    // recursively call itself with new currentScreen String value
-                    refreshCollectorListRunnable.run();
+                            // refresh home fragment
+                            refreshCollectorListRunnable.run();
+                        }
+                    },urlText.getText().toString());
+
+
 
                     dialog.dismiss();
                     CreateCollectorFromURLDialogSuccessMessage nextPopup = new CreateCollectorFromURLDialogSuccessMessage(c);
                     nextPopup.build();
                 } else {
-                    //Toast.makeText(context,"Please enter a valid URL", Toast.LENGTH_LONG).show();
+                    Toast.makeText(c,"Please enter a valid URL", Toast.LENGTH_LONG).show();
                 }
 
             }
