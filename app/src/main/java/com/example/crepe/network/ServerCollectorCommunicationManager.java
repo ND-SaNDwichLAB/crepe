@@ -62,8 +62,14 @@ public class ServerCollectorCommunicationManager extends AppCompatActivity {
                 params.put("collectorGraphQuery", collector.getCollectorGraphQuery());
                 params.put("collectorAppDataFields", collector.getCollectorAppDataFields());
                 params.put("collectorStatus", collector.getCollectorStatus());
-
                 return params;
+            }
+            @Override
+            public Map<String, String> getHeaders()  {
+                HashMap<String, String> headers = new HashMap<>();
+                headers.put("Accept", "application/json");
+                headers.put("Content-Type", "application/json");
+                return headers;
             }
         };
 

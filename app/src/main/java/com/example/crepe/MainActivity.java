@@ -169,6 +169,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
@@ -181,6 +182,7 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
+
 
         Runnable refreshCollectorListRunnable = new Runnable() {
             @Override
@@ -222,6 +224,12 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+//    Runnable mainActivityRefreshUsernameRunnable = new Runnable() {
+//        @Override
+//        public void run() {
+//            userNameTextView.setText(dbManager.getUsername(androidId));
+//        }
+//    };
 
     // a function to switch between fragments using the navDrawer
     private void displaySelectedScreen(int itemId) {
@@ -318,5 +326,7 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+
 
 }
