@@ -23,6 +23,7 @@ import com.example.crepe.MainActivity;
 import com.example.crepe.R;
 import com.example.crepe.database.Collector;
 import com.example.crepe.database.DatabaseManager;
+import com.example.crepe.network.ServerCollectorCommunicationManager;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 import com.google.gson.Gson;
@@ -417,15 +418,13 @@ public class CollectorConfigurationDialogWrapper {
                 // TODO: Create a new class to handle url generation e.g. collectorUrlManager
                 //      1. create url
                 //      2. get collector from url
+                collector.setCollectorId("8");
+                ServerCollectorCommunicationManager sccManager = new ServerCollectorCommunicationManager(context);
+                sccManager.uploadJsonToServer(collector);
+
                 // Create url for current collector
-                Gson gson = new Gson();
-                String collectorJson = gson.toJson(collector);
-//                try {
-                    //byte[] collectorURL = Base64.getEncoder().encode(collectorJson.getBytes(StandardCharsets.UTF_8));
-                    String collectorURL = Base64.getEncoder().encodeToString(collectorJson.getBytes(StandardCharsets.UTF_8));
-//                } catch (UnsupportedEncodingException e) {
-//                    e.printStackTrace();
-//                }
+                String collectorURL = "http://35.222.12.92:8000?id="+collector.getCollectorId();
+//
 
                 Button closeSuccessMessage = (Button) dialogMainView.findViewById(R.id.closeSuccessMessagePopupButton);
                 ImageButton shareUrlLinkButton = (ImageButton) dialogMainView.findViewById(R.id.shareUrlImageButton);

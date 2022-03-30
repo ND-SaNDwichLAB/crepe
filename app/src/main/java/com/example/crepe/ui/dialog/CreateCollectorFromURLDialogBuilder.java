@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.crepe.MainActivity;
 import com.example.crepe.R;
 import com.example.crepe.database.Collector;
 import com.example.crepe.database.DatabaseManager;
@@ -47,7 +48,7 @@ public class CreateCollectorFromURLDialogBuilder {
         popupNextBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // decode URL
+                // download collector from URL
                 Gson gson = new Gson();
                 if (urlText.getText() != null) {
                     ServerCollectorCommunicationManager serverCollectorCommunicationManager = new ServerCollectorCommunicationManager(c);
@@ -55,20 +56,20 @@ public class CreateCollectorFromURLDialogBuilder {
                         @Override
                         public void onSuccess(Collector result) {
                             // TODO: check if the return object is null
-                            // if (collector is null)
-                            // Toast message
-
-                            // else: add to the collector database
-                            DatabaseManager dbManager = new DatabaseManager(c);
-                            dbManager.addOneCollector(result);
-
-                            // refresh home fragment
-                            refreshCollectorListRunnable.run();
+                            if (result == null) {
+                                // Toast message
+                                Toast.makeText(c, "Error Downloading Collector", Toast.LENGTH_SHORT).show();
+                            } else {
+                                // else: add to the collector database
+                                DatabaseManager dbManager = new DatabaseManager(c);
+                                dbManager.addOneCollector(result);
+                                // refresh home fragment
+                                refreshCollectorListRunnable.run();
+                            }
                         }
                     },urlText.getText().toString());
 
-
-
+                    // next popup
                     dialog.dismiss();
                     CreateCollectorFromURLDialogSuccessMessage nextPopup = new CreateCollectorFromURLDialogSuccessMessage(c);
                     nextPopup.build();
