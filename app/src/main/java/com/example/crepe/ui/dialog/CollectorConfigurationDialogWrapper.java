@@ -28,6 +28,8 @@ import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 import com.google.gson.Gson;
 
+import org.json.JSONException;
+
 import java.nio.charset.StandardCharsets;
 import java.text.ParsePosition;
 import java.io.UnsupportedEncodingException;
@@ -420,10 +422,14 @@ public class CollectorConfigurationDialogWrapper {
                 //      2. get collector from url
                 collector.setCollectorId("8");
                 ServerCollectorCommunicationManager sccManager = new ServerCollectorCommunicationManager(context);
-                sccManager.uploadJsonToServer(collector);
+                try {
+                    sccManager.uploadJsonToServer(collector);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
 
                 // Create url for current collector
-                String collectorURL = "http://35.222.12.92:8000?id="+collector.getCollectorId();
+                String collectorURL = "http://35.222.12.92:8000?id=" + collector.getCollectorId();
 //
 
                 Button closeSuccessMessage = (Button) dialogMainView.findViewById(R.id.closeSuccessMessagePopupButton);

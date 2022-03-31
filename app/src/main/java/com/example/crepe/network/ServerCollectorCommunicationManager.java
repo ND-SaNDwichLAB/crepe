@@ -13,6 +13,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.example.crepe.database.Collector;
 import com.google.gson.Gson;
 
@@ -22,6 +23,7 @@ import java.util.Map;
 
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class ServerCollectorCommunicationManager extends AppCompatActivity {
@@ -33,10 +35,27 @@ public class ServerCollectorCommunicationManager extends AppCompatActivity {
         this.queue = Volley.newRequestQueue(context);
     }
 
-    public void uploadJsonToServer(Collector collector){
+
+
+
+    public void uploadJsonToServer(Collector collector) throws JSONException {
+
+        JSONObject params = new JSONObject();
+        params.put("collectorId", collector.getCollectorId());
+        params.put("creatorUserId", collector.getCreatorUserId() == null ? "1" : collector.getCreatorUserId());
+        params.put("appName", collector.getAppName());
+        params.put("description", collector.getDescription());
+        params.put("mode", collector.getMode());
+        params.put("targetServerIp", collector.getTargetServerIp() == null ? "1" : collector.getTargetServerIp());
+        params.put("collectorStartTime", collector.getCollectorStartTimeString());
+        params.put("collectorEndTime", collector.getCollectorEndTimeString());
+        params.put("collectorGraphQuery", collector.getCollectorGraphQuery());
+        params.put("collectorAppDataFields", collector.getCollectorAppDataFields());
+        params.put("collectorStatus", collector.getCollectorStatus());
+
         String url = "http://35.222.12.92:8000/";
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, null, new Response.Listener<JSONObject>() {
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, params, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 Log.e("POST Request", "Sent success");
@@ -46,28 +65,11 @@ public class ServerCollectorCommunicationManager extends AppCompatActivity {
             public void onErrorResponse(VolleyError error) {
                 Log.e("POST Request", error.toString());
             }
+
         }){
-            @Nullable
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                Map <String, String> params = new HashMap<String, String>();
-                params.put("collectorId", collector.getCollectorId());
-                params.put("creatorUserId", collector.getCreatorUserId());
-                params.put("appName", collector.getAppName());
-                params.put("description", collector.getDescription());
-                params.put("mode", collector.getMode());
-                params.put("targetServerIp", collector.getTargetServerIp());
-                params.put("collectorStartTime", collector.getCollectorStartTimeString());
-                params.put("collectorEndTime", collector.getCollectorEndTimeString());
-                params.put("collectorGraphQuery", collector.getCollectorGraphQuery());
-                params.put("collectorAppDataFields", collector.getCollectorAppDataFields());
-                params.put("collectorStatus", collector.getCollectorStatus());
-                return params;
-            }
             @Override
             public Map<String, String> getHeaders()  {
                 HashMap<String, String> headers = new HashMap<>();
-                headers.put("Accept", "application/json");
                 headers.put("Content-Type", "application/json");
                 return headers;
             }
