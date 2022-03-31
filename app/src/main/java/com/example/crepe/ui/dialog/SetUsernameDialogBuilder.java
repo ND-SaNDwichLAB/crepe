@@ -17,11 +17,13 @@ public class SetUsernameDialogBuilder {
     private Context c;
     private AlertDialog.Builder dialogBuilder;
     private String androidId;
+    private Runnable runnable;
 
-    public SetUsernameDialogBuilder(Context c, String androidId){
+    public SetUsernameDialogBuilder(Context c, String androidId, Runnable runnable){
         this.c = c;
         this.dialogBuilder = new AlertDialog.Builder(c);
         this.androidId = androidId;
+        this.runnable = runnable;
     }
 
     public Dialog build(){
@@ -48,6 +50,7 @@ public class SetUsernameDialogBuilder {
                 } else {
                     DatabaseManager dbManager = new DatabaseManager(c);
                     dbManager.updateUserName(androidId,userName);
+                    runnable.run();
                     dialog.dismiss();
                 }
 

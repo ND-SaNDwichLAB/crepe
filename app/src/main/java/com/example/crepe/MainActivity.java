@@ -148,12 +148,21 @@ public class MainActivity extends AppCompatActivity {
 
         TextView userNameTextView = navHeader.findViewById(R.id.userName);
 
-        // TODO:call set username popup
+
+        // refresh name
+        Runnable mainActivityRefreshUsernameRunnable = new Runnable() {
+            @Override
+            public void run() {
+                userNameTextView.setText(dbManager.getUsername(androidId));
+            }
+        };
+
+        // set user popup
         ImageButton setName = (ImageButton) navHeader.findViewById(R.id.setUsernameImageButton);
         setName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                SetUsernameDialogBuilder nextPopup = new SetUsernameDialogBuilder(currentFragment.getActivity(), androidId);
+                SetUsernameDialogBuilder nextPopup = new SetUsernameDialogBuilder(currentFragment.getActivity(), androidId, mainActivityRefreshUsernameRunnable);
                 Dialog newDialog = nextPopup.build();
                 newDialog.show();
                 userNameTextView.setText(dbManager.getUsername(androidId));
@@ -224,12 +233,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-//    Runnable mainActivityRefreshUsernameRunnable = new Runnable() {
-//        @Override
-//        public void run() {
-//            userNameTextView.setText(dbManager.getUsername(androidId));
-//        }
-//    };
+
 
     // a function to switch between fragments using the navDrawer
     private void displaySelectedScreen(int itemId) {
