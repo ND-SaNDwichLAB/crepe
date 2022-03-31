@@ -47,8 +47,8 @@ public class ServerCollectorCommunicationManager extends AppCompatActivity {
         params.put("description", collector.getDescription());
         params.put("mode", collector.getMode());
         params.put("targetServerIp", collector.getTargetServerIp() == null ? "1" : collector.getTargetServerIp());
-        params.put("collectorStartTime", collector.getCollectorStartTimeString());
-        params.put("collectorEndTime", collector.getCollectorEndTimeString());
+        params.put("collectorStartTime", collector.getCollectorStartTime());
+        params.put("collectorEndTime", collector.getCollectorEndTime());
         params.put("collectorGraphQuery", collector.getCollectorGraphQuery());
         params.put("collectorAppDataFields", collector.getCollectorAppDataFields());
         params.put("collectorStatus", collector.getCollectorStatus());
