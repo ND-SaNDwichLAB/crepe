@@ -420,7 +420,7 @@ public class CollectorConfigurationDialogWrapper {
                 // TODO: Create a new class to handle url generation e.g. collectorUrlManager
                 //      1. create url
                 //      2. get collector from url
-                collector.setCollectorId("8");
+                collector.setCollectorId("9");
                 ServerCollectorCommunicationManager sccManager = new ServerCollectorCommunicationManager(context);
                 try {
                     sccManager.uploadJsonToServer(collector);
@@ -430,7 +430,6 @@ public class CollectorConfigurationDialogWrapper {
 
                 // Create url for current collector
                 String collectorURL = "http://35.222.12.92:8000?id=" + collector.getCollectorId();
-//
 
                 Button closeSuccessMessage = (Button) dialogMainView.findViewById(R.id.closeSuccessMessagePopupButton);
                 ImageButton shareUrlLinkButton = (ImageButton) dialogMainView.findViewById(R.id.shareUrlImageButton);
