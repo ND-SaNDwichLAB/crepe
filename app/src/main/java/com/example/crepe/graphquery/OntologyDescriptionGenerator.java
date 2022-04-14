@@ -10,6 +10,10 @@ import android.text.style.ClickableSpan;
 import android.view.View;
 import android.widget.TextView;
 
+import com.example.crepe.graphquery.ontology.OntologyQuery;
+import com.example.crepe.graphquery.ontology.SugiliteEntity;
+import com.example.crepe.graphquery.ontology.SugiliteRelation;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.Arrays;

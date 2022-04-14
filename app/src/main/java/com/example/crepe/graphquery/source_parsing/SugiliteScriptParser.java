@@ -1,11 +1,7 @@
-package com.example.crepe.graphquery;
+package com.example.crepe.graphquery.source_parsing;
 
 import com.example.crepe.graphquery.model.block.SugiliteBlock;
-import com.example.crepe.graphquery.model.block.SugiliteOperationBlock;
 import com.example.crepe.graphquery.model.block.SugiliteStartingBlock;
-import com.example.crepe.graphquery.source_parsing.SugiliteScriptExpression;
-import com.example.crepe.graphquery.source_parsing.SugiliteScriptNode;
-import com.example.crepe.graphquery.source_parsing.SugiliteScriptParser;
 import com.example.crepe.graphquery.model.value.SugiliteValue;
 
 import java.io.BufferedReader;
@@ -16,22 +12,27 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import edu.cmu.hcii.sugilite.model.block.SugiliteBlock;
+import edu.cmu.hcii.sugilite.model.block.SugiliteOperationBlock;
+import edu.cmu.hcii.sugilite.model.block.SugiliteStartingBlock;
+import edu.cmu.hcii.sugilite.model.block.booleanexp.SugiliteBooleanExpressionNew;
+import edu.cmu.hcii.sugilite.model.value.SugiliteValue;
+import edu.cmu.hcii.sugilite.ontology.description.OntologyDescriptionGenerator;
+
 /**
  * @author toby
  * @date 3/18/18
  * @time 5:28 PM
- * Forked from the public SUGILITE repository https://github.com/tobyli/Sugilite_development
  */
-
-public class GraphQueryParser {
+public class SugiliteScriptParser {
     private OntologyDescriptionGenerator ontologyDescriptionGenerator;
 
-    public GraphQueryParser(){
+    public SugiliteScriptParser(){
         //constructor
         this.ontologyDescriptionGenerator = null;
     }
 
-    public GraphQueryParser(OntologyDescriptionGenerator ontologyDescriptionGenerator){
+    public SugiliteScriptParser(OntologyDescriptionGenerator ontologyDescriptionGenerator){
         this.ontologyDescriptionGenerator = ontologyDescriptionGenerator;
     }
 
