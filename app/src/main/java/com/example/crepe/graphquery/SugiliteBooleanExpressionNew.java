@@ -2,18 +2,18 @@ package com.example.crepe.graphquery;
 
 import org.apache.commons.lang3.math.NumberUtils;
 
-import edu.cmu.hcii.sugilite.SugiliteData;
-import edu.cmu.hcii.sugilite.model.operation.binary.SugiliteGetBoolExpOperation;
-import edu.cmu.hcii.sugilite.model.operation.binary.SugiliteGetOperation;
-import edu.cmu.hcii.sugilite.model.operation.binary.SugiliteGetProcedureOperation;
-import edu.cmu.hcii.sugilite.model.operation.binary.SugiliteGetValueOperation;
-import edu.cmu.hcii.sugilite.model.operation.unary.SugiliteResolveBoolExpOperation;
-import edu.cmu.hcii.sugilite.model.operation.unary.SugiliteResolveValueQueryOperation;
-import edu.cmu.hcii.sugilite.model.value.SugiliteSimpleConstant;
-import edu.cmu.hcii.sugilite.model.value.SugiliteValue;
-import edu.cmu.hcii.sugilite.ontology.helper.annotator.SugiliteTextParentAnnotator;
-import edu.cmu.hcii.sugilite.pumice.kb.default_query.BuiltInValueQuery;
-import edu.cmu.hcii.sugilite.source_parsing.SugiliteScriptExpression;
+import com.example.crepe.graphquery.SugiliteData;
+import com.example.crepe.graphquery.model.operation.binary.SugiliteGetBoolExpOperation;
+import com.example.crepe.graphquery.model.operation.binary.SugiliteGetOperation;
+import com.example.crepe.graphquery.model.operation.binary.SugiliteGetProcedureOperation;
+import com.example.crepe.graphquery.model.operation.binary.SugiliteGetValueOperation;
+import com.example.crepe.graphquery.model.operation.unary.SugiliteResolveBoolExpOperation;
+import com.example.crepe.graphquery.model.operation.unary.SugiliteResolveValueQueryOperation;
+import com.example.crepe.graphquery.model.value.SugiliteSimpleConstant;
+import com.example.crepe.graphquery.model.value.SugiliteValue;
+import com.example.crepe.graphquery.ontology.helper.annotator.SugiliteTextParentAnnotator;
+import com.example.crepe.graphquery.pumice.kb.default_query.BuiltInValueQuery;
+import com.example.crepe.graphquery.source_parsing.SugiliteScriptExpression;
 import edu.stanford.nlp.time.SUTime;
 
 import java.io.Serializable;

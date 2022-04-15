@@ -26,9 +26,11 @@ public class OntologyQueryFilter implements Serializable {
     public enum FilterType {
         ARG_MIN, ARG_MAX, EXISTS
     }
+
     private FilterType filterType;
     private SugiliteRelation relation;
-    public OntologyQueryFilter(FilterType filterType, SugiliteRelation relation){
+
+    public OntologyQueryFilter(FilterType filterType, SugiliteRelation relation) {
         this.filterType = filterType;
         this.relation = relation;
     }
@@ -43,15 +45,16 @@ public class OntologyQueryFilter implements Serializable {
 
     /**
      * create an OntologyQueryFilter from a string
+     *
      * @param s
      * @return
      */
-    public static OntologyQueryFilter deserialize (String s){
+    public static OntologyQueryFilter deserialize(String s) {
         String s1 = new String(s);
         String[] split = s1.split(" ");
-        if(split.length == 2 && SugiliteRelation.hasRelationWithName(split[1])){
+        if (split.length == 2 && SugiliteRelation.hasRelationWithName(split[1])) {
             SugiliteRelation relation = SugiliteRelation.getRelationFromString(split[1]);
-            switch (split[0]){
+            switch (split[0]) {
                 case "argmax":
                     return new OntologyQueryFilter(FilterType.ARG_MAX, relation);
                 case "argmin":
@@ -69,7 +72,7 @@ public class OntologyQueryFilter implements Serializable {
 
     @Override
     public String toString() {
-        switch (filterType){
+        switch (filterType) {
             case ARG_MAX:
                 return "argmax " + relation.getRelationName();
             case ARG_MIN:
@@ -82,51 +85,50 @@ public class OntologyQueryFilter implements Serializable {
 
     /**
      * execute the filter on the result of an OntologyQuery to return a subset of SugiliteEntity
+     *
      * @param sugiliteEntities
      * @param uiSnapshot
      * @return
      */
 
-    public Set<SugiliteEntity> filter(Set<SugiliteEntity> sugiliteEntities, UISnapshot uiSnapshot){
+    public Set<SugiliteEntity> filter(Set<SugiliteEntity> sugiliteEntities, UISnapshot uiSnapshot) {
         Set<SugiliteEntity> results = new HashSet<>();
-        if(sugiliteEntities.isEmpty()){
+        if (sugiliteEntities.isEmpty()) {
             return sugiliteEntities;
         }
 
         if (filterType == FilterType.EXISTS) {
             for (SugiliteEntity entity : sugiliteEntities) {
                 Set<SugiliteTriple> allMatchedEntities = uiSnapshot.getSubjectPredicateTriplesMap().get(new AbstractMap.SimpleEntry<>(entity.getEntityId(), relation.getRelationId()));
-                if(allMatchedEntities == null || allMatchedEntities.isEmpty()){
+                if (allMatchedEntities == null || allMatchedEntities.isEmpty()) {
                     continue;
                 }
-                for(SugiliteTriple triple : allMatchedEntities){
-                    if(triple != null && triple.getSubject() != null){
+                for (SugiliteTriple triple : allMatchedEntities) {
+                    if (triple != null && triple.getSubject() != null) {
                         results.add(triple.getSubject());
                     }
                 }
                 return results;
             }
-        }
-
-        else if (filterType == FilterType.ARG_MAX || filterType == FilterType.ARG_MIN){
+        } else if (filterType == FilterType.ARG_MAX || filterType == FilterType.ARG_MIN) {
             List<Pair<SugiliteEntity, Comparable>> entityWithObjectValues = new ArrayList<>();
 
-            for(SugiliteEntity entity : sugiliteEntities){
+            for (SugiliteEntity entity : sugiliteEntities) {
 
 
                 //*** temporarily only consider clickable items in argmin/max
-                if(entity.getEntityValue() instanceof Node){
-                    if(((Node) entity.getEntityValue()).getClickable() == false){
+                if (entity.getEntityValue() instanceof Node) {
+                    if (((Node) entity.getEntityValue()).getClickable() == false) {
                         continue;
                     }
                 }
                 //***
 
                 Set<SugiliteTriple> allMatchedTriples = uiSnapshot.getSubjectPredicateTriplesMap().get(new AbstractMap.SimpleEntry<>(entity.getEntityId(), relation.getRelationId()));
-                if(allMatchedTriples == null || allMatchedTriples.isEmpty()){
+                if (allMatchedTriples == null || allMatchedTriples.isEmpty()) {
                     continue;
                 }
-                for(SugiliteTriple matchedTriple : allMatchedTriples) {
+                for (SugiliteTriple matchedTriple : allMatchedTriples) {
                     SugiliteEntity object = matchedTriple.getObject();
                     if (object.getEntityValue() instanceof Comparable) {
                         entityWithObjectValues.add(new Pair<>(entity, (Comparable) object.getEntityValue()));
@@ -138,29 +140,27 @@ public class OntologyQueryFilter implements Serializable {
             Collections.sort(entityWithObjectValues, new Comparator<Pair<SugiliteEntity, Comparable>>() {
                 @Override
                 public int compare(Pair<SugiliteEntity, Comparable> o1, Pair<SugiliteEntity, Comparable> o2) {
-                    try{
+                    try {
                         return Double.valueOf(o1.second.toString()).compareTo(Double.valueOf(o2.second.toString()));
-                    }
-
-                    catch (Exception e){
+                    } catch (Exception e) {
                         return o1.second.compareTo(o2.second);
                     }
                 }
             });
 
             Set<SugiliteEntity> result = new HashSet<>();
-            if(entityWithObjectValues.size() > 0) {
+            if (entityWithObjectValues.size() > 0) {
                 if (filterType == FilterType.ARG_MIN) {
                     Comparable value = entityWithObjectValues.get(0).second;
-                    for(Pair<SugiliteEntity, Comparable> pair : entityWithObjectValues){
-                        if(pair.second.compareTo(value) == 0){
+                    for (Pair<SugiliteEntity, Comparable> pair : entityWithObjectValues) {
+                        if (pair.second.compareTo(value) == 0) {
                             result.add(pair.first);
                         }
                     }
                 } else if (filterType == FilterType.ARG_MAX) {
                     Comparable value = entityWithObjectValues.get(entityWithObjectValues.size() - 1).second;
-                    for(Pair<SugiliteEntity, Comparable> pair : entityWithObjectValues){
-                        if(pair.second.compareTo(value) == 0){
+                    for (Pair<SugiliteEntity, Comparable> pair : entityWithObjectValues) {
+                        if (pair.second.compareTo(value) == 0) {
                             result.add(pair.first);
                         }
                     }
@@ -171,3 +171,5 @@ public class OntologyQueryFilter implements Serializable {
 
         return sugiliteEntities;
     }
+
+}

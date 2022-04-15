@@ -1,14 +1,13 @@
 package com.example.crepe.graphquery.ontology;
 
 import com.example.crepe.graphquery.SugiliteData;
+import com.example.crepe.graphquery.sharing.StringAlternativeGenerator;
+import com.example.crepe.graphquery.sharing.SugiliteScriptSharingHTTPQueryManager;
+import com.example.crepe.graphquery.sharing.model.HashedString;
 
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
-
-import edu.cmu.hcii.sugilite.sharing.StringAlternativeGenerator;
-import edu.cmu.hcii.sugilite.sharing.SugiliteScriptSharingHTTPQueryManager;
-import edu.cmu.hcii.sugilite.sharing.model.HashedString;
 
 public abstract class OntologyQuery implements Serializable {
 
