@@ -35,9 +35,6 @@ public class ServerCollectorCommunicationManager extends AppCompatActivity {
         this.queue = Volley.newRequestQueue(context);
     }
 
-
-
-
     public void uploadJsonToServer(Collector collector) throws JSONException {
 
         JSONObject params = new JSONObject();

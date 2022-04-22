@@ -98,7 +98,6 @@ public class HomeFragment extends Fragment {
         Drawable image = null;
         String packageName = "com.example.crepe";
 
-
         // get size of ril and create a list
         Map<String, Drawable> apps = new HashMap<String, Drawable>();
         for (ResolveInfo ri : ril) {

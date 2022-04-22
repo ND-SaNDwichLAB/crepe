@@ -9,6 +9,9 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
+import android.net.Uri;
+import android.os.Build;
+import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -23,6 +26,7 @@ import com.example.crepe.MainActivity;
 import com.example.crepe.R;
 import com.example.crepe.database.Collector;
 import com.example.crepe.database.DatabaseManager;
+import com.example.crepe.demosntration.WidgetService;
 import com.example.crepe.network.ServerCollectorCommunicationManager;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
@@ -250,6 +254,7 @@ public class CollectorConfigurationDialogWrapper {
                 dialog.setContentView(dialogMainView);
                 Button graphQueryNxtBtn = (Button) dialogMainView.findViewById(R.id.graphQueryNextButton);
                 Button graphQueryBckBtn = (Button) dialogMainView.findViewById(R.id.graphQueryBackButton);
+                Button openAppBtn = (Button) dialogMainView.findViewById(R.id.openAppButton);
                 ImageButton graphQueryCloseImg = (ImageButton) dialogMainView.findViewById(R.id.closeGraphQueryPopupImageButton);
                 EditText graphQueryEditTxt = (EditText) dialogMainView.findViewById(R.id.graphQueryEditText);
 
@@ -260,8 +265,61 @@ public class CollectorConfigurationDialogWrapper {
                 openAppButton.setText("Open " + appName);
                 commentOnOpenAppButton.setText("Demonstrate in the " + appName +" app");
 
-
                 // TODO: finish graph query
+                // Open App button
+                openAppBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        // find the package
+                        final Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
+                        mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+                        // get list of all the apps installed
+                        // ril stands for ResolveInfoList
+                        List<ResolveInfo> ril = context.getPackageManager().queryIntentActivities(mainIntent, 0);
+                        String appName = collector.getAppName();
+                        String nameBuffer;
+                        String packageName = "";
+                        for (ResolveInfo ri : ril) {
+                            if (ri.activityInfo != null) {
+                                // get package
+                                Resources res = null;
+                                try {
+                                    res = context.getPackageManager().getResourcesForApplication(ri.activityInfo.applicationInfo);
+                                } catch (PackageManager.NameNotFoundException e) {
+                                    e.printStackTrace();
+                                }
+                                // if activity label res is found
+                                if (ri.activityInfo.labelRes != 0) {
+                                    nameBuffer = res.getString(ri.activityInfo.labelRes);
+                                } else {
+                                    nameBuffer = ri.activityInfo.applicationInfo.loadLabel(
+                                            context.getPackageManager()).toString();
+                                }
+                                if (nameBuffer.equals(appName)) {
+                                    // get package
+                                    packageName = ri.activityInfo.packageName;
+                                    break;
+                                }
+                            }
+                        }
+
+                        // launch the app
+                        Intent launchIntent = context.getPackageManager().getLaunchIntentForPackage(packageName);
+                        if (launchIntent != null) {
+                            context.startActivity(launchIntent);
+                        } else {
+                            Toast.makeText(context, "There is no package available in android", Toast.LENGTH_LONG).show();
+                        }
+
+                        // launch the float widget
+                        if (!Settings.canDrawOverlays(context)){
+                            getPermission();
+                        } else {
+                            Intent intent = new Intent(context, WidgetService.class);
+                            context.startService(intent);
+                        }
+                    }
+                });
 
                 // show graph query info in the collector if available
                 if (collector.getCollectorGraphQuery() != null) {
@@ -505,6 +563,26 @@ public class CollectorConfigurationDialogWrapper {
         }
 //        Toast.makeText(context, ril.size() + " apps are installed on this phone", Toast.LENGTH_LONG).show();
         return apps;
+    }
+
+    public void getPermission() {
+//         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(context)){
+//            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:"+context.getPackageName()));
+//            context.startActivity(intent);
+//        check if we already have permission to draw over other apps
+//    }
+        int currentApiVersion = android.os.Build.VERSION.SDK_INT;
+        if(currentApiVersion >= 23) {
+            if (!Settings.canDrawOverlays(context)) {
+                // if not construct intent to request permission
+                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        Uri.parse("package:" + context.getPackageName()));
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                // request permission via start activity for result
+                context.startActivity(intent);
+
+            }
+        }
     }
 
     public void show() {
