@@ -53,7 +53,7 @@
         <entry key="app/src/main/res/layout/dialog_add_collector_from_config.xml" value="0.2722083146537436" />
         <entry key="app/src/main/res/layout/dialog_add_collector_from_config_data_field.xml" value="0.18125" />
         <entry key="app/src/main/res/layout/dialog_add_collector_from_config_description.xml" value="0.2246153846153846" />
-        <entry key="app/src/main/res/layout/dialog_add_collector_from_config_graph_query.xml" value="0.4485776805251641" />
+        <entry key="app/src/main/res/layout/dialog_add_collector_from_config_graph_query.xml" value="0.14915598863063284" />
         <entry key="app/src/main/res/layout/dialog_add_collector_from_config_specify_data.xml" value="0.27395833333333336" />
         <entry key="app/src/main/res/layout/dialog_add_collector_from_config_success_message.xml" value="0.24739583333333334" />
         <entry key="app/src/main/res/layout/dialog_add_collector_from_url.xml" value="0.21666666666666667" />
