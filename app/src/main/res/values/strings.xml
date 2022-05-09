@@ -8,7 +8,6 @@
     <string name="previous">Previous</string>
     <string name="open">Open</string>
     <string name="close">Close</string>
-
     <string name="hello_first_fragment">Collector Cards Here</string>
     <string name="back">Back</string>
 </resources>

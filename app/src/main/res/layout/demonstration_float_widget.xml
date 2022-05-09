@@ -1,50 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:theme="@style/Theme.AppCompat">
+<!--    android:background="@color/white"-->
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab"
+
+
+    <RelativeLayout
+        android:id="@+id/layout_widget"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="268dp"
-        android:backgroundTint="@color/ND_gold"
-        app:backgroundTint="@color/ND_gold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/ic_baseline_menu_24"
-        app:tint="@color/white"
-        tools:ignore="SpeakableTextPresentCheck" />
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginEnd="30dp"
+        android:layout_marginBottom="30dp">
+
+    </RelativeLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_close"
+        android:id="@+id/floating_close"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="0dp"
+        android:layout_below="@+id/floating_draw_frame"
+        android:layout_alignStart="@+id/floating_draw_frame"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="8dp"
         android:backgroundTint="@color/ND_blue"
+
         android:clickable="true"
         android:visibility="visible"
-        app:layout_constraintTop_toBottomOf="@+id/fab"
-        app:srcCompat="@drawable/ic_baseline_close_24"
+        app:srcCompat="@drawable/ic_baseline_undo_24"
         app:tint="@color/white"
         tools:ignore="SpeakableTextPresentCheck"
         tools:layout_editor_absoluteX="283dp" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_draw_frame"
+        android:id="@+id/floating_draw_frame"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
         android:layout_marginBottom="0dp"
         android:backgroundTint="@color/ND_blue"
         android:clickable="true"
         android:visibility="visible"
-        app:layout_constraintBottom_toTopOf="@+id/fab"
+        app:layout_constraintTop_toTopOf="@id/floating_close"
         app:srcCompat="@drawable/ic_baseline_draw_24"
         app:tint="@color/white"
         tools:layout_editor_absoluteX="283dp" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</RelativeLayout>

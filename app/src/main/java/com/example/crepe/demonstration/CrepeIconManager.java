@@ -1,32 +1,6 @@
 
-package com.example.crepe.demosntration;
+package com.example.crepe.demonstration;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.PixelFormat;
-import android.net.Uri;
-import android.os.Build;
-import android.provider.Settings;
-import android.text.SpannableString;
-import android.util.DisplayMetrics;
-import android.view.GestureDetector;
-import android.view.Gravity;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.WindowManager;
-import android.view.accessibility.AccessibilityManager;
-import android.widget.ImageView;
-import android.widget.Toast;
-
-import com.example.crepe.R;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 /*
 @Deprecated
 public class CrepeIconManager {

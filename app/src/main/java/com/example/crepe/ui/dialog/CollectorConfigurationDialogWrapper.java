@@ -1,7 +1,7 @@
 package com.example.crepe.ui.dialog;
 
+import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -10,7 +10,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.net.Uri;
-import android.os.Build;
 import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,29 +21,27 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.crepe.MainActivity;
 import com.example.crepe.R;
 import com.example.crepe.database.Collector;
 import com.example.crepe.database.DatabaseManager;
-import com.example.crepe.demosntration.WidgetService;
+import com.example.crepe.demonstration.WidgetService;
 import com.example.crepe.network.ServerCollectorCommunicationManager;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
-import com.google.gson.Gson;
 
 import org.json.JSONException;
 
-import java.nio.charset.StandardCharsets;
 import java.text.ParsePosition;
-import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
-import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 
-public class CollectorConfigurationDialogWrapper {
+public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
     private AlertDialog dialog;
     private Context context;
@@ -98,7 +95,7 @@ public class CollectorConfigurationDialogWrapper {
                 }
 
                 // location spinner
-                String[] locationItems = new String[]{" ", "Local", "Remote"};
+                String[] locationItems = new String[]{"Local", "Remote"};
                 ArrayAdapter<String> locationAdapter = new ArrayAdapter<String>(context.getApplicationContext(), android.R.layout.simple_spinner_dropdown_item, locationItems);
                 locationAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 locationDropDown.setAdapter(locationAdapter);
@@ -304,6 +301,7 @@ public class CollectorConfigurationDialogWrapper {
                         }
 
                         // launch the app
+                        String currPackageName = context.getPackageName();
                         Intent launchIntent = context.getPackageManager().getLaunchIntentForPackage(packageName);
                         if (launchIntent != null) {
                             context.startActivity(launchIntent);
@@ -317,6 +315,7 @@ public class CollectorConfigurationDialogWrapper {
                         } else {
                             Intent intent = new Intent(context, WidgetService.class);
                             context.startService(intent);
+                            finish();
                         }
                     }
                 });

@@ -2,9 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.crepe">
-    // used to get all packages information when creating collectors
+    // give permission to draw over other apps
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    // used to get all packages information when creating collectors
 <!--    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />-->
     <uses-permission android:name="android.permission.INTERNET" />
     <queries>
@@ -42,6 +43,7 @@
             <meta-data android:name="android.accessibilityservice" android:resource="@xml/accessibilityservice" />
         </service>
 
+        <service android:name=".demonstration.WidgetService" android:enabled="true"/>
 
     </application>
 
