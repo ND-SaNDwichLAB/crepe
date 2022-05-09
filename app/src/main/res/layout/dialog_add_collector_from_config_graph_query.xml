@@ -28,13 +28,11 @@
         android:id="@+id/graphQueryBackButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="0dp"
-        android:layout_marginEnd="16dp"
         android:background="@android:color/transparent"
         android:text="BACK"
         android:textColor="@color/ND_blue"
         android:textColorHint="@color/ND_blue"
-        app:layout_constraintEnd_toStartOf="@+id/graphQueryNextButton"
+        app:layout_constraintStart_toStartOf="@+id/graphQueryEditText"
         app:layout_constraintTop_toTopOf="@+id/graphQueryNextButton" />
 
     <Button
@@ -42,14 +40,27 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="24dp"
         android:layout_marginBottom="24dp"
         android:background="@android:color/transparent"
         android:text="NEXT"
         android:textColor="@color/ND_gold"
         android:textColorHint="@color/ND_gold"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/graphQueryEditText"
+        app:layout_constraintTop_toBottomOf="@+id/graphQueryEditText" />
+
+    <Button
+        android:id="@+id/graphQueryAddAnotherButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="24dp"
+        android:background="@android:color/transparent"
+        android:text="ADD ANOTHER"
+        android:textColor="@color/ND_gold"
+        android:textColorHint="@color/ND_gold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/graphQueryNextButton"
         app:layout_constraintTop_toBottomOf="@+id/graphQueryEditText" />
 
     <TextView
