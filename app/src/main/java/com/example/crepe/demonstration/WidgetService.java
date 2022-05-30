@@ -78,71 +78,71 @@ public class WidgetService extends Service {
         });
 
         // drag movement
-        closeFltBtn.setOnTouchListener(new View.OnTouchListener() {
-            int initialX, initialY;
-            float initialTouchX, initialTouchY;
-            long startClickTime;
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                switch(motionEvent.getAction()){
-                    case MotionEvent.ACTION_DOWN:
-                        startClickTime = Calendar.getInstance().getTimeInMillis();
-                        mFloatingView.setVisibility(View.VISIBLE);
-                        initialX = layoutParams.x;
-                        initialY = layoutParams.y;
-                        // touch position
-                        initialTouchX = motionEvent.getRawX();
-                        initialTouchY = motionEvent.getRawY();
-                        return true;
-                    case MotionEvent.ACTION_UP:
-                        long clickDuration = Calendar.getInstance().getTimeInMillis() - startClickTime;
-                        mFloatingView.setVisibility(View.VISIBLE);
-                        layoutParams.x = initialX + (int)(initialTouchX - motionEvent.getRawX());
-                        layoutParams.y = initialY + (int)(motionEvent.getRawY() - initialTouchY);
-                        return true;
-                    case MotionEvent.ACTION_MOVE:
-                        mFloatingView.setVisibility(View.VISIBLE);
-                        layoutParams.x = initialX + (int)(initialTouchX - motionEvent.getRawX());
-                        layoutParams.y = initialY + (int)(motionEvent.getRawY() - initialTouchY);
-                        windowManager.updateViewLayout(mFloatingView,layoutParams);
-                        return true;
-                }
-                return false;
-            }
-        });
-
-        drawFltBtn.setOnTouchListener(new View.OnTouchListener() {
-            int initialX, initialY;
-            float initialTouchX, initialTouchY;
-            long startClickTime;
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                switch(motionEvent.getAction()){
-                    case MotionEvent.ACTION_DOWN:
-                        startClickTime = Calendar.getInstance().getTimeInMillis();
-                        mFloatingView.setVisibility(View.VISIBLE);
-                        initialX = layoutParams.x;
-                        initialY = layoutParams.y;
-                        // touch position
-                        initialTouchX = motionEvent.getRawX();
-                        initialTouchY = motionEvent.getRawY();
-                        return true;
-                    case MotionEvent.ACTION_UP:
-                        long clickDuration = Calendar.getInstance().getTimeInMillis() - startClickTime;
-                        mFloatingView.setVisibility(View.VISIBLE);
-                        layoutParams.x = initialX + (int)(initialTouchX - motionEvent.getRawX());
-                        layoutParams.y = initialY + (int)(motionEvent.getRawY() - initialTouchY);
-                        return true;
-                    case MotionEvent.ACTION_MOVE:
-                        mFloatingView.setVisibility(View.VISIBLE);
-                        layoutParams.x = initialX + (int)(initialTouchX - motionEvent.getRawX());
-                        layoutParams.y = initialY + (int)(motionEvent.getRawY() - initialTouchY);
-                        windowManager.updateViewLayout(mFloatingView,layoutParams);
-                        return true;
-                }
-                return false;
-            }
-        });
+//        closeFltBtn.setOnTouchListener(new View.OnTouchListener() {
+//            int initialX, initialY;
+//            float initialTouchX, initialTouchY;
+//            long startClickTime;
+//            @Override
+//            public boolean onTouch(View view, MotionEvent motionEvent) {
+//                switch(motionEvent.getAction()){
+//                    case MotionEvent.ACTION_DOWN:
+//                        startClickTime = Calendar.getInstance().getTimeInMillis();
+//                        mFloatingView.setVisibility(View.VISIBLE);
+//                        initialX = layoutParams.x;
+//                        initialY = layoutParams.y;
+//                        // touch position
+//                        initialTouchX = motionEvent.getRawX();
+//                        initialTouchY = motionEvent.getRawY();
+//                        return true;
+//                    case MotionEvent.ACTION_UP:
+//                        long clickDuration = Calendar.getInstance().getTimeInMillis() - startClickTime;
+//                        mFloatingView.setVisibility(View.VISIBLE);
+//                        layoutParams.x = initialX + (int)(initialTouchX - motionEvent.getRawX());
+//                        layoutParams.y = initialY + (int)(motionEvent.getRawY() - initialTouchY);
+//                        return true;
+//                    case MotionEvent.ACTION_MOVE:
+//                        mFloatingView.setVisibility(View.VISIBLE);
+//                        layoutParams.x = initialX + (int)(initialTouchX - motionEvent.getRawX());
+//                        layoutParams.y = initialY + (int)(motionEvent.getRawY() - initialTouchY);
+//                        windowManager.updateViewLayout(mFloatingView,layoutParams);
+//                        return true;
+//                }
+//                return false;
+//            }
+//        });
+//
+//        drawFltBtn.setOnTouchListener(new View.OnTouchListener() {
+//            int initialX, initialY;
+//            float initialTouchX, initialTouchY;
+//            long startClickTime;
+//            @Override
+//            public boolean onTouch(View view, MotionEvent motionEvent) {
+//                switch(motionEvent.getAction()){
+//                    case MotionEvent.ACTION_DOWN:
+//                        startClickTime = Calendar.getInstance().getTimeInMillis();
+//                        mFloatingView.setVisibility(View.VISIBLE);
+//                        initialX = layoutParams.x;
+//                        initialY = layoutParams.y;
+//                        // touch position
+//                        initialTouchX = motionEvent.getRawX();
+//                        initialTouchY = motionEvent.getRawY();
+//                        return true;
+//                    case MotionEvent.ACTION_UP:
+//                        long clickDuration = Calendar.getInstance().getTimeInMillis() - startClickTime;
+//                        mFloatingView.setVisibility(View.VISIBLE);
+//                        layoutParams.x = initialX + (int)(initialTouchX - motionEvent.getRawX());
+//                        layoutParams.y = initialY + (int)(motionEvent.getRawY() - initialTouchY);
+//                        return true;
+//                    case MotionEvent.ACTION_MOVE:
+//                        mFloatingView.setVisibility(View.VISIBLE);
+//                        layoutParams.x = initialX + (int)(initialTouchX - motionEvent.getRawX());
+//                        layoutParams.y = initialY + (int)(motionEvent.getRawY() - initialTouchY);
+//                        windowManager.updateViewLayout(mFloatingView,layoutParams);
+//                        return true;
+//                }
+//                return false;
+//            }
+//        });
 
         mFloatingView.setOnTouchListener(new View.OnTouchListener() {
             int initialX, initialY;

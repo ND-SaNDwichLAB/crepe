@@ -44,6 +44,7 @@
         android:layout_below="@+id/draw_text"
         android:layout_alignStart="@+id/floating_draw_frame"
         android:layout_marginStart="0dp"
+        android:layout_marginTop="5dp"
         android:backgroundTint="@color/ND_blue"
         android:clickable="true"
         android:visibility="visible"
@@ -54,13 +55,13 @@
 
     <TextView
         android:id="@+id/back_text"
-        android:textColor="@color/ND_blue"
-        android:textAlignment="center"
-        android:textSize="10dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/floating_close"
         android:layout_alignLeft="@+id/floating_close"
         android:layout_alignRight="@+id/floating_close"
-        android:text="Back" />
+        android:text="Back"
+        android:textAlignment="center"
+        android:textColor="@color/ND_blue"
+        android:textSize="10dp" />
 </RelativeLayout>
