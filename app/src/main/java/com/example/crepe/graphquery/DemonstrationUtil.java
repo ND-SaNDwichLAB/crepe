@@ -34,43 +34,46 @@ public class DemonstrationUtil {
     /**
      * initiate a demonstration recording -> need to call endRecording() when the recording ends
      * @param context
-     * @param serviceStatusManager
+//     * @param serviceStatusManager
      * @param sharedPreferences
      * @param scriptName
-     * @param sugiliteData
+//     * @param sugiliteData
      * @param afterRecordingCallback
-     * @param screenRecordingOverlayManager
+     * @param fullScreenOverlayManager
      */
-    public static void initiateDemonstration(Context context, ServiceStatusManager serviceStatusManager, SharedPreferences sharedPreferences, String scriptName, SugiliteData sugiliteData, Runnable afterRecordingCallback, FullScreenOverlayManager fullScreenOverlayManager){
-        if(!serviceStatusManager.isRunning()){
-            //prompt the user if the accessibility service is not active
-            AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
-            builder1.setTitle("Service not running")
-                    .setMessage("The " + Const.appNameUpperCase + " accessiblity service is not enabled. Please enable the service in the phone settings before recording.")
-                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            serviceStatusManager.promptEnabling();
-                            //do nothing
-                        }
-                    }).show();
-        } else {
+//    public static void initiateDemonstration(Context context, ServiceStatusManager serviceStatusManager, SharedPreferences sharedPreferences, String scriptName, SugiliteData sugiliteData, Runnable afterRecordingCallback, FullScreenOverlayManager fullScreenOverlayManager){
+    public static void initiateDemonstration(Context context, SharedPreferences sharedPreferences, String scriptName, Runnable afterRecordingCallback, FullScreenOverlayManager fullScreenOverlayManager){
+//        TODO 0 Yuwen: use servicestatusmanager to check if the accessibility service is open
+//        if(!serviceStatusManager.isRunning()){
+//            //prompt the user if the accessibility service is not active
+//            AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
+//            builder1.setTitle("Service not running")
+//                    .setMessage("The " + Const.appNameUpperCase + " accessiblity service is not enabled. Please enable the service in the phone settings before recording.")
+//                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+//                        @Override
+//                        public void onClick(DialogInterface dialog, int which) {
+//                            serviceStatusManager.promptEnabling();
+//                            //do nothing
+//                        }
+//                    }).show();
+//        } else {
             //start demonstration
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putString("scriptName", scriptName);
             editor.putBoolean("recording_in_process", true);
             editor.commit();
 
-            //set the system state
-            sugiliteData.setCurrentSystemState(SugiliteData.RECORDING_STATE);
+//            //TODO 1 Yuwen: import the sugilitedata class, set the system state
+//            sugiliteData.setCurrentSystemState(SugiliteData.RECORDING_STATE);
 
 
-            //set the active script to the newly created script
-            sugiliteData.initiateScriptRecording(DemonstrationUtil.addScriptExtension(scriptName), afterRecordingCallback); //add the end recording callback
-            sugiliteData.initiatedExternally = false;
+            //
+            //TODO 3 Yuwen: set the active script to the newly created script
+//            sugiliteData.initiateScriptRecording(DemonstrationUtil.addScriptExtension(scriptName), afterRecordingCallback); //add the end recording callback
+//            sugiliteData.initiatedExternally = false;
 
             //save the newly created script to DB
-            // TODO Yuwen: Use our own script to save this to db
+            // TODO 3 Yuwen: Use our own script to save this to db
 //            try {
 //                sugiliteScriptDao.save(sugiliteData.getScriptHead());
 //                sugiliteScriptDao.commitSave(null);
@@ -79,19 +82,13 @@ public class DemonstrationUtil {
 //                e.printStackTrace();
 //            }
 
-            //send the phone back to the home screen
-            Intent startMain = new Intent(Intent.ACTION_MAIN);
-            startMain.addCategory(Intent.CATEGORY_HOME);
-            startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            context.startActivity(startMain);
-
             //turn on the cat overlay to prepare for demonstration
             if(fullScreenOverlayManager != null){
                 fullScreenOverlayManager.enableOverlay();
             }
-            // TODO yuwen: use FullScreenRecordingOverlayManager to show overlay here
 
-        }
+
+//        }
     }
 //
 //    /**
