@@ -2,60 +2,31 @@ package com.example.crepe.graphquery;
 
 import static com.example.crepe.graphquery.Const.OVERLAY_TYPE;
 
-import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.location.Location;
-import android.location.LocationManager;
-import android.speech.tts.TextToSpeech;
-import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 import android.widget.Toast;
+
+//import com.example.crepe.graphquery.ontology.CombinedOntologyQuery;
+//import com.example.crepe.graphquery.ontology.LeafOntologyQuery;
+//import com.example.crepe.graphquery.ontology.OntologyQuery;
+import com.example.crepe.graphquery.recording.FullScreenOverlayManager;
 
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-
-import com.example.crepe.graphquery.Const;
-import com.example.crepe.graphquery.SugiliteData;
-import com.example.crepe.graphquery.automation.ServiceStatusManager;
-import com.example.crepe.graphquery.communication.SugiliteBlockJSONProcessor;
-import com.example.crepe.graphquery.communication.SugiliteCommunicationHelper;
-import com.example.crepe.graphquery.dao.SugiliteScriptDao;
-import com.example.crepe.graphquery.model.block.SugiliteBlock;
-import com.example.crepe.graphquery.model.block.SugiliteStartingBlock;
-import com.example.crepe.graphquery.model.variable.Variable;
-import com.example.crepe.graphquery.ontology.CombinedOntologyQuery;
-import com.example.crepe.graphquery.ontology.LeafOntologyQuery;
-import com.example.crepe.graphquery.ontology.OntologyQuery;
-import com.example.crepe.graphquery.ontology.SerializableUISnapshot;
-import com.example.crepe.graphquery.ontology.SugiliteRelation;
-import com.example.crepe.graphquery.ontology.SugiliteSerializableEntity;
-import com.example.crepe.graphquery.ontology.UISnapshot;
-import com.example.crepe.graphquery.pumice.dialog.PumiceDialogManager;
-import com.example.crepe.graphquery.recording.SugiliteScreenshotManager;
-import com.example.crepe.graphquery.ui.dialog.VariableSetValueDialog;
-import com.example.crepe.graphquery.verbal_instruction_demo.VerbalInstructionIconManager;
-import com.example.crepe.graphquery.verbal_instruction_demo.speech.SugiliteAndroidAPIVoiceRecognitionListener;
-import com.example.crepe.graphquery.verbal_instruction_demo.speech.SugiliteGoogleCloudVoiceRecognitionListener;
-import com.example.crepe.graphquery.verbal_instruction_demo.speech.SugiliteVoiceRecognitionListener;
 
 /**
  * @author toby
- * @ModifiedBy Yuwen
  * @date 1/7/19
  * @time 2:44 PM
  */
@@ -68,10 +39,9 @@ public class DemonstrationUtil {
      * @param scriptName
      * @param sugiliteData
      * @param afterRecordingCallback
-     * @param sugiliteScriptDao
-     * @param verbalInstructionIconManager
+     * @param screenRecordingOverlayManager
      */
-    public static void initiateDemonstration(Context context, ServiceStatusManager serviceStatusManager, SharedPreferences sharedPreferences, String scriptName, SugiliteData sugiliteData, Runnable afterRecordingCallback, SugiliteScriptDao sugiliteScriptDao, VerbalInstructionIconManager verbalInstructionIconManager){
+    public static void initiateDemonstration(Context context, ServiceStatusManager serviceStatusManager, SharedPreferences sharedPreferences, String scriptName, SugiliteData sugiliteData, Runnable afterRecordingCallback, FullScreenOverlayManager fullScreenOverlayManager){
         if(!serviceStatusManager.isRunning()){
             //prompt the user if the accessibility service is not active
             AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
@@ -96,17 +66,18 @@ public class DemonstrationUtil {
 
 
             //set the active script to the newly created script
-            sugiliteData.initiateScriptRecording(PumiceDemonstrationUtil.addScriptExtension(scriptName), afterRecordingCallback); //add the end recording callback
+            sugiliteData.initiateScriptRecording(DemonstrationUtil.addScriptExtension(scriptName), afterRecordingCallback); //add the end recording callback
             sugiliteData.initiatedExternally = false;
 
             //save the newly created script to DB
-            try {
-                sugiliteScriptDao.save(sugiliteData.getScriptHead());
-                sugiliteScriptDao.commitSave(null);
-            }
-            catch (Exception e){
-                e.printStackTrace();
-            }
+            // TODO Yuwen: Use our own script to save this to db
+//            try {
+//                sugiliteScriptDao.save(sugiliteData.getScriptHead());
+//                sugiliteScriptDao.commitSave(null);
+//            }
+//            catch (Exception e){
+//                e.printStackTrace();
+//            }
 
             //send the phone back to the home screen
             Intent startMain = new Intent(Intent.ACTION_MAIN);
@@ -115,159 +86,166 @@ public class DemonstrationUtil {
             context.startActivity(startMain);
 
             //turn on the cat overlay to prepare for demonstration
-            if(verbalInstructionIconManager != null){
-                verbalInstructionIconManager.turnOnCatOverlay();
+            if(fullScreenOverlayManager != null){
+                fullScreenOverlayManager.enableOverlay();
             }
+            // TODO yuwen: use FullScreenRecordingOverlayManager to show overlay here
+
         }
     }
-
-    /**
-     * execute a script  --> check the service status and the variable values before doing so
-     * @param activityContext
-     * @param serviceStatusManager
-     * @param script
-     * @param sugiliteData
-     * @param sharedPreferences
-     * @param dialogManager
-     */
-    public static void executeScript(Activity activityContext, ServiceStatusManager serviceStatusManager, SugiliteStartingBlock script, SugiliteData sugiliteData, SharedPreferences sharedPreferences, boolean isForReconstructing, @Nullable PumiceDialogManager dialogManager, @Nullable SugiliteBlock afterExecutionOperation, @Nullable Runnable afterExecutionRunnable){
-        if(!serviceStatusManager.isRunning()){
-            //prompt the user if the accessiblity service is not active
-            activityContext.runOnUiThread(() -> {
-                AlertDialog.Builder builder1 = new AlertDialog.Builder(activityContext);
-                builder1.setTitle("Service not running")
-                        .setMessage("The Sugilite accessiblity service is not enabled. Please enable the service in the phone settings before recording.")
-                        .setPositiveButton("OK", (dialog, which) -> {
-                            serviceStatusManager.promptEnabling();
-                            //do nothing
-                        }).show();
-            });
-        }
-        else {
-            //check if pumice dialog manager is available, create a new one if needed
-            if (dialogManager == null) {
-                if (sugiliteData.pumiceDialogManager != null) {
-                    dialogManager = sugiliteData.pumiceDialogManager;
-                } else {
-                    dialogManager = new PumiceDialogManager(activityContext, true);
-                    SugiliteVoiceRecognitionListener sugiliteVoiceRecognitionListener = null;
-                    TextToSpeech tts = sugiliteData.getTTS();
-                    if (Const.SELECTED_SPEECH_RECOGNITION_TYPE == Const.SpeechRecognitionType.ANDROID) {
-                        sugiliteVoiceRecognitionListener = new SugiliteAndroidAPIVoiceRecognitionListener(activityContext, null, tts);
-                    } else if (Const.SELECTED_SPEECH_RECOGNITION_TYPE == Const.SpeechRecognitionType.GOOGLE_CLOUD) {
-                        sugiliteVoiceRecognitionListener = new SugiliteGoogleCloudVoiceRecognitionListener(activityContext, sugiliteData,  null, tts);
-                    }
-                    dialogManager.setSugiliteVoiceRecognitionListener(sugiliteVoiceRecognitionListener);
-                    sugiliteData.pumiceDialogManager = dialogManager;
-                }
-            }
-
-            final PumiceDialogManager finalDialogManager = dialogManager;
-
-            activityContext.runOnUiThread(() -> {
-                VariableSetValueDialog variableSetValueDialog = new VariableSetValueDialog(sugiliteData.getApplicationContext(), sugiliteData, script, sharedPreferences, SugiliteData.EXECUTION_STATE, finalDialogManager, isForReconstructing);
-                if(script.variableNameDefaultValueMap.size() > 0) {
-
-                    //has variable
-                    sugiliteData.variableNameVariableValueMap.putAll(script.variableNameDefaultValueMap);
-                    boolean needUserInput = false;
-
-                    //check if any of the variables needs user input
-                    for(Map.Entry<String, Variable> entry : script.variableNameVariableObjectMap.entrySet()){
-                        if(entry.getValue().getVariableType() == Variable.USER_INPUT){
-                            needUserInput = true;
-                            break;
-                        }
-                    }
-                    if(needUserInput) {
-                        //show the dialog to obtain user input
-                        variableSetValueDialog.show();
-                    }
-                    else {
-                        variableSetValueDialog.executeScript(afterExecutionOperation, finalDialogManager, afterExecutionRunnable);
-                    }
-                }
-                else{
-                    //execute the script without showing the dialog
-                    variableSetValueDialog.executeScript(afterExecutionOperation, finalDialogManager, afterExecutionRunnable);
-                }
-            });
-        }
-    }
-
-    /**
-     * end the current recording
-     * @param context
-     * @param sugiliteData
-     * @param sharedPreferences
-     * @param sugiliteScriptDao
-     */
-    public static void endRecording(Context context, SugiliteData sugiliteData, SharedPreferences sharedPreferences, SugiliteScriptDao sugiliteScriptDao) {
-        SharedPreferences.Editor prefEditor = sharedPreferences.edit();
-        SugiliteBlockJSONProcessor jsonProcessor = new SugiliteBlockJSONProcessor(context);
+//
+//    /**
+//     * execute a script  --> check the service status and the variable values before doing so
+//     * @param activityContext
+//     * @param serviceStatusManager
+//     * @param script
+//     * @param sugiliteData
+//     * @param sharedPreferences
+//     * @param dialogManager
+//     */
+//    public static void executeScript(Activity activityContext, ServiceStatusManager serviceStatusManager, SugiliteStartingBlock script, SugiliteData sugiliteData, SharedPreferences sharedPreferences, boolean isForReconstructing, @Nullable PumiceDialogManager dialogManager, @Nullable SugiliteBlock afterExecutionOperation, @Nullable Runnable afterExecutionRunnable){
+//        if(!serviceStatusManager.isRunning()){
+//            //prompt the user if the accessiblity service is not active
+//            activityContext.runOnUiThread(() -> {
+//                AlertDialog.Builder builder1 = new AlertDialog.Builder(activityContext);
+//                builder1.setTitle("Service not running")
+//                        .setMessage("The Sugilite accessiblity service is not enabled. Please enable the service in the phone settings before recording.")
+//                        .setPositiveButton("OK", (dialog, which) -> {
+//                            serviceStatusManager.promptEnabling();
+//                            //do nothing
+//                        }).show();
+//            });
+//        }
+//        else {
+//            //check if pumice dialog manager is available, create a new one if needed
+//            if (dialogManager == null) {
+//                if (sugiliteData.pumiceDialogManager != null) {
+//                    dialogManager = sugiliteData.pumiceDialogManager;
+//                } else {
+//                    dialogManager = new PumiceDialogManager(activityContext, true);
+//                    SugiliteVoiceRecognitionListener sugiliteVoiceRecognitionListener = null;
+//                    TextToSpeech tts = sugiliteData.getTTS();
+//                    if (Const.SELECTED_SPEECH_RECOGNITION_TYPE == Const.SpeechRecognitionType.ANDROID) {
+//                        sugiliteVoiceRecognitionListener = new SugiliteAndroidAPIVoiceRecognitionListener(activityContext, null, tts);
+//                    } else if (Const.SELECTED_SPEECH_RECOGNITION_TYPE == Const.SpeechRecognitionType.GOOGLE_CLOUD) {
+//                        sugiliteVoiceRecognitionListener = new SugiliteGoogleCloudVoiceRecognitionListener(activityContext, sugiliteData,  null, tts);
+//                    }
+//                    dialogManager.setSugiliteVoiceRecognitionListener(sugiliteVoiceRecognitionListener);
+//                    sugiliteData.pumiceDialogManager = dialogManager;
+//                }
+//            }
+//
+//            final PumiceDialogManager finalDialogManager = dialogManager;
+//
+//            activityContext.runOnUiThread(() -> {
+//                VariableSetValueDialog variableSetValueDialog = new VariableSetValueDialog(sugiliteData.getApplicationContext(), sugiliteData, script, sharedPreferences, SugiliteData.EXECUTION_STATE, finalDialogManager, isForReconstructing);
+//                if(script.variableNameDefaultValueMap.size() > 0) {
+//
+//                    //has variable
+//                    sugiliteData.variableNameVariableValueMap.putAll(script.variableNameDefaultValueMap);
+//                    boolean needUserInput = false;
+//
+//                    //check if any of the variables needs user input
+//                    for(Map.Entry<String, Variable> entry : script.variableNameVariableObjectMap.entrySet()){
+//                        if(entry.getValue().getVariableType() == Variable.USER_INPUT){
+//                            needUserInput = true;
+//                            break;
+//                        }
+//                    }
+//                    if(needUserInput) {
+//                        //show the dialog to obtain user input
+//                        variableSetValueDialog.show();
+//                    }
+//                    else {
+//                        variableSetValueDialog.executeScript(afterExecutionOperation, finalDialogManager, afterExecutionRunnable);
+//                    }
+//                }
+//                else{
+//                    //execute the script without showing the dialog
+//                    variableSetValueDialog.executeScript(afterExecutionOperation, finalDialogManager, afterExecutionRunnable);
+//                }
+//            });
+//        }
+//    }
+//
+//
+//
 
 
-        //end recording
-        prefEditor.putBoolean("recording_in_process", false);
-        prefEditor.apply();
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                //commit the script through the sugiliteScriptDao
-                try {
-                    if (sugiliteScriptDao != null) {
-                        if (sugiliteData.getScriptHead() != null) {
-                            if (sugiliteData.verbalInstructionIconManager != null) {
-                                SugiliteScreenshotManager sugiliteScreenshotManager = SugiliteScreenshotManager.getInstance(sharedPreferences, sugiliteData);
-                                UISnapshot latestUISnapshot = sugiliteData.verbalInstructionIconManager.getLatestUISnapshot();
-                                if (latestUISnapshot != null) {
-                                    latestUISnapshot.annotateStringEntitiesIfNeeded();
-                                }
-                                sugiliteData.getScriptHead().uiSnapshotOnEnd = new SerializableUISnapshot(latestUISnapshot);
-                                sugiliteData.getScriptHead().screenshotOnEnd = sugiliteScreenshotManager.takeScreenshot(SugiliteScreenshotManager.DIRECTORY_PATH, sugiliteScreenshotManager.getFileNameFromDate());
-                            }
-                            sugiliteScriptDao.save(sugiliteData.getScriptHead());
-                        }
-                        sugiliteScriptDao.commitSave(new Runnable() {
-                            @Override
-                            public void run() {
-                                //invoke the callback
-                                if (sugiliteData.initiatedExternally && sugiliteData.getScriptHead() != null) {
-                                    //return the recording to the external caller
-                                    sugiliteData.communicationController.sendRecordingFinishedSignal(sugiliteData.getScriptHead().getScriptName());
-                                    sugiliteData.sendCallbackMsg(SugiliteCommunicationHelper.FINISHED_RECORDING, jsonProcessor.scriptToJson(sugiliteData.getScriptHead()), sugiliteData.callbackString);
-                                }
-
-                                //call the after recording callback
-                                if (sugiliteData.getScriptHead() != null && sugiliteData.afterRecordingCallback != null){
-                                    //call the endRecordingCallback
-                                    Runnable r = sugiliteData.afterRecordingCallback;
-                                    sugiliteData.afterRecordingCallback = null;
-                                    r.run();
-                                }
-                            }
-                        });
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-
-
-
-
-
-        //turn off the recording overlay if any
-        if(sugiliteData.verbalInstructionIconManager != null){
-            sugiliteData.verbalInstructionIconManager.turnOffCatOverlay();
-        }
-
-
-        sugiliteData.setCurrentSystemState(SugiliteData.DEFAULT_STATE);
-        PumiceDemonstrationUtil.showSugiliteToast("end recording", Toast.LENGTH_SHORT);
-    }
+//    /**
+//     * end the current recording
+//     * @param context
+//     * @param sugiliteData
+//     * @param sharedPreferences
+//     * @param sugiliteScriptDao
+//     */
+//    public static void endRecording(Context context, SugiliteData sugiliteData, SharedPreferences sharedPreferences, SugiliteScriptDao sugiliteScriptDao) {
+//        SharedPreferences.Editor prefEditor = sharedPreferences.edit();
+//        SugiliteBlockJSONProcessor jsonProcessor = new SugiliteBlockJSONProcessor(context);
+//
+//
+//        //end recording
+//        prefEditor.putBoolean("recording_in_process", false);
+//        prefEditor.apply();
+//
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                //commit the script through the sugiliteScriptDao
+//                try {
+//                    if (sugiliteScriptDao != null) {
+//                        if (sugiliteData.getScriptHead() != null) {
+//                            if (sugiliteData.verbalInstructionIconManager != null) {
+//                                SugiliteScreenshotManager sugiliteScreenshotManager = SugiliteScreenshotManager.getInstance(sharedPreferences, sugiliteData);
+//                                UISnapshot latestUISnapshot = sugiliteData.verbalInstructionIconManager.getLatestUISnapshot();
+//                                if (latestUISnapshot != null) {
+//                                    latestUISnapshot.annotateStringEntitiesIfNeeded();
+//                                }
+//                                sugiliteData.getScriptHead().uiSnapshotOnEnd = new SerializableUISnapshot(latestUISnapshot);
+//                                sugiliteData.getScriptHead().screenshotOnEnd = sugiliteScreenshotManager.takeScreenshot(SugiliteScreenshotManager.DIRECTORY_PATH, sugiliteScreenshotManager.getFileNameFromDate());
+//                            }
+//                            sugiliteScriptDao.save(sugiliteData.getScriptHead());
+//                        }
+//                        sugiliteScriptDao.commitSave(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                //invoke the callback
+//                                if (sugiliteData.initiatedExternally && sugiliteData.getScriptHead() != null) {
+//                                    //return the recording to the external caller
+//                                    sugiliteData.communicationController.sendRecordingFinishedSignal(sugiliteData.getScriptHead().getScriptName());
+//                                    sugiliteData.sendCallbackMsg(SugiliteCommunicationHelper.FINISHED_RECORDING, jsonProcessor.scriptToJson(sugiliteData.getScriptHead()), sugiliteData.callbackString);
+//                                }
+//
+//                                //call the after recording callback
+//                                if (sugiliteData.getScriptHead() != null && sugiliteData.afterRecordingCallback != null){
+//                                    //call the endRecordingCallback
+//                                    Runnable r = sugiliteData.afterRecordingCallback;
+//                                    sugiliteData.afterRecordingCallback = null;
+//                                    r.run();
+//                                }
+//                            }
+//                        });
+//                    }
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }).start();
+//
+//
+//
+//
+//
+//        //turn off the recording overlay if any
+//        // TODO: Use FullScreenRecordingOverlayManager here instead -- yuwen
+////        if(sugiliteData.verbalInstructionIconManager != null){
+////            sugiliteData.verbalInstructionIconManager.turnOffCatOverlay();
+////        }
+//
+//
+//        sugiliteData.setCurrentSystemState(SugiliteData.DEFAULT_STATE);
+//        PumiceDemonstrationUtil.showSugiliteToast("end recording", Toast.LENGTH_SHORT);
+//    }
 
     public static void showSugiliteToast(String text, int length) {
         SugiliteData.runOnUiThread(new Runnable() {
@@ -353,53 +331,31 @@ public class DemonstrationUtil {
         return d;
     }
 
-    public static boolean checkIfOntologyQueryContains (OntologyQuery ontologyQuery, SugiliteRelation relation, Object value) {
-        if (ontologyQuery instanceof LeafOntologyQuery) {
-            if (((LeafOntologyQuery) ontologyQuery).getR().equals(relation)) {
-                Set<SugiliteSerializableEntity> objectEntities = ((LeafOntologyQuery) ontologyQuery).getObject();
-                if (objectEntities != null) {
-                    for (SugiliteSerializableEntity entity : objectEntities) {
-                        if (value.equals(entity.getEntityValue())) {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-        if (ontologyQuery instanceof CombinedOntologyQuery) {
-            Set<OntologyQuery> subQueries = ((CombinedOntologyQuery) ontologyQuery).getSubQueries();
-            if (subQueries != null) {
-                for (OntologyQuery subQuery : subQueries) {
-                    boolean subQueryContains = checkIfOntologyQueryContains(subQuery, relation, value);
-                    if (subQueryContains) {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        return false;
-    }
-
-    public static Location getBestLocation() {
-        LocationManager lm = (LocationManager) SugiliteData.getAppContext().getSystemService(Context.LOCATION_SERVICE);
-
-
-        if (ActivityCompat.checkSelfPermission(SugiliteData.getAppContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(SugiliteData.getAppContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            //TODO: handle when the permission is not granted
-        }
-        List<String> providers = lm.getProviders(true);
-        Location bestLocation = null;
-        for (String provider : providers) {
-            Location l = lm.getLastKnownLocation(provider);
-            if (l == null) {
-                continue;
-            }
-            if (bestLocation == null || l.getAccuracy() < bestLocation.getAccuracy()) {
-                // Found best last known location: %s", l);
-                bestLocation = l;
-            }
-        }
-        return bestLocation;
-    }
+//    public static boolean checkIfOntologyQueryContains (OntologyQuery ontologyQuery, SugiliteRelation relation, Object value) {
+//        if (ontologyQuery instanceof LeafOntologyQuery) {
+//            if (((LeafOntologyQuery) ontologyQuery).getR().equals(relation)) {
+//                Set<SugiliteSerializableEntity> objectEntities = ((LeafOntologyQuery) ontologyQuery).getObject();
+//                if (objectEntities != null) {
+//                    for (SugiliteSerializableEntity entity : objectEntities) {
+//                        if (value.equals(entity.getEntityValue())) {
+//                            return true;
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//        if (ontologyQuery instanceof CombinedOntologyQuery) {
+//            Set<OntologyQuery> subQueries = ((CombinedOntologyQuery) ontologyQuery).getSubQueries();
+//            if (subQueries != null) {
+//                for (OntologyQuery subQuery : subQueries) {
+//                    boolean subQueryContains = checkIfOntologyQueryContains(subQuery, relation, value);
+//                    if (subQueryContains) {
+//                        return true;
+//                    }
+//                }
+//            }
+//        }
+//
+//        return false;
+//    }
 }
