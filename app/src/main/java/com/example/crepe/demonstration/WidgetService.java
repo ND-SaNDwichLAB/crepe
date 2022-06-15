@@ -1,5 +1,7 @@
 package com.example.crepe.demonstration;
 
+import static com.example.crepe.graphquery.DemonstrationUtil.initiateDemonstration;
+
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -18,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.crepe.R;
+import com.example.crepe.graphquery.recording.FullScreenOverlayManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.Calendar;
@@ -74,6 +77,14 @@ public class WidgetService extends Service {
                 } else {
                     Toast.makeText(c, "There is no package available in android", Toast.LENGTH_LONG).show();
                 }
+            }
+        });
+
+        drawFltBtn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                FullScreenOverlayManager fullScreenOverlayManager = new FullScreenOverlayManager(c, windowManager, getResources().getDisplayMetrics() );
+                initiateDemonstration(c, fullScreenOverlayManager);
             }
         });
 

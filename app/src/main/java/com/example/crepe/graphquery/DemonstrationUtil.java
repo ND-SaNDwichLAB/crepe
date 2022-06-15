@@ -35,14 +35,14 @@ public class DemonstrationUtil {
      * initiate a demonstration recording -> need to call endRecording() when the recording ends
      * @param context
 //     * @param serviceStatusManager
-     * @param sharedPreferences
-     * @param scriptName
+//     * @param sharedPreferences
+//     * @param scriptName
 //     * @param sugiliteData
-     * @param afterRecordingCallback
+//     * @param afterRecordingCallback
      * @param fullScreenOverlayManager
      */
 //    public static void initiateDemonstration(Context context, ServiceStatusManager serviceStatusManager, SharedPreferences sharedPreferences, String scriptName, SugiliteData sugiliteData, Runnable afterRecordingCallback, FullScreenOverlayManager fullScreenOverlayManager){
-    public static void initiateDemonstration(Context context, SharedPreferences sharedPreferences, String scriptName, Runnable afterRecordingCallback, FullScreenOverlayManager fullScreenOverlayManager){
+    public static void initiateDemonstration(Context context, FullScreenOverlayManager fullScreenOverlayManager){
 //        TODO 0 Yuwen: use servicestatusmanager to check if the accessibility service is open
 //        if(!serviceStatusManager.isRunning()){
 //            //prompt the user if the accessibility service is not active
@@ -58,10 +58,10 @@ public class DemonstrationUtil {
 //                    }).show();
 //        } else {
             //start demonstration
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString("scriptName", scriptName);
-            editor.putBoolean("recording_in_process", true);
-            editor.commit();
+//            SharedPreferences.Editor editor = sharedPreferences.edit();
+//            editor.putString("scriptName", scriptName);
+//            editor.putBoolean("recording_in_process", true);
+//            editor.commit();
 
 //            //TODO 1 Yuwen: import the sugilitedata class, set the system state
 //            sugiliteData.setCurrentSystemState(SugiliteData.RECORDING_STATE);
@@ -244,32 +244,32 @@ public class DemonstrationUtil {
 //        PumiceDemonstrationUtil.showSugiliteToast("end recording", Toast.LENGTH_SHORT);
 //    }
 
-    public static void showSugiliteToast(String text, int length) {
-        SugiliteData.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(SugiliteData.getAppContext(), text, length).show();
-
-            }
-        });
-    }
-
-    public static void showSugiliteAlertDialog(String content) {
-        SugiliteData.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                AlertDialog dialog = new AlertDialog.Builder(SugiliteData.getAppContext()).setMessage(content).setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                }).create();
-                dialog.getWindow().setType(OVERLAY_TYPE);
-                dialog.setCanceledOnTouchOutside(false);
-                dialog.show();
-            }
-        });
-    }
+//    public static void showSugiliteToast(String text, int length) {
+//        SugiliteData.runOnUiThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                Toast.makeText(SugiliteData.getAppContext(), text, length).show();
+//
+//            }
+//        });
+//    }
+//
+//    public static void showSugiliteAlertDialog(String content) {
+//        SugiliteData.runOnUiThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                AlertDialog dialog = new AlertDialog.Builder(SugiliteData.getAppContext()).setMessage(content).setPositiveButton("OK", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialog, int which) {
+//                        dialog.dismiss();
+//                    }
+//                }).create();
+//                dialog.getWindow().setType(OVERLAY_TYPE);
+//                dialog.setCanceledOnTouchOutside(false);
+//                dialog.show();
+//            }
+//        });
+//    }
 
     public static String removeScriptExtension (String scriptName) {
         if (scriptName.endsWith(".SugiliteScript")) {
@@ -314,19 +314,19 @@ public class DemonstrationUtil {
         return inputMethodNames.contains(packageName);
     }
 
-    public static Drawable getScaledDrawable(Drawable drawable, double scale) {
-        return getScaledDrawable(drawable, (int) (scale * drawable.getIntrinsicWidth()), (int) (scale * drawable.getIntrinsicHeight()));
-    }
+//    public static Drawable getScaledDrawable(Drawable drawable, double scale) {
+//        return getScaledDrawable(drawable, (int) (scale * drawable.getIntrinsicWidth()), (int) (scale * drawable.getIntrinsicHeight()));
+//    }
 
-    public static Drawable getScaledDrawable(Drawable drawable, int width, int height) {
-        //scale the drawable so it fits into the dialog
-        // Read your drawable from somewhere
-        Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
-        // Scale it to 50 x 50
-        Drawable d = new BitmapDrawable(SugiliteData.getAppContext().getResources(), Bitmap.createScaledBitmap(bitmap, width, height, true));
-        // Set your new, scaled drawable "d"
-        return d;
-    }
+//    public static Drawable getScaledDrawable(Drawable drawable, int width, int height) {
+//        //scale the drawable so it fits into the dialog
+//        // Read your drawable from somewhere
+//        Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
+//        // Scale it to 50 x 50
+//        Drawable d = new BitmapDrawable(SugiliteData.getAppContext().getResources(), Bitmap.createScaledBitmap(bitmap, width, height, true));
+//        // Set your new, scaled drawable "d"
+//        return d;
+//    }
 
 //    public static boolean checkIfOntologyQueryContains (OntologyQuery ontologyQuery, SugiliteRelation relation, Object value) {
 //        if (ontologyQuery instanceof LeafOntologyQuery) {

@@ -27,11 +27,11 @@ public class FullScreenOverlayManager {
     private int overlayCurrentWidth;
     private int overlayCurrentFlag;
 
-    public FullScreenOverlayManager(Context context, WindowManager windowManager, View overlay, DisplayMetrics displayMetrics) {
+    public FullScreenOverlayManager(Context context, WindowManager windowManager, DisplayMetrics displayMetrics) {
         this.context = context;
         this.windowManager = windowManager;
-        this.overlay = overlay;
         this.displayMetrics = displayMetrics;
+        this.overlay = getRectangleOverlay(context, displayMetrics.widthPixels, displayMetrics.heightPixels, Const.RECORDING_OVERLAY_COLOR);
         this.showingOverlay = false;
         this.navigationBarUtil = new NavigationBarUtil();
         this.overlayCurrentHeight = displayMetrics.heightPixels;
@@ -43,8 +43,6 @@ public class FullScreenOverlayManager {
 
     public void enableOverlay() {
 
-        // init overlay
-        View overlay = getRectangleOverlay(context, displayMetrics.widthPixels, displayMetrics.heightPixels, Const.RECORDING_OVERLAY_COLOR);
 
         overlayCurrentFlag = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
         WindowManager.LayoutParams layoutParams = updateLayoutParams(overlayCurrentFlag, overlayCurrentWidth, overlayCurrentHeight);
