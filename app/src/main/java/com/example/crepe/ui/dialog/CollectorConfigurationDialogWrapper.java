@@ -102,7 +102,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                 // When coming back from later popups using back button, if there's previously a selection made
                 if (collector.getMode() != null) {
                     int i;
-                    for (i = 1; i < locationItems.length; i++) {
+                    for (i = 0; i < locationItems.length; i++) {
                         if (collector.getMode() == locationItems[i])
                             break;
                     }
@@ -262,7 +262,6 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                 openAppButton.setText("Open " + appName);
                 commentOnOpenAppButton.setText("Demonstrate in the " + appName +" app");
 
-                // TODO: finish graph query
                 // Open App button
                 openAppBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
