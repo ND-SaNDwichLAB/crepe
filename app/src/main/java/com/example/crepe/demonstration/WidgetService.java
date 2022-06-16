@@ -74,6 +74,12 @@ public class WidgetService extends Service {
         closeFltBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                // turn of the overlay before leaving the app
+                if(fullScreenOverlayManager.getShowingOverlay()) {
+                    fullScreenOverlayManager.disableOverlay();
+                }
+
                 stopSelf();
                 Intent launchIntent = c.getPackageManager().getLaunchIntentForPackage("com.example.crepe");
                 if (launchIntent != null) {
