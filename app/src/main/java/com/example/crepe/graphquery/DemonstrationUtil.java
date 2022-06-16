@@ -2,6 +2,7 @@ package com.example.crepe.graphquery;
 
 import static com.example.crepe.graphquery.Const.OVERLAY_TYPE;
 
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -11,11 +12,13 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.provider.Settings;
 import android.widget.Toast;
 
 //import com.example.crepe.graphquery.ontology.CombinedOntologyQuery;
 //import com.example.crepe.graphquery.ontology.LeafOntologyQuery;
 //import com.example.crepe.graphquery.ontology.OntologyQuery;
+import com.example.crepe.CrepeAccessibilityService;
 import com.example.crepe.graphquery.recording.FullScreenOverlayManager;
 
 import org.apache.commons.lang3.StringUtils;
@@ -43,20 +46,7 @@ public class DemonstrationUtil {
      */
 //    public static void initiateDemonstration(Context context, ServiceStatusManager serviceStatusManager, SharedPreferences sharedPreferences, String scriptName, SugiliteData sugiliteData, Runnable afterRecordingCallback, FullScreenOverlayManager fullScreenOverlayManager){
     public static void initiateDemonstration(Context context, FullScreenOverlayManager fullScreenOverlayManager){
-//        TODO 0 Yuwen: use servicestatusmanager to check if the accessibility service is open
-//        if(!serviceStatusManager.isRunning()){
-//            //prompt the user if the accessibility service is not active
-//            AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
-//            builder1.setTitle("Service not running")
-//                    .setMessage("The " + Const.appNameUpperCase + " accessiblity service is not enabled. Please enable the service in the phone settings before recording.")
-//                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-//                        @Override
-//                        public void onClick(DialogInterface dialog, int which) {
-//                            serviceStatusManager.promptEnabling();
-//                            //do nothing
-//                        }
-//                    }).show();
-//        } else {
+
             //start demonstration
 //            SharedPreferences.Editor editor = sharedPreferences.edit();
 //            editor.putString("scriptName", scriptName);
@@ -64,7 +54,7 @@ public class DemonstrationUtil {
 //            editor.commit();
 
             //
-            //TODO 1 Yuwen: set the active script to the newly created script
+            //TODO 1 Yuwen: construct script
 //            sugiliteData.initiateScriptRecording(DemonstrationUtil.addScriptExtension(scriptName), afterRecordingCallback); //add the end recording callback
 //            sugiliteData.initiatedExternally = false;
 
@@ -76,7 +66,6 @@ public class DemonstrationUtil {
 //            }
 //            catch (Exception e){
 //                e.printStackTrace();
-//            }
 
             //turn on the cat overlay to prepare for demonstration
             if(fullScreenOverlayManager != null){
