@@ -63,17 +63,13 @@ public class DemonstrationUtil {
 //            editor.putBoolean("recording_in_process", true);
 //            editor.commit();
 
-//            //TODO 1 Yuwen: import the sugilitedata class, set the system state
-//            sugiliteData.setCurrentSystemState(SugiliteData.RECORDING_STATE);
-
-
             //
-            //TODO 3 Yuwen: set the active script to the newly created script
+            //TODO 1 Yuwen: set the active script to the newly created script
 //            sugiliteData.initiateScriptRecording(DemonstrationUtil.addScriptExtension(scriptName), afterRecordingCallback); //add the end recording callback
 //            sugiliteData.initiatedExternally = false;
 
             //save the newly created script to DB
-            // TODO 3 Yuwen: Use our own script to save this to db
+            // TODO 2 Yuwen: Use our own script to save this to db
 //            try {
 //                sugiliteScriptDao.save(sugiliteData.getScriptHead());
 //                sugiliteScriptDao.commitSave(null);
@@ -84,7 +80,13 @@ public class DemonstrationUtil {
 
             //turn on the cat overlay to prepare for demonstration
             if(fullScreenOverlayManager != null){
-                fullScreenOverlayManager.enableOverlay();
+                // if it's not currently showing the overlay
+                if(!fullScreenOverlayManager.getShowingOverlay()) {
+                    fullScreenOverlayManager.enableOverlay();
+                } else {
+                    fullScreenOverlayManager.disableOverlay();
+                }
+
             }
 
 

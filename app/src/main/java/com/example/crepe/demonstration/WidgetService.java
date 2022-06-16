@@ -32,6 +32,7 @@ public class WidgetService extends Service {
     WindowManager windowManager;
     float height, width;
     Context c = WidgetService.this;
+    FullScreenOverlayManager fullScreenOverlayManager;
 
     public IBinder onBind(Intent intent){
         return null;
@@ -64,6 +65,9 @@ public class WidgetService extends Service {
         height = windowManager.getDefaultDisplay().getHeight();
         width = windowManager.getDefaultDisplay().getHeight();
 
+        // initialize fullScreenOverlayManager
+        fullScreenOverlayManager= new FullScreenOverlayManager(c, windowManager, getResources().getDisplayMetrics() );
+
         FloatingActionButton closeFltBtn = (FloatingActionButton) mFloatingView.findViewById(R.id.floating_close);
         FloatingActionButton drawFltBtn = (FloatingActionButton) mFloatingView.findViewById(R.id.floating_draw_frame);
 
@@ -83,7 +87,6 @@ public class WidgetService extends Service {
         drawFltBtn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                FullScreenOverlayManager fullScreenOverlayManager = new FullScreenOverlayManager(c, windowManager, getResources().getDisplayMetrics() );
                 initiateDemonstration(c, fullScreenOverlayManager);
             }
         });

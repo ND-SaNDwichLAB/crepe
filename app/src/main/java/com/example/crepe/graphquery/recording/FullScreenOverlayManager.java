@@ -43,8 +43,10 @@ public class FullScreenOverlayManager {
 
     public void enableOverlay() {
 
-
-        overlayCurrentFlag = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+        // make sure the overlay is not tappable
+        overlayCurrentFlag = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+                | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
         WindowManager.LayoutParams layoutParams = updateLayoutParams(overlayCurrentFlag, overlayCurrentWidth, overlayCurrentHeight);
 
         //NEEDED TO BE CONFIGURED AT APPS->SETTINGS-DRAW OVER OTHER APPS on API>=23
@@ -56,12 +58,18 @@ public class FullScreenOverlayManager {
         } else {
             windowManager.addView(overlay, layoutParams);
         }
-        // set the listener TODO Yuwen – figure this out
-//        setOverlayOnTouchListener(true);
-
         // set the flag
         showingOverlay = true;
+    }
 
+    public void disableOverlay() {
+        windowManager.removeView(overlay);
+        // set the flag
+        showingOverlay = false;
+    }
+
+    public Boolean getShowingOverlay() {
+        return showingOverlay;
     }
 
     private WindowManager.LayoutParams updateLayoutParams(int flag, int width, int height) {
