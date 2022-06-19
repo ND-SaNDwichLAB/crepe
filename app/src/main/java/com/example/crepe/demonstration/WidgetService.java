@@ -189,6 +189,13 @@ public class WidgetService extends Service {
         }
     }
 
+//    public void changeColor(){
+//        Palette palette = Palette.from(bitmap).generate();
+//
+//
+//    }
+
+
     private void setVisibility(Boolean clicked, FloatingActionButton btn) {
         // if the fab icon is clicked, show the small buttons
         if(!clicked) {

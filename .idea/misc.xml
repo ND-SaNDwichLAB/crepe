@@ -36,6 +36,7 @@
         <entry key="app/src/main/res/drawable/ic_icons8_uber_app.xml" value="0.24722222222222223" />
         <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.23055555555555557" />
         <entry key="app/src/main/res/drawable/ic_link.xml" value="0.24722222222222223" />
+        <entry key="app/src/main/res/drawable/rounded_corner.xml" value="0.1" />
         <entry key="app/src/main/res/drawable/uber_icon.xml" value="0.24722222222222223" />
         <entry key="app/src/main/res/font/courier_prime_regular.xml" value="0.30885416666666665" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.23645833333333333" />
@@ -48,7 +49,7 @@
         <entry key="app/src/main/res/layout/content_main.xml" value="0.1" />
         <entry key="app/src/main/res/layout/data_vis_line_chart.xml" value="0.16822916666666668" />
         <entry key="app/src/main/res/layout/demonstration_confirmation.xml" value="0.14924011230468748" />
-        <entry key="app/src/main/res/layout/demonstration_float_widget.xml" value="0.20885416666666667" />
+        <entry key="app/src/main/res/layout/demonstration_float_widget.xml" value="0.5004038492838542" />
         <entry key="app/src/main/res/layout/dialog_add_collecotr_from_config_data_field.xml" value="0.21971830985915494" />
         <entry key="app/src/main/res/layout/dialog_add_collector_from_config.xml" value="0.2722083146537436" />
         <entry key="app/src/main/res/layout/dialog_add_collector_from_config_data_field.xml" value="0.18125" />

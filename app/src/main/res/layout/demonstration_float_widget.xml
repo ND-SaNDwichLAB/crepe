@@ -2,20 +2,23 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/rounded_corner"
     android:orientation="vertical"
     android:theme="@style/Theme.AppCompat">
-<!--    android:background="@color/white"-->
-
-
+    <!--    android:background="@color/white"-->
 
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/floating_draw_frame"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
         android:layout_marginBottom="0dp"
         android:backgroundTint="@color/ND_blue"
         android:clickable="true"
@@ -60,8 +63,10 @@
         android:layout_below="@+id/floating_close"
         android:layout_alignLeft="@+id/floating_close"
         android:layout_alignRight="@+id/floating_close"
+        android:layout_marginBottom="10dp"
         android:text="Back"
         android:textAlignment="center"
         android:textColor="@color/ND_blue"
         android:textSize="10dp" />
+
 </RelativeLayout>
