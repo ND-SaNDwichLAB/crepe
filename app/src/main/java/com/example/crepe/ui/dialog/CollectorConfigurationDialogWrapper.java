@@ -287,7 +287,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         // if accessibility service is not on
                         if (!accessibilityServiceRunning) {
                             AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
-                            builder1.setTitle("Service not running")
+                            builder1.setTitle("Turn on Accessibility Service")
                                     .setMessage("The " + Const.appNameUpperCase + " accessiblity service is not enabled. Please enable the service in the phone settings before recording.")
                                     .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                                         @Override
@@ -297,7 +297,6 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                                             //do nothing
                                         }
                                     }).show();
-                            Toast.makeText(context, "Accessibility service not running!!!", Toast.LENGTH_SHORT).show();
                         } else {
                             // find the package
                             final Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
