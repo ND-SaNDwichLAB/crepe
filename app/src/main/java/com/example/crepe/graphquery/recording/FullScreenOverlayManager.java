@@ -46,8 +46,7 @@ public class FullScreenOverlayManager {
     public void enableOverlay() {
 
         // make sure the overlay is not tappable
-        overlayCurrentFlag = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-                | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
+        overlayCurrentFlag = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
         WindowManager.LayoutParams layoutParams = updateLayoutParams(overlayCurrentFlag, overlayCurrentWidth, overlayCurrentHeight);
 
         //NEEDED TO BE CONFIGURED AT APPS->SETTINGS-DRAW OVER OTHER APPS on API>=23
