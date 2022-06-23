@@ -8,7 +8,9 @@ import android.graphics.PixelFormat;
 import android.net.Uri;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
+import android.view.GestureDetector;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 
@@ -45,7 +47,6 @@ public class FullScreenOverlayManager {
 
         // make sure the overlay is not tappable
         overlayCurrentFlag = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-                | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
                 | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
         WindowManager.LayoutParams layoutParams = updateLayoutParams(overlayCurrentFlag, overlayCurrentWidth, overlayCurrentHeight);
 
@@ -58,6 +59,9 @@ public class FullScreenOverlayManager {
         } else {
             windowManager.addView(overlay, layoutParams);
         }
+
+        setOverlayOnTouchListener(true);
+
         // set the flag
         showingOverlay = true;
     }
@@ -123,6 +127,99 @@ public class FullScreenOverlayManager {
 
             }
         }
+    }
+
+    private void setOverlayOnTouchListener(final boolean toConsumeEvent) {
+        try {
+            overlayCurrentFlag = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+            windowManager.updateViewLayout(overlay, updateLayoutParams(overlayCurrentFlag, overlayCurrentWidth, overlayCurrentHeight));
+            overlay.setBackgroundColor(Const.RECORDING_OVERLAY_COLOR);
+            overlay.invalidate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        overlay.setOnTouchListener(new View.OnTouchListener() {
+            GestureDetector myGestureDetector = new GestureDetector(context, new MyGestureDetector());
+
+
+            @Override
+            public boolean onTouch(final View v, MotionEvent event) {
+                return myGestureDetector.onTouchEvent(event);
+            }
+
+            class MyGestureDetector extends GestureDetector.SimpleOnGestureListener {
+                @Override
+                public boolean onSingleTapConfirmed(MotionEvent event) {
+                    //single tap up detected
+                    System.out.println("Single tap detected");
+                    float rawX = event.getRawX();
+                    float rawY = event.getRawY();
+                    // TODO: Yuwen handle these events
+//                    handleClick(rawX, rawY);
+                    return true;
+                }
+
+                @Override
+                public void onLongPress(MotionEvent event) {
+                    System.out.println("Context click detected");
+                    float rawX = event.getRawX();
+                    float rawY = event.getRawY();
+//                    handleContextClick(rawX, rawY, tts);
+                    return;
+                }
+
+                @Override
+                public boolean onContextClick(MotionEvent e) {
+                    System.out.println("Context click detected");
+                    return super.onContextClick(e);
+                }
+
+//                @Override
+//                public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+//                    if (Const.ROOT_ENABLED) {
+//                        recordingOverlayManager.setPassThroughOnTouchListener();
+//                        try {
+//                            recordingOverlayManager.performFlingWithRootPermission(e1, e2, new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    //allow the overlay to get touch event after finishing the simulated gesture
+//                                    recordingOverlayManager.setOverlayOnTouchListener(true);
+//                                }
+//                            });
+//                        } catch (Exception e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                    return true;
+//                }
+            }
+
+            /*
+            class Scroll extends GestureDetector.SimpleOnGestureListener {
+                @Override
+                public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+                    if (Const.ROOT_ENABLED) {
+                        recordingOverlayManager.setPassThroughOnTouchListener(overlay);
+                        try {
+                            recordingOverlayManager.performFlingWithRootPermission(e1, e2, new Runnable() {
+                                @Override
+                                public void run() {
+                                    //allow the overlay to get touch event after finishing the simulated gesture
+                                    recordingOverlayManager.setOverlayOnTouchListener(overlay, true);
+                                }
+                            });
+                        }
+                        catch (Exception e){
+                            e.printStackTrace();
+                        }
+                    }
+                    return true;
+                }
+            }
+            */
+
+        });
     }
 
 
