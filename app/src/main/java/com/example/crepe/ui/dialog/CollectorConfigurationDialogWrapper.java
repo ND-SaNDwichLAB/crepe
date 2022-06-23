@@ -1,10 +1,12 @@
 package com.example.crepe.ui.dialog;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -23,11 +25,13 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.crepe.CrepeAccessibilityService;
 import com.example.crepe.MainActivity;
 import com.example.crepe.R;
 import com.example.crepe.database.Collector;
 import com.example.crepe.database.DatabaseManager;
 import com.example.crepe.demonstration.WidgetService;
+import com.example.crepe.graphquery.Const;
 import com.example.crepe.network.ServerCollectorCommunicationManager;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
@@ -102,7 +106,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                 // When coming back from later popups using back button, if there's previously a selection made
                 if (collector.getMode() != null) {
                     int i;
-                    for (i = 1; i < locationItems.length; i++) {
+                    for (i = 0; i < locationItems.length; i++) {
                         if (collector.getMode() == locationItems[i])
                             break;
                     }
@@ -262,61 +266,91 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                 openAppButton.setText("Open " + appName);
                 commentOnOpenAppButton.setText("Demonstrate in the " + appName +" app");
 
-                // TODO: finish graph query
                 // Open App button
                 openAppBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        // find the package
-                        final Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
-                        mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-                        // get list of all the apps installed
-                        // ril stands for ResolveInfoList
-                        List<ResolveInfo> ril = context.getPackageManager().queryIntentActivities(mainIntent, 0);
-                        String appName = collector.getAppName();
-                        String nameBuffer;
-                        String packageName = "";
-                        for (ResolveInfo ri : ril) {
-                            if (ri.activityInfo != null) {
-                                // get package
-                                Resources res = null;
-                                try {
-                                    res = context.getPackageManager().getResourcesForApplication(ri.activityInfo.applicationInfo);
-                                } catch (PackageManager.NameNotFoundException e) {
-                                    e.printStackTrace();
-                                }
-                                // if activity label res is found
-                                if (ri.activityInfo.labelRes != 0) {
-                                    nameBuffer = res.getString(ri.activityInfo.labelRes);
-                                } else {
-                                    nameBuffer = ri.activityInfo.applicationInfo.loadLabel(
-                                            context.getPackageManager()).toString();
-                                }
-                                if (nameBuffer.equals(appName)) {
-                                    // get package
-                                    packageName = ri.activityInfo.packageName;
-                                    break;
+
+                        // check if the accessibilityservice is running
+                        Boolean accessibilityServiceRunning = false;
+                        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+                        Class clazz = CrepeAccessibilityService.class;
+
+                        if (manager != null) {
+                            for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+                                if (clazz.getName().equals(service.service.getClassName())) {
+                                    accessibilityServiceRunning = true;
                                 }
                             }
                         }
 
-                        // launch the app
-                        String currPackageName = context.getPackageName();
-                        Intent launchIntent = context.getPackageManager().getLaunchIntentForPackage(packageName);
-                        if (launchIntent != null) {
-                            context.startActivity(launchIntent);
+                        // if accessibility service is not on
+                        if (!accessibilityServiceRunning) {
+                            AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
+                            builder1.setTitle("Turn on Accessibility Service")
+                                    .setMessage("The " + Const.appNameUpperCase + " accessiblity service is not enabled. Please enable the service in the phone settings before recording.")
+                                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+                                            context.startActivity(intent);
+                                            //do nothing
+                                        }
+                                    }).show();
                         } else {
-                            Toast.makeText(context, "There is no package available in android", Toast.LENGTH_LONG).show();
+                            // find the package
+                            final Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
+                            mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+                            // get list of all the apps installed
+                            // ril stands for ResolveInfoList
+                            List<ResolveInfo> ril = context.getPackageManager().queryIntentActivities(mainIntent, 0);
+                            String appName = collector.getAppName();
+                            String nameBuffer;
+                            String packageName = "";
+                            for (ResolveInfo ri : ril) {
+                                if (ri.activityInfo != null) {
+                                    // get package
+                                    Resources res = null;
+                                    try {
+                                        res = context.getPackageManager().getResourcesForApplication(ri.activityInfo.applicationInfo);
+                                    } catch (PackageManager.NameNotFoundException e) {
+                                        e.printStackTrace();
+                                    }
+                                    // if activity label res is found
+                                    if (ri.activityInfo.labelRes != 0) {
+                                        nameBuffer = res.getString(ri.activityInfo.labelRes);
+                                    } else {
+                                        nameBuffer = ri.activityInfo.applicationInfo.loadLabel(
+                                                context.getPackageManager()).toString();
+                                    }
+                                    if (nameBuffer.equals(appName)) {
+                                        // get package
+                                        packageName = ri.activityInfo.packageName;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            // launch the app
+                            String currPackageName = context.getPackageName();
+                            Intent launchIntent = context.getPackageManager().getLaunchIntentForPackage(packageName);
+                            if (launchIntent != null) {
+                                context.startActivity(launchIntent);
+                            } else {
+                                Toast.makeText(context, "There is no package available in android", Toast.LENGTH_LONG).show();
+                            }
+
+                            // launch the float widget
+                            if (!Settings.canDrawOverlays(context)){
+                                getPermission();
+                            } else {
+                                Intent intent = new Intent(context, WidgetService.class);
+                                context.startService(intent);
+                                finish();
+                            }
                         }
 
-                        // launch the float widget
-                        if (!Settings.canDrawOverlays(context)){
-                            getPermission();
-                        } else {
-                            Intent intent = new Intent(context, WidgetService.class);
-                            context.startService(intent);
-                            finish();
-                        }
+
                     }
                 });
 

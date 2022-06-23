@@ -1,5 +1,7 @@
 package com.example.crepe.demonstration;
 
+import static com.example.crepe.graphquery.DemonstrationUtil.initiateDemonstration;
+
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -18,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.crepe.R;
+import com.example.crepe.graphquery.recording.FullScreenOverlayManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.Calendar;
@@ -29,6 +32,7 @@ public class WidgetService extends Service {
     WindowManager windowManager;
     float height, width;
     Context c = WidgetService.this;
+    FullScreenOverlayManager fullScreenOverlayManager;
 
     public IBinder onBind(Intent intent){
         return null;
@@ -61,12 +65,21 @@ public class WidgetService extends Service {
         height = windowManager.getDefaultDisplay().getHeight();
         width = windowManager.getDefaultDisplay().getHeight();
 
+        // initialize fullScreenOverlayManager
+        fullScreenOverlayManager= new FullScreenOverlayManager(c, windowManager, getResources().getDisplayMetrics() );
+
         FloatingActionButton closeFltBtn = (FloatingActionButton) mFloatingView.findViewById(R.id.floating_close);
         FloatingActionButton drawFltBtn = (FloatingActionButton) mFloatingView.findViewById(R.id.floating_draw_frame);
 
         closeFltBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                // turn of the overlay before leaving the app
+                if(fullScreenOverlayManager.getShowingOverlay()) {
+                    fullScreenOverlayManager.disableOverlay();
+                }
+
                 stopSelf();
                 Intent launchIntent = c.getPackageManager().getLaunchIntentForPackage("com.example.crepe");
                 if (launchIntent != null) {
@@ -74,6 +87,13 @@ public class WidgetService extends Service {
                 } else {
                     Toast.makeText(c, "There is no package available in android", Toast.LENGTH_LONG).show();
                 }
+            }
+        });
+
+        drawFltBtn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                initiateDemonstration(c, fullScreenOverlayManager);
             }
         });
 
