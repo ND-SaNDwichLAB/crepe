@@ -1,9 +1,12 @@
 package com.example.crepe.graphquery.recording;
 
+import static android.content.Context.WINDOW_SERVICE;
 import static com.example.crepe.graphquery.Const.OVERLAY_TYPE;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.net.Uri;
 import android.provider.Settings;
@@ -12,6 +15,7 @@ import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 
 import com.example.crepe.graphquery.Const;
@@ -28,6 +32,7 @@ public class FullScreenOverlayManager {
     private int overlayCurrentHeight;
     private int overlayCurrentWidth;
     private int overlayCurrentFlag;
+    private SelectionOverlayViewManager selectionOverlayViewManager;
 
     public FullScreenOverlayManager(Context context, WindowManager windowManager, DisplayMetrics displayMetrics) {
         this.context = context;
@@ -40,7 +45,7 @@ public class FullScreenOverlayManager {
         //hack -- leave 1px at the right end of the screen so the input method window becomes visible
         this.overlayCurrentWidth = displayMetrics.widthPixels - 1;
         this.overlayCurrentFlag = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
-
+        this.selectionOverlayViewManager = new SelectionOverlayViewManager(context);
     }
 
     public void enableOverlay() {
@@ -154,7 +159,15 @@ public class FullScreenOverlayManager {
                     System.out.println("Single tap detected");
                     float rawX = event.getRawX();
                     float rawY = event.getRawY();
+                    float radius = 5;
                     // TODO: Yuwen handle these events
+                    SelectionOverlayView selectionOverlay = selectionOverlayViewManager.getCircleOverlay(rawX, rawY, radius);
+                    windowManager = (WindowManager) context.getSystemService(WINDOW_SERVICE);
+
+                    WindowManager.LayoutParams selectionLayoutParams = updateLayoutParams(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
+
+                    windowManager.addView(selectionOverlay, selectionLayoutParams);
+
 //                    handleClick(rawX, rawY);
                     return true;
                 }

@@ -287,8 +287,8 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         // if accessibility service is not on
                         if (!accessibilityServiceRunning) {
                             AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
-                            builder1.setTitle("Turn on Accessibility Service")
-                                    .setMessage("The " + Const.appNameUpperCase + " accessiblity service is not enabled. Please enable the service in the phone settings before recording.")
+                            builder1.setTitle(Const.appName + " Requires Accessibility Service")
+                                    .setMessage("The accessiblity service is not enabled for " + Const.appNameUpperCase + ". Please enable the service in the phone settings before recording.")
                                     .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
