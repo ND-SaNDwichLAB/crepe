@@ -13,7 +13,6 @@ public class SelectionOverlayViewManager {
     }
 
     public SelectionOverlayView getCircleOverlay(float x, float y, float radius) {
-        Toast.makeText(context, "Hello Hello Hello, drawing overlay", Toast.LENGTH_SHORT).show();
         SelectionOverlayView selectionOverlayView = new SelectionOverlayView(context, x, y, radius);
         return selectionOverlayView;
     }

@@ -162,11 +162,17 @@ public class FullScreenOverlayManager {
                 public boolean onSingleTapConfirmed(MotionEvent event) {
                     //single tap up detected
                     System.out.println("Single tap detected");
+
                     float rawX = event.getRawX();
                     float rawY = event.getRawY();
-                    float radius = 5;
+
+                    // account for the navigation bar height
+                    float navHeight = navigationBarUtil.getStatusBarHeight(context);
+                    float adjustedY = rawY - navHeight;
+
+                    float radius = 10;
                     // TODO: Yuwen handle these events
-                    SelectionOverlayView selectionOverlay = selectionOverlayViewManager.getCircleOverlay(rawX, rawY, radius);
+                    SelectionOverlayView selectionOverlay = selectionOverlayViewManager.getCircleOverlay(rawX, adjustedY, radius);
                     windowManager = (WindowManager) context.getSystemService(WINDOW_SERVICE);
 
                     WindowManager.LayoutParams selectionLayoutParams = updateLayoutParams(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
