@@ -76,6 +76,11 @@ public class FullScreenOverlayManager {
         showingOverlay = false;
     }
 
+    public void refreshOverlay() {
+        disableOverlay();
+        enableOverlay();
+    }
+
     public Boolean getShowingOverlay() {
         return showingOverlay;
     }
@@ -168,6 +173,8 @@ public class FullScreenOverlayManager {
 
                     windowManager.addView(selectionOverlay, selectionLayoutParams);
 
+                    // refresh the overlay, so the draw overlay is again on top
+                    refreshOverlay();
 //                    handleClick(rawX, rawY);
                     return true;
                 }
