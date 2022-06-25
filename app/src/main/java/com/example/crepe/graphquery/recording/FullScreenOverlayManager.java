@@ -165,13 +165,12 @@ public class FullScreenOverlayManager {
 
                     float rawX = event.getRawX();
                     float rawY = event.getRawY();
+                    float radius = 10;
 
                     // account for the navigation bar height
                     float navHeight = navigationBarUtil.getStatusBarHeight(context);
                     float adjustedY = rawY - navHeight;
 
-                    float radius = 10;
-                    // TODO: Yuwen handle these events
                     SelectionOverlayView selectionOverlay = selectionOverlayViewManager.getCircleOverlay(rawX, adjustedY, radius);
                     windowManager = (WindowManager) context.getSystemService(WINDOW_SERVICE);
 

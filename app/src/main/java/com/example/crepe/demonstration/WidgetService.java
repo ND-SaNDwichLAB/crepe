@@ -3,8 +3,10 @@ package com.example.crepe.demonstration;
 import static com.example.crepe.graphquery.DemonstrationUtil.initiateDemonstration;
 
 import android.app.Service;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.PixelFormat;
 import android.os.Build;
 import android.os.IBinder;
@@ -19,6 +21,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.crepe.CrepeAccessibilityService;
 import com.example.crepe.R;
 import com.example.crepe.graphquery.recording.FullScreenOverlayManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -39,6 +42,7 @@ public class WidgetService extends Service {
     }
 
     public int onStartCommand(Intent intent, int flags, int startId) {
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             LAYOUT_FLAG = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
         } else {
@@ -94,6 +98,8 @@ public class WidgetService extends Service {
             @Override
             public void onClick(View view) {
                 initiateDemonstration(c, fullScreenOverlayManager);
+                // TODO Yuwen: Change the function in singleton CrepeAccessibilityService and get a tree for UISnapshot
+                Log.d("test", CrepeAccessibilityService.getsSharedInstance().getString());
             }
         });
 

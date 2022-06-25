@@ -304,46 +304,4 @@ public class DemonstrationUtil {
         Set<String> inputMethodNames = new HashSet<>(Arrays.asList(Const.INPUT_METHOD_PACKAGE_NAMES));
         return inputMethodNames.contains(packageName);
     }
-
-//    public static Drawable getScaledDrawable(Drawable drawable, double scale) {
-//        return getScaledDrawable(drawable, (int) (scale * drawable.getIntrinsicWidth()), (int) (scale * drawable.getIntrinsicHeight()));
-//    }
-
-//    public static Drawable getScaledDrawable(Drawable drawable, int width, int height) {
-//        //scale the drawable so it fits into the dialog
-//        // Read your drawable from somewhere
-//        Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
-//        // Scale it to 50 x 50
-//        Drawable d = new BitmapDrawable(SugiliteData.getAppContext().getResources(), Bitmap.createScaledBitmap(bitmap, width, height, true));
-//        // Set your new, scaled drawable "d"
-//        return d;
-//    }
-
-//    public static boolean checkIfOntologyQueryContains (OntologyQuery ontologyQuery, SugiliteRelation relation, Object value) {
-//        if (ontologyQuery instanceof LeafOntologyQuery) {
-//            if (((LeafOntologyQuery) ontologyQuery).getR().equals(relation)) {
-//                Set<SugiliteSerializableEntity> objectEntities = ((LeafOntologyQuery) ontologyQuery).getObject();
-//                if (objectEntities != null) {
-//                    for (SugiliteSerializableEntity entity : objectEntities) {
-//                        if (value.equals(entity.getEntityValue())) {
-//                            return true;
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        if (ontologyQuery instanceof CombinedOntologyQuery) {
-//            Set<OntologyQuery> subQueries = ((CombinedOntologyQuery) ontologyQuery).getSubQueries();
-//            if (subQueries != null) {
-//                for (OntologyQuery subQuery : subQueries) {
-//                    boolean subQueryContains = checkIfOntologyQueryContains(subQuery, relation, value);
-//                    if (subQueryContains) {
-//                        return true;
-//                    }
-//                }
-//            }
-//        }
-//
-//        return false;
-//    }
 }
