@@ -6,6 +6,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
+import android.view.accessibility.AccessibilityNodeInfo;
 
 
 public class CrepeAccessibilityService extends AccessibilityService {
@@ -42,10 +43,11 @@ public class CrepeAccessibilityService extends AccessibilityService {
     }
 
     public String getString() {
-        return "Test singleton working status";
+        AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
+        return nodeInfo.toString();
     }
 
-//    // the below 3 functions are used to get around not being able to override onBind for accessibilityServices
+    // the below 3 functions are used to get around not being able to override onBind for accessibilityServices
     @Override
     public void onServiceConnected() {
         sSharedInstance = this;
