@@ -98,6 +98,8 @@ public class WidgetService extends Service {
             @Override
             public void onClick(View view) {
                 initiateDemonstration(c, fullScreenOverlayManager);
+                onDestroy();
+                windowManager.addView(mFloatingView,layoutParams);
                 // TODO Yuwen: Change the function in singleton CrepeAccessibilityService and get a tree for UISnapshot
                 Log.d("test", CrepeAccessibilityService.getsSharedInstance().getString());
             }
@@ -214,12 +216,6 @@ public class WidgetService extends Service {
 
         }
     }
-
-//    public void changeColor(){
-//        Palette palette = Palette.from(bitmap).generate();
-//
-//
-//    }
 
 
     private void setVisibility(Boolean clicked, FloatingActionButton btn) {
