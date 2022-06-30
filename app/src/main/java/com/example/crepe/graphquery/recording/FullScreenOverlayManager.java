@@ -176,20 +176,32 @@ public class FullScreenOverlayManager {
                     float navHeight = navigationBarUtil.getStatusBarHeight(context);
                     float adjustedY = rawY - navHeight;
 
-//                    SelectionOverlayView selectionOverlay = selectionOverlayViewManager.getCircleOverlay(rawX, adjustedY, radius);
                     windowManager = (WindowManager) context.getSystemService(WINDOW_SERVICE);
-
-                    WindowManager.LayoutParams selectionLayoutParams = updateLayoutParams(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
-
-                    // TODO Yuwen: Change the function in singleton CrepeAccessibilityService and get a tree for UISnapshot
-                    List<AccessibilityNodeInfo> matchedNode = CrepeAccessibilityService.getsSharedInstance().getMatchingNodeFromClick(rawX, adjustedY);
-                    Log.d("test", String.valueOf(matchedNode.size()));
-                    Log.d("test", matchedNode.toString());
-
+                    // if we need to use the following code block to show clicked spot on screen, remember to refresh the overlay and widget views so we can continue to click
+//                    WindowManager.LayoutParams selectionLayoutParams = updateLayoutParams(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
+//                    SelectionOverlayView selectionOverlay = selectionOverlayViewManager.getCircleOverlay(rawX, adjustedY, radius);
 //                    windowManager.addView(selectionOverlay, selectionLayoutParams);
 
+                    AccessibilityNodeInfo matchedNode = CrepeAccessibilityService.getsSharedInstance().getMatchingNodeFromClick(rawX, rawY);
+                    if(matchedNode != null) {
+                        String matchedNodeText = String.valueOf(matchedNode.getText());
+                        if (matchedNodeText != null) {
+                            Log.d("uisnapshot", matchedNodeText);
+                        } else {
+                            Log.d("uisnapshot", "Found matching node, but the node has empty text");
+                        }
 
-//                    handleClick(rawX, rawY);
+                    } else {
+                        Log.d("uisnapshot", "No matching node found");
+                    }
+
+                    // Following block is used to retrieve all nodes on the screen
+//                    List<AccessibilityNodeInfo> allScreenNodes = CrepeAccessibilityService.getsSharedInstance().getAllNodesOnScreen();
+//                    Log.d("uisnapshot", String.valueOf(allScreenNodes.size()));
+//                    for (AccessibilityNodeInfo node : allScreenNodes) {
+//                        Log.d("uisnapshot", node.toString());
+//                    }
+
                     return true;
                 }
 

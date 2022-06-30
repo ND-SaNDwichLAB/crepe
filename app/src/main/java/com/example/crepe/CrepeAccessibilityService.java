@@ -46,10 +46,22 @@ public class CrepeAccessibilityService extends AccessibilityService {
         Log.e(TAG, "Accessibility service interrupted");
     }
 
-    public List<AccessibilityNodeInfo> getMatchingNodeFromClick(float clickX, float clickY) {
+    public AccessibilityNodeInfo getMatchingNodeFromClick(float clickX, float clickY) {
+        Log.d("uisnapshot", "Click X: " + String.valueOf(Math.round(clickX)) + " Click Y: "+ String.valueOf(Math.round(clickY)));
         AccessibilityNodeInfo rootNodeInfo = getRootInActiveWindow();
         List<AccessibilityNodeInfo> matchingNodeInfoList = DemonstrationUtil.findMatchingNodeFromClick(rootNodeInfo, clickX, clickY);
-        return matchingNodeInfoList;
+        if (matchingNodeInfoList != null) {
+            AccessibilityNodeInfo resultNode = matchingNodeInfoList.get(matchingNodeInfoList.size() - 1);
+            return resultNode;
+        } else {
+            return null;
+        }
+
+    }
+
+    public List<AccessibilityNodeInfo> getAllNodesOnScreen() {
+        AccessibilityNodeInfo rootNodeInfo = getRootInActiveWindow();
+        return DemonstrationUtil.preOrderTraverse(rootNodeInfo);
     }
 
     // the below 3 functions are used to get around not being able to override onBind for accessibilityServices
