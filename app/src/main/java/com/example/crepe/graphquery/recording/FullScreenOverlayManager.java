@@ -188,11 +188,14 @@ public class FullScreenOverlayManager {
                         if (matchedNodeText != null) {
                             Log.d("uisnapshot", matchedNodeText);
                         } else {
+                            if (matchedNode.getParent().getText() != null) {
+                                Log.d("uisnapshot", "Did you click on " + matchedNode.getParent().getText() + "?");
+                            }
                             Log.d("uisnapshot", "Found matching node, but the node has empty text");
                         }
 
                     } else {
-                        Log.d("uisnapshot", "No matching node found");
+                        Log.d("uisnapshot", "Sorry we do not support the collection of such information. Cannot find the matching node for your click.");
                     }
 
                     // Following block is used to retrieve all nodes on the screen
