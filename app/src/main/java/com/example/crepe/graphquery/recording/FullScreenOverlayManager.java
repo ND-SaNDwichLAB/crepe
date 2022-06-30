@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 
+import com.example.crepe.demonstration.WidgetDisplay;
 import com.example.crepe.graphquery.Const;
 import com.example.crepe.graphquery.recording.NavigationBarUtil;
 
@@ -48,7 +49,7 @@ public class FullScreenOverlayManager {
         this.selectionOverlayViewManager = new SelectionOverlayViewManager(context);
     }
 
-    public void enableOverlay() {
+    public void enableOverlay(WidgetDisplay widgetDisplay) {
 
         // make sure the overlay is not tappable
         overlayCurrentFlag = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
@@ -64,7 +65,7 @@ public class FullScreenOverlayManager {
             windowManager.addView(overlay, layoutParams);
         }
 
-        setOverlayOnTouchListener(true);
+        setOverlayOnTouchListener(true, widgetDisplay);
 
         // set the flag
         showingOverlay = true;
@@ -76,9 +77,9 @@ public class FullScreenOverlayManager {
         showingOverlay = false;
     }
 
-    public void refreshOverlay() {
+    public void refreshOverlay(WidgetDisplay widgetDisplay) {
         disableOverlay();
-        enableOverlay();
+        enableOverlay(widgetDisplay);
     }
 
     public Boolean getShowingOverlay() {
@@ -138,7 +139,7 @@ public class FullScreenOverlayManager {
         }
     }
 
-    private void setOverlayOnTouchListener(final boolean toConsumeEvent) {
+    private void setOverlayOnTouchListener(final boolean toConsumeEvent, WidgetDisplay widgetDisplay) {
         try {
             overlayCurrentFlag = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
             windowManager.updateViewLayout(overlay, updateLayoutParams(overlayCurrentFlag, overlayCurrentWidth, overlayCurrentHeight));
@@ -176,10 +177,15 @@ public class FullScreenOverlayManager {
 
                     WindowManager.LayoutParams selectionLayoutParams = updateLayoutParams(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
 
-                    windowManager.addView(selectionOverlay, selectionLayoutParams);
+                    //windowManager.addView(selectionOverlay, selectionLayoutParams);
 
                     // refresh the overlay, so the draw overlay is again on top
-                    refreshOverlay();
+                    refreshOverlay(widgetDisplay);
+
+                    // refresh the widget, so the user can still go back
+                    widgetDisplay.refreshWidget();
+
+
 //                    handleClick(rawX, rawY);
                     return true;
                 }

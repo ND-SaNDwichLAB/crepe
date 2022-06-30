@@ -31,7 +31,6 @@ import java.util.Calendar;
 public class WidgetService extends Service {
     int LAYOUT_FLAG;
     View mFloatingView;
-    ImageView imageClose;
     WindowManager windowManager;
     float height, width;
     Context c = WidgetService.this;
@@ -63,9 +62,8 @@ public class WidgetService extends Service {
         layoutParams.y = 100;
 
         windowManager = (WindowManager)getSystemService(WINDOW_SERVICE);
-        windowManager.addView(mFloatingView,layoutParams);
-        mFloatingView.setVisibility(View.VISIBLE);
-
+        WidgetDisplay widgetDisplay = new WidgetDisplay(layoutParams, mFloatingView, windowManager);
+        widgetDisplay.showWidget();
         height = windowManager.getDefaultDisplay().getHeight();
         width = windowManager.getDefaultDisplay().getHeight();
 
@@ -79,7 +77,7 @@ public class WidgetService extends Service {
             @Override
             public void onClick(View view) {
 
-                // turn of the overlay before leaving the app
+                // turn off the overlay before leaving the app
                 if(fullScreenOverlayManager.getShowingOverlay()) {
                     fullScreenOverlayManager.disableOverlay();
                 }
@@ -91,15 +89,16 @@ public class WidgetService extends Service {
                 } else {
                     Toast.makeText(c, "There is no package available in android", Toast.LENGTH_LONG).show();
                 }
+
+                widgetDisplay.removeWidget();
             }
         });
 
         drawFltBtn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                initiateDemonstration(c, fullScreenOverlayManager);
-                onDestroy();
-                windowManager.addView(mFloatingView,layoutParams);
+                initiateDemonstration(c, fullScreenOverlayManager, widgetDisplay);
+                widgetDisplay.refreshWidget();
                 // TODO Yuwen: Change the function in singleton CrepeAccessibilityService and get a tree for UISnapshot
                 Log.d("test", CrepeAccessibilityService.getsSharedInstance().getString());
             }

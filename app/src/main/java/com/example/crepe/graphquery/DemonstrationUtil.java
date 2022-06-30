@@ -19,6 +19,7 @@ import android.widget.Toast;
 //import com.example.crepe.graphquery.ontology.LeafOntologyQuery;
 //import com.example.crepe.graphquery.ontology.OntologyQuery;
 import com.example.crepe.CrepeAccessibilityService;
+import com.example.crepe.demonstration.WidgetDisplay;
 import com.example.crepe.graphquery.recording.FullScreenOverlayManager;
 
 import org.apache.commons.lang3.StringUtils;
@@ -45,7 +46,7 @@ public class DemonstrationUtil {
      * @param fullScreenOverlayManager
      */
 //    public static void initiateDemonstration(Context context, ServiceStatusManager serviceStatusManager, SharedPreferences sharedPreferences, String scriptName, SugiliteData sugiliteData, Runnable afterRecordingCallback, FullScreenOverlayManager fullScreenOverlayManager){
-    public static void initiateDemonstration(Context context, FullScreenOverlayManager fullScreenOverlayManager){
+    public static void initiateDemonstration(Context context, FullScreenOverlayManager fullScreenOverlayManager, WidgetDisplay widgetDisplay){
 
             //start demonstration
 //            SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -67,11 +68,11 @@ public class DemonstrationUtil {
 //            catch (Exception e){
 //                e.printStackTrace();
 
-            //turn on the cat overlay to prepare for demonstration
+            // turn on the cat overlay to prepare for demonstration
             if(fullScreenOverlayManager != null){
                 // if it's not currently showing the overlay
                 if(!fullScreenOverlayManager.getShowingOverlay()) {
-                    fullScreenOverlayManager.enableOverlay();
+                    fullScreenOverlayManager.enableOverlay(widgetDisplay);
                 } else {
                     fullScreenOverlayManager.disableOverlay();
                 }
