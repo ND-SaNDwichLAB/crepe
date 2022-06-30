@@ -8,6 +8,10 @@ import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
+import com.example.crepe.graphquery.DemonstrationUtil;
+
+import java.util.List;
+
 
 public class CrepeAccessibilityService extends AccessibilityService {
 
@@ -42,9 +46,10 @@ public class CrepeAccessibilityService extends AccessibilityService {
         Log.e(TAG, "Accessibility service interrupted");
     }
 
-    public String getString() {
-        AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
-        return nodeInfo.toString();
+    public List<AccessibilityNodeInfo> getMatchingNodeFromClick(float clickX, float clickY) {
+        AccessibilityNodeInfo rootNodeInfo = getRootInActiveWindow();
+        List<AccessibilityNodeInfo> matchingNodeInfoList = DemonstrationUtil.findMatchingNodeFromClick(rootNodeInfo, clickX, clickY);
+        return matchingNodeInfoList;
     }
 
     // the below 3 functions are used to get around not being able to override onBind for accessibilityServices

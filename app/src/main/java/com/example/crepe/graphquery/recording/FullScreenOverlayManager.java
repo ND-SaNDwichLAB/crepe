@@ -18,11 +18,14 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.accessibility.AccessibilityNodeInfo;
 
 import com.example.crepe.CrepeAccessibilityService;
 import com.example.crepe.demonstration.WidgetDisplay;
 import com.example.crepe.graphquery.Const;
 import com.example.crepe.graphquery.recording.NavigationBarUtil;
+
+import java.util.List;
 
 public class FullScreenOverlayManager {
 
@@ -179,7 +182,9 @@ public class FullScreenOverlayManager {
                     WindowManager.LayoutParams selectionLayoutParams = updateLayoutParams(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
 
                     // TODO Yuwen: Change the function in singleton CrepeAccessibilityService and get a tree for UISnapshot
-                    Log.d("test", CrepeAccessibilityService.getsSharedInstance().getString());
+                    List<AccessibilityNodeInfo> matchedNode = CrepeAccessibilityService.getsSharedInstance().getMatchingNodeFromClick(rawX, adjustedY);
+                    Log.d("test", String.valueOf(matchedNode.size()));
+                    Log.d("test", matchedNode.toString());
 
 //                    windowManager.addView(selectionOverlay, selectionLayoutParams);
 

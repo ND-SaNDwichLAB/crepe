@@ -10,9 +10,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.provider.Settings;
+import android.util.Log;
+import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.Toast;
 
 //import com.example.crepe.graphquery.ontology.CombinedOntologyQuery;
@@ -24,6 +27,7 @@ import com.example.crepe.graphquery.recording.FullScreenOverlayManager;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -48,13 +52,16 @@ public class DemonstrationUtil {
 //    public static void initiateDemonstration(Context context, ServiceStatusManager serviceStatusManager, SharedPreferences sharedPreferences, String scriptName, SugiliteData sugiliteData, Runnable afterRecordingCallback, FullScreenOverlayManager fullScreenOverlayManager){
     public static void initiateDemonstration(Context context, FullScreenOverlayManager fullScreenOverlayManager, WidgetDisplay widgetDisplay){
 
-            //start demonstration
-//            SharedPreferences.Editor editor = sharedPreferences.edit();
-//            editor.putString("scriptName", scriptName);
-//            editor.putBoolean("recording_in_process", true);
-//            editor.commit();
+        // turn on the cat overlay to prepare for demonstration
+        if(fullScreenOverlayManager != null){
+            // if it's not currently showing the overlay
+            if(!fullScreenOverlayManager.getShowingOverlay()) {
+                fullScreenOverlayManager.enableOverlay(widgetDisplay);
+            } else {
+                fullScreenOverlayManager.disableOverlay();
+            }
 
-            //
+        }
             //TODO 1 Yuwen: construct script
 //            sugiliteData.initiateScriptRecording(DemonstrationUtil.addScriptExtension(scriptName), afterRecordingCallback); //add the end recording callback
 //            sugiliteData.initiatedExternally = false;
@@ -68,20 +75,57 @@ public class DemonstrationUtil {
 //            catch (Exception e){
 //                e.printStackTrace();
 
-            // turn on the cat overlay to prepare for demonstration
-            if(fullScreenOverlayManager != null){
-                // if it's not currently showing the overlay
-                if(!fullScreenOverlayManager.getShowingOverlay()) {
-                    fullScreenOverlayManager.enableOverlay(widgetDisplay);
-                } else {
-                    fullScreenOverlayManager.disableOverlay();
-                }
 
-            }
 
 
 //        }
     }
+
+    /**
+     * traverse a tree from the root, and return all the notes in the tree
+     * @param root
+     * @return
+     */
+    public static List<AccessibilityNodeInfo> preOrderTraverse(AccessibilityNodeInfo root){
+        if(root == null)
+            return null;
+        List<AccessibilityNodeInfo> list = new ArrayList<>();
+        list.add(root);
+        int childCount = root.getChildCount();
+        for(int i = 0; i < childCount; i ++){
+            AccessibilityNodeInfo node = root.getChild(i);
+            if(node != null)
+                list.addAll(preOrderTraverse(node));
+        }
+        return list;
+    }
+
+    /**
+     * traverse a tree from the root, and return all the notes in the tree
+     * @param root
+     * @return
+     */
+    public static List<AccessibilityNodeInfo> findMatchingNodeFromClick(AccessibilityNodeInfo root, float clickX, float clickY){
+        if(root == null){
+            Log.e("Graph Query", "The window's root node is null");
+            return null;
+        }
+        List<AccessibilityNodeInfo> matchingList = new ArrayList<>();
+        Rect rootBoundingBox = new Rect();
+        root.getBoundsInScreen(rootBoundingBox);
+        if (rootBoundingBox.contains(Math.round(clickX), Math.round(clickY))) {
+            matchingList.add(root);
+        }
+
+        int childCount = root.getChildCount();
+        for(int i = 0; i < childCount; i ++){
+            AccessibilityNodeInfo node = root.getChild(i);
+            if(node != null)
+                matchingList.addAll(findMatchingNodeFromClick(node, clickX, clickY));
+        }
+        return matchingList;
+    }
+
 //
 //    /**
 //     * execute a script  --> check the service status and the variable values before doing so
