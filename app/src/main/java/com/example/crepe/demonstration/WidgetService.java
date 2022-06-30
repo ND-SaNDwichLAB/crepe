@@ -98,9 +98,7 @@ public class WidgetService extends Service {
             @Override
             public void onClick(View view) {
                 initiateDemonstration(c, fullScreenOverlayManager, widgetDisplay);
-                // TODO Yuwen: Change the function in singleton CrepeAccessibilityService and get a tree for UISnapshot
-                Log.d("test", CrepeAccessibilityService.getsSharedInstance().getString());
-            }
+                }
         });
 
         // drag movement
