@@ -179,11 +179,11 @@ public class FullScreenOverlayManager {
 
                     //windowManager.addView(selectionOverlay, selectionLayoutParams);
 
-                    // refresh the overlay, so the draw overlay is again on top
-                    refreshOverlay(widgetDisplay);
 
-                    // refresh the widget, so the user can still go back
-                    widgetDisplay.refreshWidget();
+                    // if the overlay is present, refresh the widget, so the user can still go back
+                    if (showingOverlay) {
+                        widgetDisplay.refreshWidget();
+                    }
 
 
 //                    handleClick(rawX, rawY);
