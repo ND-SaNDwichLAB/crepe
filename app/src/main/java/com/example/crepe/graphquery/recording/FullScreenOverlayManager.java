@@ -11,6 +11,7 @@ import android.graphics.PixelFormat;
 import android.net.Uri;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -60,15 +61,14 @@ public class FullScreenOverlayManager {
         if (currentApiVersion >= 23) {
             checkDrawOverlayPermission();
             System.out.println("ADDING OVERLAY TO WINDOW MANAGER");
-            windowManager.addView(overlay, layoutParams);
-        } else {
-            windowManager.addView(overlay, layoutParams);
         }
+        windowManager.addView(overlay, layoutParams);
 
         setOverlayOnTouchListener(true, widgetDisplay);
 
         // set the flag
         showingOverlay = true;
+        widgetDisplay.refreshWidget();
     }
 
     public void disableOverlay() {
@@ -172,18 +172,12 @@ public class FullScreenOverlayManager {
                     float navHeight = navigationBarUtil.getStatusBarHeight(context);
                     float adjustedY = rawY - navHeight;
 
-                    SelectionOverlayView selectionOverlay = selectionOverlayViewManager.getCircleOverlay(rawX, adjustedY, radius);
+//                    SelectionOverlayView selectionOverlay = selectionOverlayViewManager.getCircleOverlay(rawX, adjustedY, radius);
                     windowManager = (WindowManager) context.getSystemService(WINDOW_SERVICE);
 
                     WindowManager.LayoutParams selectionLayoutParams = updateLayoutParams(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
 
-                    //windowManager.addView(selectionOverlay, selectionLayoutParams);
-
-
-                    // if the overlay is present, refresh the widget, so the user can still go back
-                    if (showingOverlay) {
-                        widgetDisplay.refreshWidget();
-                    }
+//                    windowManager.addView(selectionOverlay, selectionLayoutParams);
 
 
 //                    handleClick(rawX, rawY);
