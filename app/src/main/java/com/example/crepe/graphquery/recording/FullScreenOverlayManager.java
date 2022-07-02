@@ -189,12 +189,13 @@ public class FullScreenOverlayManager {
                     if(matchedNode != null) {
                         String matchedNodeText = String.valueOf(matchedNode.getText());
                         List<String> siblingNodeTextList = new ArrayList<>();
-                        if (matchedNodeText != null) {
-                            Log.d("uisnapshot", matchedNodeText);
+                        if (matchedNodeText != null && matchedNodeText.isEmpty()) {
+                            Log.d("uisnapshot", "Matched node text: " + matchedNodeText);
                         } else {
                             Log.d("uisnapshot", "Found matching node, but the node has empty text");
                         }
 
+                        // get information about matched node's sibling nodes
                         AccessibilityNodeInfo parentNode = matchedNode.getParent();
                         if (parentNode != null) {
                             int parentChildCnt = parentNode.getChildCount();
@@ -220,13 +221,6 @@ public class FullScreenOverlayManager {
                     } else {
                         Log.d("uisnapshot", "Sorry we do not support the collection of such information. Cannot find the matching node for your click.");
                     }
-
-                    // Following block is used to retrieve all nodes on the screen
-//                    List<AccessibilityNodeInfo> allScreenNodes = CrepeAccessibilityService.getsSharedInstance().getAllNodesOnScreen();
-//                    Log.d("uisnapshot", String.valueOf(allScreenNodes.size()));
-//                    for (AccessibilityNodeInfo node : allScreenNodes) {
-//                        Log.d("uisnapshot", node.toString());
-//                    }
 
                     return true;
                 }
