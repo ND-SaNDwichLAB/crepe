@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
@@ -202,12 +203,16 @@ public class FullScreenOverlayManager {
 
                             for(int i = 0; i < parentChildCnt; i++) {
                                 AccessibilityNodeInfo siblingNode = parentNode.getChild(i);
-                                if (siblingNode != null) {
-                                    Log.d("uisnapshot", "Sibling node: " + Log.d("uisnapshot", siblingNode.toString()));
-                                } else {
-                                    Log.d("uisnapshot", "Cannot find sibling at index " + String.valueOf(i));
+
+                                Rect siblingNodeRect = new Rect();
+                                siblingNode.getBoundsInScreen(siblingNodeRect);
+                                Rect matchedNodeRect = new Rect();
+                                matchedNode.getBoundsInScreen(matchedNodeRect);
+
+                                if (!siblingNodeRect.equals(matchedNodeRect) && siblingNode.getText() != null) {
+                                    Log.d("uisnapshot", "Sibling node text: " + siblingNode.getText().toString());
+                                    siblingNodeTextList.add(siblingNode.getText().toString());
                                 }
-                                if (siblingNode.getText() != null) siblingNodeTextList.add((String) siblingNode.getText());
                             }
                         }
                         Log.d("uisnapshot", siblingNodeTextList.toString());
