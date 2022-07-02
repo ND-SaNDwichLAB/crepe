@@ -25,6 +25,7 @@ import com.example.crepe.demonstration.WidgetDisplay;
 import com.example.crepe.graphquery.Const;
 import com.example.crepe.graphquery.recording.NavigationBarUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class FullScreenOverlayManager {
@@ -182,17 +183,34 @@ public class FullScreenOverlayManager {
 //                    SelectionOverlayView selectionOverlay = selectionOverlayViewManager.getCircleOverlay(rawX, adjustedY, radius);
 //                    windowManager.addView(selectionOverlay, selectionLayoutParams);
 
+                    // get the matched node
                     AccessibilityNodeInfo matchedNode = CrepeAccessibilityService.getsSharedInstance().getMatchingNodeFromClick(rawX, rawY);
                     if(matchedNode != null) {
                         String matchedNodeText = String.valueOf(matchedNode.getText());
+                        List<String> siblingNodeTextList = new ArrayList<>();
                         if (matchedNodeText != null) {
                             Log.d("uisnapshot", matchedNodeText);
                         } else {
-                            if (matchedNode.getParent().getText() != null) {
-                                Log.d("uisnapshot", "Did you click on " + matchedNode.getParent().getText() + "?");
-                            }
                             Log.d("uisnapshot", "Found matching node, but the node has empty text");
                         }
+
+                        AccessibilityNodeInfo parentNode = matchedNode.getParent();
+                        if (parentNode != null) {
+                            int parentChildCnt = parentNode.getChildCount();
+                            Log.d("uisnapshot", "Sibling Count: " + String.valueOf(parentChildCnt - 1));
+
+
+                            for(int i = 0; i < parentChildCnt; i++) {
+                                AccessibilityNodeInfo siblingNode = parentNode.getChild(i);
+                                if (siblingNode != null) {
+                                    Log.d("uisnapshot", "Sibling node: " + Log.d("uisnapshot", siblingNode.toString()));
+                                } else {
+                                    Log.d("uisnapshot", "Cannot find sibling at index " + String.valueOf(i));
+                                }
+                                if (siblingNode.getText() != null) siblingNodeTextList.add((String) siblingNode.getText());
+                            }
+                        }
+                        Log.d("uisnapshot", siblingNodeTextList.toString());
 
                     } else {
                         Log.d("uisnapshot", "Sorry we do not support the collection of such information. Cannot find the matching node for your click.");
