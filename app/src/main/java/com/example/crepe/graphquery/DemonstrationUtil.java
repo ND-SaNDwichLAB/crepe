@@ -197,15 +197,12 @@ public class DemonstrationUtil {
                     Log.d("uisnapshot", "All siblings' text fields are empty, same as no sibling");
                 }
             } else {
-                // TODO if there's no sibling, just use the screen position of the node
+                // if there's no sibling, just use the screen position of the node to construct query
                 Log.d("uisnapshot", "No sibling");
             }
         } else {
             Log.e("uisnapshot", "Parent of the matching node is null, cannot find siblings");
         }
-
-
-
 
         return closestNode;
     }
