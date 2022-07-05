@@ -2,6 +2,7 @@ package com.example.crepe.graphquery.recording;
 
 import static android.content.Context.WINDOW_SERVICE;
 import static com.example.crepe.graphquery.Const.OVERLAY_TYPE;
+import static com.example.crepe.graphquery.DemonstrationUtil.findClosestSiblingNode;
 
 import android.content.Context;
 import android.content.Intent;
@@ -10,6 +11,7 @@ import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -20,6 +22,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityNodeInfo;
+
+import androidx.annotation.RequiresApi;
 
 import com.example.crepe.CrepeAccessibilityService;
 import com.example.crepe.demonstration.WidgetDisplay;
@@ -165,6 +169,7 @@ public class FullScreenOverlayManager {
             }
 
             class MyGestureDetector extends GestureDetector.SimpleOnGestureListener {
+                @RequiresApi(api = Build.VERSION_CODES.R)
                 @Override
                 public boolean onSingleTapConfirmed(MotionEvent event) {
                     //single tap up detected
@@ -186,37 +191,11 @@ public class FullScreenOverlayManager {
 
                     // get the matched node
                     AccessibilityNodeInfo matchedNode = CrepeAccessibilityService.getsSharedInstance().getMatchingNodeFromClick(rawX, rawY);
-                    if(matchedNode != null) {
-                        String matchedNodeText = String.valueOf(matchedNode.getText());
-                        List<String> siblingNodeTextList = new ArrayList<>();
-                        if (matchedNodeText != null && matchedNodeText.isEmpty()) {
-                            Log.d("uisnapshot", "Matched node text: " + matchedNodeText);
-                        } else {
-                            Log.d("uisnapshot", "Found matching node, but the node has empty text");
-                        }
+                    // get the matched node text
+                    String matchedNodeText = String.valueOf(matchedNode.getText());
 
-                        // get information about matched node's sibling nodes
-                        AccessibilityNodeInfo parentNode = matchedNode.getParent();
-                        if (parentNode != null) {
-                            int parentChildCnt = parentNode.getChildCount();
-                            Log.d("uisnapshot", "Sibling Count: " + String.valueOf(parentChildCnt - 1));
-
-
-                            for(int i = 0; i < parentChildCnt; i++) {
-                                AccessibilityNodeInfo siblingNode = parentNode.getChild(i);
-
-                                Rect siblingNodeRect = new Rect();
-                                siblingNode.getBoundsInScreen(siblingNodeRect);
-                                Rect matchedNodeRect = new Rect();
-                                matchedNode.getBoundsInScreen(matchedNodeRect);
-
-                                if (!siblingNodeRect.equals(matchedNodeRect) && siblingNode.getText() != null) {
-                                    Log.d("uisnapshot", "Sibling node text: " + siblingNode.getText().toString());
-                                    siblingNodeTextList.add(siblingNode.getText().toString());
-                                }
-                            }
-                        }
-                        Log.d("uisnapshot", siblingNodeTextList.toString());
+                    if(matchedNode != null && !matchedNodeText.isEmpty()) {
+                        AccessibilityNodeInfo closestSiblingNode = findClosestSiblingNode(matchedNode);
 
                     } else {
                         Log.d("uisnapshot", "Sorry we do not support the collection of such information. Cannot find the matching node for your click.");

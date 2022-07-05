@@ -13,6 +13,7 @@ import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.accessibility.AccessibilityNodeInfo;
@@ -21,6 +22,8 @@ import android.widget.Toast;
 //import com.example.crepe.graphquery.ontology.CombinedOntologyQuery;
 //import com.example.crepe.graphquery.ontology.LeafOntologyQuery;
 //import com.example.crepe.graphquery.ontology.OntologyQuery;
+import androidx.annotation.RequiresApi;
+
 import com.example.crepe.CrepeAccessibilityService;
 import com.example.crepe.demonstration.WidgetDisplay;
 import com.example.crepe.graphquery.recording.FullScreenOverlayManager;
@@ -101,8 +104,10 @@ public class DemonstrationUtil {
     }
 
     /**
-     * traverse a tree from the root, and return all the notes in the tree
+     * Find the clicked node based on screen position
      * @param root
+     * @param clickX
+     * @param clickY
      * @return
      */
     public static List<AccessibilityNodeInfo> findMatchingNodeFromClick(AccessibilityNodeInfo root, float clickX, float clickY){
@@ -124,6 +129,85 @@ public class DemonstrationUtil {
                 matchingList.addAll(findMatchingNodeFromClick(node, clickX, clickY));
         }
         return matchingList;
+    }
+
+    /**
+     * Get the sibling node closest to the matched node from the above function
+     * @param matchedNode
+     * @return
+     */
+    @RequiresApi(api = Build.VERSION_CODES.R)
+    public static AccessibilityNodeInfo findClosestSiblingNode(AccessibilityNodeInfo matchedNode) {
+        // get the text of the matching node
+        String matchedNodeText = String.valueOf(matchedNode.getText());
+        List<String> siblingNodeTextList = new ArrayList<>();
+        if (matchedNodeText != null && !matchedNodeText.isEmpty()) {
+            Log.d("uisnapshot", "Matched node text: " + matchedNodeText);
+        } else {
+            Log.d("uisnapshot", "Found matching node, but the node has empty text");
+        }
+
+        // get information about matched node's sibling nodes
+        AccessibilityNodeInfo parentNode = matchedNode.getParent();
+        // use a variable to store the current closest node and its distance to the matched node
+        // initialize it as infinity so the first comparison is easier
+        double closestDistToMatchedNode = Double.POSITIVE_INFINITY;
+        AccessibilityNodeInfo closestNode = new AccessibilityNodeInfo();
+
+        if (parentNode != null) {
+            int siblingCnt = parentNode.getChildCount() - 1;
+            Log.d("uisnapshot", "Sibling Count: " + String.valueOf(siblingCnt));
+
+            if (siblingCnt > 0) {
+                // get the center position of the matched node
+                Rect matchedNodeRect = new Rect();
+                matchedNode.getBoundsInScreen(matchedNodeRect);
+                int matchedCenterX = matchedNodeRect.centerX();
+                int matchedCenterY = matchedNodeRect.centerY();
+
+                // the loop here calls for siblingCnt + 1, because the matched node itself is in the tree
+                for(int i = 0; i < siblingCnt + 1; i++) {
+                    AccessibilityNodeInfo siblingNode = parentNode.getChild(i);
+
+                    // get the center position of the sibling node
+                    Rect siblingNodeRect = new Rect();
+                    siblingNode.getBoundsInScreen(siblingNodeRect);
+                    String siblingNodeText = siblingNode.getText().toString();
+                    // we only compare if the current sibling node is not the matched node itself
+                    if (!siblingNodeRect.equals(matchedNodeRect) && siblingNodeText != null && !siblingNodeText.isEmpty()) {
+                        // ge the position of the sibling node
+                        int siblingCenterX = siblingNodeRect.centerX();
+                        int siblingCenterY = siblingNodeRect.centerY();
+                        // get the distance
+                        double currentSiblingDist = Math.hypot(siblingCenterX - matchedCenterX, siblingCenterY - matchedCenterY);
+
+                        if (currentSiblingDist < closestDistToMatchedNode) {
+                            closestNode = siblingNode;
+                        }
+                        Log.d("uisnapshot", "Sibling node text: " + siblingNode.getText().toString());
+                        siblingNodeTextList.add(siblingNode.getText().toString());
+                    }
+                }
+                if(siblingNodeTextList.size() > 0) {
+                    Log.d("uisnapshot", siblingNodeTextList.toString());
+                    Log.d("uisnapshot", "The closest node contains text: " + closestNode.getText());
+                } else {
+                    // If all sibling nodes' text fields are empty, we also arrive at the no sibling situation
+                    // TODO if there's no sibling, just use the screen position of the node
+                    Log.d("uisnapshot", "All siblings' text fields are empty, same as no sibling");
+                }
+            } else {
+                // TODO if there's no sibling, just use the screen position of the node
+                Log.d("uisnapshot", "No sibling");
+            }
+        } else {
+            Log.e("uisnapshot", "Parent of the matching node is null, cannot find siblings");
+        }
+
+
+
+
+        return closestNode;
     }
 
 //
