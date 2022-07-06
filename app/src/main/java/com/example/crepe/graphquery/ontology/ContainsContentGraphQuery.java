@@ -22,6 +22,7 @@ public class ContainsContentGraphQuery extends GraphQuery {
 
     // the constructor that takes a query string, used after retrieving from the database
     // TODO yuwen: support recursive operations
+    // TODO yuwen: need another function to execute the query on current uisnapshot, not sure which class to put in tho
     public ContainsContentGraphQuery(String queryString) {
         this.queryString = queryString;
         // take out the parenthesis outside
