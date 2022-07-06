@@ -27,19 +27,19 @@ public class ContainsContentGraphQuery extends GraphQuery {
         // take out the parenthesis outside
         if(queryString.startsWith("(") && queryString.endsWith(")")) {
             queryString = queryString.substring(1, queryString.length() - 1);
-            String[] parsedResults = queryString.split(" ");
+            String[] parsedResults = queryString.split("|");
             if(parsedResults.length == 2) {
-                this.relation = SugiliteRelation.getRelationFromString(parsedResults[0]);
-                this.property = parsedResults[1];
+                this.relation = SugiliteRelation.getRelationFromString(parsedResults[0].trim());
+                this.property = parsedResults[1].trim();
             } else {
-                Log.d("parse query", "Parse query error, contains more than 2 fields");
+                Log.d("graphquery", "Parse query error, contains more than 2 fields");
             }
 
         }
     }
 
     private String generateQueryString(SugiliteRelation relation, String property) {
-        return "(" + relation.getRelationName() + " " + property + ")";
+        return "(" + relation.getRelationName() + "|" + property + ")";
     }
 
     public SugiliteRelation getRelation() {

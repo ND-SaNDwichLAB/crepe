@@ -28,6 +28,7 @@ import androidx.annotation.RequiresApi;
 import com.example.crepe.CrepeAccessibilityService;
 import com.example.crepe.demonstration.WidgetDisplay;
 import com.example.crepe.graphquery.Const;
+import com.example.crepe.graphquery.ontology.ContainsContentGraphQuery;
 import com.example.crepe.graphquery.recording.NavigationBarUtil;
 
 import java.util.ArrayList;
@@ -162,7 +163,6 @@ public class FullScreenOverlayManager {
         overlay.setOnTouchListener(new View.OnTouchListener() {
             GestureDetector myGestureDetector = new GestureDetector(context, new MyGestureDetector());
 
-
             @Override
             public boolean onTouch(final View v, MotionEvent event) {
                 return myGestureDetector.onTouchEvent(event);
@@ -193,6 +193,11 @@ public class FullScreenOverlayManager {
                     AccessibilityNodeInfo matchedNode = CrepeAccessibilityService.getsSharedInstance().getMatchingNodeFromClick(rawX, rawY);
                     // get the matched node text
                     String matchedNodeText = String.valueOf(matchedNode.getText());
+
+                    ContainsContentGraphQuery query = new ContainsContentGraphQuery(matchedNode);
+                    Log.d("graphquery", query.getQueryString());
+                    Log.d("graphquery", query.getRelation().getRelationName());
+                    Log.d("graphquery", query.getProperty());
 
                     if(matchedNode != null && !matchedNodeText.isEmpty()) {
                         AccessibilityNodeInfo closestSiblingNode = findClosestSiblingNode(matchedNode);
