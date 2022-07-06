@@ -11,28 +11,29 @@ public class ScreenRelationGraphQuery extends GraphQuery{
     public ScreenRelationGraphQuery(String queryString) {
         this.queryString = queryString;
     }
-
-    public ScreenRelationGraphQuery(AccessibilityNodeInfo matchedNode, AccessibilityNodeInfo refereceNode) {
-
-    }
-
-
-
-    // infer the spatial relationship of two nodes
-    private SugiliteRelation inferSpatialRelation(AccessibilityNodeInfo nodeOne, AccessibilityNodeInfo nodeTwo) {
-        SugiliteRelation spatialRelation;
-
-
-
-        return spatialRelation;
-    }
-
-    private String getReferenceNodeProperty(AccessibilityNodeInfo referenceNode) {
-
-        return "";
-    }
-
-    public static void parseQuery(String query) {
-
-    }
+//
+//    public ScreenRelationGraphQuery(AccessibilityNodeInfo matchedNode, AccessibilityNodeInfo refereceNode) {
+//
+//    }
+//
+//
+//
+//    // infer the spatial relationship of two nodes
+//    private SugiliteRelation inferSpatialRelation(AccessibilityNodeInfo nodeOne, AccessibilityNodeInfo nodeTwo) {
+//        SugiliteRelation spatialRelation;
+//
+//
+//
+//        return spatialRelation;
+//    }
+//
+//    private String getReferenceNodeProperty(AccessibilityNodeInfo referenceNode) {
+//
+//        return "";
+//    }
+//
+//    public static void parseQuery(String query) {
+//
+//    }
+    
 }
