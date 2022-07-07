@@ -195,10 +195,12 @@ public class FullScreenOverlayManager {
                     String matchedNodeText = String.valueOf(matchedNode.getText());
 
                     ContainsContentGraphQuery containsContentQuery = new ContainsContentGraphQuery(matchedNode);
+                    Log.d("graphquery", containsContentQuery.getQueryString());
                     // TODO yuwen: store the query in database, then constantly check it in another thread
 
                     if(matchedNode != null && !matchedNodeText.isEmpty()) {
                         AccessibilityNodeInfo closestSiblingNode = findClosestSiblingNode(matchedNode);
+                        Log.d("graphquery", "Sibling Text: " + closestSiblingNode.getText().toString());
 
                     } else {
                         Log.d("uisnapshot", "Sorry we do not support the collection of such information. Cannot find the matching node for your click.");
