@@ -530,6 +530,18 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         // share email link
+                        Intent intent = new Intent(Intent.ACTION_SENDTO);
+                        intent.setData(Uri.parse("mailto:"));
+                        intent.putExtra(Intent.EXTRA_EMAIL, "ylu23@nd.edu");
+                        intent.putExtra(Intent.EXTRA_SUBJECT, "Data Collector for " + collector.getAppName());
+                        intent.putExtra(Intent.EXTRA_TEXT, collectorURL);
+
+                        if (intent.resolveActivity(getPackageManager()) != null) {
+                            startActivity(intent);
+                        } else {
+                            Toast.makeText(context,"No email app on this machine",Toast.LENGTH_LONG).show();
+                        }
+
 
                     }
                 });

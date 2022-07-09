@@ -86,7 +86,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="36dp"
         android:layout_marginTop="8dp"
-        android:text="The data field to collect from the app"
+        android:text="The data fields to collect from the app"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/dataFieldEditText" />
 
