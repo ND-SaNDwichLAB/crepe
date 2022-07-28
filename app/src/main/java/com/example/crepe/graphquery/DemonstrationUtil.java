@@ -16,6 +16,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.provider.Settings;
 import android.util.Log;
+import android.util.Pair;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.Toast;
 
@@ -26,12 +27,19 @@ import androidx.annotation.RequiresApi;
 
 import com.example.crepe.CrepeAccessibilityService;
 import com.example.crepe.demonstration.WidgetDisplay;
+import com.example.crepe.graphquery.model.Node;
+import com.example.crepe.graphquery.ontology.SugiliteEntity;
+import com.example.crepe.graphquery.ontology.SugiliteRelation;
+import com.example.crepe.graphquery.ontology.UISnapshot;
 import com.example.crepe.graphquery.recording.FullScreenOverlayManager;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -45,14 +53,9 @@ public class DemonstrationUtil {
     /**
      * initiate a demonstration recording -> need to call endRecording() when the recording ends
      * @param context
-//     * @param serviceStatusManager
-//     * @param sharedPreferences
-//     * @param scriptName
-//     * @param sugiliteData
-//     * @param afterRecordingCallback
      * @param fullScreenOverlayManager
+     * @param widgetDisplay
      */
-//    public static void initiateDemonstration(Context context, ServiceStatusManager serviceStatusManager, SharedPreferences sharedPreferences, String scriptName, SugiliteData sugiliteData, Runnable afterRecordingCallback, FullScreenOverlayManager fullScreenOverlayManager){
     public static void initiateDemonstration(Context context, FullScreenOverlayManager fullScreenOverlayManager, WidgetDisplay widgetDisplay){
 
         // turn on the cat overlay to prepare for demonstration
@@ -207,187 +210,6 @@ public class DemonstrationUtil {
         return closestNode;
     }
 
-//
-//    /**
-//     * execute a script  --> check the service status and the variable values before doing so
-//     * @param activityContext
-//     * @param serviceStatusManager
-//     * @param script
-//     * @param sugiliteData
-//     * @param sharedPreferences
-//     * @param dialogManager
-//     */
-//    public static void executeScript(Activity activityContext, ServiceStatusManager serviceStatusManager, SugiliteStartingBlock script, SugiliteData sugiliteData, SharedPreferences sharedPreferences, boolean isForReconstructing, @Nullable PumiceDialogManager dialogManager, @Nullable SugiliteBlock afterExecutionOperation, @Nullable Runnable afterExecutionRunnable){
-//        if(!serviceStatusManager.isRunning()){
-//            //prompt the user if the accessiblity service is not active
-//            activityContext.runOnUiThread(() -> {
-//                AlertDialog.Builder builder1 = new AlertDialog.Builder(activityContext);
-//                builder1.setTitle("Service not running")
-//                        .setMessage("The Sugilite accessiblity service is not enabled. Please enable the service in the phone settings before recording.")
-//                        .setPositiveButton("OK", (dialog, which) -> {
-//                            serviceStatusManager.promptEnabling();
-//                            //do nothing
-//                        }).show();
-//            });
-//        }
-//        else {
-//            //check if pumice dialog manager is available, create a new one if needed
-//            if (dialogManager == null) {
-//                if (sugiliteData.pumiceDialogManager != null) {
-//                    dialogManager = sugiliteData.pumiceDialogManager;
-//                } else {
-//                    dialogManager = new PumiceDialogManager(activityContext, true);
-//                    SugiliteVoiceRecognitionListener sugiliteVoiceRecognitionListener = null;
-//                    TextToSpeech tts = sugiliteData.getTTS();
-//                    if (Const.SELECTED_SPEECH_RECOGNITION_TYPE == Const.SpeechRecognitionType.ANDROID) {
-//                        sugiliteVoiceRecognitionListener = new SugiliteAndroidAPIVoiceRecognitionListener(activityContext, null, tts);
-//                    } else if (Const.SELECTED_SPEECH_RECOGNITION_TYPE == Const.SpeechRecognitionType.GOOGLE_CLOUD) {
-//                        sugiliteVoiceRecognitionListener = new SugiliteGoogleCloudVoiceRecognitionListener(activityContext, sugiliteData,  null, tts);
-//                    }
-//                    dialogManager.setSugiliteVoiceRecognitionListener(sugiliteVoiceRecognitionListener);
-//                    sugiliteData.pumiceDialogManager = dialogManager;
-//                }
-//            }
-//
-//            final PumiceDialogManager finalDialogManager = dialogManager;
-//
-//            activityContext.runOnUiThread(() -> {
-//                VariableSetValueDialog variableSetValueDialog = new VariableSetValueDialog(sugiliteData.getApplicationContext(), sugiliteData, script, sharedPreferences, SugiliteData.EXECUTION_STATE, finalDialogManager, isForReconstructing);
-//                if(script.variableNameDefaultValueMap.size() > 0) {
-//
-//                    //has variable
-//                    sugiliteData.variableNameVariableValueMap.putAll(script.variableNameDefaultValueMap);
-//                    boolean needUserInput = false;
-//
-//                    //check if any of the variables needs user input
-//                    for(Map.Entry<String, Variable> entry : script.variableNameVariableObjectMap.entrySet()){
-//                        if(entry.getValue().getVariableType() == Variable.USER_INPUT){
-//                            needUserInput = true;
-//                            break;
-//                        }
-//                    }
-//                    if(needUserInput) {
-//                        //show the dialog to obtain user input
-//                        variableSetValueDialog.show();
-//                    }
-//                    else {
-//                        variableSetValueDialog.executeScript(afterExecutionOperation, finalDialogManager, afterExecutionRunnable);
-//                    }
-//                }
-//                else{
-//                    //execute the script without showing the dialog
-//                    variableSetValueDialog.executeScript(afterExecutionOperation, finalDialogManager, afterExecutionRunnable);
-//                }
-//            });
-//        }
-//    }
-//
-//
-//
-
-
-//    /**
-//     * end the current recording
-//     * @param context
-//     * @param sugiliteData
-//     * @param sharedPreferences
-//     * @param sugiliteScriptDao
-//     */
-//    public static void endRecording(Context context, SugiliteData sugiliteData, SharedPreferences sharedPreferences, SugiliteScriptDao sugiliteScriptDao) {
-//        SharedPreferences.Editor prefEditor = sharedPreferences.edit();
-//        SugiliteBlockJSONProcessor jsonProcessor = new SugiliteBlockJSONProcessor(context);
-//
-//
-//        //end recording
-//        prefEditor.putBoolean("recording_in_process", false);
-//        prefEditor.apply();
-//
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                //commit the script through the sugiliteScriptDao
-//                try {
-//                    if (sugiliteScriptDao != null) {
-//                        if (sugiliteData.getScriptHead() != null) {
-//                            if (sugiliteData.verbalInstructionIconManager != null) {
-//                                SugiliteScreenshotManager sugiliteScreenshotManager = SugiliteScreenshotManager.getInstance(sharedPreferences, sugiliteData);
-//                                UISnapshot latestUISnapshot = sugiliteData.verbalInstructionIconManager.getLatestUISnapshot();
-//                                if (latestUISnapshot != null) {
-//                                    latestUISnapshot.annotateStringEntitiesIfNeeded();
-//                                }
-//                                sugiliteData.getScriptHead().uiSnapshotOnEnd = new SerializableUISnapshot(latestUISnapshot);
-//                                sugiliteData.getScriptHead().screenshotOnEnd = sugiliteScreenshotManager.takeScreenshot(SugiliteScreenshotManager.DIRECTORY_PATH, sugiliteScreenshotManager.getFileNameFromDate());
-//                            }
-//                            sugiliteScriptDao.save(sugiliteData.getScriptHead());
-//                        }
-//                        sugiliteScriptDao.commitSave(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                //invoke the callback
-//                                if (sugiliteData.initiatedExternally && sugiliteData.getScriptHead() != null) {
-//                                    //return the recording to the external caller
-//                                    sugiliteData.communicationController.sendRecordingFinishedSignal(sugiliteData.getScriptHead().getScriptName());
-//                                    sugiliteData.sendCallbackMsg(SugiliteCommunicationHelper.FINISHED_RECORDING, jsonProcessor.scriptToJson(sugiliteData.getScriptHead()), sugiliteData.callbackString);
-//                                }
-//
-//                                //call the after recording callback
-//                                if (sugiliteData.getScriptHead() != null && sugiliteData.afterRecordingCallback != null){
-//                                    //call the endRecordingCallback
-//                                    Runnable r = sugiliteData.afterRecordingCallback;
-//                                    sugiliteData.afterRecordingCallback = null;
-//                                    r.run();
-//                                }
-//                            }
-//                        });
-//                    }
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }).start();
-//
-//
-//
-//
-//
-//        //turn off the recording overlay if any
-//        // TODO: Use FullScreenRecordingOverlayManager here instead -- yuwen
-////        if(sugiliteData.verbalInstructionIconManager != null){
-////            sugiliteData.verbalInstructionIconManager.turnOffCatOverlay();
-////        }
-//
-//
-//        sugiliteData.setCurrentSystemState(SugiliteData.DEFAULT_STATE);
-//        PumiceDemonstrationUtil.showSugiliteToast("end recording", Toast.LENGTH_SHORT);
-//    }
-
-//    public static void showSugiliteToast(String text, int length) {
-//        SugiliteData.runOnUiThread(new Runnable() {
-//            @Override
-//            public void run() {
-//                Toast.makeText(SugiliteData.getAppContext(), text, length).show();
-//
-//            }
-//        });
-//    }
-//
-//    public static void showSugiliteAlertDialog(String content) {
-//        SugiliteData.runOnUiThread(new Runnable() {
-//            @Override
-//            public void run() {
-//                AlertDialog dialog = new AlertDialog.Builder(SugiliteData.getAppContext()).setMessage(content).setPositiveButton("OK", new DialogInterface.OnClickListener() {
-//                    @Override
-//                    public void onClick(DialogInterface dialog, int which) {
-//                        dialog.dismiss();
-//                    }
-//                }).create();
-//                dialog.getWindow().setType(OVERLAY_TYPE);
-//                dialog.setCanceledOnTouchOutside(false);
-//                dialog.show();
-//            }
-//        });
-//    }
-
     public static String removeScriptExtension (String scriptName) {
         if (scriptName.endsWith(".SugiliteScript")) {
             return scriptName.replace(".SugiliteScript", "");
@@ -430,4 +252,214 @@ public class DemonstrationUtil {
         Set<String> inputMethodNames = new HashSet<>(Arrays.asList(Const.INPUT_METHOD_PACKAGE_NAMES));
         return inputMethodNames.contains(packageName);
     }
+
+
+    public static List<Pair<OntologyQuery, Double>> generateDefaultQueries(UISnapshot uiSnapshot, SugiliteEntity<Node> targetEntity, SugiliteRelation... relationsToExcludeArray){
+        Set<SugiliteRelation> relationsToExclude = new HashSet<>(Arrays.asList(relationsToExcludeArray));
+        //generate parent query
+        List<Pair<OntologyQuery, Double>> queries = new ArrayList<>();
+        CombinedOntologyQuery q = new CombinedOntologyQuery(CombinedOntologyQuery.RelationType.AND);
+        boolean hasNonBoundingBoxFeature = false;
+        boolean hasNonChildFeature = false;
+
+        SugiliteEntity<Node> foundEntity = targetEntity;
+
+
+        //generate sub queries -- add the packageName and className constraints to q
+
+        if (! relationsToExclude.contains(SugiliteRelation.HAS_PACKAGE_NAME)) {
+            if (getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_PACKAGE_NAME)) != null) {
+                //add packageName
+                LeafOntologyQuery subQuery = new LeafOntologyQuery();
+                Set<SugiliteEntity> object = new HashSet<>();
+                object.add(new SugiliteEntity(-1, String.class, getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_PACKAGE_NAME))));
+                subQuery.setObjectSet(object);
+                subQuery.setQueryFunction(SugiliteRelation.HAS_PACKAGE_NAME);
+                q.addSubQuery(subQuery);
+            }
+        }
+
+        if (! relationsToExclude.contains(SugiliteRelation.HAS_CLASS_NAME)) {
+            if (getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_CLASS_NAME)) != null) {
+                //add className
+                LeafOntologyQuery subQuery = new LeafOntologyQuery();
+                Set<SugiliteEntity> object = new HashSet<>();
+                object.add(new SugiliteEntity(-1, String.class, getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_CLASS_NAME))));
+                subQuery.setObjectSet(object);
+                subQuery.setQueryFunction(SugiliteRelation.HAS_CLASS_NAME);
+                q.addSubQuery(subQuery);
+            }
+        }
+
+        if (! relationsToExclude.contains(SugiliteRelation.HAS_TEXT)) {
+            if (getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_TEXT)) != null) {
+                //add a text query
+                CombinedOntologyQuery clonedQuery = q.clone();
+                LeafOntologyQuery subQuery = new LeafOntologyQuery();
+                Set<SugiliteEntity> object = new HashSet<>();
+                object.add(new SugiliteEntity(-1, String.class, getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_TEXT))));
+                subQuery.setObjectSet(object);
+                subQuery.setQueryFunction(SugiliteRelation.HAS_TEXT);
+                clonedQuery.addSubQuery(subQuery);
+                hasNonBoundingBoxFeature = true;
+                hasNonChildFeature = true;
+                queries.add(Pair.create(clonedQuery, 1.1));
+            }
+        }
+
+        if (! relationsToExclude.contains(SugiliteRelation.HAS_CONTENT_DESCRIPTION)) {
+            if ((getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_CONTENT_DESCRIPTION)) != null) &&
+                    (!getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_CONTENT_DESCRIPTION)).equals(getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_TEXT))))) {
+                //add content description
+                CombinedOntologyQuery clonedQuery = q.clone();
+                LeafOntologyQuery subQuery = new LeafOntologyQuery();
+                Set<SugiliteEntity> object = new HashSet<>();
+                object.add(new SugiliteEntity(-1, String.class, getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_CONTENT_DESCRIPTION))));
+                subQuery.setObjectSet(object);
+                subQuery.setQueryFunction(SugiliteRelation.HAS_CONTENT_DESCRIPTION);
+                clonedQuery.addSubQuery(subQuery);
+                hasNonBoundingBoxFeature = true;
+                hasNonChildFeature = true;
+                queries.add(Pair.create(clonedQuery, 1.2));
+            }
+        }
+
+        if (! relationsToExclude.contains(SugiliteRelation.HAS_VIEW_ID)) {
+            if (getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_VIEW_ID)) != null) {
+                //add view id
+                CombinedOntologyQuery clonedQuery = q.clone();
+                LeafOntologyQuery subQuery = new LeafOntologyQuery();
+                Set<SugiliteEntity> object = new HashSet<>();
+                object.add(new SugiliteEntity(-1, String.class, getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_VIEW_ID))));
+                subQuery.setObjectSet(object);
+                subQuery.setQueryFunction(SugiliteRelation.HAS_VIEW_ID);
+                clonedQuery.addSubQuery(subQuery);
+                hasNonBoundingBoxFeature = true;
+                hasNonChildFeature = true;
+
+                if (targetEntity.getEntityValue().getEditable()) {
+                    //prioritize view id for text boxes
+                    queries.add(Pair.create(clonedQuery, 1.0));
+                } else {
+                    queries.add(Pair.create(clonedQuery, 3.2));
+                }
+            }
+        }
+
+
+        if(foundEntity != null && uiSnapshot != null){
+            //add list order
+            System.out.println("Found entity and have a non-null uiSnapshot");
+
+
+            if (! relationsToExclude.contains(SugiliteRelation.HAS_LIST_ORDER)) {
+                Set<SugiliteTriple> triples = uiSnapshot.getSubjectPredicateTriplesMap().get(new AbstractMap.SimpleEntry<>(foundEntity.getEntityId(), SugiliteRelation.HAS_LIST_ORDER.getRelationId()));
+                if (triples != null) {
+                    for (SugiliteTriple triple : triples) {
+                        String order = triple.getObject().getEntityValue().toString();
+
+                        CombinedOntologyQuery clonedQuery = q.clone();
+                        LeafOntologyQuery subQuery = new LeafOntologyQuery();
+                        Set<SugiliteEntity> object = new HashSet<>();
+                        object.add(new SugiliteEntity(-1, String.class, order));
+                        subQuery.setObjectSet(object);
+                        subQuery.setQueryFunction(SugiliteRelation.HAS_LIST_ORDER);
+                        clonedQuery.addSubQuery(subQuery);
+                        hasNonBoundingBoxFeature = true;
+                        hasNonChildFeature = true;
+                        queries.add(Pair.create(clonedQuery, 3.0));
+                    }
+                }
+            }
+
+            if (! relationsToExclude.contains(SugiliteRelation.HAS_PARENT_WITH_LIST_ORDER)) {
+                Set<SugiliteTriple> triples2 = uiSnapshot.getSubjectPredicateTriplesMap().get(new AbstractMap.SimpleEntry<>(foundEntity.getEntityId(), SugiliteRelation.HAS_PARENT_WITH_LIST_ORDER.getRelationId()));
+                if (triples2 != null) {
+                    for (SugiliteTriple triple : triples2) {
+                        String order = triple.getObject().getEntityValue().toString();
+
+                        CombinedOntologyQuery clonedQuery = q.clone();
+                        LeafOntologyQuery subQuery = new LeafOntologyQuery();
+                        Set<SugiliteEntity> object = new HashSet<>();
+                        object.add(new SugiliteEntity(-1, String.class, order));
+                        subQuery.setObjectSet(object);
+                        subQuery.setQueryFunction(SugiliteRelation.HAS_PARENT_WITH_LIST_ORDER);
+                        clonedQuery.addSubQuery(subQuery);
+                        hasNonBoundingBoxFeature = true;
+                        hasNonChildFeature = true;
+                        queries.add(Pair.create(clonedQuery, 3.1));
+                    }
+                }
+            }
+        }
+
+        if (! relationsToExclude.contains(SugiliteRelation.HAS_CHILD_TEXT)) {
+            //add child text
+            List<String> childTexts = new ArrayList<>(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_CHILD_TEXT));
+            if (childTexts != null && childTexts.size() > 0) {
+                int count = 0;
+                double score = 2.01 + (((double) (count++)) / (double) childTexts.size());
+                //TODO: in case of multiple childText queries, get all possible combinations
+
+                for (String childText : childTexts) {
+                    if (childText != null && !childText.equals(relationsToExclude.contains(SugiliteRelation.HAS_TEXT))) {
+                        CombinedOntologyQuery clonedQuery = q.clone();
+                        LeafOntologyQuery subQuery = new LeafOntologyQuery();
+                        Set<SugiliteEntity> object = new HashSet<>();
+                        object.add(new SugiliteEntity(-1, String.class, childText));
+                        subQuery.setObjectSet(object);
+                        subQuery.setQueryFunction(SugiliteRelation.HAS_CHILD_TEXT);
+                        clonedQuery.addSubQuery(subQuery);
+                        double newScore = score;
+                        if (getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_PACKAGE_NAME)) != null
+                                && AutomatorUtil.isHomeScreenPackage(getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_PACKAGE_NAME)))) {
+                            newScore = score - 1;
+                        }
+                        queries.add(Pair.create(clonedQuery, newScore));
+                        hasNonBoundingBoxFeature = true;
+                    }
+                }
+            }
+        }
+
+        if (! relationsToExclude.contains(SugiliteRelation.HAS_SCREEN_LOCATION)) {
+            if (getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_SCREEN_LOCATION)) != null) {
+                CombinedOntologyQuery clonedQuery = q.clone();
+                LeafOntologyQuery subQuery = new LeafOntologyQuery();
+                Set<SugiliteEntity> object = new HashSet<>();
+                object.add(new SugiliteEntity(-1, String.class, getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_SCREEN_LOCATION))));
+                subQuery.setObjectSet(object);
+                subQuery.setQueryFunction(SugiliteRelation.HAS_SCREEN_LOCATION);
+                clonedQuery.addSubQuery(subQuery);
+                queries.add(Pair.create(clonedQuery, 100.0));
+            }
+        }
+
+        if (! relationsToExclude.contains(SugiliteRelation.HAS_PARENT_LOCATION)) {
+            if (getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_PARENT_LOCATION)) != null) {
+                CombinedOntologyQuery clonedQuery = q.clone();
+                LeafOntologyQuery subQuery = new LeafOntologyQuery();
+                Set<SugiliteEntity> object = new HashSet<>();
+                object.add(new SugiliteEntity(-1, String.class, getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_PARENT_LOCATION))));
+                subQuery.setObjectSet(object);
+                subQuery.setQueryFunction(SugiliteRelation.HAS_PARENT_LOCATION);
+                clonedQuery.addSubQuery(subQuery);
+                queries.add(Pair.create(clonedQuery, 101.0));
+            }
+        }
+
+
+        Collections.sort(queries, new Comparator<Pair<OntologyQuery, Double>>() {
+            @Override
+            public int compare(Pair<OntologyQuery, Double> o1, Pair<OntologyQuery, Double> o2) {
+                if(o1.second > o2.second) return 1;
+                else if (o1.second.equals(o2.second)) return 0;
+                else return -1;
+            }
+        });
+        // serialize the query
+        return queries;
+    }
+
+
 }
