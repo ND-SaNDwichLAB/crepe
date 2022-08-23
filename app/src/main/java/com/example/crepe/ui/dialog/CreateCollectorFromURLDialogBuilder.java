@@ -13,6 +13,7 @@ import com.example.crepe.MainActivity;
 import com.example.crepe.R;
 import com.example.crepe.database.Collector;
 import com.example.crepe.database.DatabaseManager;
+import com.example.crepe.network.FirebaseCommunicationManager;
 import com.example.crepe.network.ServerCollectorCommunicationManager;
 import com.example.crepe.network.VolleyCallback;
 import com.google.gson.Gson;
@@ -51,23 +52,35 @@ public class CreateCollectorFromURLDialogBuilder {
                 // download collector from URL
                 Gson gson = new Gson();
                 if (urlText.getText() != null) {
-                    ServerCollectorCommunicationManager serverCollectorCommunicationManager = new ServerCollectorCommunicationManager(c);
-                    serverCollectorCommunicationManager.downloadJsonFromServer(new VolleyCallback() {
-                        @Override
-                        public void onSuccess(Collector result) {
-                            // TODO: check if the return object is null
-                            if (result == null) {
-                                // Toast message
-                                Toast.makeText(c, "Error Downloading Collector", Toast.LENGTH_SHORT).show();
-                            } else {
-                                // else: add to the collector database
-                                DatabaseManager dbManager = new DatabaseManager(c);
-                                dbManager.addOneCollector(result);
-                                // refresh home fragment
-                                refreshCollectorListRunnable.run();
-                            }
-                        }
-                    },urlText.getText().toString());
+                    // Server
+//                    ServerCollectorCommunicationManager serverCollectorCommunicationManager = new ServerCollectorCommunicationManager(c);
+//                    serverCollectorCommunicationManager.downloadJsonFromServer(new VolleyCallback() {
+//                        @Override
+//                        public void onSuccess(Collector result) {
+//                            // TODO: check if the return object is null
+//                            if (result == null) {
+//                                // Toast message
+//                                Toast.makeText(c, "Error Downloading Collector", Toast.LENGTH_SHORT).show();
+//                            } else {
+//                                // else: add to the collector database
+//                                DatabaseManager dbManager = new DatabaseManager(c);
+//                                dbManager.addOneCollector(result);
+//                                // refresh home fragment
+//                                refreshCollectorListRunnable.run();
+//                            }
+//                        }
+//                    },urlText.getText().toString());
+
+                    // Firebase
+                    FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(c);
+                    firebaseCommunicationManager.retrieveCollector(urlText.getText().toString(),refreshCollectorListRunnable);
+//                    if (collector != null){
+//                        DatabaseManager dbManager = new DatabaseManager(c);
+//                        dbManager.addOneCollector(collector);
+//                        refreshCollectorListRunnable.run();
+//                    } else {
+//                        Toast.makeText(c, "Error Downloading Collector", Toast.LENGTH_SHORT).show();
+//                    }
 
                     // next popup
                     dialog.dismiss();

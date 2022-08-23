@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+import android.util.Pair;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 
@@ -131,9 +132,11 @@ public class DatabaseManager extends SQLiteOpenHelper {
         cv.put(COLUMN_TARGET_SERVER_IP, collector.getTargetServerIp());
         cv.put(COLUMN_COLLECTOR_START_TIME, collector.getCollectorStartTime());
         cv.put(COLUMN_COLLECTOR_END_TIME, collector.getCollectorEndTime());
-        cv.put(COLUMN_COLLECTOR_GRAPH_QUERY, collector.getCollectorGraphQuery());
-        cv.put(COLUMN_COLLECTOR_APP_DATA_FIELDS, collector.getCollectorAppDataFields());
         cv.put(COLUMN_COLLECTOR_STATUS, collector.getCollectorStatus());
+        for (Pair<String, String> i : collector.getDataFields()){
+            cv.put(COLUMN_COLLECTOR_GRAPH_QUERY,  i.first);
+            cv.put(COLUMN_COLLECTOR_APP_DATA_FIELDS, i.second);
+        }
 
         long insert = db.insert(COLLECTOR_TABLE, null, cv);
         db.close();

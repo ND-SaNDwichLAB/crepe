@@ -1,6 +1,5 @@
 package com.example.crepe.ui.dialog;
 
-import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.ClipData;
@@ -13,17 +12,22 @@ import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.provider.Settings;
+import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.example.crepe.CrepeAccessibilityService;
 import com.example.crepe.MainActivity;
@@ -32,11 +36,9 @@ import com.example.crepe.database.Collector;
 import com.example.crepe.database.DatabaseManager;
 import com.example.crepe.demonstration.WidgetService;
 import com.example.crepe.graphquery.Const;
-import com.example.crepe.network.ServerCollectorCommunicationManager;
+import com.example.crepe.network.FirebaseCommunicationManager;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
-
-import org.json.JSONException;
 
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
@@ -271,7 +273,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
 
-                        // check if the accessibilityservice is running
+                        // check if the accessibility service is running
                         Boolean accessibilityServiceRunning = false;
                         ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
                         Class clazz = CrepeAccessibilityService.class;
@@ -354,10 +356,6 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                     }
                 });
 
-                // show graph query info in the collector if available
-                if (collector.getCollectorGraphQuery() != null) {
-                    graphQueryEditTxt.setText(collector.getCollectorGraphQuery());
-                }
 
                 graphQueryBckBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -374,10 +372,12 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         int blankFlag = 0;
-                        // get graph query
-                        String graphQueryContent = graphQueryEditTxt.getText().toString();
+                        // get graph query by input
+//                        String graphQueryContent = graphQueryEditTxt.getText().toString();
+                        String graphQueryContent = "graph";
+                        String appDataField = "data field test";
                         if (graphQueryContent != null) {
-                            collector.setCollectorGraphQuery(graphQueryContent);
+                            collector.putNewGraphQueryAndDataField (graphQueryContent, appDataField);
                         } else {
                             // remind user to add graph query
                             Context currentContext = context.getApplicationContext();
@@ -409,12 +409,25 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                 Button dataFieldNxtBtn = (Button) dialogMainView.findViewById(R.id.dataFieldNextButton);
                 Button dataFieldBckBtn = (Button) dialogMainView.findViewById(R.id.dataFieldBackButton);
                 ImageButton dataFieldCloseImg = (ImageButton) dialogMainView.findViewById(R.id.closeDataFieldImageButton);
-                EditText dataFieldEditText = (EditText) dialogMainView.findViewById(R.id.dataFieldEditText);
+                LinearLayout dataFieldLinearLayout = (LinearLayout) dialogMainView.findViewById(R.id.dataFiledLinearLayout);
+
 
                 // show data fields info in the collector if available
-                if (collector.getCollectorAppDataFields() != null) {
-                    dataFieldEditText.setText(collector.getCollectorAppDataFields());
-                }
+//                if (collector.getCollectorAppDataFields() != null) {
+//                    dataFieldEditText.setText(collector.getCollectorAppDataFields());
+//                }
+                // get size of ril and create a list
+                List<Pair<String,String>> dataFields = collector.getDataFields();
+                DataFieldConstraintLayoutBuilder builder = new DataFieldConstraintLayoutBuilder(context);
+                updateDataField(collector,dataFieldLinearLayout, builder);
+//                dataFieldLinearLayout.removeAllViews();
+//
+//                for (Pair<String, String> i : dataFields){
+//                    ConstraintLayout collectorCardView = builder.build(i.second, dataFieldLinearLayout, collector, dataFieldUpdateRunnable);
+//                    dataFieldLinearLayout.addView(collectorCardView);
+//                }
+
+
 
                 dataFieldBckBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -430,8 +443,8 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         // write data field into collector
-                        String dataFieldContent = dataFieldEditText.getText().toString();
-                        collector.setCollectorAppDataFields(dataFieldContent);
+                        //String dataFieldContent = dataFieldEditText.getText().toString();
+                        //collector.setCollectorAppDataFields(dataFieldContent);
                         // update currentScreen String value
                         currentScreenState = "buildDialogFromConfigDescription";
 
@@ -507,32 +520,42 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                 dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_add_collector_from_config_success_message, null);
                 dialog.setContentView(dialogMainView);
 
-                // TODO: QUESTION – what's the best way to encode url?
                 // TODO: Create a new class to handle url generation e.g. collectorUrlManager
                 //      1. create url
                 //      2. get collector from url
                 collector.setCollectorId("9");
-                ServerCollectorCommunicationManager sccManager = new ServerCollectorCommunicationManager(context);
-                try {
-                    sccManager.uploadJsonToServer(collector);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                // connect to crepe server
+//                ServerCollectorCommunicationManager sccManager = new ServerCollectorCommunicationManager(context);
+//                try {
+//                    sccManager.uploadJsonToServer(collector);
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+
+                // Connect to Firebase
+                FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(context);
+                firebaseCommunicationManager.putCollector(collector).addOnSuccessListener(suc->{
+                    Log.i("Firebase","Successfully added collector " + collector.getCollectorId() + " to firebase.");
+                }).addOnFailureListener(er->{
+                    Log.e("Firebase","Failed to add collector " + collector.getCollectorId() + " to firebase.");
+                });
+
 
                 // Create url for current collector
                 String collectorURL = "http://35.222.12.92:8000?id=" + collector.getCollectorId();
 
                 Button closeSuccessMessage = (Button) dialogMainView.findViewById(R.id.closeSuccessMessagePopupButton);
                 ImageButton shareUrlLinkButton = (ImageButton) dialogMainView.findViewById(R.id.shareUrlImageButton);
-                ImageButton shareEmailLinkButton = (ImageButton) dialogMainView.findViewById(R.id.shareUrlImageButton);
+                ImageButton shareEmailLinkButton = (ImageButton) dialogMainView.findViewById(R.id.shareEmailImageButton);
 
                 shareEmailLinkButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         // share email link
                         Intent intent = new Intent(Intent.ACTION_SENDTO);
-                        intent.setData(Uri.parse("mailto:"));
-                        intent.putExtra(Intent.EXTRA_EMAIL, "ylu23@nd.edu");
+                        intent.setType("message/rfc822");
+                        intent.setData(Uri.parse("mailto:"+"ylu23@nd.edu"));
+                        //intent.putExtra(Intent.EXTRA_EMAIL, "ylu23@nd.edu");
                         intent.putExtra(Intent.EXTRA_SUBJECT, "Data Collector for " + collector.getAppName());
                         intent.putExtra(Intent.EXTRA_TEXT, collectorURL);
 
@@ -634,4 +657,13 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
         dialog.show();
         updateCurrentView();
     }
+
+    public void updateDataField(Collector collector, ViewGroup rootView, DataFieldConstraintLayoutBuilder builder){
+        rootView.removeAllViews();
+        for (Pair<String, String> i : collector.getDataFields()){
+            ConstraintLayout collectorCardView = builder.build(i.second, rootView, collector);
+            rootView.addView(collectorCardView);
+        }
+    }
+
 }

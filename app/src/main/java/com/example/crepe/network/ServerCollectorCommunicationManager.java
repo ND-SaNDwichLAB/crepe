@@ -46,8 +46,7 @@ public class ServerCollectorCommunicationManager extends AppCompatActivity {
         params.put("targetServerIp", collector.getTargetServerIp() == null ? "1" : collector.getTargetServerIp());
         params.put("collectorStartTime", collector.getCollectorStartTime());
         params.put("collectorEndTime", collector.getCollectorEndTime());
-        params.put("collectorGraphQuery", collector.getCollectorGraphQuery());
-        params.put("collectorAppDataFields", collector.getCollectorAppDataFields());
+        params.put("collectorDataFields", collector.getDataFieldsToString());
         params.put("collectorStatus", collector.getCollectorStatus());
 
         String url = "http://35.222.12.92:8000/";
@@ -83,7 +82,7 @@ public class ServerCollectorCommunicationManager extends AppCompatActivity {
             @Override
             public void onResponse(JSONObject response) {
                 collectorInfo[0] = response.toString();
-                Collector collector = g.fromJson(collectorInfo[0], Collector.class);
+                Collector collector = g.fromJson(collectorInfo[0], Collector.class); //TODO: is it smart enough to transform string to hashmap?
                 callback.onSuccess(collector);
                 Log.e("GET Request", "Received success");
             }
