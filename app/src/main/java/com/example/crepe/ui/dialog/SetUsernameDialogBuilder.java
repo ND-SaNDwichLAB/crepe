@@ -12,6 +12,11 @@ import android.widget.Toast;
 import com.example.crepe.MainActivity;
 import com.example.crepe.R;
 import com.example.crepe.database.DatabaseManager;
+import com.example.crepe.database.User;
+import com.example.crepe.network.FirebaseCommunicationManager;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SetUsernameDialogBuilder {
     private Context c;
@@ -50,6 +55,10 @@ public class SetUsernameDialogBuilder {
                 } else {
                     DatabaseManager dbManager = new DatabaseManager(c);
                     dbManager.updateUserName(androidId,userName);
+                    List<User> users = dbManager.getAllUsers();
+                    User user = users.get(0);
+                    FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(c);
+                    firebaseCommunicationManager.putUser(user);
                     runnable.run();
                     dialog.dismiss();
                 }

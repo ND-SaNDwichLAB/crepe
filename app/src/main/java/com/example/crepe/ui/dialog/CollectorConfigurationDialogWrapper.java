@@ -257,6 +257,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                 dialog.setContentView(dialogMainView);
                 Button graphQueryNxtBtn = (Button) dialogMainView.findViewById(R.id.graphQueryNextButton);
                 Button graphQueryBckBtn = (Button) dialogMainView.findViewById(R.id.graphQueryBackButton);
+                Button graphQueryAddBtn = (Button) dialogMainView.findViewById(R.id.graphQueryAddAnotherButton);
                 Button openAppBtn = (Button) dialogMainView.findViewById(R.id.openAppButton);
                 ImageButton graphQueryCloseImg = (ImageButton) dialogMainView.findViewById(R.id.closeGraphQueryPopupImageButton);
                 EditText graphQueryEditTxt = (EditText) dialogMainView.findViewById(R.id.graphQueryEditText);
@@ -377,7 +378,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         String graphQueryContent = "graph";
                         String appDataField = "data field test";
                         if (graphQueryContent != null) {
-                            collector.putNewGraphQueryAndDataField (graphQueryContent, appDataField);
+                            collector.putNewGraphQueryAndDataField(graphQueryContent, appDataField);
                         } else {
                             // remind user to add graph query
                             Context currentContext = context.getApplicationContext();
@@ -390,6 +391,13 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                             // recursively call itself with new currentScreen String value
                             updateCurrentView();
                         }
+                    }
+                });
+
+                graphQueryAddBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        currentScreenState = "buildDialogFromConfigGraphQuery";
                     }
                 });
 

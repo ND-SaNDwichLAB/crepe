@@ -82,7 +82,7 @@ public class ServerCollectorCommunicationManager extends AppCompatActivity {
             @Override
             public void onResponse(JSONObject response) {
                 collectorInfo[0] = response.toString();
-                Collector collector = g.fromJson(collectorInfo[0], Collector.class); //TODO: is it smart enough to transform string to hashmap?
+                Collector collector = g.fromJson(collectorInfo[0], Collector.class);
                 callback.onSuccess(collector);
                 Log.e("GET Request", "Received success");
             }

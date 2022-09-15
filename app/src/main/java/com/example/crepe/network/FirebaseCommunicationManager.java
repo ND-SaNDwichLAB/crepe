@@ -95,10 +95,9 @@ public class FirebaseCommunicationManager {
         return databaseReference.child(key).removeValue();
     }
 
-    public void retrieveCollector(String key, Runnable runnable){
+    public void retrieveCollector(String key, FirebaseCallback firebaseCallback){
         DatabaseReference databaseReference = db.getReference(Collector.class.getSimpleName());
         databaseReference.child(key).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-            private Collector collector;
             @Override
             public void onComplete(@NonNull Task<DataSnapshot> task) {
                 if (task.isSuccessful()){
@@ -120,10 +119,8 @@ public class FirebaseCommunicationManager {
                             dataFields.add(new Pair<String,String>(i.get("first").toString(), i.get("second").toString()));
                         }
                         Collector collector = new Collector(collectorId,"1",appName,description,mode,collectorStartTime,collectorEndTime,dataFields,status);
-                        DatabaseManager dbManager = new DatabaseManager(context);
-                        dbManager.addOneCollector(collector);
-                        runnable.run();
-                        this.collector = collector;
+                        // call firebase callback to update collector
+                        firebaseCallback.onResponse(collector);
                     } else {
                         Log.e("Firebase","Failed to find the collector firebase.");
                         Toast.makeText(context,"Failed to find the collector firebase.",Toast.LENGTH_LONG).show();

@@ -13,10 +13,13 @@ import com.example.crepe.MainActivity;
 import com.example.crepe.R;
 import com.example.crepe.database.Collector;
 import com.example.crepe.database.DatabaseManager;
+import com.example.crepe.network.FirebaseCallback;
 import com.example.crepe.network.FirebaseCommunicationManager;
 import com.example.crepe.network.ServerCollectorCommunicationManager;
 import com.example.crepe.network.VolleyCallback;
 import com.google.gson.Gson;
+
+import java.util.List;
 
 public class CreateCollectorFromURLDialogBuilder {
 
@@ -57,7 +60,7 @@ public class CreateCollectorFromURLDialogBuilder {
 //                    serverCollectorCommunicationManager.downloadJsonFromServer(new VolleyCallback() {
 //                        @Override
 //                        public void onSuccess(Collector result) {
-//                            // TODO: check if the return object is null
+//                           // save collector to database
 //                            if (result == null) {
 //                                // Toast message
 //                                Toast.makeText(c, "Error Downloading Collector", Toast.LENGTH_SHORT).show();
@@ -73,15 +76,18 @@ public class CreateCollectorFromURLDialogBuilder {
 
                     // Firebase
                     FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(c);
-                    firebaseCommunicationManager.retrieveCollector(urlText.getText().toString(),refreshCollectorListRunnable);
-//                    if (collector != null){
-//                        DatabaseManager dbManager = new DatabaseManager(c);
-//                        dbManager.addOneCollector(collector);
-//                        refreshCollectorListRunnable.run();
-//                    } else {
-//                        Toast.makeText(c, "Error Downloading Collector", Toast.LENGTH_SHORT).show();
-//                    }
-
+                    firebaseCommunicationManager.retrieveCollector(urlText.getText().toString(), new FirebaseCallback() {
+                        @Override
+                        public void onResponse(Collector result) {
+                            DatabaseManager dbManager = new DatabaseManager(c);
+                            dbManager.addOneCollector(result);
+                            refreshCollectorListRunnable.run();
+                            List<Collector> collectors = dbManager.getAllCollectors();
+                            for (Collector collector : collectors) {
+                                System.out.println(collector.toString());
+                            }
+                        }
+                    });
                     // next popup
                     dialog.dismiss();
                     CreateCollectorFromURLDialogSuccessMessage nextPopup = new CreateCollectorFromURLDialogSuccessMessage(c);
@@ -89,7 +95,6 @@ public class CreateCollectorFromURLDialogBuilder {
                 } else {
                     Toast.makeText(c,"Please enter a valid URL", Toast.LENGTH_LONG).show();
                 }
-
             }
         });
         return dialog;

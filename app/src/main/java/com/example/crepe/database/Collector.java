@@ -26,8 +26,6 @@ public class Collector {
     private String targetServerIp;
     private long collectorStartTime;
     private long collectorEndTime;
-//    private String collectorGraphQuery;
-//    private String collectorAppDataFields;
     private List<Pair<String, String>> dataFields;
     private String collectorStatus;
 
@@ -217,9 +215,9 @@ public class Collector {
     }
 
     public String getDataFieldsToJson(){
-        String dataFieldString = "{ ";
+        String dataFieldString = "{";
         for (Pair i : this.dataFields) {
-            dataFieldString += i.first + " : " + i.second + ", ";
+            dataFieldString += i.first + ":" + i.second + ",";
         }
         if (!dataFieldString.equals("")){dataFieldString = dataFieldString.substring(0, dataFieldString.length() - 2);} // remove last ", "
         dataFieldString += "}";
@@ -229,7 +227,7 @@ public class Collector {
     public String getDataFieldsToString(){
         String dataFieldString = "";
         for (Pair i : this.dataFields) {
-            dataFieldString += i.second + "\n";
+            dataFieldString += i.second + ",";
         }
         if (!dataFieldString.equals("")){ dataFieldString = dataFieldString.substring(0, dataFieldString.length() - 1);} // remove last "\n"
         return dataFieldString;
