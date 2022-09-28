@@ -64,10 +64,11 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="24dp"
                 android:layout_marginBottom="4dp"
+                android:layout_marginTop="6dp"
                 android:text="collector data description"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                app:layout_constraintBottom_toBottomOf="@+id/collectorImg"
-                app:layout_constraintStart_toEndOf="@+id/collectorImg" />
+                app:layout_constraintStart_toEndOf="@+id/collectorImg"
+                app:layout_constraintTop_toBottomOf="@+id/collectorTitle" />
 
             <TextView
                 android:id="@+id/startTime"

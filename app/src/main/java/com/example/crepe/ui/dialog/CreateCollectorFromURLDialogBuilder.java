@@ -13,9 +13,13 @@ import com.example.crepe.MainActivity;
 import com.example.crepe.R;
 import com.example.crepe.database.Collector;
 import com.example.crepe.database.DatabaseManager;
+import com.example.crepe.network.FirebaseCallback;
+import com.example.crepe.network.FirebaseCommunicationManager;
 import com.example.crepe.network.ServerCollectorCommunicationManager;
 import com.example.crepe.network.VolleyCallback;
 import com.google.gson.Gson;
+
+import java.util.List;
 
 public class CreateCollectorFromURLDialogBuilder {
 
@@ -51,24 +55,39 @@ public class CreateCollectorFromURLDialogBuilder {
                 // download collector from URL
                 Gson gson = new Gson();
                 if (urlText.getText() != null) {
-                    ServerCollectorCommunicationManager serverCollectorCommunicationManager = new ServerCollectorCommunicationManager(c);
-                    serverCollectorCommunicationManager.downloadJsonFromServer(new VolleyCallback() {
+                    // Server
+//                    ServerCollectorCommunicationManager serverCollectorCommunicationManager = new ServerCollectorCommunicationManager(c);
+//                    serverCollectorCommunicationManager.downloadJsonFromServer(new VolleyCallback() {
+//                        @Override
+//                        public void onSuccess(Collector result) {
+//                           // save collector to database
+//                            if (result == null) {
+//                                // Toast message
+//                                Toast.makeText(c, "Error Downloading Collector", Toast.LENGTH_SHORT).show();
+//                            } else {
+//                                // else: add to the collector database
+//                                DatabaseManager dbManager = new DatabaseManager(c);
+//                                dbManager.addOneCollector(result);
+//                                // refresh home fragment
+//                                refreshCollectorListRunnable.run();
+//                            }
+//                        }
+//                    },urlText.getText().toString());
+
+                    // Firebase
+                    FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(c);
+                    firebaseCommunicationManager.retrieveCollector(urlText.getText().toString(), new FirebaseCallback() {
                         @Override
-                        public void onSuccess(Collector result) {
-                            // TODO: check if the return object is null
-                            if (result == null) {
-                                // Toast message
-                                Toast.makeText(c, "Error Downloading Collector", Toast.LENGTH_SHORT).show();
-                            } else {
-                                // else: add to the collector database
-                                DatabaseManager dbManager = new DatabaseManager(c);
-                                dbManager.addOneCollector(result);
-                                // refresh home fragment
-                                refreshCollectorListRunnable.run();
+                        public void onResponse(Collector result) {
+                            DatabaseManager dbManager = new DatabaseManager(c);
+                            dbManager.addOneCollector(result);
+                            refreshCollectorListRunnable.run();
+                            List<Collector> collectors = dbManager.getAllCollectors();
+                            for (Collector collector : collectors) {
+                                System.out.println(collector.toString());
                             }
                         }
-                    },urlText.getText().toString());
-
+                    });
                     // next popup
                     dialog.dismiss();
                     CreateCollectorFromURLDialogSuccessMessage nextPopup = new CreateCollectorFromURLDialogSuccessMessage(c);
@@ -76,7 +95,6 @@ public class CreateCollectorFromURLDialogBuilder {
                 } else {
                     Toast.makeText(c,"Please enter a valid URL", Toast.LENGTH_LONG).show();
                 }
-
             }
         });
         return dialog;

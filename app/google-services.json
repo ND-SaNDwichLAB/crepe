@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "584330047593",
+    "project_id": "crepe-bfdac",
+    "storage_bucket": "crepe-bfdac.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:584330047593:android:0a4ac9e0447e9d62e532f8",
+        "android_client_info": {
+          "package_name": "com.example.crepe"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "584330047593-t2t9qupq0svmietejgkitvclcuqv75s2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCCoPmspn1vHmjXP9EBizd3XLkeahBlc9o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "584330047593-t2t9qupq0svmietejgkitvclcuqv75s2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

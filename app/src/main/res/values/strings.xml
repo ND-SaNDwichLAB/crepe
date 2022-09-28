@@ -10,4 +10,6 @@
     <string name="close">Close</string>
     <string name="hello_first_fragment">Collector Cards Here</string>
     <string name="back">Back</string>
+    <string name="positive">Yes</string>
+    <string name="negative">No</string>
 </resources>

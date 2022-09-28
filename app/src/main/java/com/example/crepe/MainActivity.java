@@ -8,6 +8,7 @@ import android.os.Bundle;
 import com.example.crepe.database.Collector;
 import com.example.crepe.database.DatabaseManager;
 import com.example.crepe.database.User;
+import com.example.crepe.network.FirebaseCommunicationManager;
 import com.example.crepe.ui.dialog.CollectorConfigurationDialogWrapper;
 import com.example.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilder;
 import com.example.crepe.ui.dialog.CreateCollectorFromURLDialogBuilder;
@@ -22,6 +23,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.util.Log;
+import android.util.Pair;
 import android.view.View;
 
 import androidx.core.view.GravityCompat;
@@ -40,7 +42,9 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -79,6 +83,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Check for the device's unique IMEI ID, see if it's already in the database
+        // If not, add the new user to database
+        androidId = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
+        Boolean userExists = false;
+
         // TODO: this is test code, clean database and generate example collectors
         dbManager = new DatabaseManager(this);
         try {
@@ -87,8 +96,10 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(MainActivity.this, "Error clearing database", Toast.LENGTH_SHORT).show();
         }
         try {
-
-            testCollector = new Collector("6", "1", "Uber", "description for a Uber collector", "what", "https", 100, 100, "graphQuery","DataFields","active");
+            List<Pair<String,String>> testList = new ArrayList<>();
+            testList.add(new Pair<>("test1", "test1"));
+            testList.add(new Pair<>("test2", "test2"));
+            testCollector = new Collector("16", "1", "Uber", "description for a Uber collector", "what", 100, 100, testList,"active");
             testCollector2 = new Collector("7", "1", "Doordash", "description for a Doordash collector", "what", "https", 139148015, 1491789595, "graphQuery","DataFields","active");
             Boolean addResult = dbManager.addOneCollector(testCollector);
             Boolean addResult2 = dbManager.addOneCollector(testCollector2);
@@ -98,10 +109,6 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(MainActivity.this, "Error Creating Collector", Toast.LENGTH_SHORT).show();
         }
 
-        // Check for the device's unique IMEI ID, see if it's already in the database
-        // If not, add the new user to database
-        androidId = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
-        Boolean userExists = false;
         if(androidId == null) {
             Log.e("User id", "Fail to retrieve device id, userid is null");
         } else {
@@ -112,6 +119,8 @@ public class MainActivity extends AppCompatActivity {
                 // Create a new user object, with name being an empty string
                 User user = new User(androidId, "", currentTime, currentTime);
                 dbManager.addOneUser(user);
+                FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(this);
+                firebaseCommunicationManager.putUser(user);
                 userExists = true;
             }
         }
