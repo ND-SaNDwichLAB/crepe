@@ -27,9 +27,14 @@ import androidx.annotation.RequiresApi;
 
 import com.example.crepe.CrepeAccessibilityService;
 import com.example.crepe.demonstration.WidgetDisplay;
+import com.example.crepe.graphquery.automation.AutomatorUtil;
 import com.example.crepe.graphquery.model.Node;
+import com.example.crepe.graphquery.ontology.CombinedOntologyQuery;
+import com.example.crepe.graphquery.ontology.LeafOntologyQuery;
+import com.example.crepe.graphquery.ontology.OntologyQuery;
 import com.example.crepe.graphquery.ontology.SugiliteEntity;
 import com.example.crepe.graphquery.ontology.SugiliteRelation;
+import com.example.crepe.graphquery.ontology.SugiliteTriple;
 import com.example.crepe.graphquery.ontology.UISnapshot;
 import com.example.crepe.graphquery.recording.FullScreenOverlayManager;
 
@@ -38,6 +43,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -460,6 +466,15 @@ public class DemonstrationUtil {
         // serialize the query
         return queries;
     }
+
+    private static  <T> T getValueIfOnlyOneObject (Collection<T> collection) {
+        if (collection != null && collection.size() == 1) {
+            List<T> list = new ArrayList<>(collection);
+            return list.get(0);
+        }
+        return null;
+    }
+
 
 
 }
