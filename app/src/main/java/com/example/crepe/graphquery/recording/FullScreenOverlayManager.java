@@ -6,10 +6,7 @@ import static com.example.crepe.graphquery.DemonstrationUtil.findClosestSiblingN
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.PixelFormat;
-import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
@@ -19,7 +16,6 @@ import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityNodeInfo;
 
@@ -28,11 +24,6 @@ import androidx.annotation.RequiresApi;
 import com.example.crepe.CrepeAccessibilityService;
 import com.example.crepe.demonstration.WidgetDisplay;
 import com.example.crepe.graphquery.Const;
-import com.example.crepe.graphquery.ontology.ContainsContentGraphQuery;
-import com.example.crepe.graphquery.recording.NavigationBarUtil;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class FullScreenOverlayManager {
 
@@ -194,8 +185,6 @@ public class FullScreenOverlayManager {
                     // get the matched node text
                     String matchedNodeText = String.valueOf(matchedNode.getText());
 
-                    ContainsContentGraphQuery containsContentQuery = new ContainsContentGraphQuery(matchedNode);
-                    Log.d("graphquery", containsContentQuery.getQueryString());
                     // TODO yuwen: store the query in database, then constantly check it in another thread
 
                     if(matchedNode != null && !matchedNodeText.isEmpty()) {

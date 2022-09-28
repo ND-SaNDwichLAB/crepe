@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.example.crepe.graphquery.DemonstrationUtil;
 import com.example.crepe.graphquery.model.Node;
+import com.example.crepe.graphquery.ontology.helper.ListOrderResolver;
 //import com.example.crepe.graphquery.automation.AutomatorUtil;
 //import com.example.crepe.graphquery.ontology.helper.ListOrderResolver;
 //import com.example.crepe.graphquery.ontology.helper.TextStringParseHelper;
@@ -185,7 +186,7 @@ public class UISnapshot {
 
         if(allNodes != null){
             for(Node node : allNodes) {
-                if(node.getPackageName() != null && (node.getPackageName().contains("com.android.systemui") || node.getPackageName().contains("sugilite"))){
+                if(node.getPackageName() != null && (node.getPackageName().contains("com.android.systemui") || node.getPackageName().contains("crepe"))){
                     continue;
                 }
 
@@ -344,11 +345,6 @@ public class UISnapshot {
                 }
             }
 
-            if (toAnnotateStringEntities) {
-                this.annotateStringEntitiesIfNeeded();
-            }
-            //*** temporarily disable geometric relations ***
-
             //parse node entities
             if (TO_ADD_SPATIAL_RELATIONS) {
                 //geometric/spatial relations
@@ -363,10 +359,6 @@ public class UISnapshot {
                     nodeEntitiesToAnnotate.add(entry.getValue());
                 }
 
-                SugiliteNodeAnnotator annotator = SugiliteNodeAnnotator.getInstance();
-                for (SugiliteNodeAnnotator.NodeAnnotatingResult res : annotator.annotate(nodeEntitiesToAnnotate, width, height)) {
-                    this.addEntityNodeTriple(res.getSubject(), res.getObject(), res.getRelation());
-                }
             }
 
 
