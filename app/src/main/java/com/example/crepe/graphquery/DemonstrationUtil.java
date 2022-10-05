@@ -1,5 +1,6 @@
 package com.example.crepe.graphquery;
 
+import static android.content.Context.WINDOW_SERVICE;
 import static com.example.crepe.graphquery.Const.OVERLAY_TYPE;
 
 import android.app.ActivityManager;
@@ -17,7 +18,9 @@ import android.os.Build;
 import android.provider.Settings;
 import android.util.Log;
 import android.util.Pair;
+import android.view.WindowManager;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.view.accessibility.AccessibilityWindowInfo;
 import android.widget.Toast;
 
 //import com.example.crepe.graphquery.ontology.CombinedOntologyQuery;
@@ -74,7 +77,9 @@ public class DemonstrationUtil {
             }
 
         }
-            //TODO 1 Yuwen: construct script
+            //TODO 1 Yuwen: build a uisnapshot and construct script
+            CrepeAccessibilityService.getsSharedInstance().getCurrentUiSnapshot();
+
 //            sugiliteData.initiateScriptRecording(DemonstrationUtil.addScriptExtension(scriptName), afterRecordingCallback); //add the end recording callback
 //            sugiliteData.initiatedExternally = false;
 

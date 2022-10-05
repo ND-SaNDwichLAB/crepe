@@ -183,17 +183,18 @@ public class FullScreenOverlayManager {
                     // get the matched node
                     AccessibilityNodeInfo matchedNode = CrepeAccessibilityService.getsSharedInstance().getMatchingNodeFromClick(rawX, rawY);
                     // get the matched node text
-                    String matchedNodeText = String.valueOf(matchedNode.getText());
+                    if(matchedNode != null) {
+                        String matchedNodeText = String.valueOf(matchedNode.getText());
+                        if(!matchedNodeText.isEmpty())
+                        {
+                            AccessibilityNodeInfo closestSiblingNode = findClosestSiblingNode(matchedNode);
+                            if(closestSiblingNode.getText() != null) Log.d("graphquery", "Sibling Text: " + closestSiblingNode.getText().toString());
+                        } else {
+                            Log.d("uisnapshot", "Sorry we do not support the collection of such information. Cannot find the matching node for your click.");
+                        }
+                    }
 
                     // TODO yuwen: store the query in database, then constantly check it in another thread
-
-                    if(matchedNode != null && !matchedNodeText.isEmpty()) {
-                        AccessibilityNodeInfo closestSiblingNode = findClosestSiblingNode(matchedNode);
-                        Log.d("graphquery", "Sibling Text: " + closestSiblingNode.getText().toString());
-
-                    } else {
-                        Log.d("uisnapshot", "Sorry we do not support the collection of such information. Cannot find the matching node for your click.");
-                    }
 
                     return true;
                 }

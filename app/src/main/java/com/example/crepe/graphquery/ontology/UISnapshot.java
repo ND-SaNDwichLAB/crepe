@@ -97,10 +97,10 @@ public class UISnapshot {
     }
 
     //construct a UISnapshot for a list of windows
-    public UISnapshot(Display display, List<AccessibilityWindowInfo> windows, boolean toConstructNodeAccessibilityNodeInfoMap, boolean toAnnotateStringEntities, String activePackageName, String activeActivityName) {
+    public UISnapshot(Display display, List<AccessibilityWindowInfo> windows, boolean toConstructNodeAccessibilityNodeInfoMap, String activePackageName, String activeActivityName) {
         this(display);
-        this.activityName = activeActivityName;
         this.packageName = activePackageName;
+        this.activityName = activeActivityName;
 
         List<Node> allNodes = new ArrayList<>();
         for(AccessibilityWindowInfo window : windows){
@@ -111,13 +111,13 @@ public class UISnapshot {
         }
 
         long startTime = System.currentTimeMillis();
-        constructFromListOfNodes(allNodes, toAnnotateStringEntities);
+        constructFromListOfNodes(allNodes);
         long stopTime = System.currentTimeMillis();
         Log.v(TAG, String.format("Constructed from List of %d Nodes! -- Takes %s ms", allNodes.size(), String.valueOf(stopTime - startTime)));
     }
 
     //construct a UISnapshot from a rootNode
-    public UISnapshot(Display display, AccessibilityNodeInfo rootNode, boolean toConstructNodeAccessibilityNodeInfoMap, boolean toAnnotateStringEntities, String activePackageName, String activeActivityName) {
+    public UISnapshot(Display display, AccessibilityNodeInfo rootNode, boolean toConstructNodeAccessibilityNodeInfoMap, String activePackageName, String activeActivityName) {
         this(display);
         this.activityName = activeActivityName;
         this.packageName = activePackageName;
@@ -136,7 +136,7 @@ public class UISnapshot {
                 }
             }
         }
-        constructFromListOfNodes(allNodes, toAnnotateStringEntities);
+        constructFromListOfNodes(allNodes);
     }
 
     /*
@@ -180,9 +180,8 @@ public class UISnapshot {
     /**
      * contruct a UI snapshot from a list of all nodes
      * @param allNodes
-     * @param toAnnotateStringEntities
      */
-    private void constructFromListOfNodes(List<Node> allNodes, boolean toAnnotateStringEntities){
+    private void constructFromListOfNodes(List<Node> allNodes){
 
         if(allNodes != null){
             for(Node node : allNodes) {

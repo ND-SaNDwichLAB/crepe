@@ -98,7 +98,7 @@ public class WidgetService extends Service {
             @Override
             public void onClick(View view) {
                 initiateDemonstration(c, fullScreenOverlayManager, widgetDisplay);
-                }
+            }
         });
 
         // drag movement
