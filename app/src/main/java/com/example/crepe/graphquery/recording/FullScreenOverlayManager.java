@@ -1,8 +1,10 @@
 package com.example.crepe.graphquery.recording;
 
 import static android.content.Context.WINDOW_SERVICE;
+import static android.icu.lang.UCharacter.GraphemeClusterBreak.T;
 import static com.example.crepe.graphquery.Const.OVERLAY_TYPE;
 import static com.example.crepe.graphquery.DemonstrationUtil.findClosestSiblingNode;
+import static com.example.crepe.graphquery.DemonstrationUtil.generateDefaultQueries;
 
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +14,7 @@ import android.os.Build;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.Pair;
 import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -24,6 +27,14 @@ import androidx.annotation.RequiresApi;
 import com.example.crepe.CrepeAccessibilityService;
 import com.example.crepe.demonstration.WidgetDisplay;
 import com.example.crepe.graphquery.Const;
+import com.example.crepe.graphquery.model.Node;
+import com.example.crepe.graphquery.ontology.OntologyQuery;
+import com.example.crepe.graphquery.ontology.SugiliteEntity;
+import com.example.crepe.graphquery.ontology.SugiliteRelation;
+import com.example.crepe.graphquery.ontology.UISnapshot;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class FullScreenOverlayManager {
 
@@ -37,6 +48,8 @@ public class FullScreenOverlayManager {
     private int overlayCurrentWidth;
     private int overlayCurrentFlag;
     private SelectionOverlayViewManager selectionOverlayViewManager;
+
+    private int entityId = 0;
 
     public FullScreenOverlayManager(Context context, WindowManager windowManager, DisplayMetrics displayMetrics) {
         this.context = context;
@@ -182,6 +195,14 @@ public class FullScreenOverlayManager {
 
                     // get the matched node
                     AccessibilityNodeInfo matchedNode = CrepeAccessibilityService.getsSharedInstance().getMatchingNodeFromClick(rawX, rawY);
+                    SugiliteEntity<Node> targetEntity = new SugiliteEntity(entityId, Node.class, matchedNode);
+                    entityId++;
+
+                    UISnapshot uiSnapshot = CrepeAccessibilityService.getsSharedInstance().generateUISnapshot();
+
+                    SugiliteRelation[] relationsToExclude = new SugiliteRelation[0];
+                    List<Pair<OntologyQuery, Double>> defaultQueries = generateDefaultQueries(uiSnapshot, targetEntity, relationsToExclude);
+
                     // get the matched node text
                     if(matchedNode != null) {
                         String matchedNodeText = String.valueOf(matchedNode.getText());

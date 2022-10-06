@@ -127,7 +127,7 @@ public class UISnapshot {
         if(allOldNodes != null) {
             for (AccessibilityNodeInfo oldNode : allOldNodes) {
                 Node node = new Node(oldNode, activePackageName.equals(oldNode.getPackageName()) ? activeActivityName : null);
-                if (node.getPackageName() != null && (node.getPackageName().contains("com.android.systemui") || node.getPackageName().contains("sugilite"))) {
+                if (node.getPackageName() != null && (node.getPackageName().contains("com.android.systemui") || node.getPackageName().contains("crepe"))) {
                     continue;
                 }
                 allNodes.add(node);

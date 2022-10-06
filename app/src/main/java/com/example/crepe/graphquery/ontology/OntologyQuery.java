@@ -143,16 +143,6 @@ public abstract class OntologyQuery implements Serializable {
         }
     }
 
-    private Set<String> getStringsNeededForServerSaltedHashing (UISnapshot graph) {
-        Set<String> result = new HashSet<>();
-        if (this instanceof OntologyQueryWithSubQueries) {
-            for (OntologyQuery q : ((OntologyQueryWithSubQueries)this).getSubQueries()) {
-                result.addAll(q.getStringsNeededForServerSaltedHashing(graph));
-            }
-        }
-        return result;
-    }
-
     @Override
     public abstract String toString();
 

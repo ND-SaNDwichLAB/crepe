@@ -1,6 +1,7 @@
 package com.example.crepe;
 
 import android.accessibilityservice.AccessibilityService;
+import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -13,9 +14,11 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 import com.example.crepe.graphquery.DemonstrationUtil;
+import com.example.crepe.graphquery.model.Node;
 import com.example.crepe.graphquery.ontology.UISnapshot;
 
 import java.util.List;
+import java.util.Map;
 
 
 public class CrepeAccessibilityService extends AccessibilityService {
@@ -60,30 +63,63 @@ public class CrepeAccessibilityService extends AccessibilityService {
         int eventType = accessibilityEvent.getEventType();
         Log.e(TAG, "Event type: " + String.valueOf(eventType));
 
-        AccessibilityNodeInfo rootNode = getRootInActiveWindow();
 
         //update currentAppActivityName and currentPackageName on TYPE_WINDOW_STATE_CHANGED events
         if (accessibilityEvent.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
-            if (accessibilityEvent.getPackageName() != null && accessibilityEvent.getClassName() != null) {
-                ComponentName componentName = new ComponentName(
-                        accessibilityEvent.getPackageName().toString(),
-                        accessibilityEvent.getClassName().toString()
-                );
-
-                try {
-                    ActivityInfo activityInfo = getPackageManager().getActivityInfo(componentName, 0);
-                    Log.i("CurrentActivity", activityInfo.packageName + " : " + activityInfo.name + " : " + AccessibilityEvent.eventTypeToString(accessibilityEvent.getEventType()));
-                    currentAppActivityName = activityInfo.name;
-                    currentPackageName = activityInfo.packageName;
-                } catch (PackageManager.NameNotFoundException e) {
-                    //e.printStackTrace();
-                    Log.e(this.getClass().getName(), "Failed to get the activity name for: " + componentName);
-                }
-            }
-
-            uiSnapshot = new UISnapshot(windowManager.getDefaultDisplay(), rootNode, true, currentPackageName, currentAppActivityName);
-            Log.i("uisnapshot", String.valueOf(uiSnapshot));
+            uiSnapshot = generateUISnapshot(accessibilityEvent);
         }
+
+    }
+
+    public UISnapshot generateUISnapshot(AccessibilityEvent accessibilityEvent) {
+        AccessibilityNodeInfo rootNode = getRootInActiveWindow();
+
+        if (accessibilityEvent.getPackageName() != null && accessibilityEvent.getClassName() != null) {
+            ComponentName componentName = new ComponentName(
+                    accessibilityEvent.getPackageName().toString(),
+                    accessibilityEvent.getClassName().toString()
+            );
+
+            try {
+                ActivityInfo activityInfo = getPackageManager().getActivityInfo(componentName, 0);
+                Log.i("CurrentActivity", activityInfo.packageName + " : " + activityInfo.name + " : " + AccessibilityEvent.eventTypeToString(accessibilityEvent.getEventType()));
+                currentAppActivityName = activityInfo.name;
+                currentPackageName = activityInfo.packageName;
+            } catch (PackageManager.NameNotFoundException e) {
+                //e.printStackTrace();
+                Log.e(this.getClass().getName(), "Failed to get the activity name for: " + componentName);
+            }
+        }
+
+        uiSnapshot = new UISnapshot(windowManager.getDefaultDisplay(), rootNode, true, currentPackageName, currentAppActivityName);
+        return uiSnapshot;
+//        Map<Node, AccessibilityNodeInfo> nodeInfoMap =  uiSnapshot.getNodeAccessibilityNodeInfoMap();
+//        Log.i("uisnapshot", String.valueOf(uiSnapshot));
+//        Log.i("uisnapshot", String.valueOf(nodeInfoMap));
+
+    }
+
+    // if we are calling from another class and don't have some needed parameters
+    public UISnapshot generateUISnapshot() {
+        AccessibilityNodeInfo rootNode = getRootInActiveWindow();
+
+        ActivityManager am = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> taskInfo = am.getRunningTasks(1);
+        ComponentName componentName = taskInfo.get(0).topActivity;
+
+        try {
+            ActivityInfo activityInfo = getPackageManager().getActivityInfo(componentName, 0);
+            Log.i("CurrentActivity", activityInfo.packageName + " : " + activityInfo.name);
+            currentAppActivityName = activityInfo.name;
+            currentPackageName = activityInfo.packageName;
+        } catch (PackageManager.NameNotFoundException e) {
+            //e.printStackTrace();
+            Log.e(this.getClass().getName(), "Failed to get the activity name for: " + componentName);
+        }
+
+        uiSnapshot = new UISnapshot(windowManager.getDefaultDisplay(), rootNode, true, currentPackageName, currentAppActivityName);
+        return uiSnapshot;
+
     }
 
     @Override

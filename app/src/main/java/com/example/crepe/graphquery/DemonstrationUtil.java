@@ -78,7 +78,7 @@ public class DemonstrationUtil {
 
         }
             //TODO 1 Yuwen: build a uisnapshot and construct script
-            CrepeAccessibilityService.getsSharedInstance().getCurrentUiSnapshot();
+//            UISnapshot uiSnapshot = CrepeAccessibilityService.getsSharedInstance().getCurrentUiSnapshot();
 
 //            sugiliteData.initiateScriptRecording(DemonstrationUtil.addScriptExtension(scriptName), afterRecordingCallback); //add the end recording callback
 //            sugiliteData.initiatedExternally = false;
