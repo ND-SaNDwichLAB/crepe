@@ -35,6 +35,7 @@ import com.example.crepe.graphquery.ontology.UISnapshot;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 public class FullScreenOverlayManager {
 
@@ -193,22 +194,33 @@ public class FullScreenOverlayManager {
 //                    SelectionOverlayView selectionOverlay = selectionOverlayViewManager.getCircleOverlay(rawX, adjustedY, radius);
 //                    windowManager.addView(selectionOverlay, selectionLayoutParams);
 
-                    // get the matched node
-                    AccessibilityNodeInfo matchedNode = CrepeAccessibilityService.getsSharedInstance().getMatchingNodeFromClick(rawX, rawY);
-                    SugiliteEntity<Node> targetEntity = new SugiliteEntity(entityId, Node.class, matchedNode);
-                    entityId++;
 
+                    // create uiSnapshot for current screen
                     UISnapshot uiSnapshot = CrepeAccessibilityService.getsSharedInstance().generateUISnapshot();
+                    // get the matched node
 
-                    SugiliteRelation[] relationsToExclude = new SugiliteRelation[0];
-                    List<Pair<OntologyQuery, Double>> defaultQueries = generateDefaultQueries(uiSnapshot, targetEntity, relationsToExclude);
+                    AccessibilityNodeInfo matchedAccessibilityNode = CrepeAccessibilityService.getsSharedInstance().getMatchingNodeFromClick(rawX, rawY);
+                    // this matchedAccessibilityNode is an AccessibilityNodeInfo, which is not exactly the node stored in the screen's nodeSugiliteEntityMap.
+                    // We retrieve that stored node from this screen's uisnapshot
+
+                    SugiliteEntity<Node> targetEntity = uiSnapshot.getEntityWithAccessibilityNode(matchedAccessibilityNode);
+
+                    if(targetEntity != null) {
+                        SugiliteRelation[] relationsToExclude = new SugiliteRelation[0];
+                        List<Pair<OntologyQuery, Double>> defaultQueries = generateDefaultQueries(uiSnapshot, targetEntity, relationsToExclude);
+                    } else {
+                        Log.e("generate queries", "Cannot find the tapped entity!");
+                    }
+//                    for(Pair<OntologyQuery, Double> query : defaultQueries) {
+//                        Set<SugiliteEntity> results = query.first.executeOn(uiSnapshot);
+//                    }
 
                     // get the matched node text
-                    if(matchedNode != null) {
-                        String matchedNodeText = String.valueOf(matchedNode.getText());
+                    if(matchedAccessibilityNode != null) {
+                        String matchedNodeText = String.valueOf(matchedAccessibilityNode.getText());
                         if(!matchedNodeText.isEmpty())
                         {
-                            AccessibilityNodeInfo closestSiblingNode = findClosestSiblingNode(matchedNode);
+                            AccessibilityNodeInfo closestSiblingNode = findClosestSiblingNode(matchedAccessibilityNode);
                             if(closestSiblingNode.getText() != null) Log.d("graphquery", "Sibling Text: " + closestSiblingNode.getText().toString());
                         } else {
                             Log.d("uisnapshot", "Sorry we do not support the collection of such information. Cannot find the matching node for your click.");

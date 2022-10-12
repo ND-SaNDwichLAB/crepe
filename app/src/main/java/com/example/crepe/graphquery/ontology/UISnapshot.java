@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -37,6 +38,8 @@ import com.example.crepe.graphquery.ontology.helper.ListOrderResolver;
 //import com.example.crepe.graphquery.ontology.helper.annotator.SugiliteTextParentAnnotator;
 
 import static com.example.crepe.graphquery.Const.UI_SNAPSHOT_TEXT_PARSING_THREAD_COUNT;
+
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author toby
@@ -627,6 +630,24 @@ public class UISnapshot {
 
     public Map<Node, AccessibilityNodeInfo> getNodeAccessibilityNodeInfoMap() {
         return nodeAccessibilityNodeInfoMap;
+    }
+
+    public SugiliteEntity<Node> getEntityWithAccessibilityNode(AccessibilityNodeInfo matchedAccessibilityNode) {
+        String stringDifferences = "";
+        Node matchedNode = null;
+        for(Map.Entry<Node, AccessibilityNodeInfo> accessibilityNodeInfo: nodeAccessibilityNodeInfoMap.entrySet()) {
+            if(Objects.equals(accessibilityNodeInfo.toString().trim(), matchedAccessibilityNode.toString().trim())) {
+                matchedNode = accessibilityNodeInfo.getKey();
+            } else {
+                stringDifferences = StringUtils.difference(accessibilityNodeInfo.toString().trim(), matchedAccessibilityNode.toString().trim());
+            }
+        }
+        if (matchedNode != null) {
+            return nodeSugiliteEntityMap.get(matchedNode);
+        } else {
+            return null;
+        }
+
     }
 
     public Map<Map.Entry<Integer, Integer>, Set<SugiliteTriple>> getSubjectPredicateTriplesMap() {
