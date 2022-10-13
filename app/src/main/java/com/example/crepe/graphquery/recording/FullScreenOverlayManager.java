@@ -204,10 +204,10 @@ public class FullScreenOverlayManager {
                     // We retrieve that stored node from this screen's uisnapshot
 
                     SugiliteEntity<Node> targetEntity = uiSnapshot.getEntityWithAccessibilityNode(matchedAccessibilityNode);
-
+                    List<Pair<OntologyQuery, Double>> defaultQueries;
                     if(targetEntity != null) {
                         SugiliteRelation[] relationsToExclude = new SugiliteRelation[0];
-                        List<Pair<OntologyQuery, Double>> defaultQueries = generateDefaultQueries(uiSnapshot, targetEntity, relationsToExclude);
+                        defaultQueries = generateDefaultQueries(uiSnapshot, targetEntity, relationsToExclude);
                     } else {
                         Log.e("generate queries", "Cannot find the tapped entity!");
                     }

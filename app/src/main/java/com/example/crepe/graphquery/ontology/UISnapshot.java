@@ -636,7 +636,7 @@ public class UISnapshot {
         String stringDifferences = "";
         Node matchedNode = null;
         for(Map.Entry<Node, AccessibilityNodeInfo> accessibilityNodeInfo: nodeAccessibilityNodeInfoMap.entrySet()) {
-            if(Objects.equals(accessibilityNodeInfo.toString().trim(), matchedAccessibilityNode.toString().trim())) {
+            if(Objects.equals(accessibilityNodeInfo.getValue().toString().trim(), matchedAccessibilityNode.toString().trim())) {
                 matchedNode = accessibilityNodeInfo.getKey();
             } else {
                 stringDifferences = StringUtils.difference(accessibilityNodeInfo.toString().trim(), matchedAccessibilityNode.toString().trim());
