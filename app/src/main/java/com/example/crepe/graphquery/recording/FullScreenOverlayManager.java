@@ -199,33 +199,34 @@ public class FullScreenOverlayManager {
                     UISnapshot uiSnapshot = CrepeAccessibilityService.getsSharedInstance().generateUISnapshot();
                     // get the matched node
 
-                    AccessibilityNodeInfo matchedAccessibilityNode = CrepeAccessibilityService.getsSharedInstance().getMatchingNodeFromClick(rawX, rawY);
+                    List<AccessibilityNodeInfo> matchedAccessibilityNodeList = CrepeAccessibilityService.getsSharedInstance().getMatchingNodeFromClick(rawX, rawY);
                     // this matchedAccessibilityNode is an AccessibilityNodeInfo, which is not exactly the node stored in the screen's nodeSugiliteEntityMap.
                     // We retrieve that stored node from this screen's uisnapshot
 
-                    SugiliteEntity<Node> targetEntity = uiSnapshot.getEntityWithAccessibilityNode(matchedAccessibilityNode);
-                    List<Pair<OntologyQuery, Double>> defaultQueries;
+                    SugiliteEntity<Node> targetEntity = null;
+                    AccessibilityNodeInfo matchedNode = null;
+
+                    if(matchedAccessibilityNodeList.size() == 1) {
+                        matchedNode = matchedAccessibilityNodeList.get(0);
+                        targetEntity = uiSnapshot.getEntityWithAccessibilityNode(matchedNode);
+                    }
+
+
+                    List<Pair<OntologyQuery, Double>> defaultQueries = null;
+                    Set<SugiliteEntity> results = null;
                     if(targetEntity != null) {
                         SugiliteRelation[] relationsToExclude = new SugiliteRelation[0];
                         defaultQueries = generateDefaultQueries(uiSnapshot, targetEntity, relationsToExclude);
                     } else {
                         Log.e("generate queries", "Cannot find the tapped entity!");
                     }
-//                    for(Pair<OntologyQuery, Double> query : defaultQueries) {
-//                        Set<SugiliteEntity> results = query.first.executeOn(uiSnapshot);
-//                    }
 
-                    // get the matched node text
-                    if(matchedAccessibilityNode != null) {
-                        String matchedNodeText = String.valueOf(matchedAccessibilityNode.getText());
-                        if(!matchedNodeText.isEmpty())
-                        {
-                            AccessibilityNodeInfo closestSiblingNode = findClosestSiblingNode(matchedAccessibilityNode);
-                            if(closestSiblingNode.getText() != null) Log.d("graphquery", "Sibling Text: " + closestSiblingNode.getText().toString());
-                        } else {
-                            Log.d("uisnapshot", "Sorry we do not support the collection of such information. Cannot find the matching node for your click.");
+                    if(defaultQueries != null) {
+                        for(Pair<OntologyQuery, Double> query : defaultQueries) {
+                            results = query.first.executeOn(uiSnapshot);
                         }
                     }
+
 
                     // TODO yuwen: store the query in database, then constantly check it in another thread
 

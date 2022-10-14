@@ -127,17 +127,25 @@ public class CrepeAccessibilityService extends AccessibilityService {
         Log.e(TAG, "Accessibility service interrupted");
     }
 
-    public AccessibilityNodeInfo getMatchingNodeFromClick(float clickX, float clickY) {
+    public List<AccessibilityNodeInfo> getMatchingNodeFromClick(float clickX, float clickY) {
         Log.d("uisnapshot", "Click X: " + String.valueOf(Math.round(clickX)) + " Click Y: "+ String.valueOf(Math.round(clickY)));
         AccessibilityNodeInfo rootNodeInfo = getRootInActiveWindow();
         List<AccessibilityNodeInfo> matchingNodeInfoList = DemonstrationUtil.findMatchingNodeFromClick(rootNodeInfo, clickX, clickY);
+
+        List<AccessibilityNodeInfo> resultNodeList = null;
+
         if (matchingNodeInfoList != null) {
-            AccessibilityNodeInfo resultNode = matchingNodeInfoList.get(matchingNodeInfoList.size() - 1);
-            return resultNode;
+            for (AccessibilityNodeInfo matchingNode: matchingNodeInfoList) {
+                if(matchingNode.getText() != null) {
+                    resultNodeList.add(matchingNode);
+                }
+            }
+        }
+        if (!resultNodeList.isEmpty()) {
+            return resultNodeList;
         } else {
             return null;
         }
-
     }
 
     public List<AccessibilityNodeInfo> getAllNodesOnScreen() {
