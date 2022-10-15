@@ -99,7 +99,7 @@ public class DemonstrationUtil {
     }
 
     /**
-     * traverse a tree from the root, and return all the notes in the tree
+     * traverse a tree from the root, and return all the nodes in the tree
      * @param root
      * @return
      */
@@ -126,22 +126,26 @@ public class DemonstrationUtil {
      */
     public static List<AccessibilityNodeInfo> findMatchingNodeFromClick(AccessibilityNodeInfo root, float clickX, float clickY){
         if(root == null){
-            Log.e("Graph Query", "The window's root node is null");
             return null;
         }
+
+        List<AccessibilityNodeInfo> nodeListFromRoot = preOrderTraverse(root);
+
         List<AccessibilityNodeInfo> matchingList = new ArrayList<>();
-        Rect rootBoundingBox = new Rect();
-        root.getBoundsInScreen(rootBoundingBox);
-        if (rootBoundingBox.contains(Math.round(clickX), Math.round(clickY))) {
-            matchingList.add(root);
+
+
+        if (nodeListFromRoot != null) {
+            for (AccessibilityNodeInfo node : nodeListFromRoot) {
+                Rect nodeBoundingBox = new Rect();
+                node.getBoundsInScreen(nodeBoundingBox);
+                if (nodeBoundingBox.contains(Math.round(clickX), Math.round(clickY))) {
+                    matchingList.add(root);
+                }
+            }
+        } else {
+            Log.i("find matching node", "cannot find children list for the root node");
         }
 
-        int childCount = root.getChildCount();
-        for(int i = 0; i < childCount; i ++){
-            AccessibilityNodeInfo node = root.getChild(i);
-            if(node != null)
-                matchingList.addAll(findMatchingNodeFromClick(node, clickX, clickY));
-        }
         return matchingList;
     }
 

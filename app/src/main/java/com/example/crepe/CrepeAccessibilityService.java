@@ -128,7 +128,6 @@ public class CrepeAccessibilityService extends AccessibilityService {
     }
 
     public List<AccessibilityNodeInfo> getMatchingNodeFromClick(float clickX, float clickY) {
-        Log.d("uisnapshot", "Click X: " + String.valueOf(Math.round(clickX)) + " Click Y: "+ String.valueOf(Math.round(clickY)));
         AccessibilityNodeInfo rootNodeInfo = getRootInActiveWindow();
         List<AccessibilityNodeInfo> matchingNodeInfoList = DemonstrationUtil.findMatchingNodeFromClick(rootNodeInfo, clickX, clickY);
 
