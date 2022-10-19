@@ -119,32 +119,26 @@ public class DemonstrationUtil {
 
     /**
      * Find the clicked node based on screen position
-     * @param root
+     * @param allNodeList
      * @param clickX
      * @param clickY
      * @return
      */
-    public static List<AccessibilityNodeInfo> findMatchingNodeFromClick(AccessibilityNodeInfo root, float clickX, float clickY){
-        if(root == null){
+    public static List<AccessibilityNodeInfo> findMatchingNodeFromClick(List<AccessibilityNodeInfo> allNodeList, float clickX, float clickY){
+        if(allNodeList.size() == 0){
             return null;
         }
-
-        List<AccessibilityNodeInfo> nodeListFromRoot = preOrderTraverse(root);
 
         List<AccessibilityNodeInfo> matchingList = new ArrayList<>();
 
 
-        if (nodeListFromRoot != null) {
-            for (AccessibilityNodeInfo node : nodeListFromRoot) {
+            for (AccessibilityNodeInfo node : allNodeList) {
                 Rect nodeBoundingBox = new Rect();
                 node.getBoundsInScreen(nodeBoundingBox);
                 if (nodeBoundingBox.contains(Math.round(clickX), Math.round(clickY))) {
                     matchingList.add(node);
                 }
             }
-        } else {
-            Log.i("find matching node", "cannot find children list for the root node");
-        }
 
         return matchingList;
     }

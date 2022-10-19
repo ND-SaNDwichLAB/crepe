@@ -36,13 +36,12 @@ public class CrepeAccessibilityService extends AccessibilityService {
     private WindowManager windowManager;
     private String currentAppActivityName;
     private String currentPackageName;
+    private UISnapshot uiSnapshot;
+    private List<AccessibilityNodeInfo> allNodeList;
 
     public UISnapshot getCurrentUiSnapshot() {
         return uiSnapshot;
     }
-
-
-    private UISnapshot uiSnapshot;
 
     @Override
     public void onCreate() {
@@ -71,6 +70,8 @@ public class CrepeAccessibilityService extends AccessibilityService {
         //update currentAppActivityName and currentPackageName on TYPE_WINDOW_STATE_CHANGED events
         if (accessibilityEvent.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
             uiSnapshot = generateUISnapshot(accessibilityEvent);
+            allNodeList = getAllNodesOnScreen();
+
         }
 
     }
@@ -133,10 +134,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
 
     public List<AccessibilityNodeInfo> getMatchingNodeFromClick(float clickX, float clickY) {
 
-        AccessibilityNodeInfo rootNodeInfo = getRootInActiveWindow();
-        List<AccessibilityNodeInfo> allNodeList = DemonstrationUtil.preOrderTraverse(rootNodeInfo);
-
-        List<AccessibilityNodeInfo> matchingNodeInfoList = DemonstrationUtil.findMatchingNodeFromClick(rootNodeInfo, clickX, clickY);
+        List<AccessibilityNodeInfo> matchingNodeInfoList = DemonstrationUtil.findMatchingNodeFromClick(this.allNodeList, clickX, clickY);
 
         List<AccessibilityNodeInfo> resultNodeList = new ArrayList<>();
 
