@@ -71,7 +71,8 @@ public class CrepeAccessibilityService extends AccessibilityService {
         if (accessibilityEvent.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
             uiSnapshot = generateUISnapshot(accessibilityEvent);
             allNodeList = getAllNodesOnScreen();
-
+        } else if (accessibilityEvent.getEventType() == AccessibilityEvent.TYPE_VIEW_SCROLLED) {
+            allNodeList = getAllNodesOnScreen();
         }
 
     }
