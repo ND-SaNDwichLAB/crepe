@@ -109,7 +109,7 @@ public class DemonstrationUtil {
         List<AccessibilityNodeInfo> list = new ArrayList<>();
         list.add(root);
         int childCount = root.getChildCount();
-        for(int i = 0; i < childCount; i ++){
+        for(int i = 0; i < childCount; i++){
             AccessibilityNodeInfo node = root.getChild(i);
             if(node != null)
                 list.addAll(preOrderTraverse(node));
