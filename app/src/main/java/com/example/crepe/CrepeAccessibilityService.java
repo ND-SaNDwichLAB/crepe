@@ -136,21 +136,13 @@ public class CrepeAccessibilityService extends AccessibilityService {
         AccessibilityNodeInfo rootNodeInfo = getRootInActiveWindow();
         List<AccessibilityNodeInfo> allNodeList = DemonstrationUtil.preOrderTraverse(rootNodeInfo);
 
-        List<String> stringList = new ArrayList<>();
-        for (int i = 0; i < allNodeList.size(); i++) {
-            CharSequence nodeText = allNodeList.get(i).getText();
-            if (nodeText != null) {
-                stringList.add(nodeText.toString());
-            }
-        }
-
         List<AccessibilityNodeInfo> matchingNodeInfoList = DemonstrationUtil.findMatchingNodeFromClick(rootNodeInfo, clickX, clickY);
 
-        List<AccessibilityNodeInfo> resultNodeList = null;
+        List<AccessibilityNodeInfo> resultNodeList = new ArrayList<>();
 
         if (matchingNodeInfoList != null) {
             for (AccessibilityNodeInfo matchingNode: matchingNodeInfoList) {
-                if(matchingNode.getText() != null) {
+                if(matchingNode.getText() != null && !matchingNode.getText().toString().isEmpty()) {
                     resultNodeList.add(matchingNode);
                 }
             }

@@ -139,7 +139,7 @@ public class DemonstrationUtil {
                 Rect nodeBoundingBox = new Rect();
                 node.getBoundsInScreen(nodeBoundingBox);
                 if (nodeBoundingBox.contains(Math.round(clickX), Math.round(clickY))) {
-                    matchingList.add(root);
+                    matchingList.add(node);
                 }
             }
         } else {

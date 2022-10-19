@@ -203,12 +203,14 @@ public class FullScreenOverlayManager {
                     // this matchedAccessibilityNode is an AccessibilityNodeInfo, which is not exactly the node stored in the screen's nodeSugiliteEntityMap.
                     // We retrieve that stored node from this screen's uisnapshot
 
-                    SugiliteEntity<Node> targetEntity = null;
-                    AccessibilityNodeInfo matchedNode = null;
+                    SugiliteEntity<Node> targetEntity = new SugiliteEntity<>();
+                    AccessibilityNodeInfo matchedNode;
 
                     if(matchedAccessibilityNodeList.size() == 1) {
                         matchedNode = matchedAccessibilityNodeList.get(0);
                         targetEntity = uiSnapshot.getEntityWithAccessibilityNode(matchedNode);
+                    } else {
+                        // TODO: Find the node that we actually need
                     }
 
 
