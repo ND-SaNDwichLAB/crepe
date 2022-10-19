@@ -33,6 +33,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+// TODO:
+//  1. calculate the size of all collected data of all time
+//  2. sum the size of all collected data of one day
+//  3. display the latest collected data
+
+
 public class CollectorInfoLayoutBuilder {
     Context context;
     Map<String, Drawable> apps;
@@ -238,38 +244,35 @@ public class CollectorInfoLayoutBuilder {
         if(collector.isDeleted()) {
             return null;
         }
-
+        // set the layout params for the linear layout
         LinearLayout containerLayout = new LinearLayout(context);
         containerLayout.setOrientation(LinearLayout.VERTICAL);
-
+        // build collector view
         ConstraintLayout collectorInfoViewLayout = buildCollectorInfoView(collector, containerLayout);
         collectorInfoViewLayout.setId(View.generateViewId());
         containerLayout.addView(collectorInfoViewLayout);
-
+        // chart title
         Pair<TextView, LinearLayout.LayoutParams> chartTitlePair = buildChartTitle();
         chartTitlePair.first.setId(View.generateViewId());
         containerLayout.addView(chartTitlePair.first, chartTitlePair.second);
-
-
+        // pair y axis label with its title
         Pair<TextView, LinearLayout.LayoutParams> chartYAxisLabelPair = buildChartYAxisLabels();
         chartYAxisLabelPair.first.setId(View.generateViewId());
         containerLayout.addView(chartYAxisLabelPair.first, chartYAxisLabelPair.second);
-
+        // build chart
         LinearLayout lineChart = buildChart(collector);
-
+        // add the chart to the container layout
         lineChart.setId(View.generateViewId());
         containerLayout.addView(lineChart);
 
-
+        // sample data piece 1
         Pair<TextView, LinearLayout.LayoutParams> sampleDataTitlePair = buildSampleDataPieceTitle();
         sampleDataTitlePair.first.setId(View.generateViewId());
         containerLayout.addView(sampleDataTitlePair.first, sampleDataTitlePair.second);
-
+        // sample data piece 2
         Pair<TextView, LinearLayout.LayoutParams> sampleDataPiecePair = buildSampleDataPiece(collector);
         sampleDataPiecePair.first.setId(View.generateViewId());
         containerLayout.addView(sampleDataPiecePair.first, sampleDataPiecePair.second);
-
-
 
         return containerLayout;
     }
@@ -283,5 +286,11 @@ public class CollectorInfoLayoutBuilder {
         public String getFormattedValue(float value) {
             return "Jan " + String.format("%.0f", value + 1);
         }
+    }
+
+    // calculate collected data size (in GB) for each day
+    public List<Entry> getCollectedDataSizeByDay(Collector collector) {
+        List<Entry> collectedDataSizeByDay = new ArrayList<>();
+        return collectedDataSizeByDay;
     }
 }
