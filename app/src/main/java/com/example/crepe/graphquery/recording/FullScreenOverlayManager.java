@@ -230,7 +230,7 @@ public class FullScreenOverlayManager {
                     }
 
 
-                    // TODO yuwen: store the query in database, then constantly check it in another thread
+                    // TODO yuwen / meng: store the query in database, then constantly check it in another thread
 
                     return true;
                 }
