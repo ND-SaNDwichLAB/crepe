@@ -224,9 +224,10 @@ public class FullScreenOverlayManager {
                     }
 
                     // TODO yuwen / meng: store the query in database, then constantly check it in another thread
-                    // 1. store the query in firebase (a new Java file under /database)
-                    // 2. everytime the app launches / runs in the background, retrieve the query from firebase
+                    // 1. store the query in local database
+                    // 2. everytime the app launches / runs in the background, retrieve the query from local database
                     // 3. in CrepeAccessibilityService.java, every time the screen content changes, generate a new UIsnapshot, execute the query on UI snapshot to get results
+                    // 4. every time the local database changes, push to remote
 
                     if(defaultQueries != null) {
                         for(Pair<OntologyQuery, Double> query : defaultQueries) {
