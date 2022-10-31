@@ -1,9 +1,5 @@
 package com.example.crepe.graphquery.ontology;
 
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.pm.ActivityInfo;
-import android.content.pm.PackageManager;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.util.Log;
@@ -22,11 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 import com.example.crepe.graphquery.DemonstrationUtil;
 import com.example.crepe.graphquery.model.Node;
@@ -36,8 +27,6 @@ import com.example.crepe.graphquery.ontology.helper.ListOrderResolver;
 //import com.example.crepe.graphquery.ontology.helper.TextStringParseHelper;
 //import com.example.crepe.graphquery.ontology.helper.annotator.SugiliteNodeAnnotator;
 //import com.example.crepe.graphquery.ontology.helper.annotator.SugiliteTextParentAnnotator;
-
-import static com.example.crepe.graphquery.Const.UI_SNAPSHOT_TEXT_PARSING_THREAD_COUNT;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -65,6 +54,7 @@ public class UISnapshot {
     private transient int entityIdCounter;
     private final transient Map<Node, SugiliteEntity<Node>> nodeSugiliteEntityMap;
     private final transient Map<String, SugiliteEntity<String>> stringSugiliteEntityMap;
+    private final transient Map<List<String>, SugiliteEntity<List>> stringListSugiliteEntityMap;
     private final transient Map<Double, SugiliteEntity<Double>> doubleSugiliteEntityMap;
     private final transient Map<Boolean, SugiliteEntity<Boolean>> booleanSugiliteEntityMap;
     private final transient Map<Node, AccessibilityNodeInfo> nodeAccessibilityNodeInfoMap;
@@ -93,6 +83,7 @@ public class UISnapshot {
         this.sugiliteRelationIdSugiliteRelationMap = new HashMap<>();
         this.nodeSugiliteEntityMap = new HashMap<>();
         this.stringSugiliteEntityMap = new HashMap<>();
+        this.stringListSugiliteEntityMap = new HashMap<List<String>, SugiliteEntity<List>>();
         this.doubleSugiliteEntityMap = new HashMap<>();
         this.booleanSugiliteEntityMap = new HashMap<>();
         this.nodeAccessibilityNodeInfoMap = new HashMap<>();
@@ -294,7 +285,28 @@ public class UISnapshot {
                         SugiliteTriple triple2 = new SugiliteTriple(currentEntity, SugiliteRelation.HAS_PARENT, newEntity);
                         addTriple(triple2);
                     }
+
+                    AccessibilityNodeInfo parentAccessibilityNode = nodeAccessibilityNodeInfoMap.get(parentNode);
+                    // add parent text relation
+                    if (parentAccessibilityNode.getText()!= null && !parentAccessibilityNode.getText().toString().isEmpty()) {
+                        addEntityStringTriple(currentEntity, parentAccessibilityNode.getText().toString(), SugiliteRelation.HAS_PARENT_TEXT);
+                    }
+
+                    // add sibling text relation
+                    Integer siblingCount = parentAccessibilityNode.getChildCount();
+                    List<String> resultSiblingStringList = new ArrayList<>();
+                    if (siblingCount > 1) {  // if the node has siblings
+                        for (int i = 0; i < siblingCount; i++) {
+                            AccessibilityNodeInfo siblingNode = parentAccessibilityNode.getChild(i);
+                            if (siblingNode.getText() != null && !siblingNode.getText().toString().isEmpty()) {
+                                resultSiblingStringList.add(siblingNode.getText().toString());
+                            }
+                        }
+
+                        addEntityStringListTriple(currentEntity, resultSiblingStringList, SugiliteRelation.HAS_SIBLING_TEXT);
+                    }
                 }
+
 
 
 
@@ -318,8 +330,6 @@ public class UISnapshot {
                         }
                     }
                 }
-
-                // TODO: add sibling text info
 
             }
 
@@ -450,6 +460,39 @@ public class UISnapshot {
 
         SugiliteTriple triple = new SugiliteTriple(currentEntity, relation, objectEntity);
         triple.setObjectStringValue(string);
+        synchronized (this) {
+            addTriple(triple);
+        }
+    }
+
+    /**
+     * helper function used for adding a <SugiliteEntity, SugiliteEntity<List<String>>, SugiliteRelation) triple
+     * @param currentEntity
+     * @param stringList
+     * @param relation
+     */
+    public void addEntityStringListTriple(SugiliteEntity currentEntity, List<String> stringList, SugiliteRelation relation){
+        //class
+        SugiliteEntity<List> objectEntity = null;
+
+        //clean up the strings
+        for (int i = 0; i < stringList.size(); i++) {
+            stringList.set(i, cleanUpString(stringList.get(i)));
+        }
+
+        if (stringListSugiliteEntityMap.containsKey(stringList)) {
+            objectEntity = stringListSugiliteEntityMap.get(stringList);
+        } else {
+            //create a new entity for the class name
+            SugiliteEntity<List> entity = new SugiliteEntity<>(entityIdCounter++, List.class, stringList);
+            synchronized (stringListSugiliteEntityMap) {
+                stringListSugiliteEntityMap.put(stringList, entity);
+            }
+            objectEntity = entity;
+        }
+
+        SugiliteTriple triple = new SugiliteTriple(currentEntity, relation, objectEntity);
+        triple.setObjectStringListValue(stringList);
         synchronized (this) {
             addTriple(triple);
         }
@@ -687,15 +730,40 @@ public class UISnapshot {
     public Set<String> getStringValuesForObjectEntityAndRelation(SugiliteEntity objectEntity, SugiliteRelation relation) {
         Set<String> result = new LinkedHashSet<>();
         Integer subjectEntityId = objectEntity.getEntityId();
-        Set<SugiliteTriple> triples = new LinkedHashSet<>(subjectTriplesMap.get(subjectEntityId));
-        triples.removeIf(t -> !t.getPredicate().equals(relation));
-        for (SugiliteTriple t : triples) {
-            if (t.getObject() != null & t.getObject().getEntityValue() != null) {
-                if (t.getObject().getEntityValue() instanceof String) {
-                    result.add((String) t.getObject().getEntityValue());
+        if (subjectTriplesMap.get(subjectEntityId) != null) {
+            Set<SugiliteTriple> triples = new LinkedHashSet<>();
+            triples.removeIf(t -> !t.getPredicate().equals(relation));
+            for (SugiliteTriple t : triples) {
+                if (t.getObject() != null & t.getObject().getEntityValue() != null) {
+                    if (t.getObject().getEntityValue() instanceof String) {
+                        result.add((String) t.getObject().getEntityValue());
+                    }
                 }
             }
+        } else {
+            Log.e("getStringValuesForObjectEntityAndRelation", "subjectTriplesMap.get(subjectEntityId) is null");
         }
+
+        return result;
+    }
+
+    public Set<List> getListValuesForObjectEntityAndRelation(SugiliteEntity objectEntity, SugiliteRelation relation) {
+        Set<List> result = new LinkedHashSet<>();
+        Integer subjectEntityId = objectEntity.getEntityId();
+        if (subjectTriplesMap.get(subjectEntityId) != null) {
+            Set<SugiliteTriple> triples = new LinkedHashSet<>();
+            triples.removeIf(t -> !t.getPredicate().equals(relation));
+            for (SugiliteTriple t : triples) {
+                if (t.getObject() != null & t.getObject().getEntityValue() != null) {
+                    if (t.getObject().getEntityValue() instanceof List) {
+                        result.add((List) t.getObject().getEntityValue());
+                    }
+                }
+            }
+        } else {
+            Log.e("getStringValuesForObjectEntityAndRelation", "subjectTriplesMap.get(subjectEntityId) is null");
+        }
+
         return result;
     }
 

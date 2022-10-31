@@ -1,5 +1,6 @@
 package com.example.crepe.graphquery.ontology;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -15,6 +16,7 @@ public class SugiliteTriple {
     private Integer subjectId;
     private Integer objectId;
     private String objectStringValue = null;
+    private List<String> objectStringListValue = null;
     private String predicateStringValue;
 
 
@@ -69,6 +71,10 @@ public class SugiliteTriple {
 
     public void setObjectStringValue(String objectStringValue) {
         this.objectStringValue = objectStringValue;
+    }
+
+    public void setObjectStringListValue(List<String> objectStringListValue) {
+        this.objectStringListValue = objectStringListValue;
     }
 
     @Override

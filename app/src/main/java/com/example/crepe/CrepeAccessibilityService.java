@@ -62,9 +62,9 @@ public class CrepeAccessibilityService extends AccessibilityService {
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
-        Log.e(TAG, "An accessibility event just happened");
+        Log.i(TAG, "An accessibility event just happened");
         int eventType = accessibilityEvent.getEventType();
-        Log.e(TAG, "Event type: " + String.valueOf(eventType));
+        Log.i(TAG, "Event type: " + String.valueOf(eventType));
 
 
         //update currentAppActivityName and currentPackageName on TYPE_WINDOW_STATE_CHANGED events
@@ -133,7 +133,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
         Log.e(TAG, "Accessibility service interrupted");
     }
 
-    public List<AccessibilityNodeInfo> getMatchingNodeFromClick(float clickX, float clickY) {
+    public List<AccessibilityNodeInfo> getMatchingNodeFromClickWithText(float clickX, float clickY) {
 
         List<AccessibilityNodeInfo> matchingNodeInfoList = DemonstrationUtil.findMatchingNodeFromClick(this.allNodeList, clickX, clickY);
 
@@ -141,6 +141,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
 
         if (matchingNodeInfoList != null) {
             for (AccessibilityNodeInfo matchingNode: matchingNodeInfoList) {
+                // change here
                 if(matchingNode.getText() != null && !matchingNode.getText().toString().isEmpty()) {
                     resultNodeList.add(matchingNode);
                 }

@@ -300,21 +300,21 @@ public class DemonstrationUtil {
             }
         }
 
-        if (! relationsToExclude.contains(SugiliteRelation.HAS_TEXT)) {
-            if (getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_TEXT)) != null) {
-                //add a text query
-                CombinedOntologyQuery clonedQuery = q.clone();
-                LeafOntologyQuery subQuery = new LeafOntologyQuery();
-                Set<SugiliteEntity> object = new HashSet<>();
-                object.add(new SugiliteEntity(-1, String.class, getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_TEXT))));
-                subQuery.setObjectSet(object);
-                subQuery.setQueryFunction(SugiliteRelation.HAS_TEXT);
-                clonedQuery.addSubQuery(subQuery);
-                hasNonBoundingBoxFeature = true;
-                hasNonChildFeature = true;
-                queries.add(Pair.create(clonedQuery, 1.1));
-            }
-        }
+//        if (! relationsToExclude.contains(SugiliteRelation.HAS_TEXT)) {
+//            if (getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_TEXT)) != null) {
+//                //add a text query
+//                CombinedOntologyQuery clonedQuery = q.clone();
+//                LeafOntologyQuery subQuery = new LeafOntologyQuery();
+//                Set<SugiliteEntity> object = new HashSet<>();
+//                object.add(new SugiliteEntity(-1, String.class, getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_TEXT))));
+//                subQuery.setObjectSet(object);
+//                subQuery.setQueryFunction(SugiliteRelation.HAS_TEXT);
+//                clonedQuery.addSubQuery(subQuery);
+//                hasNonBoundingBoxFeature = true;
+//                hasNonChildFeature = true;
+//                queries.add(Pair.create(clonedQuery, 1.1));
+//            }
+//        }
 
         if (! relationsToExclude.contains(SugiliteRelation.HAS_CONTENT_DESCRIPTION)) {
             if ((getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_CONTENT_DESCRIPTION)) != null) &&
@@ -330,6 +330,32 @@ public class DemonstrationUtil {
                 hasNonBoundingBoxFeature = true;
                 hasNonChildFeature = true;
                 queries.add(Pair.create(clonedQuery, 1.2));
+            }
+        }
+
+        if (! relationsToExclude.contains(SugiliteRelation.HAS_PARENT_TEXT)) {
+            if (getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_PARENT_TEXT)) != null) {
+                CombinedOntologyQuery clonedQuery = q.clone();
+                LeafOntologyQuery subQuery = new LeafOntologyQuery();
+                Set<SugiliteEntity> object = new HashSet<>();
+                object.add(new SugiliteEntity(-1, String.class, getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_PARENT_TEXT))));
+                subQuery.setObjectSet(object);
+                subQuery.setQueryFunction(SugiliteRelation.HAS_PARENT_TEXT);
+                clonedQuery.addSubQuery(subQuery);
+                queries.add(Pair.create(clonedQuery, 1.0));
+            }
+        }
+
+        if (! relationsToExclude.contains(SugiliteRelation.HAS_SIBLING_TEXT)) {
+            if (getValueIfOnlyOneObject(uiSnapshot.getListValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_SIBLING_TEXT)) != null) {
+                CombinedOntologyQuery clonedQuery = q.clone();
+                LeafOntologyQuery subQuery = new LeafOntologyQuery();
+                Set<SugiliteEntity> object = new HashSet<>();
+                object.add(new SugiliteEntity(-1, List.class, getValueIfOnlyOneObject(uiSnapshot.getListValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_SIBLING_TEXT))));
+                subQuery.setObjectSet(object);
+                subQuery.setQueryFunction(SugiliteRelation.HAS_SIBLING_TEXT);
+                clonedQuery.addSubQuery(subQuery);
+                queries.add(Pair.create(clonedQuery, 1.0));
             }
         }
 
@@ -405,29 +431,32 @@ public class DemonstrationUtil {
         if (! relationsToExclude.contains(SugiliteRelation.HAS_CHILD_TEXT)) {
             //add child text
             List<String> childTexts = new ArrayList<>(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_CHILD_TEXT));
-            if (childTexts != null && childTexts.size() > 0) {
-                int count = 0;
-                double score = 2.01 + (((double) (count++)) / (double) childTexts.size());
-                //TODO: in case of multiple childText queries, get all possible combinations
+            if (childTexts != null ) {
+                if (childTexts.size() > 0) {
+                    int count = 0;
+                    double score = 2.01 + (((double) (count++)) / (double) childTexts.size());
+                    //TODO: in case of multiple childText queries, get all possible combinations
 
-                for (String childText : childTexts) {
-                    if (childText != null && !childText.equals(relationsToExclude.contains(SugiliteRelation.HAS_TEXT))) {
-                        CombinedOntologyQuery clonedQuery = q.clone();
-                        LeafOntologyQuery subQuery = new LeafOntologyQuery();
-                        Set<SugiliteEntity> object = new HashSet<>();
-                        object.add(new SugiliteEntity(-1, String.class, childText));
-                        subQuery.setObjectSet(object);
-                        subQuery.setQueryFunction(SugiliteRelation.HAS_CHILD_TEXT);
-                        clonedQuery.addSubQuery(subQuery);
-                        double newScore = score;
-                        if (getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_PACKAGE_NAME)) != null
-                                && AutomatorUtil.isHomeScreenPackage(getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_PACKAGE_NAME)))) {
-                            newScore = score - 1;
+                    for (String childText : childTexts) {
+                        if (childText != null && !childText.equals(relationsToExclude.contains(SugiliteRelation.HAS_TEXT))) {
+                            CombinedOntologyQuery clonedQuery = q.clone();
+                            LeafOntologyQuery subQuery = new LeafOntologyQuery();
+                            Set<SugiliteEntity> object = new HashSet<>();
+                            object.add(new SugiliteEntity(-1, String.class, childText));
+                            subQuery.setObjectSet(object);
+                            subQuery.setQueryFunction(SugiliteRelation.HAS_CHILD_TEXT);
+                            clonedQuery.addSubQuery(subQuery);
+                            double newScore = score;
+                            if (getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_PACKAGE_NAME)) != null
+                                    && AutomatorUtil.isHomeScreenPackage(getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_PACKAGE_NAME)))) {
+                                newScore = score - 1;
+                            }
+                            queries.add(Pair.create(clonedQuery, newScore));
+                            hasNonBoundingBoxFeature = true;
                         }
-                        queries.add(Pair.create(clonedQuery, newScore));
-                        hasNonBoundingBoxFeature = true;
                     }
                 }
+
             }
         }
 

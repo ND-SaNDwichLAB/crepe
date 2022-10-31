@@ -59,6 +59,7 @@ public class SugiliteRelation implements Serializable {
     public static final SugiliteRelation HAS_PACKAGE_NAME = new SugiliteRelation(7, "HAS_PACKAGE_NAME");
     public static final SugiliteRelation HAS_CHILD = new SugiliteRelation(8, "HAS_CHILD");
     public static final SugiliteRelation HAS_ACTIVITY_NAME = new SugiliteRelation(41, "HAS_ACTIVITY_NAME");
+    public static final SugiliteRelation HAS_PARENT_TEXT = new SugiliteRelation(42, "HAS_PARENT_TEXT");
 
 
     //TODO: new relations to add for flattening the ontology

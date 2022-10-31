@@ -199,9 +199,9 @@ public class FullScreenOverlayManager {
                     UISnapshot uiSnapshot = CrepeAccessibilityService.getsSharedInstance().generateUISnapshot();
                     // get the matched node
 
-                    List<AccessibilityNodeInfo> matchedAccessibilityNodeList = CrepeAccessibilityService.getsSharedInstance().getMatchingNodeFromClick(rawX, rawY);
+                    List<AccessibilityNodeInfo> matchedAccessibilityNodeList = CrepeAccessibilityService.getsSharedInstance().getMatchingNodeFromClickWithText(rawX, rawY);
                     // this matchedAccessibilityNode is an AccessibilityNodeInfo, which is not exactly the node stored in the screen's nodeSugiliteEntityMap.
-                    // We retrieve that stored node from this screen's uisnapshot
+                    // We retrieved that stored node from this screen's uisnapshot
 
                     SugiliteEntity<Node> targetEntity = new SugiliteEntity<>();
                     AccessibilityNodeInfo matchedNode;
