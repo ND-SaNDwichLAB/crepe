@@ -34,6 +34,7 @@ import com.example.crepe.graphquery.ontology.SugiliteRelation;
 import com.example.crepe.graphquery.ontology.UISnapshot;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -215,7 +216,7 @@ public class FullScreenOverlayManager {
 
 
                     List<Pair<OntologyQuery, Double>> defaultQueries = null;
-                    Set<SugiliteEntity> results = null;
+                    Set<SugiliteEntity> results = new HashSet<>();
                     if(targetEntity != null) {
                         SugiliteRelation[] relationsToExclude = new SugiliteRelation[0];
                         defaultQueries = generateDefaultQueries(uiSnapshot, targetEntity, relationsToExclude);
@@ -231,7 +232,7 @@ public class FullScreenOverlayManager {
 
                     if(defaultQueries != null) {
                         for(Pair<OntologyQuery, Double> query : defaultQueries) {
-                            results = query.first.executeOn(uiSnapshot);
+                            results.addAll(query.first.executeOn(uiSnapshot));
                         }
                     }
                     return true;
