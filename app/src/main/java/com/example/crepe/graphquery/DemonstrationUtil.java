@@ -335,7 +335,7 @@ public class DemonstrationUtil {
                 subQuery.setObjectSet(object);
                 subQuery.setQueryFunction(SugiliteRelation.HAS_PARENT_TEXT);
                 clonedQuery.addSubQuery(subQuery);
-                queries.add(Pair.create(clonedQuery, 10.0));
+                queries.add(Pair.create(clonedQuery, 1.0));
             }
         }
 
@@ -348,7 +348,7 @@ public class DemonstrationUtil {
                 subQuery.setObjectSet(object);
                 subQuery.setQueryFunction(SugiliteRelation.HAS_SIBLING_TEXT);
                 clonedQuery.addSubQuery(subQuery);
-                queries.add(Pair.create(clonedQuery, 10.0));
+                queries.add(Pair.create(clonedQuery, 1.0));
             }
         }
 
