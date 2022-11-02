@@ -153,11 +153,6 @@ public class DemonstrationUtil {
         // get the text of the matching node
         String matchedNodeText = String.valueOf(matchedNode.getText());
         List<String> siblingNodeTextList = new ArrayList<>();
-        if (matchedNodeText != null && !matchedNodeText.isEmpty()) {
-            Log.d("uisnapshot", "Matched node text: " + matchedNodeText);
-        } else {
-            Log.d("uisnapshot", "Found matching node, but the node has empty text");
-        }
 
         // get information about matched node's sibling nodes
         AccessibilityNodeInfo parentNode = matchedNode.getParent();
@@ -168,8 +163,6 @@ public class DemonstrationUtil {
 
         if (parentNode != null) {
             int siblingCnt = parentNode.getChildCount() - 1;
-            Log.d("uisnapshot", "Sibling Count: " + String.valueOf(siblingCnt));
-
             if (siblingCnt > 0) {
                 // get the center position of the matched node
                 Rect matchedNodeRect = new Rect();
@@ -184,9 +177,9 @@ public class DemonstrationUtil {
                     // get the center position of the sibling node
                     Rect siblingNodeRect = new Rect();
                     siblingNode.getBoundsInScreen(siblingNodeRect);
-                    String siblingNodeText = siblingNode.getText().toString();
+                    CharSequence siblingNodeTextChar = siblingNode.getText();
                     // we only compare if the current sibling node is not the matched node itself
-                    if (!siblingNodeRect.equals(matchedNodeRect) && siblingNodeText != null && !siblingNodeText.isEmpty()) {
+                    if (!siblingNodeRect.equals(matchedNodeRect) && siblingNodeTextChar != null && !siblingNodeTextChar.toString().isEmpty()) {
                         // ge the position of the sibling node
                         int siblingCenterX = siblingNodeRect.centerX();
                         int siblingCenterY = siblingNodeRect.centerY();
@@ -342,7 +335,7 @@ public class DemonstrationUtil {
                 subQuery.setObjectSet(object);
                 subQuery.setQueryFunction(SugiliteRelation.HAS_PARENT_TEXT);
                 clonedQuery.addSubQuery(subQuery);
-                queries.add(Pair.create(clonedQuery, 1.0));
+                queries.add(Pair.create(clonedQuery, 10.0));
             }
         }
 
@@ -355,7 +348,7 @@ public class DemonstrationUtil {
                 subQuery.setObjectSet(object);
                 subQuery.setQueryFunction(SugiliteRelation.HAS_SIBLING_TEXT);
                 clonedQuery.addSubQuery(subQuery);
-                queries.add(Pair.create(clonedQuery, 1.0));
+                queries.add(Pair.create(clonedQuery, 10.0));
             }
         }
 

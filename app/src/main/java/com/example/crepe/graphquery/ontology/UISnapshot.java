@@ -1,12 +1,19 @@
 package com.example.crepe.graphquery.ontology;
 
+import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.RectShape;
+import android.os.Build;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
+import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityWindowInfo;
+import android.widget.FrameLayout;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -298,8 +305,10 @@ public class UISnapshot {
                     if (siblingCount > 1) {  // if the node has siblings
                         for (int i = 0; i < siblingCount; i++) {
                             AccessibilityNodeInfo siblingNode = parentAccessibilityNode.getChild(i);
-                            if (siblingNode.getText() != null && !siblingNode.getText().toString().isEmpty()) {
-                                resultSiblingStringList.add(siblingNode.getText().toString());
+                            if (siblingNode != null && !nodeAccessibilityNodeInfoMap.get(node).equals(siblingNode)) {   // the second condition makes sure we don't collect the string of current node
+                                if (siblingNode.getText() != null && !siblingNode.getText().toString().isEmpty()) {
+                                    resultSiblingStringList.add(siblingNode.getText().toString());
+                                }
                             }
                         }
 
@@ -731,7 +740,7 @@ public class UISnapshot {
         Set<String> result = new LinkedHashSet<>();
         Integer subjectEntityId = objectEntity.getEntityId();
         if (subjectTriplesMap.get(subjectEntityId) != null) {
-            Set<SugiliteTriple> triples = new LinkedHashSet<>();
+            Set<SugiliteTriple> triples = new HashSet<>(subjectTriplesMap.get(subjectEntityId));    // here we get a copy of the original Map to avoid changing the original stored values
             triples.removeIf(t -> !t.getPredicate().equals(relation));
             for (SugiliteTriple t : triples) {
                 if (t.getObject() != null & t.getObject().getEntityValue() != null) {
@@ -751,7 +760,7 @@ public class UISnapshot {
         Set<List> result = new LinkedHashSet<>();
         Integer subjectEntityId = objectEntity.getEntityId();
         if (subjectTriplesMap.get(subjectEntityId) != null) {
-            Set<SugiliteTriple> triples = new LinkedHashSet<>();
+            Set<SugiliteTriple> triples = new HashSet<>(subjectTriplesMap.get(subjectEntityId));
             triples.removeIf(t -> !t.getPredicate().equals(relation));
             for (SugiliteTriple t : triples) {
                 if (t.getObject() != null & t.getObject().getEntityValue() != null) {
