@@ -77,25 +77,6 @@ public class DemonstrationUtil {
             }
 
         }
-            //TODO 1 Yuwen: build a uisnapshot and construct script
-//            UISnapshot uiSnapshot = CrepeAccessibilityService.getsSharedInstance().getCurrentUiSnapshot();
-
-//            sugiliteData.initiateScriptRecording(DemonstrationUtil.addScriptExtension(scriptName), afterRecordingCallback); //add the end recording callback
-//            sugiliteData.initiatedExternally = false;
-
-            //save the newly created script to DB
-            // TODO 2 Yuwen: Use our own script to save this to db
-//            try {
-//                sugiliteScriptDao.save(sugiliteData.getScriptHead());
-//                sugiliteScriptDao.commitSave(null);
-//            }
-//            catch (Exception e){
-//                e.printStackTrace();
-
-
-
-
-//        }
     }
 
     /**
@@ -309,6 +290,19 @@ public class DemonstrationUtil {
 //            }
 //        }
 
+        if (! relationsToExclude.contains(SugiliteRelation.HAS_PARENT_TEXT)) {
+            if (getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_PARENT_TEXT)) != null) {
+                CombinedOntologyQuery clonedQuery = q.clone();
+                LeafOntologyQuery subQuery = new LeafOntologyQuery();
+                Set<SugiliteEntity> object = new HashSet<>();
+                object.add(new SugiliteEntity(-1, String.class, getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_PARENT_TEXT))));
+                subQuery.setObjectSet(object);
+                subQuery.setQueryFunction(SugiliteRelation.HAS_PARENT_TEXT);
+                q.addSubQuery(subQuery);
+//                queries.add(Pair.create(clonedQuery, 1.0));
+            }
+        }
+
         if (! relationsToExclude.contains(SugiliteRelation.HAS_CONTENT_DESCRIPTION)) {
             if ((getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_CONTENT_DESCRIPTION)) != null) &&
                     (!getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_CONTENT_DESCRIPTION)).equals(getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_TEXT))))) {
@@ -323,19 +317,6 @@ public class DemonstrationUtil {
                 hasNonBoundingBoxFeature = true;
                 hasNonChildFeature = true;
                 queries.add(Pair.create(clonedQuery, 1.2));
-            }
-        }
-
-        if (! relationsToExclude.contains(SugiliteRelation.HAS_PARENT_TEXT)) {
-            if (getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_PARENT_TEXT)) != null) {
-                CombinedOntologyQuery clonedQuery = q.clone();
-                LeafOntologyQuery subQuery = new LeafOntologyQuery();
-                Set<SugiliteEntity> object = new HashSet<>();
-                object.add(new SugiliteEntity(-1, String.class, getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_PARENT_TEXT))));
-                subQuery.setObjectSet(object);
-                subQuery.setQueryFunction(SugiliteRelation.HAS_PARENT_TEXT);
-                clonedQuery.addSubQuery(subQuery);
-                queries.add(Pair.create(clonedQuery, 1.0));
             }
         }
 
@@ -415,7 +396,7 @@ public class DemonstrationUtil {
                         clonedQuery.addSubQuery(subQuery);
                         hasNonBoundingBoxFeature = true;
                         hasNonChildFeature = true;
-                        queries.add(Pair.create(clonedQuery, 3.1));
+                        queries.add(Pair.create(clonedQuery, 0.1));
                     }
                 }
             }

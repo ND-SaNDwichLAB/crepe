@@ -340,6 +340,26 @@ public class UISnapshot {
                     }
                 }
 
+                // spatial relations
+                if (TO_ADD_SPATIAL_RELATIONS) {
+
+                    Set<SugiliteEntity<Node>> nodeEntitiesToAnnotate = new HashSet<>();
+
+                    // this is just to add the SugiliteEntity for all nodes into the set
+                    for (Map.Entry<Node, SugiliteEntity<Node>> entry : nodeSugiliteEntityMap.entrySet()) {
+                        nodeEntitiesToAnnotate.add(entry.getValue());
+                    }
+
+                    for(Node relationNode: allNodes) {
+                        if (!relationNode.equals(node)) {   // ensure it's not the same node
+                            if (relationNode.getText() != null && !relationNode.getText().isEmpty()) {  // the easiest (but might not be the easiest) way to ensure the anchor node is visible on screen
+                                // TODO yuwen: 1. figure out the relationship between the nodes 2. store the relation to the uisnapshot
+                            }
+                        }
+                    }
+
+                }
+
             }
 
             for(Map.Entry<Node, SugiliteEntity<Node>> entry : nodeSugiliteEntityMap.entrySet()){
@@ -366,21 +386,6 @@ public class UISnapshot {
                 }
             }
 
-            //parse node entities
-            if (TO_ADD_SPATIAL_RELATIONS) {
-                //geometric/spatial relations
-                Point size = new Point();
-                display.getSize(size);
-                int width = size.x;
-                int height = size.y;
-
-                Set<SugiliteEntity<Node>> nodeEntitiesToAnnotate = new HashSet<>();
-
-                for (Map.Entry<Node, SugiliteEntity<Node>> entry : nodeSugiliteEntityMap.entrySet()) {
-                    nodeEntitiesToAnnotate.add(entry.getValue());
-                }
-
-            }
 
 
 
