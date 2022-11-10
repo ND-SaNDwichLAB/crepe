@@ -61,10 +61,10 @@ public class CollectorInfoLayoutBuilder {
         // get the app name text field from the card and populate it with app name
         TextView appNameTextView = (TextView) collectorInfoLayout.findViewById(R.id.collectorTitle);
         appNameTextView.setText(collector.getAppName());
-
+        // TODO: change the description of the app to size of collected data or add a new text field for it
         TextView collectorDescriptionTextView = (TextView) collectorInfoLayout.findViewById(R.id.collectorDataDescription);
         collectorDescriptionTextView.setText(collector.getDescription());
-
+        // get the start and end date
         TextView scheduleStartTextView = (TextView) collectorInfoLayout.findViewById(R.id.startTime);
         scheduleStartTextView.setText("Started: "+collector.getCollectorStartTimeString());
         TextView scheduleEndTextView = (TextView) collectorInfoLayout.findViewById(R.id.endTime);

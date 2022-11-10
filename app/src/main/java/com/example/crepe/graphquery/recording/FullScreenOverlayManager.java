@@ -25,6 +25,9 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import androidx.annotation.RequiresApi;
 
 import com.example.crepe.CrepeAccessibilityService;
+import com.example.crepe.database.Data;
+import com.example.crepe.database.DatabaseManager;
+import com.example.crepe.database.Datafield;
 import com.example.crepe.demonstration.WidgetDisplay;
 import com.example.crepe.graphquery.Const;
 import com.example.crepe.graphquery.model.Node;
@@ -32,6 +35,7 @@ import com.example.crepe.graphquery.ontology.OntologyQuery;
 import com.example.crepe.graphquery.ontology.SugiliteEntity;
 import com.example.crepe.graphquery.ontology.SugiliteRelation;
 import com.example.crepe.graphquery.ontology.UISnapshot;
+import com.example.crepe.network.FirebaseCommunicationManager;
 
 import java.util.Arrays;
 import java.util.List;
@@ -222,12 +226,54 @@ public class FullScreenOverlayManager {
                     } else {
                         Log.e("generate queries", "Cannot find the tapped entity!");
                     }
+                    defaultQueries.get(0).first.executeOn(uiSnapshot);
 
-                    // TODO yuwen / meng: store the query in database, then constantly check it in another thread
+                    // TODO meng: store the query in database, then constantly check it in another thread
                     // 1. store the query in local database
+                    DatabaseManager dbManager = new DatabaseManager(context);
+                    FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(context);
+                    Data data = new Data("1","2","3", defaultQueries.get(0).first.toString());
+                    Datafield datafield = new Datafield("752916f46f6bcd47+1","2", defaultQueries.get(0).first.toString(),"test", Boolean.TRUE);
+
+
+                    // 2. check the query in another thread
+                    // create a thread to use the query to get data
+//                    Thread queryThread = new Thread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//
+//                        }
+//
+//                        }
+
                     // 2. everytime the app launches / runs in the background, retrieve the query from local database
+
+
+
                     // 3. in CrepeAccessibilityService.java, every time the screen content changes, generate a new UIsnapshot, execute the query on UI snapshot to get results
+                    // UISnapshot newuiSnapshot = CrepeAccessibilityService.getsSharedInstance().generateUISnapshot();
+
+
                     // 4. every time the local database changes, push to remote
+                    firebaseCommunicationManager.putData(data).addOnSuccessListener(suc->{
+                        Log.i("Firebase","Successfully added data " + data.getDataId() + " to firebase.");
+                    }).addOnFailureListener(er->{
+                        Log.e("Firebase","Failed to add data " + data.getDataId() + " to firebase.");
+                    });;
+                    firebaseCommunicationManager.putDatafield(datafield).addOnSuccessListener(suc->{
+                        Log.i("Firebase","Successfully added datafield " + datafield.getDataFieldId() + " to firebase.");
+                    }).addOnFailureListener(er->{
+                        Log.e("Firebase","Failed to add datafield " + datafield.getDataFieldId() + " to firebase.");
+                    });;
+
+                    dbManager.addData(data);
+                    dbManager.addOneDataField(datafield);
+                    System.out.println("Query: " + defaultQueries.get(0).first.toString());
+
+
+
+
+
 
                     if(defaultQueries != null) {
                         for(Pair<OntologyQuery, Double> query : defaultQueries) {
