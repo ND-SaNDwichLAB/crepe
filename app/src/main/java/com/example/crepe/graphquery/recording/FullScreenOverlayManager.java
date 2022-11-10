@@ -38,6 +38,7 @@ import com.example.crepe.graphquery.ontology.UISnapshot;
 import com.example.crepe.network.FirebaseCommunicationManager;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -203,9 +204,9 @@ public class FullScreenOverlayManager {
                     UISnapshot uiSnapshot = CrepeAccessibilityService.getsSharedInstance().generateUISnapshot();
                     // get the matched node
 
-                    List<AccessibilityNodeInfo> matchedAccessibilityNodeList = CrepeAccessibilityService.getsSharedInstance().getMatchingNodeFromClick(rawX, rawY);
+                    List<AccessibilityNodeInfo> matchedAccessibilityNodeList = CrepeAccessibilityService.getsSharedInstance().getMatchingNodeFromClickWithText(rawX, rawY);
                     // this matchedAccessibilityNode is an AccessibilityNodeInfo, which is not exactly the node stored in the screen's nodeSugiliteEntityMap.
-                    // We retrieve that stored node from this screen's uisnapshot
+                    // We retrieved that stored node from this screen's uisnapshot
 
                     SugiliteEntity<Node> targetEntity = new SugiliteEntity<>();
                     AccessibilityNodeInfo matchedNode;
@@ -219,7 +220,7 @@ public class FullScreenOverlayManager {
 
 
                     List<Pair<OntologyQuery, Double>> defaultQueries = null;
-                    Set<SugiliteEntity> results = null;
+                    Set<SugiliteEntity> results = new HashSet<>();
                     if(targetEntity != null) {
                         SugiliteRelation[] relationsToExclude = new SugiliteRelation[0];
                         defaultQueries = generateDefaultQueries(uiSnapshot, targetEntity, relationsToExclude);
@@ -277,7 +278,7 @@ public class FullScreenOverlayManager {
 
                     if(defaultQueries != null) {
                         for(Pair<OntologyQuery, Double> query : defaultQueries) {
-                            results = query.first.executeOn(uiSnapshot);
+                            results.addAll(query.first.executeOn(uiSnapshot));
                         }
                     }
                     return true;
