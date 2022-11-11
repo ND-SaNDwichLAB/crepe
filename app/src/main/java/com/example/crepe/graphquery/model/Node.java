@@ -35,6 +35,7 @@ public class Node implements Serializable {
     private Boolean isFocused = false;
     private Boolean isEnabled = false;
     private Boolean isScrollable = false;
+    private Boolean isVisibleToUser = false;
     private Node parent = null;
     private String eventManagerId; //unique view identifier added to AccessibilityNodeInfo
     private String TAG = Node.class.getCanonicalName();
@@ -92,6 +93,8 @@ public class Node implements Serializable {
         this.isChecked = nodeInfo.isChecked();
         this.isCheckable = nodeInfo.isCheckable();
         this.isScrollable = nodeInfo.isScrollable();
+        this.isVisibleToUser = nodeInfo.isVisibleToUser();
+
         // currently this causes a infinite loop constructor
 
 //        childNodes = new ArrayList<>();
@@ -166,6 +169,10 @@ public class Node implements Serializable {
 
     public Boolean getEnabled() {
         return isEnabled;
+    }
+
+    public Boolean getIsVisibleToUser() {
+        return isVisibleToUser;
     }
 
     public Boolean getFocused() {

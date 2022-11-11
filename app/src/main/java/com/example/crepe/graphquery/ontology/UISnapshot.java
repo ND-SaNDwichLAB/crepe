@@ -1,20 +1,13 @@
 package com.example.crepe.graphquery.ontology;
 
-import android.graphics.Paint;
-import android.graphics.Point;
 import android.graphics.Rect;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.RectShape;
-import android.os.Build;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
-import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityWindowInfo;
-import android.widget.FrameLayout;
 
+import java.sql.Array;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -44,7 +37,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class UISnapshot {
     private final Set<SugiliteTriple> triples;
-    private static boolean TO_ADD_SPATIAL_RELATIONS = false;
+    private static boolean TO_ADD_SPATIAL_RELATIONS = true;
 
     //indexes for triples
     private final Map<Integer, Set<SugiliteTriple>> subjectTriplesMap;
@@ -342,18 +335,50 @@ public class UISnapshot {
 
                 // spatial relations
                 if (TO_ADD_SPATIAL_RELATIONS) {
+                    // loop through all other nodes, find the ones closest to the current node in each of the 4 directions, and add them to the UISnapshot
 
-                    Set<SugiliteEntity<Node>> nodeEntitiesToAnnotate = new HashSet<>();
-
-                    // this is just to add the SugiliteEntity for all nodes into the set
-                    for (Map.Entry<Node, SugiliteEntity<Node>> entry : nodeSugiliteEntityMap.entrySet()) {
-                        nodeEntitiesToAnnotate.add(entry.getValue());
-                    }
+                    // maintain 2 hashmaps
+                    // 1. key – relation to current node, value – all other nodes
+                    // the reason for relation being the key and node being the value: for each current node, in UISnapshot, we only store the 4 nodes closest to it in 4 directions.
+                    // As a result, if we find a closer node in 1 direction, we replace the previous closest node in spatialRelationMap with the new closest node
+                    Map<SugiliteRelation, Node> spatialRelationMap = new HashMap<>();
+                    // 2. key – all other nodes, value – distance to current node
+                    Map<Node, Double> spatialDistanceMap = new HashMap<>();
 
                     for(Node relationNode: allNodes) {
                         if (!relationNode.equals(node)) {   // ensure it's not the same node
-                            if (relationNode.getText() != null && !relationNode.getText().isEmpty()) {  // the easiest (but might not be the easiest) way to ensure the anchor node is visible on screen
-                                // TODO yuwen: 1. figure out the relationship between the nodes 2. store the relation to the uisnapshot
+                            if (relationNode.getIsVisibleToUser()) { // if the node is visible
+                                // 1. figure out the relationship between the nodes, store in spatialRelationMap
+                                List<SugiliteRelation> spatialRelationList = getSpatialRelationBetweenNodes(node, relationNode);
+
+                                //  2. calculate the distance, store in spatialDistanceMap
+                                Double spatialDistance = getSpatialDistanceBetweenNodes(node, relationNode);
+                                if (spatialDistance != null) {
+                                    spatialDistanceMap.put(relationNode, spatialDistance);
+                                } else {
+                                    Log.e("UISnapshot", "Spatial distance for node pair is null");
+                                }
+
+                                if (spatialRelationList != null && spatialRelationList.size() > 0) {
+                                    for (SugiliteRelation spatialRelation : spatialRelationList) {
+                                        if (spatialRelationMap.containsKey(spatialRelation)) {  // if there has been a node added to this direction
+                                            Double currentClosestDistance = spatialDistanceMap.get(spatialRelationMap.get(spatialRelation));
+                                            if (currentClosestDistance != null && currentClosestDistance >= spatialDistance) {  // see if the new spatial distance is smaller
+                                                spatialRelationMap.put(spatialRelation, relationNode);  // if so, update
+                                            }
+                                        } else {
+                                            spatialRelationMap.put(spatialRelation, relationNode);  // if there has not been a node in this direction, add it to the map directly
+                                        }
+                                    }
+                                }
+
+
+
+                                //  3. store the relation to uisnapshot
+
+
+
+
                             }
                         }
                     }
@@ -582,6 +607,67 @@ public class UISnapshot {
         SugiliteTriple triple = new SugiliteTriple(currentEntity, relation, objectEntity);
         addTriple(triple);
     }
+
+
+    /**
+     * helper function to figure out the spatial relation between a pair of Nodes
+     * @param referenceNode
+     * @param secondNode
+     */
+    private List<SugiliteRelation> getSpatialRelationBetweenNodes(Node referenceNode, Node secondNode) {
+        Rect referenceRect = Rect.unflattenFromString(referenceNode.getBoundsInScreen());
+        Rect secondRect = Rect.unflattenFromString(secondNode.getBoundsInScreen());
+
+        // check for intersect first
+        if (referenceRect.intersect(secondRect)) {
+            return null;
+        } else {
+            // make sure the top/bottom or left/right are not flipped
+            referenceRect.sort();
+            secondRect.sort();
+
+            Integer referenceLeft = referenceRect.left;
+            Integer referenceRight = referenceRect.right;
+            Integer referenceBottom = referenceRect.bottom;
+            Integer referenceTop = referenceRect.top;
+
+            Integer secondLeft = secondRect.left;
+            Integer secondRight = secondRect.right;
+            Integer secondBottom = secondRect.bottom;
+            Integer secondTop = secondRect.top;
+
+            List<SugiliteRelation> resultRelationList = new ArrayList<>();
+            if ( referenceLeft >= secondRight ) resultRelationList.add(SugiliteRelation.LEFT);
+            if ( referenceRight <= secondLeft ) resultRelationList.add(SugiliteRelation.RIGHT);
+            if ( referenceTop <= secondBottom ) resultRelationList.add(SugiliteRelation.ABOVE);
+            if ( referenceBottom >= secondTop ) resultRelationList.add(SugiliteRelation.BELOW);
+
+            return resultRelationList;
+        }
+
+    }
+
+    /**
+     * helper function to figure out the spatial distance between a pair of Nodes
+     * @param referenceNode
+     * @param secondNode
+     */
+    private Double getSpatialDistanceBetweenNodes(Node referenceNode, Node secondNode) {
+        Rect referenceRect = Rect.unflattenFromString(referenceNode.getBoundsInScreen());
+        Rect secondRect = Rect.unflattenFromString(secondNode.getBoundsInScreen());
+
+        if (referenceRect.intersect(secondRect)) {
+            return null;
+        } else {
+         Integer referenceXCenter = referenceRect.centerX();
+         Integer referenceYCenter = referenceRect.centerY();
+         Integer secondXCenter = secondRect.centerX();
+         Integer secondYCenter = secondRect.centerY();
+
+         return Math.sqrt( (referenceXCenter - secondXCenter) * (referenceXCenter - secondXCenter) + (referenceYCenter - secondYCenter) * (referenceYCenter - secondYCenter) );
+        }
+    }
+
 
     public void update(AccessibilityEvent event){
         // TODO: update the UI snapshot based on an event
