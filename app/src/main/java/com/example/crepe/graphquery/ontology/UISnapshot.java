@@ -792,6 +792,15 @@ public class UISnapshot {
 
     }
 
+    public SugiliteEntity<Node> getEntityWithNode(Node targetNode) {
+        if (targetNode != null) {
+            return nodeSugiliteEntityMap.get(targetNode);
+        } else {
+            return null;
+        }
+
+    }
+
     public Map<Map.Entry<Integer, Integer>, Set<SugiliteTriple>> getSubjectPredicateTriplesMap() {
         return subjectPredicateTriplesMap;
     }

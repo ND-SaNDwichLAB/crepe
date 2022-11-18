@@ -2,6 +2,7 @@ package com.example.crepe.graphquery;
 
 import static android.content.Context.WINDOW_SERVICE;
 import static com.example.crepe.graphquery.Const.OVERLAY_TYPE;
+import static com.example.crepe.graphquery.Const.PREVIEW_OVERLAY_COLOR;
 
 import android.app.ActivityManager;
 import android.app.AlertDialog;
@@ -465,13 +466,30 @@ public class DemonstrationUtil {
             if (getValueIfOnlyOneObject(uiSnapshot.getNodeValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.LEFT)) != null) {
                 CombinedOntologyQuery clonedQuery = q.clone();
                 LeafOntologyQuery subQuery = new LeafOntologyQuery();
-                Set<SugiliteEntity> object = new HashSet<>();
+                Set<OntologyQuery> object = new HashSet<>();
 
-                object.add(new SugiliteEntity(-1, String.class, getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.LEFT))));
-                subQuery.setObjectSet(object);
-                subQuery.setQueryFunction(SugiliteRelation.LEFT);
-                clonedQuery.addSubQuery(subQuery);
-                queries.add(Pair.create(clonedQuery, 101.0));
+                // recursively generate the graph query for targetNode
+                Node targetNode = getValueIfOnlyOneObject(uiSnapshot.getNodeValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.LEFT));
+                if (uiSnapshot.getEntityWithNode(targetNode) != null) {
+                    SugiliteRelation[] spatialRelationsToExclude = new SugiliteRelation[4];
+                    spatialRelationsToExclude[0] = SugiliteRelation.LEFT;
+                    spatialRelationsToExclude[1] = SugiliteRelation.RIGHT;
+                    spatialRelationsToExclude[2] = SugiliteRelation.ABOVE;
+                    spatialRelationsToExclude[3] = SugiliteRelation.BELOW;
+
+                    List<Pair<OntologyQuery, Double>> recursiveQueries = generateDefaultQueries(uiSnapshot, uiSnapshot.getEntityWithNode(targetNode), spatialRelationsToExclude);
+
+                    object.add(recursiveQueries.get(0).first);
+                    subQuery.setObjectSet(object);
+                    subQuery.setQueryFunction(SugiliteRelation.LEFT);
+                    clonedQuery.addSubQuery(subQuery);
+                    queries.add(Pair.create(clonedQuery, 101.0));
+                } else {
+                    Log.e("generateDefaultQueries", "Error generate recursive queries: cannot find the corresponding entity for target node");
+                }
+
+
+
             }
         }
 
