@@ -273,7 +273,7 @@ public class DemonstrationUtil {
                 q.addSubQuery(subQuery);
             }
         }
-
+            // temporarily disable HAS_TEXT relations
 //        if (! relationsToExclude.contains(SugiliteRelation.HAS_TEXT)) {
 //            if (getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_TEXT)) != null) {
 //                //add a text query
@@ -455,6 +455,21 @@ public class DemonstrationUtil {
                 object.add(new SugiliteEntity(-1, String.class, getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_PARENT_LOCATION))));
                 subQuery.setObjectSet(object);
                 subQuery.setQueryFunction(SugiliteRelation.HAS_PARENT_LOCATION);
+                clonedQuery.addSubQuery(subQuery);
+                queries.add(Pair.create(clonedQuery, 101.0));
+            }
+        }
+
+        // spatial relations
+        if (! relationsToExclude.contains(SugiliteRelation.LEFT)) {
+            if (getValueIfOnlyOneObject(uiSnapshot.getNodeValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.LEFT)) != null) {
+                CombinedOntologyQuery clonedQuery = q.clone();
+                LeafOntologyQuery subQuery = new LeafOntologyQuery();
+                Set<SugiliteEntity> object = new HashSet<>();
+
+                object.add(new SugiliteEntity(-1, String.class, getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.LEFT))));
+                subQuery.setObjectSet(object);
+                subQuery.setQueryFunction(SugiliteRelation.LEFT);
                 clonedQuery.addSubQuery(subQuery);
                 queries.add(Pair.create(clonedQuery, 101.0));
             }

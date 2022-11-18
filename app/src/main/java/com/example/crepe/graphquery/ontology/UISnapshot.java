@@ -338,17 +338,18 @@ public class UISnapshot {
                     // loop through all other nodes, find the ones closest to the current node in each of the 4 directions, and add them to the UISnapshot
 
                     // maintain 2 hashmaps
-                    // 1. key – relation to current node, value – all other nodes
+                    // 1. spatialRelationMap: key – relation to current node, value – all other nodes
                     // the reason for relation being the key and node being the value: for each current node, in UISnapshot, we only store the 4 nodes closest to it in 4 directions.
                     // As a result, if we find a closer node in 1 direction, we replace the previous closest node in spatialRelationMap with the new closest node
                     Map<SugiliteRelation, Node> spatialRelationMap = new HashMap<>();
-                    // 2. key – all other nodes, value – distance to current node
+                    // 2. spatialDistanceMap: key – all other nodes, value – distance to current node
                     Map<Node, Double> spatialDistanceMap = new HashMap<>();
 
                     for(Node relationNode: allNodes) {
                         if (!relationNode.equals(node)) {   // ensure it's not the same node
-                            if (relationNode.getIsVisibleToUser()) { // if the node is visible
+                            if (relationNode.getIsVisibleToUser()) { // if the node is visible to user
                                 // 1. figure out the relationship between the nodes, store in spatialRelationMap
+                                // Note there can be 1 - 2 spatial relationships between nodes: e.g. above and right
                                 List<SugiliteRelation> spatialRelationList = getSpatialRelationBetweenNodes(node, relationNode);
 
                                 //  2. calculate the distance, store in spatialDistanceMap
@@ -371,15 +372,13 @@ public class UISnapshot {
                                         }
                                     }
                                 }
-
-
-
-                                //  3. store the relation to uisnapshot
-
-
-
-
                             }
+                        }
+                    }
+                    //  3. after calculating with all other nodes, we can store the spatial relations for current node to uisnapshot
+                    if (!spatialRelationMap.isEmpty()) {
+                        for (SugiliteRelation spatialRelation : spatialRelationMap.keySet()) {
+                            addEntityNodeTriple(currentEntity, spatialRelationMap.get(spatialRelation), spatialRelation);
                         }
                     }
 
@@ -637,10 +636,10 @@ public class UISnapshot {
             Integer secondTop = secondRect.top;
 
             List<SugiliteRelation> resultRelationList = new ArrayList<>();
-            if ( referenceLeft >= secondRight ) resultRelationList.add(SugiliteRelation.LEFT);
-            if ( referenceRight <= secondLeft ) resultRelationList.add(SugiliteRelation.RIGHT);
-            if ( referenceTop <= secondBottom ) resultRelationList.add(SugiliteRelation.ABOVE);
-            if ( referenceBottom >= secondTop ) resultRelationList.add(SugiliteRelation.BELOW);
+            if ( referenceLeft >= secondRight ) resultRelationList.add(SugiliteRelation.RIGHT);
+            if ( referenceRight <= secondLeft ) resultRelationList.add(SugiliteRelation.LEFT);
+            if ( referenceBottom <= secondTop ) resultRelationList.add(SugiliteRelation.ABOVE);
+            if ( referenceTop >= secondBottom ) resultRelationList.add(SugiliteRelation.BELOW);
 
             return resultRelationList;
         }
@@ -857,6 +856,26 @@ public class UISnapshot {
                 if (t.getObject() != null & t.getObject().getEntityValue() != null) {
                     if (t.getObject().getEntityValue() instanceof List) {
                         result.add((List) t.getObject().getEntityValue());
+                    }
+                }
+            }
+        } else {
+            Log.e("getStringValuesForObjectEntityAndRelation", "subjectTriplesMap.get(subjectEntityId) is null");
+        }
+
+        return result;
+    }
+
+    public Set<Node> getNodeValuesForObjectEntityAndRelation(SugiliteEntity objectEntity, SugiliteRelation relation) {
+        Set<Node> result = new LinkedHashSet<>();
+        Integer subjectEntityId = objectEntity.getEntityId();
+        if (subjectTriplesMap.get(subjectEntityId) != null) {
+            Set<SugiliteTriple> triples = new HashSet<>(subjectTriplesMap.get(subjectEntityId));
+            triples.removeIf(t -> !t.getPredicate().equals(relation));
+            for (SugiliteTriple t : triples) {
+                if (t.getObject() != null & t.getObject().getEntityValue() != null) {
+                    if (t.getObject().getEntityValue() instanceof Node) {
+                        result.add((Node) t.getObject().getEntityValue());
                     }
                 }
             }

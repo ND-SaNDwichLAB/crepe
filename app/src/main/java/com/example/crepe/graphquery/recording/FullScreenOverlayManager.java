@@ -222,7 +222,8 @@ public class FullScreenOverlayManager {
                     List<Pair<OntologyQuery, Double>> defaultQueries = null;
                     Set<SugiliteEntity> results = new HashSet<>();
                     if(targetEntity != null) {
-                        SugiliteRelation[] relationsToExclude = new SugiliteRelation[0];
+                        SugiliteRelation[] relationsToExclude = new SugiliteRelation[1];
+                        relationsToExclude[0] = SugiliteRelation.HAS_TEXT;
                         defaultQueries = generateDefaultQueries(uiSnapshot, targetEntity, relationsToExclude);
                     } else {
                         Log.e("generate queries", "Cannot find the tapped entity!");
