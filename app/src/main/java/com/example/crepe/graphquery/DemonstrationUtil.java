@@ -274,22 +274,22 @@ public class DemonstrationUtil {
                 q.addSubQuery(subQuery);
             }
         }
-            // temporarily disable HAS_TEXT relations
-//        if (! relationsToExclude.contains(SugiliteRelation.HAS_TEXT)) {
-//            if (getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_TEXT)) != null) {
-//                //add a text query
-//                CombinedOntologyQuery clonedQuery = q.clone();
-//                LeafOntologyQuery subQuery = new LeafOntologyQuery();
-//                Set<SugiliteEntity> object = new HashSet<>();
-//                object.add(new SugiliteEntity(-1, String.class, getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_TEXT))));
-//                subQuery.setObjectSet(object);
-//                subQuery.setQueryFunction(SugiliteRelation.HAS_TEXT);
-//                clonedQuery.addSubQuery(subQuery);
-//                hasNonBoundingBoxFeature = true;
-//                hasNonChildFeature = true;
-//                queries.add(Pair.create(clonedQuery, 1.1));
-//            }
-//        }
+
+        if (! relationsToExclude.contains(SugiliteRelation.HAS_TEXT)) {
+            if (getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_TEXT)) != null) {
+                //add a text query
+                CombinedOntologyQuery clonedQuery = q.clone();
+                LeafOntologyQuery subQuery = new LeafOntologyQuery();
+                Set<SugiliteEntity> object = new HashSet<>();
+                object.add(new SugiliteEntity(-1, String.class, getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_TEXT))));
+                subQuery.setObjectSet(object);
+                subQuery.setQueryFunction(SugiliteRelation.HAS_TEXT);
+                clonedQuery.addSubQuery(subQuery);
+                hasNonBoundingBoxFeature = true;
+                hasNonChildFeature = true;
+                queries.add(Pair.create(clonedQuery, 1.1));
+            }
+        }
 
         if (! relationsToExclude.contains(SugiliteRelation.HAS_PARENT_TEXT)) {
             if (getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_PARENT_TEXT)) != null) {
