@@ -1,0 +1,74 @@
+[
+    {
+        "merged": "/Users/mengchen/AndroidStudioProjects/crepe/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/dialog_add_collector_from_url_collector_info.xml",
+        "source": "/Users/mengchen/AndroidStudioProjects/crepe/app/src/main/res/layout/dialog_add_collector_from_url_collector_info.xml"
+    },
+    {
+        "merged": "/Users/mengchen/AndroidStudioProjects/crepe/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/demonstration_confirmation.xml",
+        "source": "/Users/mengchen/AndroidStudioProjects/crepe/app/src/main/res/layout/demonstration_confirmation.xml"
+    },
+    {
+        "merged": "/Users/mengchen/AndroidStudioProjects/crepe/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/demonstration_float_widget.xml",
+        "source": "/Users/mengchen/AndroidStudioProjects/crepe/app/src/main/res/layout/demonstration_float_widget.xml"
+    },
+    {
+        "merged": "/Users/mengchen/AndroidStudioProjects/crepe/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/collector_card.xml",
+        "source": "/Users/mengchen/AndroidStudioProjects/crepe/app/src/main/res/layout/collector_card.xml"
+    },
+    {
+        "merged": "/Users/mengchen/AndroidStudioProjects/crepe/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/dialog_add_collector_from_config_description.xml",
+        "source": "/Users/mengchen/AndroidStudioProjects/crepe/app/src/main/res/layout/dialog_add_collector_from_config_description.xml"
+    },
+    {
+        "merged": "/Users/mengchen/AndroidStudioProjects/crepe/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/collector_info_for_data_fragment.xml",
+        "source": "/Users/mengchen/AndroidStudioProjects/crepe/app/src/main/res/layout/collector_info_for_data_fragment.xml"
+    },
+    {
+        "merged": "/Users/mengchen/AndroidStudioProjects/crepe/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/collector_detail.xml",
+        "source": "/Users/mengchen/AndroidStudioProjects/crepe/app/src/main/res/layout/collector_detail.xml"
+    },
+    {
+        "merged": "/Users/mengchen/AndroidStudioProjects/crepe/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/dialog_add_collector_from_config_data_field.xml",
+        "source": "/Users/mengchen/AndroidStudioProjects/crepe/app/src/main/res/layout/dialog_add_collector_from_config_data_field.xml"
+    },
+    {
+        "merged": "/Users/mengchen/AndroidStudioProjects/crepe/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/activity_main.xml",
+        "source": "/Users/mengchen/AndroidStudioProjects/crepe/app/src/main/res/layout/activity_main.xml"
+    },
+    {
+        "merged": "/Users/mengchen/AndroidStudioProjects/crepe/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/dialog_add_collector_from_config.xml",
+        "source": "/Users/mengchen/AndroidStudioProjects/crepe/app/src/main/res/layout/dialog_add_collector_from_config.xml"
+    },
+    {
+        "merged": "/Users/mengchen/AndroidStudioProjects/crepe/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_home.xml",
+        "source": "/Users/mengchen/AndroidStudioProjects/crepe/app/src/main/res/layout/fragment_home.xml"
+    },
+    {
+        "merged": "/Users/mengchen/AndroidStudioProjects/crepe/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/dialog_add_collector_from_config_success_message.xml",
+        "source": "/Users/mengchen/AndroidStudioProjects/crepe/app/src/main/res/layout/dialog_add_collector_from_config_success_message.xml"
+    },
+    {
+        "merged": "/Users/mengchen/AndroidStudioProjects/crepe/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/nav_header.xml",
+        "source": "/Users/mengchen/AndroidStudioProjects/crepe/app/src/main/res/layout/nav_header.xml"
+    },
+    {
+        "merged": "/Users/mengchen/AndroidStudioProjects/crepe/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/dialog_add_collector_from_config_graph_query.xml",
+        "source": "/Users/mengchen/AndroidStudioProjects/crepe/app/src/main/res/layout/dialog_add_collector_from_config_graph_query.xml"
+    },
+    {
+        "merged": "/Users/mengchen/AndroidStudioProjects/crepe/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/popup_set_username.xml",
+        "source": "/Users/mengchen/AndroidStudioProjects/crepe/app/src/main/res/layout/popup_set_username.xml"
+    },
+    {
+        "merged": "/Users/mengchen/AndroidStudioProjects/crepe/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/dialog_add_collector_from_url.xml",
+        "source": "/Users/mengchen/AndroidStudioProjects/crepe/app/src/main/res/layout/dialog_add_collector_from_url.xml"
+    },
+    {
+        "merged": "/Users/mengchen/AndroidStudioProjects/crepe/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/fragment_data.xml",
+        "source": "/Users/mengchen/AndroidStudioProjects/crepe/app/src/main/res/layout/fragment_data.xml"
+    },
+    {
+        "merged": "/Users/mengchen/AndroidStudioProjects/crepe/app/build/intermediates/incremental/mergeDebugResources/stripped.dir/layout/datafield_card.xml",
+        "source": "/Users/mengchen/AndroidStudioProjects/crepe/app/src/main/res/layout/datafield_card.xml"
+    }
+]

@@ -1,0 +1,108 @@
+com/example/crepe/ui/dialog/CreateCollectorFromConfigDialogBuilderGraphQuery.java
+ com.example.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilderGraphQuery
+ com.example.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilderGraphQuery$1
+ com.example.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilderGraphQuery$2
+ com.example.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilderGraphQuery$3
+com/example/crepe/databinding/NavHeaderBinding.java
+ com.example.crepe.databinding.NavHeaderBinding
+com/example/crepe/ui/dialog/CreateCollectorFromConfigDialogBuilderDataField.java
+ com.example.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilderDataField
+ com.example.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilderDataField$1
+ com.example.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilderDataField$2
+ com.example.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilderDataField$3
+com/example/crepe/databinding/DialogAddCollectorFromConfigDescriptionBinding.java
+ com.example.crepe.databinding.DialogAddCollectorFromConfigDescriptionBinding
+com/example/crepe/CrepeAccessibilityService.java
+ com.example.crepe.CrepeAccessibilityService
+com/example/crepe/database/User.java
+ com.example.crepe.database.User
+com/example/crepe/databinding/DialogAddCollectorFromConfigBinding.java
+ com.example.crepe.databinding.DialogAddCollectorFromConfigBinding
+com/example/crepe/databinding/CollectorInfoBinding.java
+ com.example.crepe.databinding.CollectorInfoBinding
+com/example/crepe/databinding/CollectorDetailBinding.java
+ com.example.crepe.databinding.CollectorDetailBinding
+com/example/crepe/BuildConfig.java
+ com.example.crepe.BuildConfig
+com/example/crepe/databinding/DialogAddCollectorFromConfigDataFieldBinding.java
+ com.example.crepe.databinding.DialogAddCollectorFromConfigDataFieldBinding
+com/example/crepe/databinding/DialogAddCollectorFromUrlCollectorInfoBinding.java
+ com.example.crepe.databinding.DialogAddCollectorFromUrlCollectorInfoBinding
+com/example/crepe/ui/dialog/AddConfig.java
+ com.example.crepe.ui.dialog.AddConfig
+com/example/crepe/databinding/CollectorCardBinding.java
+ com.example.crepe.databinding.CollectorCardBinding
+com/example/crepe/ui/dialog/CreateCollectorFromURLDialogBuilder.java
+ com.example.crepe.ui.dialog.CreateCollectorFromURLDialogBuilder
+ com.example.crepe.ui.dialog.CreateCollectorFromURLDialogBuilder$1
+ com.example.crepe.ui.dialog.CreateCollectorFromURLDialogBuilder$2
+com/example/crepe/databinding/DialogAddCollectorFromConfigSuccessMessageBinding.java
+ com.example.crepe.databinding.DialogAddCollectorFromConfigSuccessMessageBinding
+com/example/crepe/databinding/ActivityMainBinding.java
+ com.example.crepe.databinding.ActivityMainBinding
+com/example/crepe/databinding/DialogAddCollectorFromConfigGraphQueryBinding.java
+ com.example.crepe.databinding.DialogAddCollectorFromConfigGraphQueryBinding
+com/example/crepe/database/Datafield.java
+ com.example.crepe.database.Datafield
+com/example/crepe/databinding/FragmentDataBinding.java
+ com.example.crepe.databinding.FragmentDataBinding
+com/example/crepe/database/Data.java
+ com.example.crepe.database.Data
+com/example/crepe/databinding/DialogAddCollectorFromUrlBinding.java
+ com.example.crepe.databinding.DialogAddCollectorFromUrlBinding
+com/example/crepe/ui/dialog/CreateCollectorFromURLDialogSuccessMessage.java
+ com.example.crepe.ui.dialog.CreateCollectorFromURLDialogSuccessMessage
+com/example/crepe/ui/dialog/CreateCollectorFromConfigDialogBuilderDescription.java
+ com.example.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilderDescription
+ com.example.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilderDescription$1
+ com.example.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilderDescription$2
+ com.example.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilderDescription$3
+com/example/crepe/databinding/FragmentHomeBinding.java
+ com.example.crepe.databinding.FragmentHomeBinding
+com/example/crepe/ui/dialog/CreateCollectorFromConfigDialogBuilder.java
+ com.example.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilder
+com/example/crepe/ui/main_activity/CollectorCardConstraintLayoutBuilder.java
+ com.example.crepe.ui.main_activity.CollectorCardConstraintLayoutBuilder
+ com.example.crepe.ui.main_activity.CollectorCardConstraintLayoutBuilder$1
+com/example/crepe/database/Collector.java
+ com.example.crepe.database.Collector
+com/example/crepe/database/DatabaseManager.java
+ com.example.crepe.database.DatabaseManager
+com/example/crepe/ui/dialog/CollectorConfigurationDialogWrapper.java
+ com.example.crepe.ui.dialog.CollectorConfigurationDialogWrapper
+ com.example.crepe.ui.dialog.CollectorConfigurationDialogWrapper$1
+ com.example.crepe.ui.dialog.CollectorConfigurationDialogWrapper$1$1
+ com.example.crepe.ui.dialog.CollectorConfigurationDialogWrapper$10
+ com.example.crepe.ui.dialog.CollectorConfigurationDialogWrapper$11
+ com.example.crepe.ui.dialog.CollectorConfigurationDialogWrapper$12
+ com.example.crepe.ui.dialog.CollectorConfigurationDialogWrapper$13
+ com.example.crepe.ui.dialog.CollectorConfigurationDialogWrapper$14
+ com.example.crepe.ui.dialog.CollectorConfigurationDialogWrapper$15
+ com.example.crepe.ui.dialog.CollectorConfigurationDialogWrapper$16
+ com.example.crepe.ui.dialog.CollectorConfigurationDialogWrapper$2
+ com.example.crepe.ui.dialog.CollectorConfigurationDialogWrapper$2$1
+ com.example.crepe.ui.dialog.CollectorConfigurationDialogWrapper$3
+ com.example.crepe.ui.dialog.CollectorConfigurationDialogWrapper$4
+ com.example.crepe.ui.dialog.CollectorConfigurationDialogWrapper$5
+ com.example.crepe.ui.dialog.CollectorConfigurationDialogWrapper$6
+ com.example.crepe.ui.dialog.CollectorConfigurationDialogWrapper$7
+ com.example.crepe.ui.dialog.CollectorConfigurationDialogWrapper$8
+ com.example.crepe.ui.dialog.CollectorConfigurationDialogWrapper$9
+com/example/crepe/ui/chart/CollectorInfoLayoutBuilder.java
+ com.example.crepe.ui.chart.CollectorInfoLayoutBuilder
+ com.example.crepe.ui.chart.CollectorInfoLayoutBuilder$DayAxisValueFormatter
+com/example/crepe/MainActivity.java
+ com.example.crepe.MainActivity
+ com.example.crepe.MainActivity$1
+ com.example.crepe.MainActivity$2
+ com.example.crepe.MainActivity$3
+ com.example.crepe.MainActivity$4
+com/example/crepe/ui/main_activity/DataFragment.java
+ com.example.crepe.ui.main_activity.DataFragment
+com/example/crepe/ui/main_activity/HomeFragment.java
+ com.example.crepe.ui.main_activity.HomeFragment
+com/example/crepe/ui/main_activity/CollectorCardDetailBuilder.java
+ com.example.crepe.ui.main_activity.CollectorCardDetailBuilder
+ com.example.crepe.ui.main_activity.CollectorCardDetailBuilder$1
+ com.example.crepe.ui.main_activity.CollectorCardDetailBuilder$2
+ com.example.crepe.ui.main_activity.CollectorCardDetailBuilder$3
