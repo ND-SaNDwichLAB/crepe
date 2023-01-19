@@ -480,7 +480,7 @@ public class DemonstrationUtil {
                     List<Pair<OntologyQuery, Double>> recursiveQueries = generateDefaultQueries(uiSnapshot, uiSnapshot.getEntityWithNode(targetNode), spatialRelationsToExclude);
 
                     object.add(recursiveQueries.get(0).first);
-                    subQuery.setObjectSet(object);
+//                    subQuery.setObjectSet(object);
                     subQuery.setQueryFunction(SugiliteRelation.LEFT);
                     clonedQuery.addSubQuery(subQuery);
                     queries.add(Pair.create(clonedQuery, 101.0));
