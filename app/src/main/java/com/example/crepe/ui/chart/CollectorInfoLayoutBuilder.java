@@ -3,6 +3,7 @@ package com.example.crepe.ui.chart;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.Pair;
 import android.view.Gravity;
@@ -29,15 +30,30 @@ import com.github.mikephil.charting.formatter.ValueFormatter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+
+// TODO:
+//  1. calculate the size of all collected data of all time
+//  2. sum the size of all collected data of one day
+//  3. display the latest collected data
+
 
 public class CollectorInfoLayoutBuilder {
     Context context;
+    Map<String, Drawable> apps;
+
+    public static final String DELETED = "deleted";
+    public static final String DISABLED = "disabled";
+    public static final String ACTIVE = "active";
+    public static final String NOTYETSTARTED = "notYetStarted";
+    public static final String EXPIRED = "expired";
 
 
     // we will use the following constructor more often, because we initialize
-    public CollectorInfoLayoutBuilder(Context context) {
+    public CollectorInfoLayoutBuilder(Context context, Map<String, Drawable> apps) {
         this.context = context;
+        this.apps = apps;
     }
 
     public ConstraintLayout buildCollectorInfoView(Collector collector, ViewGroup containerLayout) {
@@ -45,10 +61,10 @@ public class CollectorInfoLayoutBuilder {
         // get the app name text field from the card and populate it with app name
         TextView appNameTextView = (TextView) collectorInfoLayout.findViewById(R.id.collectorTitle);
         appNameTextView.setText(collector.getAppName());
-
+        // TODO: change the description of the app to size of collected data or add a new text field for it
         TextView collectorDescriptionTextView = (TextView) collectorInfoLayout.findViewById(R.id.collectorDataDescription);
         collectorDescriptionTextView.setText(collector.getDescription());
-
+        // get the start and end date
         TextView scheduleStartTextView = (TextView) collectorInfoLayout.findViewById(R.id.startTime);
         scheduleStartTextView.setText("Started: "+collector.getCollectorStartTimeString());
         TextView scheduleEndTextView = (TextView) collectorInfoLayout.findViewById(R.id.endTime);
@@ -57,18 +73,27 @@ public class CollectorInfoLayoutBuilder {
         // get the app status and display it
         ImageView collectorStatusImg = (ImageView) collectorInfoLayout.findViewById(R.id.statusImageView);
         TextView collectorStatusTxt = (TextView) collectorInfoLayout.findViewById(R.id.statusText);
-        if (collector.getCollectorStatus().equals("running")){
+        if (collector.getCollectorStatus().equals(ACTIVE)){
             collectorStatusTxt.setText("Running");
             collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_24_green);
-        } else if (collector.getCollectorStatus().equals("disabled")){
+        } else if (collector.getCollectorStatus().equals(DISABLED)){
             collectorStatusTxt.setText("Disabled");
             collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_12_grey);
-        } else if (collector.getCollectorStatus().equals("expired")){
+        } else if (collector.getCollectorStatus().equals(EXPIRED)){
             collectorStatusTxt.setText("Expired");
             collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_12_grey);
         } else {
             collectorStatusTxt.setText("Not yet started");
             collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_12_yellow);
+        }
+
+        // get App logo
+        ImageView appImg = (ImageView) collectorInfoLayout.findViewById(R.id.collectorImg);
+        Drawable appImage = apps.get(collector.getAppName());
+        if (appImage == null){
+            appImg.setImageResource(R.drawable.nd_logo);
+        } else {
+            appImg.setImageDrawable(appImage);
         }
 
         return collectorInfoLayout;
@@ -219,38 +244,35 @@ public class CollectorInfoLayoutBuilder {
         if(collector.isDeleted()) {
             return null;
         }
-
+        // set the layout params for the linear layout
         LinearLayout containerLayout = new LinearLayout(context);
         containerLayout.setOrientation(LinearLayout.VERTICAL);
-
+        // build collector view
         ConstraintLayout collectorInfoViewLayout = buildCollectorInfoView(collector, containerLayout);
         collectorInfoViewLayout.setId(View.generateViewId());
         containerLayout.addView(collectorInfoViewLayout);
-
+        // chart title
         Pair<TextView, LinearLayout.LayoutParams> chartTitlePair = buildChartTitle();
         chartTitlePair.first.setId(View.generateViewId());
         containerLayout.addView(chartTitlePair.first, chartTitlePair.second);
-
-
+        // pair y axis label with its title
         Pair<TextView, LinearLayout.LayoutParams> chartYAxisLabelPair = buildChartYAxisLabels();
         chartYAxisLabelPair.first.setId(View.generateViewId());
         containerLayout.addView(chartYAxisLabelPair.first, chartYAxisLabelPair.second);
-
+        // build chart
         LinearLayout lineChart = buildChart(collector);
-
+        // add the chart to the container layout
         lineChart.setId(View.generateViewId());
         containerLayout.addView(lineChart);
 
-
+        // sample data piece 1
         Pair<TextView, LinearLayout.LayoutParams> sampleDataTitlePair = buildSampleDataPieceTitle();
         sampleDataTitlePair.first.setId(View.generateViewId());
         containerLayout.addView(sampleDataTitlePair.first, sampleDataTitlePair.second);
-
+        // sample data piece 2
         Pair<TextView, LinearLayout.LayoutParams> sampleDataPiecePair = buildSampleDataPiece(collector);
         sampleDataPiecePair.first.setId(View.generateViewId());
         containerLayout.addView(sampleDataPiecePair.first, sampleDataPiecePair.second);
-
-
 
         return containerLayout;
     }
@@ -264,5 +286,11 @@ public class CollectorInfoLayoutBuilder {
         public String getFormattedValue(float value) {
             return "Jan " + String.format("%.0f", value + 1);
         }
+    }
+
+    // calculate collected data size (in GB) for each day
+    public List<Entry> getCollectedDataSizeByDay(Collector collector) {
+        List<Entry> collectedDataSizeByDay = new ArrayList<>();
+        return collectedDataSizeByDay;
     }
 }

@@ -53,7 +53,10 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:shapeAppearanceOverlay="@style/circular"
                 app:strokeColor="@color/ND_gold"
-                app:strokeWidth="2dp" />
+                app:strokeWidth="2dp"
+                android:padding="1dp"
+                android:cropToPadding="true"
+                />
 
             <TextView
                 android:id="@+id/collectorDataDescription"
@@ -61,10 +64,11 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="24dp"
                 android:layout_marginBottom="4dp"
+                android:layout_marginTop="6dp"
                 android:text="collector data description"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                app:layout_constraintBottom_toBottomOf="@+id/collectorImg"
-                app:layout_constraintStart_toEndOf="@+id/collectorImg" />
+                app:layout_constraintStart_toEndOf="@+id/collectorImg"
+                app:layout_constraintTop_toBottomOf="@+id/collectorTitle" />
 
             <TextView
                 android:id="@+id/startTime"

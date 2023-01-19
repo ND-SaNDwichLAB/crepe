@@ -34,7 +34,10 @@
         app:layout_constraintTop_toTopOf="parent"
         app:shapeAppearanceOverlay="@style/circular"
         app:strokeColor="@color/ND_gold"
-        app:strokeWidth="2dp" />
+        app:strokeWidth="2dp"
+        android:padding="1dp"
+        android:cropToPadding="true"
+        />
 
         <TextView
             android:id="@+id/collectorDataDescription"

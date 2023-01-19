@@ -16,6 +16,7 @@ import android.widget.Spinner;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.crepe.R;
 import com.example.crepe.database.Collector;
@@ -52,4 +53,6 @@ public class CreateCollectorFromConfigDialogBuilder {
         collectorConfigurationDialogWrapper = new CollectorConfigurationDialogWrapper(c, dialog, collector, refreshCollectorListRunnable);
         return collectorConfigurationDialogWrapper;
     }
+
+
 }

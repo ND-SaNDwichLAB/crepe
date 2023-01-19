@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/rounded_corner"
+    android:orientation="vertical"
+    android:theme="@style/Theme.AppCompat">
+    <!--    android:background="@color/white"-->
+
+
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/floating_draw_frame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="0dp"
+        android:backgroundTint="@color/ND_blue"
+        android:clickable="true"
+        android:visibility="visible"
+        app:layout_constraintTop_toTopOf="@id/floating_close"
+        app:srcCompat="@drawable/ic_baseline_draw_24"
+        app:tint="@color/white"
+        tools:layout_editor_absoluteX="283dp" />
+
+    <TextView
+        android:id="@+id/draw_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/floating_draw_frame"
+        android:layout_alignLeft="@+id/floating_draw_frame"
+        android:layout_alignRight="@+id/floating_draw_frame"
+        android:text="Draw"
+        android:textAlignment="center"
+        android:textColor="@color/ND_blue"
+        android:textSize="10dp" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/floating_close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/draw_text"
+        android:layout_alignStart="@+id/floating_draw_frame"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="5dp"
+        android:backgroundTint="@color/ND_blue"
+        android:clickable="true"
+        android:visibility="visible"
+        app:srcCompat="@drawable/ic_baseline_undo_24"
+        app:tint="@color/white"
+        tools:ignore="SpeakableTextPresentCheck"
+        tools:layout_editor_absoluteX="283dp" />
+
+    <TextView
+        android:id="@+id/back_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/floating_close"
+        android:layout_alignLeft="@+id/floating_close"
+        android:layout_alignRight="@+id/floating_close"
+        android:layout_marginBottom="10dp"
+        android:text="Back"
+        android:textAlignment="center"
+        android:textColor="@color/ND_blue"
+        android:textSize="10dp" />
+
+</RelativeLayout>

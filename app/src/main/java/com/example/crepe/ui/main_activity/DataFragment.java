@@ -1,5 +1,10 @@
 package com.example.crepe.ui.main_activity;
 
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Pair;
@@ -21,7 +26,9 @@ import com.example.crepe.database.DatabaseManager;
 import com.example.crepe.ui.chart.CollectorInfoLayoutBuilder;
 import com.github.mikephil.charting.charts.LineChart;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DataFragment extends Fragment {
 
@@ -48,14 +55,19 @@ public class DataFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        initCollectorInfoLayout();
+        try {
+            initCollectorInfoLayout();
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
 
     }
 
     // function to init collector information from database on data fragment
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public void initCollectorInfoLayout() {
-        CollectorInfoLayoutBuilder collectorInfoLayoutBuilder = new CollectorInfoLayoutBuilder(getContext());
+    public void initCollectorInfoLayout() throws PackageManager.NameNotFoundException {
+        Map<String,Drawable> apps = getAppImage();
+        CollectorInfoLayoutBuilder collectorInfoLayoutBuilder = new CollectorInfoLayoutBuilder(getContext(),apps);
 
         LinearLayout fragmentInnerLinearLayout = getView().findViewById(R.id.data_fragment_inner_linear_layout);
 
@@ -74,5 +86,38 @@ public class DataFragment extends Fragment {
         }
     }
 
+    public Map<String, Drawable> getAppImage() throws PackageManager.NameNotFoundException {
+        final Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
+        mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+
+        // get list of all the apps installed
+        List<ResolveInfo> ril = getContext().getPackageManager().queryIntentActivities(mainIntent, 0);
+//        List<String> componentList = new ArrayList<String>();
+        String name = null;
+        Drawable image = null;
+        String packageName = "com.example.crepe";
+
+
+        // get size of ril and create a list
+        Map<String, Drawable> apps = new HashMap<String, Drawable>();
+        for (ResolveInfo ri : ril) {
+            if (ri.activityInfo != null) {
+                // get package
+                Resources res = getContext().getPackageManager().getResourcesForApplication(ri.activityInfo.applicationInfo);
+                // if activity label res is found
+                if (ri.activityInfo.labelRes != 0) {
+                    name = res.getString(ri.activityInfo.labelRes);
+                } else {
+                    name = ri.activityInfo.applicationInfo.loadLabel(
+                            getContext().getPackageManager()).toString();
+
+                }
+                packageName = ri.activityInfo.packageName;
+                image = getContext().getPackageManager().getApplicationIcon(packageName);
+                apps.put(name,image);
+            }
+        }
+        return apps;
+    }
 
 }

@@ -14,7 +14,7 @@
         android:layout_marginTop="24dp"
         android:layout_marginEnd="24dp"
         android:background="@drawable/custom_input"
-        android:hint="https://"
+        android:hint="http://"
         android:lineSpacingExtra="5dp"
         android:paddingStart="16dp"
         android:singleLine="true"

@@ -1,14 +1,18 @@
 package com.example.crepe;
 
 import android.app.Dialog;
-import android.database.sqlite.SQLiteDatabase;
+import android.content.pm.PackageManager;
+import android.provider.Settings;
 import android.os.Bundle;
 
 import com.example.crepe.database.Collector;
 import com.example.crepe.database.DatabaseManager;
+import com.example.crepe.database.User;
+import com.example.crepe.network.FirebaseCommunicationManager;
 import com.example.crepe.ui.dialog.CollectorConfigurationDialogWrapper;
 import com.example.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilder;
 import com.example.crepe.ui.dialog.CreateCollectorFromURLDialogBuilder;
+import com.example.crepe.ui.dialog.SetUsernameDialogBuilder;
 import com.example.crepe.ui.main_activity.DataFragment;
 import com.example.crepe.ui.main_activity.HomeFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -19,6 +23,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.util.Log;
+import android.util.Pair;
 import android.view.View;
 
 import androidx.core.view.GravityCompat;
@@ -33,9 +38,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import java.security.DomainCombiner;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -48,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
     private ActionBarDrawerToggle sidemenuToggle;
     private DrawerLayout drawerLayout;
     private NavigationView sidebarNavView;
+    private View navHeader;
 
 
     private Animation top_appear_anim;
@@ -60,7 +69,6 @@ public class MainActivity extends AppCompatActivity {
 
     private Collector testCollector;
     private Collector testCollector2;
-    private Collector testCollector3;
     private DatabaseManager dbManager;
 
     private CreateCollectorFromURLDialogBuilder createCollectorFromURLDialogBuilder;
@@ -68,9 +76,19 @@ public class MainActivity extends AppCompatActivity {
 
     private Fragment currentFragment;
 
+    // the unique id extracted from the user's device, used as their user id
+    private String androidId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Check for the device's unique IMEI ID, see if it's already in the database
+        // If not, add the new user to database
+        androidId = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
+        Boolean userExists = false;
+
+        // TODO: this is test code, clean database and generate example collectors
         dbManager = new DatabaseManager(this);
         try {
             dbManager.clearDatabase(MainActivity.this);
@@ -78,9 +96,11 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(MainActivity.this, "Error clearing database", Toast.LENGTH_SHORT).show();
         }
         try {
-
-            testCollector = new Collector("1", "1", "Uber", "description for a Uber collector", "what", "https", 100, 100, "graphQuery","DataFields","active");
-            testCollector2 = new Collector("2", "1", "Doordash", "description for a Doordash collector", "what", "https", 139148015, 1491789595, "graphQuery","DataFields","active");
+            List<Pair<String,String>> testList = new ArrayList<>();
+            testList.add(new Pair<>("test1", "test1"));
+            testList.add(new Pair<>("test2", "test2"));
+            testCollector = new Collector("16", "1", "Uber", "description for a Uber collector", "what", 100, 100, testList,"active");
+            testCollector2 = new Collector("7", "1", "Doordash", "description for a Doordash collector", "what", "https", 139148015, 1491789595, "graphQuery","DataFields","active");
             Boolean addResult = dbManager.addOneCollector(testCollector);
             Boolean addResult2 = dbManager.addOneCollector(testCollector2);
 
@@ -89,7 +109,22 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(MainActivity.this, "Error Creating Collector", Toast.LENGTH_SHORT).show();
         }
 
-//        List<Collector> allCollectors = dbManager.getAllCollectors();
+        if(androidId == null) {
+            Log.e("User id", "Fail to retrieve device id, userid is null");
+        } else {
+            userExists = dbManager.checkIfUserExists(androidId);
+            if (!userExists) {
+                long currentTime = Calendar.getInstance().getTimeInMillis();
+
+                // Create a new user object, with name being an empty string
+                User user = new User(androidId, "", currentTime, currentTime);
+                dbManager.addOneUser(user);
+                FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(this);
+                firebaseCommunicationManager.putUser(user);
+                userExists = true;
+            }
+        }
+
 
         // load animations
         top_appear_anim = AnimationUtils.loadAnimation( this, R.anim.top_appear);
@@ -110,7 +145,43 @@ public class MainActivity extends AppCompatActivity {
         sidemenuToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close);
         sidemenuToggle.setDrawerIndicatorEnabled(true);
         drawerLayout.addDrawerListener(sidemenuToggle);
+
+        // set sidebar use name based on user profile
         sidebarNavView = findViewById(R.id.sidebarNavView);
+        navHeader = sidebarNavView.getHeaderView(0);
+
+        TextView userNameTextView = navHeader.findViewById(R.id.userName);
+
+
+        // refresh name
+        Runnable mainActivityRefreshUsernameRunnable = new Runnable() {
+            @Override
+            public void run() {
+                userNameTextView.setText(dbManager.getUsername(androidId));
+            }
+        };
+
+        // set user popup
+        ImageButton setName = (ImageButton) navHeader.findViewById(R.id.setUsernameImageButton);
+        setName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SetUsernameDialogBuilder nextPopup = new SetUsernameDialogBuilder(currentFragment.getActivity(), androidId, mainActivityRefreshUsernameRunnable);
+                Dialog newDialog = nextPopup.build();
+                newDialog.show();
+                userNameTextView.setText(dbManager.getUsername(androidId));
+            }
+        });
+
+        if (userExists) {
+            String username = dbManager.getUsername(androidId);
+            if (!username.isEmpty()) {
+                userNameTextView.setText(username);
+            }
+            // else the text will be default "set username"
+        }
+
+
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
@@ -125,21 +196,26 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
         Runnable refreshCollectorListRunnable = new Runnable() {
             @Override
             public void run() {
                 if (currentFragment instanceof  HomeFragment) {
-                    ((HomeFragment) currentFragment).initCollectorList();
+                    try {
+                        ((HomeFragment) currentFragment).initCollectorList();
+                    } catch (PackageManager.NameNotFoundException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         };
-        this.createCollectorFromURLDialogBuilder = new CreateCollectorFromURLDialogBuilder(this);
+        this.createCollectorFromURLDialogBuilder = new CreateCollectorFromURLDialogBuilder(this, refreshCollectorListRunnable);
         this.createCollectorFromConfigDialogBuilder = new CreateCollectorFromConfigDialogBuilder(this, refreshCollectorListRunnable);
 
         // get the fab icons
         fabBtn = findViewById(R.id.fab);
-        addUrlBtn = findViewById(R.id.fab_url);
-        createNewBtn = findViewById(R.id.fab_add_new);
+        addUrlBtn = findViewById(R.id.fab_list);
+        createNewBtn = findViewById(R.id.fab_draw_frame);
 
 
         addUrlBtn.setOnClickListener(new View.OnClickListener() {
@@ -160,6 +236,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
 
 
     // a function to switch between fragments using the navDrawer
@@ -257,5 +334,7 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+
 
 }

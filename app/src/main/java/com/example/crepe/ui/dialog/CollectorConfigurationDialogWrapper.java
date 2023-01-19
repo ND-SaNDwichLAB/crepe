@@ -1,44 +1,53 @@
 package com.example.crepe.ui.dialog;
 
+import android.app.ActivityManager;
 import android.app.AlertDialog;
-import android.app.Dialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
+import android.net.Uri;
+import android.provider.Settings;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+
+import com.example.crepe.CrepeAccessibilityService;
 import com.example.crepe.MainActivity;
 import com.example.crepe.R;
 import com.example.crepe.database.Collector;
 import com.example.crepe.database.DatabaseManager;
-import com.example.crepe.ui.main_activity.HomeFragment;
+import com.example.crepe.demonstration.WidgetService;
+import com.example.crepe.graphquery.Const;
+import com.example.crepe.network.FirebaseCommunicationManager;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
-import com.google.gson.Gson;
 
 import java.text.ParsePosition;
-import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 
-public class CollectorConfigurationDialogWrapper {
+public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
     private AlertDialog dialog;
     private Context context;
@@ -71,16 +80,17 @@ public class CollectorConfigurationDialogWrapper {
                 Spinner locationDropDown = (Spinner) dialogMainView.findViewById(R.id.locationSpinner);
 
                 // app spinner
-                // TODO: QUESTION if this is the correct way
                 String[] appItems = {""};
                 try {
-                    appItems = getAllInstalledAppInfo();
+                    appItems = getAllInstalledAppNames();
                 } catch (PackageManager.NameNotFoundException e) {
                     e.getMessage();
                 }
                 ArrayAdapter<String> appAdapter = new ArrayAdapter<String>(context.getApplicationContext(), android.R.layout.simple_spinner_dropdown_item, appItems);
                 appAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 appDropDown.setAdapter(appAdapter);
+
+                // When coming back from later popups using back button, if there's previously a selection made
                 if (collector.getAppName() != null) {
                     int i;
                     for (i = 0; i < appItems.length; i++) {
@@ -91,13 +101,14 @@ public class CollectorConfigurationDialogWrapper {
                 }
 
                 // location spinner
-                String[] locationItems = new String[]{" ", "Local", "Remote"};
+                String[] locationItems = new String[]{"Local", "Remote"};
                 ArrayAdapter<String> locationAdapter = new ArrayAdapter<String>(context.getApplicationContext(), android.R.layout.simple_spinner_dropdown_item, locationItems);
                 locationAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 locationDropDown.setAdapter(locationAdapter);
+                // When coming back from later popups using back button, if there's previously a selection made
                 if (collector.getMode() != null) {
                     int i;
-                    for (i = 1; i < locationItems.length; i++) {
+                    for (i = 0; i < locationItems.length; i++) {
                         if (collector.getMode() == locationItems[i])
                             break;
                     }
@@ -246,6 +257,8 @@ public class CollectorConfigurationDialogWrapper {
                 dialog.setContentView(dialogMainView);
                 Button graphQueryNxtBtn = (Button) dialogMainView.findViewById(R.id.graphQueryNextButton);
                 Button graphQueryBckBtn = (Button) dialogMainView.findViewById(R.id.graphQueryBackButton);
+                Button graphQueryAddBtn = (Button) dialogMainView.findViewById(R.id.graphQueryAddAnotherButton);
+                Button openAppBtn = (Button) dialogMainView.findViewById(R.id.openAppButton);
                 ImageButton graphQueryCloseImg = (ImageButton) dialogMainView.findViewById(R.id.closeGraphQueryPopupImageButton);
                 EditText graphQueryEditTxt = (EditText) dialogMainView.findViewById(R.id.graphQueryEditText);
 
@@ -256,13 +269,94 @@ public class CollectorConfigurationDialogWrapper {
                 openAppButton.setText("Open " + appName);
                 commentOnOpenAppButton.setText("Demonstrate in the " + appName +" app");
 
+                // Open App button
+                openAppBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
 
-                // TODO: finish graph query
+                        // check if the accessibility service is running
+                        Boolean accessibilityServiceRunning = false;
+                        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+                        Class clazz = CrepeAccessibilityService.class;
 
-                // show graph query info in the collector if available
-                if (collector.getCollectorGraphQuery() != null) {
-                    graphQueryEditTxt.setText(collector.getCollectorGraphQuery());
-                }
+                        if (manager != null) {
+                            for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+                                if (clazz.getName().equals(service.service.getClassName())) {
+                                    accessibilityServiceRunning = true;
+                                }
+                            }
+                        }
+
+                        // if accessibility service is not on
+                        if (!accessibilityServiceRunning) {
+                            AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
+                            builder1.setTitle("Service Permission Required")
+                                    .setMessage("The accessiblity service is not enabled for " + Const.appNameUpperCase + ". Please enable the service in the phone settings before recording.")
+                                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+                                            context.startActivity(intent);
+                                            //do nothing
+                                        }
+                                    }).show();
+                        } else {
+                            // find the package
+                            final Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
+                            mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+                            // get list of all the apps installed
+                            // ril stands for ResolveInfoList
+                            List<ResolveInfo> ril = context.getPackageManager().queryIntentActivities(mainIntent, 0);
+                            String appName = collector.getAppName();
+                            String nameBuffer;
+                            String packageName = "";
+                            for (ResolveInfo ri : ril) {
+                                if (ri.activityInfo != null) {
+                                    // get package
+                                    Resources res = null;
+                                    try {
+                                        res = context.getPackageManager().getResourcesForApplication(ri.activityInfo.applicationInfo);
+                                    } catch (PackageManager.NameNotFoundException e) {
+                                        e.printStackTrace();
+                                    }
+                                    // if activity label res is found
+                                    if (ri.activityInfo.labelRes != 0) {
+                                        nameBuffer = res.getString(ri.activityInfo.labelRes);
+                                    } else {
+                                        nameBuffer = ri.activityInfo.applicationInfo.loadLabel(
+                                                context.getPackageManager()).toString();
+                                    }
+                                    if (nameBuffer.equals(appName)) {
+                                        // get package
+                                        packageName = ri.activityInfo.packageName;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            // launch the app
+                            String currPackageName = context.getPackageName();
+                            Intent launchIntent = context.getPackageManager().getLaunchIntentForPackage(packageName);
+                            if (launchIntent != null) {
+                                context.startActivity(launchIntent);
+                            } else {
+                                Toast.makeText(context, "There is no package available in android", Toast.LENGTH_LONG).show();
+                            }
+
+                            // launch the float widget
+                            if (!Settings.canDrawOverlays(context)){
+                                getPermission();
+                            } else {
+                                Intent intent = new Intent(context, WidgetService.class);
+                                context.startService(intent);
+                                finish();
+                            }
+                        }
+
+
+                    }
+                });
+
 
                 graphQueryBckBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -279,10 +373,12 @@ public class CollectorConfigurationDialogWrapper {
                     @Override
                     public void onClick(View view) {
                         int blankFlag = 0;
-                        // get graph query
-                        String graphQueryContent = graphQueryEditTxt.getText().toString();
+                        // get graph query by input
+//                        String graphQueryContent = graphQueryEditTxt.getText().toString();
+                        String graphQueryContent = "graph";
+                        String appDataField = "data field test";
                         if (graphQueryContent != null) {
-                            collector.setCollectorGraphQuery(graphQueryContent);
+                            collector.putNewGraphQueryAndDataField(graphQueryContent, appDataField);
                         } else {
                             // remind user to add graph query
                             Context currentContext = context.getApplicationContext();
@@ -295,6 +391,13 @@ public class CollectorConfigurationDialogWrapper {
                             // recursively call itself with new currentScreen String value
                             updateCurrentView();
                         }
+                    }
+                });
+
+                graphQueryAddBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        currentScreenState = "buildDialogFromConfigGraphQuery";
                     }
                 });
 
@@ -314,12 +417,25 @@ public class CollectorConfigurationDialogWrapper {
                 Button dataFieldNxtBtn = (Button) dialogMainView.findViewById(R.id.dataFieldNextButton);
                 Button dataFieldBckBtn = (Button) dialogMainView.findViewById(R.id.dataFieldBackButton);
                 ImageButton dataFieldCloseImg = (ImageButton) dialogMainView.findViewById(R.id.closeDataFieldImageButton);
-                EditText dataFieldEditText = (EditText) dialogMainView.findViewById(R.id.dataFieldEditText);
+                LinearLayout dataFieldLinearLayout = (LinearLayout) dialogMainView.findViewById(R.id.dataFiledLinearLayout);
+
 
                 // show data fields info in the collector if available
-                if (collector.getCollectorAppDataFields() != null) {
-                    dataFieldEditText.setText(collector.getCollectorAppDataFields());
-                }
+//                if (collector.getCollectorAppDataFields() != null) {
+//                    dataFieldEditText.setText(collector.getCollectorAppDataFields());
+//                }
+                // get size of ril and create a list
+                List<Pair<String,String>> dataFields = collector.getDataFields();
+                DataFieldConstraintLayoutBuilder builder = new DataFieldConstraintLayoutBuilder(context);
+                updateDataField(collector,dataFieldLinearLayout, builder);
+//                dataFieldLinearLayout.removeAllViews();
+//
+//                for (Pair<String, String> i : dataFields){
+//                    ConstraintLayout collectorCardView = builder.build(i.second, dataFieldLinearLayout, collector, dataFieldUpdateRunnable);
+//                    dataFieldLinearLayout.addView(collectorCardView);
+//                }
+
+
 
                 dataFieldBckBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -335,8 +451,8 @@ public class CollectorConfigurationDialogWrapper {
                     @Override
                     public void onClick(View view) {
                         // write data field into collector
-                        String dataFieldContent = dataFieldEditText.getText().toString();
-                        collector.setCollectorAppDataFields(dataFieldContent);
+                        //String dataFieldContent = dataFieldEditText.getText().toString();
+                        //collector.setCollectorAppDataFields(dataFieldContent);
                         // update currentScreen String value
                         currentScreenState = "buildDialogFromConfigDescription";
 
@@ -385,22 +501,8 @@ public class CollectorConfigurationDialogWrapper {
                         String descriptionText = descriptionEditText.getText().toString();
                         collector.setDescription(descriptionText);
 
-                        // TODO: QUESTION – what's the best way to encode url?
-                        // TODO: Create a new class to handle url generation e.g. collectorUrlManager
-                        //      1. create url
-                        //      2. get collector from url
-                        // Create url for current collector
-                        Gson gson = new Gson();
-                        String collectorJson = gson.toJson(collector);
-                        try {
-                            byte[] collectorEncode = Base64.getEncoder().encode(collectorJson.getBytes("UTF-8"));
-                        } catch (UnsupportedEncodingException e) {
-                            e.printStackTrace();
-                        }
-
                         // save the collector to database
-                        // TODO: check if every field is filled
-                        // TODO: add a callback to refresh homepage every time
+                        // add a callback to refresh homepage every time
                         DatabaseManager dbManager = new DatabaseManager(context);
                         dbManager.addOneCollector(collector);
 
@@ -426,14 +528,52 @@ public class CollectorConfigurationDialogWrapper {
                 dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_add_collector_from_config_success_message, null);
                 dialog.setContentView(dialogMainView);
 
+                // TODO: Create a new class to handle url generation e.g. collectorUrlManager
+                //      1. create url
+                //      2. get collector from url
+                collector.setCollectorId("9");
+                // connect to crepe server
+//                ServerCollectorCommunicationManager sccManager = new ServerCollectorCommunicationManager(context);
+//                try {
+//                    sccManager.uploadJsonToServer(collector);
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+
+                // Connect to Firebase
+                FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(context);
+                firebaseCommunicationManager.putCollector(collector).addOnSuccessListener(suc->{
+                    Log.i("Firebase","Successfully added collector " + collector.getCollectorId() + " to firebase.");
+                }).addOnFailureListener(er->{
+                    Log.e("Firebase","Failed to add collector " + collector.getCollectorId() + " to firebase.");
+                });
+
+
+                // Create url for current collector
+                String collectorURL = "http://35.222.12.92:8000?id=" + collector.getCollectorId();
+
                 Button closeSuccessMessage = (Button) dialogMainView.findViewById(R.id.closeSuccessMessagePopupButton);
                 ImageButton shareUrlLinkButton = (ImageButton) dialogMainView.findViewById(R.id.shareUrlImageButton);
-                ImageButton shareEmailLinkButton = (ImageButton) dialogMainView.findViewById(R.id.shareUrlImageButton);
+                ImageButton shareEmailLinkButton = (ImageButton) dialogMainView.findViewById(R.id.shareEmailImageButton);
 
                 shareEmailLinkButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         // share email link
+                        Intent intent = new Intent(Intent.ACTION_SENDTO);
+                        intent.setType("message/rfc822");
+                        intent.setData(Uri.parse("mailto:"+"ylu23@nd.edu"));
+                        //intent.putExtra(Intent.EXTRA_EMAIL, "ylu23@nd.edu");
+                        intent.putExtra(Intent.EXTRA_SUBJECT, "Data Collector for " + collector.getAppName());
+                        intent.putExtra(Intent.EXTRA_TEXT, collectorURL);
+
+                        if (intent.resolveActivity(getPackageManager()) != null) {
+                            startActivity(intent);
+                        } else {
+                            Toast.makeText(context,"No email app on this machine",Toast.LENGTH_LONG).show();
+                        }
+
+
                     }
                 });
 
@@ -441,6 +581,10 @@ public class CollectorConfigurationDialogWrapper {
                     @Override
                     public void onClick(View view) {
                         // share url link
+                        ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                        ClipData clip = ClipData.newPlainText("share URL", collectorURL);
+                        clipboard.setPrimaryClip(clip);
+                        Toast.makeText(context," Copied URL to clipboard", Toast.LENGTH_LONG).show();
                     }
                 });
 
@@ -465,11 +609,12 @@ public class CollectorConfigurationDialogWrapper {
         }
     }
 
-    public String[] getAllInstalledAppInfo() throws PackageManager.NameNotFoundException {
+    public String[] getAllInstalledAppNames() throws PackageManager.NameNotFoundException {
         final Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
         mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
 
         // get list of all the apps installed
+        // ril stands for ResolveInfoList
         List<ResolveInfo> ril = context.getPackageManager().queryIntentActivities(mainIntent, 0);
 //        List<String> componentList = new ArrayList<String>();
         String name = null;
@@ -492,12 +637,41 @@ public class CollectorConfigurationDialogWrapper {
                 i++;
             }
         }
-        Toast.makeText(context, ril.size() + " apps are installed on this phone", Toast.LENGTH_LONG).show();
+//        Toast.makeText(context, ril.size() + " apps are installed on this phone", Toast.LENGTH_LONG).show();
         return apps;
+    }
+
+    public void getPermission() {
+//         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(context)){
+//            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:"+context.getPackageName()));
+//            context.startActivity(intent);
+//        check if we already have permission to draw over other apps
+//    }
+        int currentApiVersion = android.os.Build.VERSION.SDK_INT;
+        if(currentApiVersion >= 23) {
+            if (!Settings.canDrawOverlays(context)) {
+                // if not construct intent to request permission
+                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        Uri.parse("package:" + context.getPackageName()));
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                // request permission via start activity for result
+                context.startActivity(intent);
+
+            }
+        }
     }
 
     public void show() {
         dialog.show();
         updateCurrentView();
     }
+
+    public void updateDataField(Collector collector, ViewGroup rootView, DataFieldConstraintLayoutBuilder builder){
+        rootView.removeAllViews();
+        for (Pair<String, String> i : collector.getDataFields()){
+            ConstraintLayout collectorCardView = builder.build(i.second, rootView, collector);
+            rootView.addView(collectorCardView);
+        }
+    }
+
 }

@@ -8,7 +8,6 @@ public class Datafield {
     private String collectorId; // foreign key
     private String graphQuery;
     private String name;
-    // TODO: database schema: do we need the following two?
     private long timeCreated;
     private long timelastEdited;
 

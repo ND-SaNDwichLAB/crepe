@@ -20,10 +20,11 @@
 
     <EditText
         android:id="@+id/startDateText"
-        android:layout_width="144dp"
+        android:layout_width="0dp"
         android:layout_height="40dp"
         android:layout_marginStart="24dp"
         android:layout_marginTop="35dp"
+        android:layout_marginEnd="24dp"
         android:background="@drawable/custom_input"
         android:hint="12/22/2021"
         android:lineSpacingExtra="5dp"
@@ -32,14 +33,15 @@
         android:paddingBottom="8dp"
         android:singleLine="true"
         android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/configPopupTitle" />
 
     <EditText
         android:id="@+id/endDateText"
-        android:layout_width="144dp"
+        android:layout_width="0dp"
         android:layout_height="40dp"
-        android:layout_marginTop="35dp"
+        android:layout_marginTop="24dp"
         android:layout_marginEnd="24dp"
         android:background="@drawable/custom_input"
         android:hint="12/23/2021"
@@ -50,7 +52,8 @@
         android:singleLine="true"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/configPopupTitle" />
+        app:layout_constraintStart_toStartOf="@+id/startDateText"
+        app:layout_constraintTop_toBottomOf="@+id/startDateText" />
 
     <Spinner
         android:id="@+id/appSpinner"
@@ -65,7 +68,7 @@
         android:lineSpacingExtra="5dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/startDateText" />
+        app:layout_constraintTop_toBottomOf="@+id/endDateText" />
 
     <Spinner
         android:id="@+id/locationSpinner"
@@ -148,13 +151,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="12dp"
-        android:layout_marginTop="27dp"
+        android:layout_marginTop="14dp"
         android:background="@color/white"
         android:paddingStart="2dp"
         android:paddingEnd="2dp"
         android:text="End Date"
         app:layout_constraintStart_toStartOf="@+id/endDateText"
-        app:layout_constraintTop_toBottomOf="@+id/configPopupTitle" />
+        app:layout_constraintTop_toBottomOf="@+id/startDateText" />
 
     <ImageButton
         android:id="@+id/startImageButton"
@@ -184,13 +187,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="36dp"
-        android:layout_marginTop="14dp"
         android:background="@color/white"
         android:paddingStart="2dp"
         android:paddingEnd="2dp"
+        android:layout_marginTop="14dp"
         android:text="App"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/startDateText" />
+        app:layout_constraintTop_toBottomOf="@+id/endDateText" />
 
     <TextView
         android:id="@+id/hintEnterLocation"
