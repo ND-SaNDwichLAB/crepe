@@ -1,29 +1,21 @@
 package com.example.crepe.demonstration;
 
-import static com.example.crepe.graphquery.DemonstrationUtil.initiateDemonstration;
+import static com.example.crepe.demonstration.DemonstrationUtil.initiateDemonstration;
 
 import android.app.Service;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.graphics.PixelFormat;
 import android.os.Build;
 import android.os.IBinder;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.crepe.CrepeAccessibilityService;
 import com.example.crepe.R;
-import com.example.crepe.graphquery.recording.FullScreenOverlayManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.Calendar;

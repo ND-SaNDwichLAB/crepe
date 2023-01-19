@@ -1,10 +1,9 @@
-package com.example.crepe.graphquery.recording;
+package com.example.crepe.demonstration;
 
 import static android.content.Context.WINDOW_SERVICE;
-import static android.icu.lang.UCharacter.GraphemeClusterBreak.T;
+import static com.example.crepe.demonstration.DemonstrationUtil.processOverlayClick;
 import static com.example.crepe.graphquery.Const.OVERLAY_TYPE;
-import static com.example.crepe.graphquery.DemonstrationUtil.findClosestSiblingNode;
-import static com.example.crepe.graphquery.DemonstrationUtil.generateDefaultQueries;
+import static com.example.crepe.demonstration.DemonstrationUtil.generateDefaultQueries;
 
 import android.content.Context;
 import android.content.Intent;
@@ -28,7 +27,6 @@ import com.example.crepe.CrepeAccessibilityService;
 import com.example.crepe.database.Data;
 import com.example.crepe.database.DatabaseManager;
 import com.example.crepe.database.Datafield;
-import com.example.crepe.demonstration.WidgetDisplay;
 import com.example.crepe.graphquery.Const;
 import com.example.crepe.graphquery.model.Node;
 import com.example.crepe.graphquery.ontology.OntologyQuery;
@@ -37,7 +35,6 @@ import com.example.crepe.graphquery.ontology.SugiliteRelation;
 import com.example.crepe.graphquery.ontology.UISnapshot;
 import com.example.crepe.network.FirebaseCommunicationManager;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -194,41 +191,17 @@ public class FullScreenOverlayManager {
                     float adjustedY = rawY - navHeight;
 
                     windowManager = (WindowManager) context.getSystemService(WINDOW_SERVICE);
+
+
+                    // HAHAHAHAHHA: the below codeblock to line 286, move to DemonstrationUtil, or better, put to other files
+
+
                     // if we need to use the following code block to show clicked spot on screen, remember to refresh the overlay and widget views so we can continue to click
 //                    WindowManager.LayoutParams selectionLayoutParams = updateLayoutParams(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
 //                    SelectionOverlayView selectionOverlay = selectionOverlayViewManager.getCircleOverlay(rawX, adjustedY, radius);
 //                    windowManager.addView(selectionOverlay, selectionLayoutParams);
 
-
-                    // create uiSnapshot for current screen
-                    UISnapshot uiSnapshot = CrepeAccessibilityService.getsSharedInstance().generateUISnapshot();
-                    // get the matched node
-
-                    List<AccessibilityNodeInfo> matchedAccessibilityNodeList = CrepeAccessibilityService.getsSharedInstance().getMatchingNodeFromClickWithText(rawX, rawY);
-                    // this matchedAccessibilityNode is an AccessibilityNodeInfo, which is not exactly the node stored in the screen's nodeSugiliteEntityMap.
-                    // We retrieved that stored node from this screen's uisnapshot
-
-                    SugiliteEntity<Node> targetEntity = new SugiliteEntity<>();
-                    AccessibilityNodeInfo matchedNode;
-
-                    if(matchedAccessibilityNodeList.size() == 1) {
-                        matchedNode = matchedAccessibilityNodeList.get(0);
-                        targetEntity = uiSnapshot.getEntityWithAccessibilityNode(matchedNode);
-                    } else {
-                        // TODO: Find the node that we actually need
-                    }
-
-
-                    List<Pair<OntologyQuery, Double>> defaultQueries = null;
-                    Set<SugiliteEntity> results = new HashSet<>();
-                    if(targetEntity != null) {
-                        SugiliteRelation[] relationsToExclude = new SugiliteRelation[1];
-                        relationsToExclude[0] = SugiliteRelation.HAS_TEXT;
-                        defaultQueries = generateDefaultQueries(uiSnapshot, targetEntity, relationsToExclude);
-                    } else {
-                        Log.e("generate queries", "Cannot find the tapped entity!");
-                    }
-                    defaultQueries.get(0).first.executeOn(uiSnapshot);
+                    List<Pair<OntologyQuery, Double>> defaultQueries = processOverlayClick(rawX, rawY);
 
                     // TODO meng: store the query in database, then constantly check it in another thread
                     // 1. store the query in local database
@@ -272,16 +245,6 @@ public class FullScreenOverlayManager {
                     dbManager.addOneDataField(datafield);
                     System.out.println("Query: " + defaultQueries.get(0).first.toString());
 
-
-
-
-
-
-                    if(defaultQueries != null) {
-                        for(Pair<OntologyQuery, Double> query : defaultQueries) {
-                            results.addAll(query.first.executeOn(uiSnapshot));
-                        }
-                    }
                     return true;
                 }
 

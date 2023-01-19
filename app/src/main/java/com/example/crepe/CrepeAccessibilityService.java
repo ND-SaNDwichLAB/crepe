@@ -6,22 +6,18 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.graphics.Rect;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
-import android.view.View;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
-import com.example.crepe.graphquery.DemonstrationUtil;
-import com.example.crepe.graphquery.model.Node;
+import com.example.crepe.demonstration.DemonstrationUtil;
 import com.example.crepe.graphquery.ontology.UISnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 
 public class CrepeAccessibilityService extends AccessibilityService {

@@ -1,8 +1,7 @@
-package com.example.crepe.graphquery.recording;
+package com.example.crepe.demonstration;
 
 
 import android.content.Context;
-import android.widget.Toast;
 
 public class SelectionOverlayViewManager {
 

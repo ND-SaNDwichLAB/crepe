@@ -7,7 +7,6 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityWindowInfo;
 
-import java.sql.Array;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -19,7 +18,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import com.example.crepe.graphquery.DemonstrationUtil;
+import com.example.crepe.demonstration.DemonstrationUtil;
 import com.example.crepe.graphquery.model.Node;
 import com.example.crepe.graphquery.ontology.helper.ListOrderResolver;
 //import com.example.crepe.graphquery.automation.AutomatorUtil;

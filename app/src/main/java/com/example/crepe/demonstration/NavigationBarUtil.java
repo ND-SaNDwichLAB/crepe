@@ -1,4 +1,4 @@
-package com.example.crepe.graphquery.recording;
+package com.example.crepe.demonstration;
 
 import android.app.Activity;
 import android.content.Context;
@@ -12,7 +12,9 @@ import android.view.ViewConfiguration;
 import android.view.WindowManager;
 
 /**
+ * File to calculate the showing status and height of the navigation/status bar
  * @author toby
+ * Modified by yuwen
  * @date 12/10/17
  * @time 3:43 AM
  */

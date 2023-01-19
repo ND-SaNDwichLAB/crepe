@@ -1,28 +1,12 @@
-package com.example.crepe.graphquery;
+package com.example.crepe.demonstration;
 
-import static android.content.Context.WINDOW_SERVICE;
-import static com.example.crepe.graphquery.Const.OVERLAY_TYPE;
-import static com.example.crepe.graphquery.Const.PREVIEW_OVERLAY_COLOR;
-
-import android.app.ActivityManager;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.graphics.Rect;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.provider.Settings;
 import android.util.Log;
 import android.util.Pair;
-import android.view.WindowManager;
 import android.view.accessibility.AccessibilityNodeInfo;
-import android.view.accessibility.AccessibilityWindowInfo;
-import android.widget.Toast;
 
 //import com.example.crepe.graphquery.ontology.CombinedOntologyQuery;
 //import com.example.crepe.graphquery.ontology.LeafOntologyQuery;
@@ -31,6 +15,7 @@ import androidx.annotation.RequiresApi;
 
 import com.example.crepe.CrepeAccessibilityService;
 import com.example.crepe.demonstration.WidgetDisplay;
+import com.example.crepe.graphquery.Const;
 import com.example.crepe.graphquery.automation.AutomatorUtil;
 import com.example.crepe.graphquery.model.Node;
 import com.example.crepe.graphquery.ontology.CombinedOntologyQuery;
@@ -40,7 +25,7 @@ import com.example.crepe.graphquery.ontology.SugiliteEntity;
 import com.example.crepe.graphquery.ontology.SugiliteRelation;
 import com.example.crepe.graphquery.ontology.SugiliteTriple;
 import com.example.crepe.graphquery.ontology.UISnapshot;
-import com.example.crepe.graphquery.recording.FullScreenOverlayManager;
+import com.example.crepe.demonstration.FullScreenOverlayManager;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -192,6 +177,48 @@ public class DemonstrationUtil {
         }
 
         return closestNode;
+    }
+
+    public static List<Pair<OntologyQuery, Double>> processOverlayClick(float clickX, float clickY) {
+
+        // create uiSnapshot for current screen
+        UISnapshot uiSnapshot = CrepeAccessibilityService.getsSharedInstance().generateUISnapshot();
+        // get the matched node
+
+        List<AccessibilityNodeInfo> matchedAccessibilityNodeList = CrepeAccessibilityService.getsSharedInstance().getMatchingNodeFromClickWithText(clickX, clickY);
+        // this matchedAccessibilityNode is an AccessibilityNodeInfo, which is not exactly the node stored in the screen's nodeSugiliteEntityMap.
+        // We retrieved that stored node from this screen's uisnapshot
+
+        SugiliteEntity<Node> targetEntity = new SugiliteEntity<>();
+        AccessibilityNodeInfo matchedNode;
+
+        if(matchedAccessibilityNodeList.size() == 1) {
+            matchedNode = matchedAccessibilityNodeList.get(0);
+            targetEntity = uiSnapshot.getEntityWithAccessibilityNode(matchedNode);
+        } else {
+            // TODO: Find the node that we actually need
+        }
+
+
+        List<Pair<OntologyQuery, Double>> defaultQueries = null;
+        Set<SugiliteEntity> results = new HashSet<>();
+        if(targetEntity != null) {
+            SugiliteRelation[] relationsToExclude = new SugiliteRelation[1];
+            relationsToExclude[0] = SugiliteRelation.HAS_TEXT;
+            defaultQueries = generateDefaultQueries(uiSnapshot, targetEntity, relationsToExclude);
+        } else {
+            Log.e("generate queries", "Cannot find the tapped entity!");
+        }
+
+        // test if the queries can retrieve components on screen
+        if(defaultQueries != null) {
+            for(Pair<OntologyQuery, Double> query : defaultQueries) {
+                results.addAll(query.first.executeOn(uiSnapshot));
+            }
+        }
+
+        return defaultQueries;
+
     }
 
     public static String removeScriptExtension (String scriptName) {
