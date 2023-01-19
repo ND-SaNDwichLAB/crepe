@@ -11,7 +11,6 @@ import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Message;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -55,8 +54,6 @@ public class FullScreenOverlayManager {
     private int overlayCurrentWidth;
     private int overlayCurrentFlag;
     private SelectionOverlayViewManager selectionOverlayViewManager;
-//    // Create a new graph query thread
-//    GraphQueryThread graphQueryThread = new GraphQueryThread();
 
     private int entityId = 0;
 
@@ -219,7 +216,6 @@ public class FullScreenOverlayManager {
                         targetEntity = uiSnapshot.getEntityWithAccessibilityNode(matchedNode);
                     } else {
                         // TODO: Find the node that we actually need
-
                     }
 
 
@@ -240,17 +236,19 @@ public class FullScreenOverlayManager {
                     FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(context);
                     Data data = new Data("1","2","3", defaultQueries.get(0).first.toString());
                     Datafield datafield = new Datafield("752916f46f6bcd47+1","2", defaultQueries.get(0).first.toString(),"test", Boolean.TRUE);
-                    // naming convention: "752916f46f6bcd47+1" is the app package name + the number of queries in the app
+
 
                     // 2. check the query in another thread
-                    // call the startQueryCheckingThread() method in the main activity
-
-
-
-
+                    // create a thread to use the query to get data
+//                    Thread queryThread = new Thread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//
+//                        }
+//
+//                        }
 
                     // 2. everytime the app launches / runs in the background, retrieve the query from local database
-
 
 
 
@@ -275,6 +273,10 @@ public class FullScreenOverlayManager {
                     System.out.println("Query: " + defaultQueries.get(0).first.toString());
 
 
+
+
+
+
                     if(defaultQueries != null) {
                         for(Pair<OntologyQuery, Double> query : defaultQueries) {
                             results.addAll(query.first.executeOn(uiSnapshot));
@@ -297,8 +299,6 @@ public class FullScreenOverlayManager {
                     System.out.println("Context click detected");
                     return super.onContextClick(e);
                 }
-
-
 
 //                @Override
 //                public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
