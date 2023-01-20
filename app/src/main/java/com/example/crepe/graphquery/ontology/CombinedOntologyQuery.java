@@ -13,15 +13,13 @@ import java.util.stream.Collectors;
 public class CombinedOntologyQuery extends OntologyQueryWithSubQueries {
     protected SugiliteRelation r = null;
 
-    public SugiliteRelation getR() {
-        return r;
-    }
+
+    private RelationType subRelation;
+    private Set<OntologyQuery> subQueries = null;
 
     public enum RelationType {
         AND, OR, PREV
     }
-    private RelationType subRelation;
-    private Set<OntologyQuery> subQueries = null;
 
     public CombinedOntologyQuery(){
         subQueries = new HashSet<OntologyQuery>();
@@ -56,6 +54,10 @@ public class CombinedOntologyQuery extends OntologyQueryWithSubQueries {
         // there are sub-queries
         this.subQueries = new HashSet<OntologyQuery>();
         // NOTE this constructor might cause bugs with QueryFuction
+    }
+
+    public SugiliteRelation getR() {
+        return r;
     }
 
     public void addSubQuery(OntologyQuery sub){
@@ -179,7 +181,12 @@ public class CombinedOntologyQuery extends OntologyQueryWithSubQueries {
             }
         }
         else if (subRelation == RelationType.PREV){
-            baseQueryString = "(" + getR().getRelationName() + " " + subQueryArray[0].toString() + ")";
+            baseQueryString = "(" + getR().getRelationName() + " ";
+            int size = subQueryArray.length;
+            for (int i = 0; i < size; i++) {
+                baseQueryString += (subQueryArray[i].toString() + " ");
+            }
+            baseQueryString += ")";
         }
 
         //include the ontologyQueryFilter in the toString() method

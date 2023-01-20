@@ -193,8 +193,6 @@ public class FullScreenOverlayManager {
                     windowManager = (WindowManager) context.getSystemService(WINDOW_SERVICE);
 
 
-                    // HAHAHAHAHHA: the below codeblock to line 286, move to DemonstrationUtil, or better, put to other files
-
 
                     // if we need to use the following code block to show clicked spot on screen, remember to refresh the overlay and widget views so we can continue to click
 //                    WindowManager.LayoutParams selectionLayoutParams = updateLayoutParams(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
@@ -202,6 +200,8 @@ public class FullScreenOverlayManager {
 //                    windowManager.addView(selectionOverlay, selectionLayoutParams);
 
                     List<Pair<OntologyQuery, Double>> defaultQueries = processOverlayClick(rawX, rawY);
+
+
 
                     // TODO meng: store the query in database, then constantly check it in another thread
                     // 1. store the query in local database

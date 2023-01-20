@@ -270,6 +270,7 @@ public class DemonstrationUtil {
         //generate parent query
         List<Pair<OntologyQuery, Double>> queries = new ArrayList<>();
         CombinedOntologyQuery q = new CombinedOntologyQuery(CombinedOntologyQuery.RelationType.AND);
+        CombinedOntologyQuery prevQuery = new CombinedOntologyQuery(CombinedOntologyQuery.RelationType.PREV);
         boolean hasNonBoundingBoxFeature = false;
         boolean hasNonChildFeature = false;
 
@@ -491,31 +492,32 @@ public class DemonstrationUtil {
         // spatial relations
         if (! relationsToExclude.contains(SugiliteRelation.LEFT)) {
             if (getValueIfOnlyOneObject(uiSnapshot.getNodeValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.LEFT)) != null) {
-                CombinedOntologyQuery clonedQuery = q.clone();
-                LeafOntologyQuery subQuery = new LeafOntologyQuery();
+                CombinedOntologyQuery clonedQuery = prevQuery.clone();
+                OntologyQuery subQuery = new CombinedOntologyQuery(CombinedOntologyQuery.RelationType.AND);
                 Set<OntologyQuery> object = new HashSet<>();
 
-                // recursively generate the graph query for targetNode
                 Node targetNode = getValueIfOnlyOneObject(uiSnapshot.getNodeValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.LEFT));
                 if (uiSnapshot.getEntityWithNode(targetNode) != null) {
-                    SugiliteRelation[] spatialRelationsToExclude = new SugiliteRelation[4];
-                    spatialRelationsToExclude[0] = SugiliteRelation.LEFT;
-                    spatialRelationsToExclude[1] = SugiliteRelation.RIGHT;
-                    spatialRelationsToExclude[2] = SugiliteRelation.ABOVE;
-                    spatialRelationsToExclude[3] = SugiliteRelation.BELOW;
 
-                    List<Pair<OntologyQuery, Double>> recursiveQueries = generateDefaultQueries(uiSnapshot, uiSnapshot.getEntityWithNode(targetNode), spatialRelationsToExclude);
+                    // add info for subQuery
+                    // the following lines are for type conversion purpose only
+                    SugiliteRelation[] relationsToExcludeArrayTemp = new SugiliteRelation[relationsToExclude.size()];
+//                    relationsToExclude.toArray(relationsToExcludeArrayTemp);
 
-                    object.add(recursiveQueries.get(0).first);
-//                    subQuery.setObjectSet(object);
-                    subQuery.setQueryFunction(SugiliteRelation.LEFT);
+                    List<Pair<OntologyQuery, Double>> subQueryCandidates = generateDefaultQueries(uiSnapshot, uiSnapshot.getEntityWithNode(targetNode), relationsToExcludeArrayTemp);
+                    // parse the result, for now just take the first query
+                    subQuery = subQueryCandidates.get(0).first;
+                    Double subQueryValue = subQueryCandidates.get(0).second;
+
+
+                    // add info for clonedQuery
+                    clonedQuery.setQueryFunction(SugiliteRelation.LEFT);
                     clonedQuery.addSubQuery(subQuery);
-                    queries.add(Pair.create(clonedQuery, 101.0));
+
+                    queries.add(Pair.create(clonedQuery, subQueryValue + 0.1));
                 } else {
                     Log.e("generateDefaultQueries", "Error generate recursive queries: cannot find the corresponding entity for target node");
                 }
-
-
 
             }
         }
