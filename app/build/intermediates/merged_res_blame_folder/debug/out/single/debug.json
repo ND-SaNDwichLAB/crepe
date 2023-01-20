@@ -1,0 +1,334 @@
+[
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/mipmap-xxxhdpi_ic_launcher_foreground.png.flat",
+        "source": "com.example.crepe.app-main-38:/mipmap-xxxhdpi/ic_launcher_foreground.png"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/drawable_ic_baseline_keyboard_arrow_down_24.xml.flat",
+        "source": "com.example.crepe.app-main-38:/drawable/ic_baseline_keyboard_arrow_down_24.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/drawable_ic_baseline_calendar_today_24.xml.flat",
+        "source": "com.example.crepe.app-main-38:/drawable/ic_baseline_calendar_today_24.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/drawable_ic_add_new.xml.flat",
+        "source": "com.example.crepe.app-main-38:/drawable/ic_add_new.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/drawable_custom_input.xml.flat",
+        "source": "com.example.crepe.app-main-38:/drawable/custom_input.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/mipmap-xxhdpi_ic_launcher_round.png.flat",
+        "source": "com.example.crepe.app-main-38:/mipmap-xxhdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "com.example.crepe.app-main-38:/mipmap-anydpi-v26/ic_launcher_round.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/mipmap-xhdpi_ic_uber_icon.png.flat",
+        "source": "com.example.crepe.app-main-38:/mipmap-xhdpi/ic_uber_icon.png"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/drawable_ic_link.xml.flat",
+        "source": "com.example.crepe.app-main-38:/drawable/ic_link.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/mipmap-xxhdpi_ic_uber_icon.png.flat",
+        "source": "com.example.crepe.app-main-38:/mipmap-xxhdpi/ic_uber_icon.png"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/drawable_ic_menu_24.xml.flat",
+        "source": "com.example.crepe.app-main-38:/drawable/ic_menu_24.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/layout_fragment_data.xml.flat",
+        "source": "com.example.crepe.app-main-38:/layout/fragment_data.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/menu_menu_main.xml.flat",
+        "source": "com.example.crepe.app-main-38:/menu/menu_main.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/drawable_ic_baseline_circle_12_yellow.xml.flat",
+        "source": "com.example.crepe.app-main-38:/drawable/ic_baseline_circle_12_yellow.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/layout_dialog_add_collector_from_config_data_field.xml.flat",
+        "source": "com.example.crepe.app-main-38:/layout/dialog_add_collector_from_config_data_field.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/drawable-anydpi_sample_data.xml.flat",
+        "source": "com.example.crepe.app-main-38:/drawable-anydpi/sample_data.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "com.example.crepe.app-main-38:/mipmap-anydpi-v26/ic_launcher.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/drawable_ic_baseline_edit_24.xml.flat",
+        "source": "com.example.crepe.app-main-38:/drawable/ic_baseline_edit_24.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/drawable_ic_home.xml.flat",
+        "source": "com.example.crepe.app-main-38:/drawable/ic_home.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/drawable_ic_baseline_menu_24.xml.flat",
+        "source": "com.example.crepe.app-main-38:/drawable/ic_baseline_menu_24.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/drawable-mdpi_sample_data.png.flat",
+        "source": "com.example.crepe.app-main-38:/drawable-mdpi/sample_data.png"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/drawable_ic_edit.xml.flat",
+        "source": "com.example.crepe.app-main-38:/drawable/ic_edit.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/drawable_ic_baseline_circle_24_green.xml.flat",
+        "source": "com.example.crepe.app-main-38:/drawable/ic_baseline_circle_24_green.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/mipmap-xhdpi_ic_launcher_foreground.png.flat",
+        "source": "com.example.crepe.app-main-38:/mipmap-xhdpi/ic_launcher_foreground.png"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/anim_top_disappear.xml.flat",
+        "source": "com.example.crepe.app-main-38:/anim/top_disappear.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/drawable_ic_baseline_mail_outline_24.xml.flat",
+        "source": "com.example.crepe.app-main-38:/drawable/ic_baseline_mail_outline_24.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/drawable_ic_baseline_remove_24.xml.flat",
+        "source": "com.example.crepe.app-main-38:/drawable/ic_baseline_remove_24.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/drawable-xhdpi_sample_data.png.flat",
+        "source": "com.example.crepe.app-main-38:/drawable-xhdpi/sample_data.png"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/mipmap-mdpi_ic_uber_icon.png.flat",
+        "source": "com.example.crepe.app-main-38:/mipmap-mdpi/ic_uber_icon.png"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/mipmap-hdpi_ic_launcher.png.flat",
+        "source": "com.example.crepe.app-main-38:/mipmap-hdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/layout_collector_info_for_data_fragment.xml.flat",
+        "source": "com.example.crepe.app-main-38:/layout/collector_info_for_data_fragment.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/drawable-xxhdpi_sample_data.png.flat",
+        "source": "com.example.crepe.app-main-38:/drawable-xxhdpi/sample_data.png"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/layout_dialog_add_collector_from_config_description.xml.flat",
+        "source": "com.example.crepe.app-main-38:/layout/dialog_add_collector_from_config_description.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/layout_dialog_add_collector_from_config_success_message.xml.flat",
+        "source": "com.example.crepe.app-main-38:/layout/dialog_add_collector_from_config_success_message.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/mipmap-xxhdpi_ic_launcher.png.flat",
+        "source": "com.example.crepe.app-main-38:/mipmap-xxhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/anim_top_appear.xml.flat",
+        "source": "com.example.crepe.app-main-38:/anim/top_appear.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/drawable_ic_action_back.xml.flat",
+        "source": "com.example.crepe.app-main-38:/drawable/ic_action_back.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/mipmap-xxxhdpi_ic_launcher.png.flat",
+        "source": "com.example.crepe.app-main-38:/mipmap-xxxhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/drawable_ic_add.xml.flat",
+        "source": "com.example.crepe.app-main-38:/drawable/ic_add.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/drawable_custom_spinner.xml.flat",
+        "source": "com.example.crepe.app-main-38:/drawable/custom_spinner.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/layout_demonstration_confirmation.xml.flat",
+        "source": "com.example.crepe.app-main-38:/layout/demonstration_confirmation.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/layout_popup_set_username.xml.flat",
+        "source": "com.example.crepe.app-main-38:/layout/popup_set_username.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/mipmap-hdpi_ic_uber_icon.png.flat",
+        "source": "com.example.crepe.app-main-38:/mipmap-hdpi/ic_uber_icon.png"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/layout_collector_detail.xml.flat",
+        "source": "com.example.crepe.app-main-38:/layout/collector_detail.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/layout_dialog_add_collector_from_url.xml.flat",
+        "source": "com.example.crepe.app-main-38:/layout/dialog_add_collector_from_url.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/drawable_ic_baseline_close_24.xml.flat",
+        "source": "com.example.crepe.app-main-38:/drawable/ic_baseline_close_24.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/xml_accessibilityservice.xml.flat",
+        "source": "com.example.crepe.app-main-38:/xml/accessibilityservice.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/layout_dialog_add_collector_from_url_collector_info.xml.flat",
+        "source": "com.example.crepe.app-main-38:/layout/dialog_add_collector_from_url_collector_info.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/layout_collector_card.xml.flat",
+        "source": "com.example.crepe.app-main-38:/layout/collector_card.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/drawable_rounded_corner.xml.flat",
+        "source": "com.example.crepe.app-main-38:/drawable/rounded_corner.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/layout_demonstration_float_widget.xml.flat",
+        "source": "com.example.crepe.app-main-38:/layout/demonstration_float_widget.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/mipmap-xxxhdpi_ic_uber_icon.png.flat",
+        "source": "com.example.crepe.app-main-38:/mipmap-xxxhdpi/ic_uber_icon.png"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/mipmap-xhdpi_ic_launcher.png.flat",
+        "source": "com.example.crepe.app-main-38:/mipmap-xhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/layout_dialog_add_collector_from_config_graph_query.xml.flat",
+        "source": "com.example.crepe.app-main-38:/layout/dialog_add_collector_from_config_graph_query.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/drawable-v24_ic_launcher_foreground.xml.flat",
+        "source": "com.example.crepe.app-main-38:/drawable-v24/ic_launcher_foreground.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/drawable_ic_baseline_circle_12_grey.xml.flat",
+        "source": "com.example.crepe.app-main-38:/drawable/ic_baseline_circle_12_grey.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/layout_datafield_card.xml.flat",
+        "source": "com.example.crepe.app-main-38:/layout/datafield_card.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/drawable_ic_chart.xml.flat",
+        "source": "com.example.crepe.app-main-38:/drawable/ic_chart.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/navigation_nav_graph.xml.flat",
+        "source": "com.example.crepe.app-main-38:/navigation/nav_graph.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/drawable_ic_baseline_link_24.xml.flat",
+        "source": "com.example.crepe.app-main-38:/drawable/ic_baseline_link_24.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/layout_nav_header.xml.flat",
+        "source": "com.example.crepe.app-main-38:/layout/nav_header.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/drawable_custom_image_button.xml.flat",
+        "source": "com.example.crepe.app-main-38:/drawable/custom_image_button.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/mipmap-xxhdpi_ic_launcher_foreground.png.flat",
+        "source": "com.example.crepe.app-main-38:/mipmap-xxhdpi/ic_launcher_foreground.png"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/drawable_ic_baseline_list_alt_24.xml.flat",
+        "source": "com.example.crepe.app-main-38:/drawable/ic_baseline_list_alt_24.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/menu_nav_drawer_menu.xml.flat",
+        "source": "com.example.crepe.app-main-38:/menu/nav_drawer_menu.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/drawable-small_nd_monogram_blue_s.png.flat",
+        "source": "com.example.crepe.app-main-38:/drawable-small/nd_monogram_blue_s.png"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/anim_left_appear.xml.flat",
+        "source": "com.example.crepe.app-main-38:/anim/left_appear.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/mipmap-xhdpi_ic_launcher_round.png.flat",
+        "source": "com.example.crepe.app-main-38:/mipmap-xhdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/drawable_ic_baseline_draw_24.xml.flat",
+        "source": "com.example.crepe.app-main-38:/drawable/ic_baseline_draw_24.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/mipmap-hdpi_ic_launcher_round.png.flat",
+        "source": "com.example.crepe.app-main-38:/mipmap-hdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/drawable_ic_baseline_undo_24.xml.flat",
+        "source": "com.example.crepe.app-main-38:/drawable/ic_baseline_undo_24.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/font_courier_prime_regular.ttf.flat",
+        "source": "com.example.crepe.app-main-38:/font/courier_prime_regular.ttf"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/mipmap-hdpi_ic_launcher_foreground.png.flat",
+        "source": "com.example.crepe.app-main-38:/mipmap-hdpi/ic_launcher_foreground.png"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/layout_dialog_add_collector_from_config.xml.flat",
+        "source": "com.example.crepe.app-main-38:/layout/dialog_add_collector_from_config.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/drawable_ic_baseline_delete_24.xml.flat",
+        "source": "com.example.crepe.app-main-38:/drawable/ic_baseline_delete_24.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/mipmap-xxxhdpi_ic_launcher_round.png.flat",
+        "source": "com.example.crepe.app-main-38:/mipmap-xxxhdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/anim_left_disappear.xml.flat",
+        "source": "com.example.crepe.app-main-38:/anim/left_disappear.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/layout_fragment_home.xml.flat",
+        "source": "com.example.crepe.app-main-38:/layout/fragment_home.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/drawable_ic_icons8_uber_app.xml.flat",
+        "source": "com.example.crepe.app-main-38:/drawable/ic_icons8_uber_app.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/layout_activity_main.xml.flat",
+        "source": "com.example.crepe.app-main-38:/layout/activity_main.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/drawable_ic_baseline_email_24.xml.flat",
+        "source": "com.example.crepe.app-main-38:/drawable/ic_baseline_email_24.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/drawable_nd_logo.png.flat",
+        "source": "com.example.crepe.app-main-38:/drawable/nd_logo.png"
+    },
+    {
+        "merged": "com.example.crepe.app-merged_res-36:/drawable-hdpi_sample_data.png.flat",
+        "source": "com.example.crepe.app-main-38:/drawable-hdpi/sample_data.png"
+    }
+]

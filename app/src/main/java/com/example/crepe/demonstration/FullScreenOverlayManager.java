@@ -205,10 +205,10 @@ public class FullScreenOverlayManager {
 
                     // TODO meng: store the query in database, then constantly check it in another thread
                     // 1. store the query in local database
-                    DatabaseManager dbManager = new DatabaseManager(context);
-                    FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(context);
-                    Data data = new Data("1","2","3", defaultQueries.get(0).first.toString());
-                    Datafield datafield = new Datafield("752916f46f6bcd47+1","2", defaultQueries.get(0).first.toString(),"test", Boolean.TRUE);
+//                    DatabaseManager dbManager = new DatabaseManager(context);
+//                    FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(context);
+//                    Data data = new Data("1","2","3", defaultQueries.get(0).first.toString());
+//                    Datafield datafield = new Datafield("752916f46f6bcd47+1","2", defaultQueries.get(0).first.toString(),"test", Boolean.TRUE);
 
 
                     // 2. check the query in another thread
@@ -230,20 +230,20 @@ public class FullScreenOverlayManager {
 
 
                     // 4. every time the local database changes, push to remote
-                    firebaseCommunicationManager.putData(data).addOnSuccessListener(suc->{
-                        Log.i("Firebase","Successfully added data " + data.getDataId() + " to firebase.");
-                    }).addOnFailureListener(er->{
-                        Log.e("Firebase","Failed to add data " + data.getDataId() + " to firebase.");
-                    });;
-                    firebaseCommunicationManager.putDatafield(datafield).addOnSuccessListener(suc->{
-                        Log.i("Firebase","Successfully added datafield " + datafield.getDataFieldId() + " to firebase.");
-                    }).addOnFailureListener(er->{
-                        Log.e("Firebase","Failed to add datafield " + datafield.getDataFieldId() + " to firebase.");
-                    });;
+//                    firebaseCommunicationManager.putData(data).addOnSuccessListener(suc->{
+//                        Log.i("Firebase","Successfully added data " + data.getDataId() + " to firebase.");
+//                    }).addOnFailureListener(er->{
+//                        Log.e("Firebase","Failed to add data " + data.getDataId() + " to firebase.");
+//                    });;
+//                    firebaseCommunicationManager.putDatafield(datafield).addOnSuccessListener(suc->{
+//                        Log.i("Firebase","Successfully added datafield " + datafield.getDataFieldId() + " to firebase.");
+//                    }).addOnFailureListener(er->{
+//                        Log.e("Firebase","Failed to add datafield " + datafield.getDataFieldId() + " to firebase.");
+//                    });;
 
-                    dbManager.addData(data);
-                    dbManager.addOneDataField(datafield);
-                    System.out.println("Query: " + defaultQueries.get(0).first.toString());
+//                    dbManager.addData(data);
+//                    dbManager.addOneDataField(datafield);
+//                    System.out.println("Query: " + defaultQueries.get(0).first.toString());
 
                     return true;
                 }

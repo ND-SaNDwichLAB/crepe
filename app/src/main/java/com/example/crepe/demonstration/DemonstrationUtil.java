@@ -387,9 +387,6 @@ public class DemonstrationUtil {
 
         if(foundEntity != null && uiSnapshot != null){
             //add list order
-            System.out.println("Found entity and have a non-null uiSnapshot");
-
-
             if (! relationsToExclude.contains(SugiliteRelation.HAS_LIST_ORDER)) {
                 Set<SugiliteTriple> triples = uiSnapshot.getSubjectPredicateTriplesMap().get(new AbstractMap.SimpleEntry<>(foundEntity.getEntityId(), SugiliteRelation.HAS_LIST_ORDER.getRelationId()));
                 if (triples != null) {
@@ -489,24 +486,29 @@ public class DemonstrationUtil {
             }
         }
 
+        // For recursively generate subQueries for the PREV combinedQueries,
+        // we need to exclude spatial relations, otherwise it's a never-ending recursion
+        SugiliteRelation[] spatialRelationsToExclude = new SugiliteRelation[4];
+        spatialRelationsToExclude[0] = SugiliteRelation.BELOW;
+        spatialRelationsToExclude[1] = SugiliteRelation.ABOVE;
+        spatialRelationsToExclude[2] = SugiliteRelation.LEFT;
+        spatialRelationsToExclude[3] = SugiliteRelation.RIGHT;
+
         // spatial relations
         if (! relationsToExclude.contains(SugiliteRelation.LEFT)) {
-            if (getValueIfOnlyOneObject(uiSnapshot.getNodeValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.LEFT)) != null) {
+            if (getValueIfOnlyOneObject(uiSnapshot.getNodeValuesForSubjectEntityAndRelation(targetEntity, SugiliteRelation.LEFT)) != null) {
                 CombinedOntologyQuery clonedQuery = prevQuery.clone();
                 OntologyQuery subQuery = new CombinedOntologyQuery(CombinedOntologyQuery.RelationType.AND);
                 Set<OntologyQuery> object = new HashSet<>();
 
-                Node targetNode = getValueIfOnlyOneObject(uiSnapshot.getNodeValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.LEFT));
+                Node targetNode = getValueIfOnlyOneObject(uiSnapshot.getNodeValuesForSubjectEntityAndRelation(targetEntity, SugiliteRelation.LEFT));
                 if (uiSnapshot.getEntityWithNode(targetNode) != null) {
 
                     // add info for subQuery
                     // the following lines creates an empty array of SugiliteRelation that the generateDefaultQueries function can take in
                     // using the empty array is because for the subQuery, we assume the restriction for the outer query doesn't apply.
                     // e.g. if we exclude HAS_TEXT for the outer query, we still can use (PREV (LEFT (HAS_TEXT "xxx")))
-                    SugiliteRelation[] relationsToExcludeArrayTemp = new SugiliteRelation[relationsToExclude.size()];
-//                    relationsToExclude.toArray(relationsToExcludeArrayTemp);
-
-                    List<Pair<OntologyQuery, Double>> subQueryCandidates = generateDefaultQueries(uiSnapshot, uiSnapshot.getEntityWithNode(targetNode), relationsToExcludeArrayTemp);
+                    List<Pair<OntologyQuery, Double>> subQueryCandidates = generateDefaultQueries(uiSnapshot, uiSnapshot.getEntityWithNode(targetNode), spatialRelationsToExclude);
                     // parse the result, for now just take the first query
                     subQuery = subQueryCandidates.get(0).first;
                     Double subQueryValue = subQueryCandidates.get(0).second;
@@ -525,20 +527,16 @@ public class DemonstrationUtil {
         }
 
         if (! relationsToExclude.contains(SugiliteRelation.RIGHT)) {
-            if (getValueIfOnlyOneObject(uiSnapshot.getNodeValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.RIGHT)) != null) {
+            if (getValueIfOnlyOneObject(uiSnapshot.getNodeValuesForSubjectEntityAndRelation(targetEntity, SugiliteRelation.RIGHT)) != null) {
                 CombinedOntologyQuery clonedQuery = prevQuery.clone();
                 OntologyQuery subQuery = new CombinedOntologyQuery(CombinedOntologyQuery.RelationType.AND);
                 Set<OntologyQuery> object = new HashSet<>();
 
-                Node targetNode = getValueIfOnlyOneObject(uiSnapshot.getNodeValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.RIGHT));
+                Node targetNode = getValueIfOnlyOneObject(uiSnapshot.getNodeValuesForSubjectEntityAndRelation(targetEntity, SugiliteRelation.RIGHT));
                 if (uiSnapshot.getEntityWithNode(targetNode) != null) {
 
                     // add info for subQuery
-                    // the following lines creates an empty array of SugiliteRelation that the generateDefaultQueries function can take in
-                    // using the empty array is because for the subQuery, we assume the restriction for the outer query doesn't apply.
-                    // e.g. if we exclude HAS_TEXT for the outer query, we still can use (PREV (LEFT (HAS_TEXT "xxx")))
-                    SugiliteRelation[] relationsToExcludeArrayTemp = new SugiliteRelation[relationsToExclude.size()];
-                    List<Pair<OntologyQuery, Double>> subQueryCandidates = generateDefaultQueries(uiSnapshot, uiSnapshot.getEntityWithNode(targetNode), relationsToExcludeArrayTemp);
+                    List<Pair<OntologyQuery, Double>> subQueryCandidates = generateDefaultQueries(uiSnapshot, uiSnapshot.getEntityWithNode(targetNode), spatialRelationsToExclude);
                     // parse the result, for now just take the first query
                     subQuery = subQueryCandidates.get(0).first;
                     Double subQueryValue = subQueryCandidates.get(0).second;
@@ -557,22 +555,16 @@ public class DemonstrationUtil {
         }
 
         if (! relationsToExclude.contains(SugiliteRelation.ABOVE)) {
-            if (getValueIfOnlyOneObject(uiSnapshot.getNodeValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.ABOVE)) != null) {
+            if (getValueIfOnlyOneObject(uiSnapshot.getNodeValuesForSubjectEntityAndRelation(targetEntity, SugiliteRelation.ABOVE)) != null) {
                 CombinedOntologyQuery clonedQuery = prevQuery.clone();
                 OntologyQuery subQuery = new CombinedOntologyQuery(CombinedOntologyQuery.RelationType.AND);
                 Set<OntologyQuery> object = new HashSet<>();
 
-                Node targetNode = getValueIfOnlyOneObject(uiSnapshot.getNodeValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.ABOVE));
+                Node targetNode = getValueIfOnlyOneObject(uiSnapshot.getNodeValuesForSubjectEntityAndRelation(targetEntity, SugiliteRelation.ABOVE));
                 if (uiSnapshot.getEntityWithNode(targetNode) != null) {
 
                     // add info for subQuery
-                    // the following lines creates an empty array of SugiliteRelation that the generateDefaultQueries function can take in
-                    // using the empty array is because for the subQuery, we assume the restriction for the outer query doesn't apply.
-                    // e.g. if we exclude HAS_TEXT for the outer query, we still can use (PREV (LEFT (HAS_TEXT "xxx")))
-                    SugiliteRelation[] relationsToExcludeArrayTemp = new SugiliteRelation[relationsToExclude.size()];
-//                    relationsToExclude.toArray(relationsToExcludeArrayTemp);
-
-                    List<Pair<OntologyQuery, Double>> subQueryCandidates = generateDefaultQueries(uiSnapshot, uiSnapshot.getEntityWithNode(targetNode), relationsToExcludeArrayTemp);
+                    List<Pair<OntologyQuery, Double>> subQueryCandidates = generateDefaultQueries(uiSnapshot, uiSnapshot.getEntityWithNode(targetNode), spatialRelationsToExclude);
                     // parse the result, for now just take the first query
                     subQuery = subQueryCandidates.get(0).first;
                     Double subQueryValue = subQueryCandidates.get(0).second;
@@ -591,22 +583,17 @@ public class DemonstrationUtil {
         }
 
         if (! relationsToExclude.contains(SugiliteRelation.BELOW)) {
-            if (getValueIfOnlyOneObject(uiSnapshot.getNodeValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.BELOW)) != null) {
+            if (getValueIfOnlyOneObject(uiSnapshot.getNodeValuesForSubjectEntityAndRelation(targetEntity, SugiliteRelation.BELOW)) != null) {
                 CombinedOntologyQuery clonedQuery = prevQuery.clone();
                 OntologyQuery subQuery = new CombinedOntologyQuery(CombinedOntologyQuery.RelationType.AND);
                 Set<OntologyQuery> object = new HashSet<>();
 
-                Node targetNode = getValueIfOnlyOneObject(uiSnapshot.getNodeValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.BELOW));
+                Node targetNode = getValueIfOnlyOneObject(uiSnapshot.getNodeValuesForSubjectEntityAndRelation(targetEntity, SugiliteRelation.BELOW));
                 if (uiSnapshot.getEntityWithNode(targetNode) != null) {
 
                     // add info for subQuery
-                    // the following lines creates an empty array of SugiliteRelation that the generateDefaultQueries function can take in
-                    // using the empty array is because for the subQuery, we assume the restriction for the outer query doesn't apply.
-                    // e.g. if we exclude HAS_TEXT for the outer query, we still can use (PREV (LEFT (HAS_TEXT "xxx")))
-                    SugiliteRelation[] relationsToExcludeArrayTemp = new SugiliteRelation[relationsToExclude.size()];
-//                    relationsToExclude.toArray(relationsToExcludeArrayTemp);
 
-                    List<Pair<OntologyQuery, Double>> subQueryCandidates = generateDefaultQueries(uiSnapshot, uiSnapshot.getEntityWithNode(targetNode), relationsToExcludeArrayTemp);
+                    List<Pair<OntologyQuery, Double>> subQueryCandidates = generateDefaultQueries(uiSnapshot, uiSnapshot.getEntityWithNode(targetNode), spatialRelationsToExclude);
                     // parse the result, for now just take the first query
                     subQuery = subQueryCandidates.get(0).first;
                     Double subQueryValue = subQueryCandidates.get(0).second;

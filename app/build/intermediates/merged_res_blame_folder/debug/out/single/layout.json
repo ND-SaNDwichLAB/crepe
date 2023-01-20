@@ -1,0 +1,74 @@
+[
+    {
+        "merged": "com.example.crepe.app-mergeDebugResources-35:/layout/demonstration_float_widget.xml",
+        "source": "com.example.crepe.app-main-38:/layout/demonstration_float_widget.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-mergeDebugResources-35:/layout/dialog_add_collector_from_config_data_field.xml",
+        "source": "com.example.crepe.app-main-38:/layout/dialog_add_collector_from_config_data_field.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-mergeDebugResources-35:/layout/popup_set_username.xml",
+        "source": "com.example.crepe.app-main-38:/layout/popup_set_username.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-mergeDebugResources-35:/layout/collector_card.xml",
+        "source": "com.example.crepe.app-main-38:/layout/collector_card.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-mergeDebugResources-35:/layout/dialog_add_collector_from_config_success_message.xml",
+        "source": "com.example.crepe.app-main-38:/layout/dialog_add_collector_from_config_success_message.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-mergeDebugResources-35:/layout/datafield_card.xml",
+        "source": "com.example.crepe.app-main-38:/layout/datafield_card.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-mergeDebugResources-35:/layout/nav_header.xml",
+        "source": "com.example.crepe.app-main-38:/layout/nav_header.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-mergeDebugResources-35:/layout/dialog_add_collector_from_config.xml",
+        "source": "com.example.crepe.app-main-38:/layout/dialog_add_collector_from_config.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-mergeDebugResources-35:/layout/demonstration_confirmation.xml",
+        "source": "com.example.crepe.app-main-38:/layout/demonstration_confirmation.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-mergeDebugResources-35:/layout/dialog_add_collector_from_config_description.xml",
+        "source": "com.example.crepe.app-main-38:/layout/dialog_add_collector_from_config_description.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-mergeDebugResources-35:/layout/dialog_add_collector_from_url.xml",
+        "source": "com.example.crepe.app-main-38:/layout/dialog_add_collector_from_url.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-mergeDebugResources-35:/layout/collector_detail.xml",
+        "source": "com.example.crepe.app-main-38:/layout/collector_detail.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-mergeDebugResources-35:/layout/fragment_home.xml",
+        "source": "com.example.crepe.app-main-38:/layout/fragment_home.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-mergeDebugResources-35:/layout/dialog_add_collector_from_url_collector_info.xml",
+        "source": "com.example.crepe.app-main-38:/layout/dialog_add_collector_from_url_collector_info.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-mergeDebugResources-35:/layout/fragment_data.xml",
+        "source": "com.example.crepe.app-main-38:/layout/fragment_data.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-mergeDebugResources-35:/layout/collector_info_for_data_fragment.xml",
+        "source": "com.example.crepe.app-main-38:/layout/collector_info_for_data_fragment.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-mergeDebugResources-35:/layout/activity_main.xml",
+        "source": "com.example.crepe.app-main-38:/layout/activity_main.xml"
+    },
+    {
+        "merged": "com.example.crepe.app-mergeDebugResources-35:/layout/dialog_add_collector_from_config_graph_query.xml",
+        "source": "com.example.crepe.app-main-38:/layout/dialog_add_collector_from_config_graph_query.xml"
+    }
+]
