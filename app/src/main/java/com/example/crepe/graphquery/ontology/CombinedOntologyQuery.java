@@ -10,12 +10,17 @@ import java.util.stream.Collectors;
  * Created by nancyli on 9/27/17.
  */
 
+// Example queries
+// AND query:   (conj (numeric_parent_index 1.0) (HAS_CLASS_NAME android.widget.TextView) (HAS_PACKAGE_NAME com.google.android.apps.youtube.music))
+// OR query:   (or (numeric_parent_index 1.0) (HAS_CLASS_NAME android.widget.TextView) (HAS_PACKAGE_NAME com.google.android.apps.youtube.music))
+// PRV query:   (LEFT (conj (numeric_parent_index 1.0) (HAS_CLASS_NAME android.widget.TextView)) )
+
 public class CombinedOntologyQuery extends OntologyQueryWithSubQueries {
-    protected SugiliteRelation r = null;
 
-
-    private RelationType subRelation;
+    private RelationType subRelation;   // one of the RelationType below, i.e. AND, OR, PREV
     private Set<OntologyQuery> subQueries = null;
+    // the r variable is only used for PREV quries, e.g. for (LEFT (conj (numeric_parent_index 1.0) (HAS_CLASS_NAME android.widget.TextView)) ) the r variable is SugiliteRelation.LEFT
+    protected SugiliteRelation r = null;
 
     public enum RelationType {
         AND, OR, PREV
@@ -145,6 +150,9 @@ public class CombinedOntologyQuery extends OntologyQueryWithSubQueries {
         }
         else if (subRelation == RelationType.PREV) {
             OntologyQuery prevQuery = subQueries.toArray(new OntologyQuery[subQueries.size()])[0];
+            if (prevQuery instanceof  CombinedOntologyQuery) {
+                return ((CombinedOntologyQuery) prevQuery).overallQueryFunction(currNode, graph);
+            }
             Set<SugiliteEntity> prevResultObjects = prevQuery.executeOn(graph);
             Set<SugiliteTriple> subjectTriples = graph.getSubjectTriplesMap().get(currNode.getEntityId());
             if (subjectTriples == null) {
