@@ -201,7 +201,8 @@ public class DemonstrationUtil {
 
 
         List<Pair<OntologyQuery, Double>> defaultQueries = null;
-        Set<SugiliteEntity> results = new HashSet<>();
+        // temporarily change this to a list to store duplicate values from different query results
+        List<Set<SugiliteEntity>> results = new ArrayList<>();
         if(targetEntity != null) {
             SugiliteRelation[] relationsToExclude = new SugiliteRelation[1];
             relationsToExclude[0] = SugiliteRelation.HAS_TEXT;
@@ -213,7 +214,8 @@ public class DemonstrationUtil {
         // test if the queries can retrieve components on screen
         if(defaultQueries != null) {
             for(Pair<OntologyQuery, Double> query : defaultQueries) {
-                results.addAll(query.first.executeOn(uiSnapshot));
+                Set<SugiliteEntity> queryResult = query.first.executeOn(uiSnapshot);
+                results.add(queryResult);
             }
         }
 
@@ -315,7 +317,7 @@ public class DemonstrationUtil {
                 clonedQuery.addSubQuery(subQuery);
                 hasNonBoundingBoxFeature = true;
                 hasNonChildFeature = true;
-                queries.add(Pair.create(clonedQuery, 1.1));
+                queries.add(Pair.create(clonedQuery, 0.1));
             }
         }
 
@@ -509,7 +511,7 @@ public class DemonstrationUtil {
                     // using the empty array is because for the subQuery, we assume the restriction for the outer query doesn't apply.
                     // e.g. if we exclude HAS_TEXT for the outer query, we still can use (PREV (LEFT (HAS_TEXT "xxx")))
                     List<Pair<OntologyQuery, Double>> subQueryCandidates = generateDefaultQueries(uiSnapshot, uiSnapshot.getEntityWithNode(targetNode), spatialRelationsToExclude);
-                    // parse the result, for now just take the first query
+                    // parse the result, for now just take the first query, later we can change this and take a few different reasonable queries
                     subQuery = subQueryCandidates.get(0).first;
                     Double subQueryValue = subQueryCandidates.get(0).second;
 

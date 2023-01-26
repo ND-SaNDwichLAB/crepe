@@ -1,5 +1,7 @@
 package com.example.crepe.graphquery.ontology;
 
+import android.util.Log;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -150,14 +152,14 @@ public class CombinedOntologyQuery extends OntologyQueryWithSubQueries {
         }
         else if (subRelation == RelationType.PREV) {
             OntologyQuery prevQuery = subQueries.toArray(new OntologyQuery[subQueries.size()])[0];
-            if (prevQuery instanceof  CombinedOntologyQuery) {
-                return ((CombinedOntologyQuery) prevQuery).overallQueryFunction(currNode, graph);
-            }
+            // get the result of the previous query (e.g. prevQuery for (LEFT (conj (numeric_parent_index 1.0) (HAS_CLASS_NAME android.widget.TextView)) ) is (conj (numeric_parent_index 1.0) (HAS_CLASS_NAME android.widget.TextView))
             Set<SugiliteEntity> prevResultObjects = prevQuery.executeOn(graph);
+
             Set<SugiliteTriple> subjectTriples = graph.getSubjectTriplesMap().get(currNode.getEntityId());
             if (subjectTriples == null) {
                 return false;
             }
+            // LEFT is not showing any result
             for (SugiliteEntity objectEntity : prevResultObjects) {
                 SugiliteTriple newTriple = new SugiliteTriple(currNode, r, objectEntity);
                 if (subjectTriples.contains(newTriple)) {
