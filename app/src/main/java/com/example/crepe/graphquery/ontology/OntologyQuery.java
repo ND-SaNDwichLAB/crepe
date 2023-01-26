@@ -47,7 +47,7 @@ public abstract class OntologyQuery implements Serializable {
                         q.setSubRelation(CombinedOntologyQuery.RelationType.OR);
                     } else {
                         q.setSubRelation(CombinedOntologyQuery.RelationType.PREV);
-                        q.setQueryFunction(SugiliteRelation.getRelationFromString(firstWord));
+                        q.setQueryRelation(SugiliteRelation.getRelationFromString(firstWord));
                     }
 
                     Set<OntologyQuery> subQ = new HashSet<>();

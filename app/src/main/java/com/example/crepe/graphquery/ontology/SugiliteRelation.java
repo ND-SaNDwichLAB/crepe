@@ -1,7 +1,9 @@
 package com.example.crepe.graphquery.ontology;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -114,6 +116,52 @@ public class SugiliteRelation implements Serializable {
 
 
     public static final Map<String, SugiliteRelation> stringRelationMap;
+
+    public static final List<SugiliteRelation> allRelationList = new ArrayList<SugiliteRelation>() {{
+        add(HAS_CLASS_NAME);
+        add(HAS_TEXT);
+        add(HAS_PARENT);
+        add(HAS_VIEW_ID);
+        add(HAS_CONTENT_DESCRIPTION);
+        add(HAS_SCREEN_LOCATION);
+        add(HAS_PARENT_LOCATION);
+        add(HAS_PACKAGE_NAME);
+        add(HAS_CHILD);
+        add(HAS_CHILD_TEXT);
+        add(HAS_SIBLING);
+        add(HAS_SIBLING_TEXT);
+        add(IS_EDITABLE);
+        add(IS_CLICKABLE);
+        add(IS_SCROLLABLE);
+        add(IS_CHECKABLE);
+        add(IS_CHECKED);
+        add(IS_SELECTED);
+        add(HAS_LIST_ORDER);
+        add(HAS_PARENT_WITH_LIST_ORDER);
+        add(IS_A_LIST);
+        add(CONTAINS_EMAIL_ADDRESS);
+        add(CONTAINS_PHONE_NUMBER);
+        add(CONTAINS_MONEY);
+        add(CONTAINS_TIME);
+        add(CONTAINS_DATE);
+        add(CONTAINS_DURATION);
+        add(CONTAINS_LENGTH);
+        add(CONTAINS_PERCENTAGE);
+        add(CONTAINS_VOLUME);
+        add(CONTAINS_NUMBER);
+        add(CONTAINS);
+        add(RIGHT);
+        add(LEFT);
+        add(ABOVE);
+        add(BELOW);
+        add(NEAR);
+        add(NEXT_TO);
+        add(IS);
+        add(HAS_ACTIVITY_NAME);
+        add(HAS_PARENT_TEXT);
+        add(IS_FOCUSED);
+        add(CONTAINS_TEMPERATURE);
+    }};
 
 
     public static boolean hasRelationWithName(String name) {
