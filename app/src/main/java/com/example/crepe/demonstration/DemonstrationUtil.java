@@ -411,12 +411,12 @@ public class DemonstrationUtil {
                 Set<SugiliteTriple> triples2 = uiSnapshot.getSubjectPredicateTriplesMap().get(new AbstractMap.SimpleEntry<>(foundEntity.getEntityId(), SugiliteRelation.HAS_PARENT_WITH_LIST_ORDER.getRelationId()));
                 if (triples2 != null) {
                     for (SugiliteTriple triple : triples2) {
-                        String order = triple.getObject().getEntityValue().toString();
+                        Double order = (Double) triple.getObject().getEntityValue();
 
                         CombinedOntologyQuery clonedQuery = q.clone();
                         LeafOntologyQuery subQuery = new LeafOntologyQuery();
                         Set<SugiliteEntity> object = new HashSet<>();
-                        object.add(new SugiliteEntity(-1, String.class, order));
+                        object.add(new SugiliteEntity(-1, Double.class, order));
                         subQuery.setObjectSet(object);
                         subQuery.setQueryFunction(SugiliteRelation.HAS_PARENT_WITH_LIST_ORDER);
                         clonedQuery.addSubQuery(subQuery);
