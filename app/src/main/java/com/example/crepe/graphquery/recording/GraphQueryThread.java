@@ -1,7 +1,7 @@
 package com.example.crepe.graphquery.recording;
 
 import android.os.Looper;
-import android.os.Handler
+import android.os.Handler;
 import android.util.Log;
 
 import com.example.crepe.CrepeAccessibilityService;
@@ -20,7 +20,7 @@ public class GraphQueryThread extends Thread {
     public Looper looper;
 
 
-    public GraphQueryThread(String graphQuery) {
+    public GraphQueryThread(CrepeAccessibilityService service, String graphQuery) {
         this.graphQuery = graphQuery;
     }
 

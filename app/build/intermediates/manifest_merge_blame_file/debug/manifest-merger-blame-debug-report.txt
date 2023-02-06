@@ -39,24 +39,24 @@
 25    <!-- Although the *SdkVersion is captured in gradle build files, this is required for non gradle builds -->
 26    <!-- <uses-sdk android:minSdkVersion="14"/> -->
 27    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-27-->[com.google.firebase:firebase-database:20.0.5] /Users/mengchen/.gradle/caches/transforms-3/983fd70fe6f36b5defac0bcd725a5c46/transformed/jetified-firebase-database-20.0.5/AndroidManifest.xml:25:5-79
-27-->[com.google.firebase:firebase-database:20.0.5] /Users/mengchen/.gradle/caches/transforms-3/983fd70fe6f36b5defac0bcd725a5c46/transformed/jetified-firebase-database-20.0.5/AndroidManifest.xml:25:22-76
+27-->[com.google.firebase:firebase-database:20.0.5] /Users/mengchen/.gradle/caches/transforms-3/0cff144d23b873fca3a0fce06fe92f50/transformed/jetified-firebase-database-20.0.5/AndroidManifest.xml:25:5-79
+27-->[com.google.firebase:firebase-database:20.0.5] /Users/mengchen/.gradle/caches/transforms-3/0cff144d23b873fca3a0fce06fe92f50/transformed/jetified-firebase-database-20.0.5/AndroidManifest.xml:25:22-76
 28    <uses-permission android:name="android.permission.WAKE_LOCK" />
-28-->[com.google.android.gms:play-services-measurement:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/9bccc542a47b0ac80a4232285a29c9da/transformed/jetified-play-services-measurement-21.1.0/AndroidManifest.xml:25:5-68
-28-->[com.google.android.gms:play-services-measurement:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/9bccc542a47b0ac80a4232285a29c9da/transformed/jetified-play-services-measurement-21.1.0/AndroidManifest.xml:25:22-65
+28-->[com.google.android.gms:play-services-measurement:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/fd2537612c7d182a63432e2c486c81aa/transformed/jetified-play-services-measurement-21.1.0/AndroidManifest.xml:25:5-68
+28-->[com.google.android.gms:play-services-measurement:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/fd2537612c7d182a63432e2c486c81aa/transformed/jetified-play-services-measurement-21.1.0/AndroidManifest.xml:25:22-65
 29    <uses-permission android:name="com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE" />
-29-->[com.google.android.gms:play-services-measurement:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/9bccc542a47b0ac80a4232285a29c9da/transformed/jetified-play-services-measurement-21.1.0/AndroidManifest.xml:26:5-110
-29-->[com.google.android.gms:play-services-measurement:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/9bccc542a47b0ac80a4232285a29c9da/transformed/jetified-play-services-measurement-21.1.0/AndroidManifest.xml:26:22-107
+29-->[com.google.android.gms:play-services-measurement:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/fd2537612c7d182a63432e2c486c81aa/transformed/jetified-play-services-measurement-21.1.0/AndroidManifest.xml:26:5-110
+29-->[com.google.android.gms:play-services-measurement:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/fd2537612c7d182a63432e2c486c81aa/transformed/jetified-play-services-measurement-21.1.0/AndroidManifest.xml:26:22-107
 30    <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
-30-->[com.google.android.gms:play-services-measurement-api:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/b1fde77c0451c7a4aada7a6ab87e21dc/transformed/jetified-play-services-measurement-api-21.1.0/AndroidManifest.xml:25:5-79
-30-->[com.google.android.gms:play-services-measurement-api:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/b1fde77c0451c7a4aada7a6ab87e21dc/transformed/jetified-play-services-measurement-api-21.1.0/AndroidManifest.xml:25:22-76
+30-->[com.google.android.gms:play-services-measurement-api:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/ccc438b7ba9763e2a5aa2db613e1bfd5/transformed/jetified-play-services-measurement-api-21.1.0/AndroidManifest.xml:25:5-79
+30-->[com.google.android.gms:play-services-measurement-api:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/ccc438b7ba9763e2a5aa2db613e1bfd5/transformed/jetified-play-services-measurement-api-21.1.0/AndroidManifest.xml:25:22-76
 31
 32    <application
 32-->/Users/mengchen/AndroidStudioProjects/crepe/app/src/main/AndroidManifest.xml:19:5-48:19
 33        android:allowBackup="true"
 33-->/Users/mengchen/AndroidStudioProjects/crepe/app/src/main/AndroidManifest.xml:20:9-35
 34        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
-34-->[androidx.core:core:1.7.0] /Users/mengchen/.gradle/caches/transforms-3/3eafe2601ee0ce48cf75b9463b8962b8/transformed/core-1.7.0/AndroidManifest.xml:24:18-86
+34-->[androidx.core:core:1.7.0] /Users/mengchen/.gradle/caches/transforms-3/b19d6920e8badc0bfccb885966022a39/transformed/core-1.7.0/AndroidManifest.xml:24:18-86
 35        android:debuggable="true"
 36        android:extractNativeLibs="false"
 37        android:icon="@mipmap/ic_launcher"
@@ -121,125 +121,125 @@
 69            android:enabled="true" />
 69-->/Users/mengchen/AndroidStudioProjects/crepe/app/src/main/AndroidManifest.xml:46:62-84
 70        <service
-70-->[com.google.firebase:firebase-database:20.0.5] /Users/mengchen/.gradle/caches/transforms-3/983fd70fe6f36b5defac0bcd725a5c46/transformed/jetified-firebase-database-20.0.5/AndroidManifest.xml:29:9-35:19
+70-->[com.google.firebase:firebase-database:20.0.5] /Users/mengchen/.gradle/caches/transforms-3/0cff144d23b873fca3a0fce06fe92f50/transformed/jetified-firebase-database-20.0.5/AndroidManifest.xml:29:9-35:19
 71            android:name="com.google.firebase.components.ComponentDiscoveryService"
-71-->[com.google.firebase:firebase-database:20.0.5] /Users/mengchen/.gradle/caches/transforms-3/983fd70fe6f36b5defac0bcd725a5c46/transformed/jetified-firebase-database-20.0.5/AndroidManifest.xml:30:13-84
+71-->[com.google.firebase:firebase-database:20.0.5] /Users/mengchen/.gradle/caches/transforms-3/0cff144d23b873fca3a0fce06fe92f50/transformed/jetified-firebase-database-20.0.5/AndroidManifest.xml:30:13-84
 72            android:directBootAware="true"
-72-->[com.google.firebase:firebase-common:20.1.1] /Users/mengchen/.gradle/caches/transforms-3/d0e65322a3d9f76e132759690d485b94/transformed/jetified-firebase-common-20.1.1/AndroidManifest.xml:35:13-43
+72-->[com.google.firebase:firebase-common:20.1.1] /Users/mengchen/.gradle/caches/transforms-3/0c663c35369b912ae56b19eb41efb673/transformed/jetified-firebase-common-20.1.1/AndroidManifest.xml:35:13-43
 73            android:exported="false" >
-73-->[com.google.firebase:firebase-database:20.0.5] /Users/mengchen/.gradle/caches/transforms-3/983fd70fe6f36b5defac0bcd725a5c46/transformed/jetified-firebase-database-20.0.5/AndroidManifest.xml:31:13-37
+73-->[com.google.firebase:firebase-database:20.0.5] /Users/mengchen/.gradle/caches/transforms-3/0cff144d23b873fca3a0fce06fe92f50/transformed/jetified-firebase-database-20.0.5/AndroidManifest.xml:31:13-37
 74            <meta-data
-74-->[com.google.firebase:firebase-database:20.0.5] /Users/mengchen/.gradle/caches/transforms-3/983fd70fe6f36b5defac0bcd725a5c46/transformed/jetified-firebase-database-20.0.5/AndroidManifest.xml:32:13-34:85
+74-->[com.google.firebase:firebase-database:20.0.5] /Users/mengchen/.gradle/caches/transforms-3/0cff144d23b873fca3a0fce06fe92f50/transformed/jetified-firebase-database-20.0.5/AndroidManifest.xml:32:13-34:85
 75                android:name="com.google.firebase.components:com.google.firebase.database.DatabaseRegistrar"
-75-->[com.google.firebase:firebase-database:20.0.5] /Users/mengchen/.gradle/caches/transforms-3/983fd70fe6f36b5defac0bcd725a5c46/transformed/jetified-firebase-database-20.0.5/AndroidManifest.xml:33:17-109
+75-->[com.google.firebase:firebase-database:20.0.5] /Users/mengchen/.gradle/caches/transforms-3/0cff144d23b873fca3a0fce06fe92f50/transformed/jetified-firebase-database-20.0.5/AndroidManifest.xml:33:17-109
 76                android:value="com.google.firebase.components.ComponentRegistrar" />
-76-->[com.google.firebase:firebase-database:20.0.5] /Users/mengchen/.gradle/caches/transforms-3/983fd70fe6f36b5defac0bcd725a5c46/transformed/jetified-firebase-database-20.0.5/AndroidManifest.xml:34:17-82
+76-->[com.google.firebase:firebase-database:20.0.5] /Users/mengchen/.gradle/caches/transforms-3/0cff144d23b873fca3a0fce06fe92f50/transformed/jetified-firebase-database-20.0.5/AndroidManifest.xml:34:17-82
 77            <meta-data
-77-->[com.google.android.gms:play-services-measurement-api:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/b1fde77c0451c7a4aada7a6ab87e21dc/transformed/jetified-play-services-measurement-api-21.1.0/AndroidManifest.xml:31:13-33:85
+77-->[com.google.android.gms:play-services-measurement-api:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/ccc438b7ba9763e2a5aa2db613e1bfd5/transformed/jetified-play-services-measurement-api-21.1.0/AndroidManifest.xml:31:13-33:85
 78                android:name="com.google.firebase.components:com.google.firebase.analytics.connector.internal.AnalyticsConnectorRegistrar"
-78-->[com.google.android.gms:play-services-measurement-api:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/b1fde77c0451c7a4aada7a6ab87e21dc/transformed/jetified-play-services-measurement-api-21.1.0/AndroidManifest.xml:32:17-139
+78-->[com.google.android.gms:play-services-measurement-api:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/ccc438b7ba9763e2a5aa2db613e1bfd5/transformed/jetified-play-services-measurement-api-21.1.0/AndroidManifest.xml:32:17-139
 79                android:value="com.google.firebase.components.ComponentRegistrar" />
-79-->[com.google.android.gms:play-services-measurement-api:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/b1fde77c0451c7a4aada7a6ab87e21dc/transformed/jetified-play-services-measurement-api-21.1.0/AndroidManifest.xml:33:17-82
+79-->[com.google.android.gms:play-services-measurement-api:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/ccc438b7ba9763e2a5aa2db613e1bfd5/transformed/jetified-play-services-measurement-api-21.1.0/AndroidManifest.xml:33:17-82
 80            <meta-data
-80-->[com.google.firebase:firebase-installations:17.0.1] /Users/mengchen/.gradle/caches/transforms-3/4b26ad3357905184741476c11297f891/transformed/jetified-firebase-installations-17.0.1/AndroidManifest.xml:18:13-20:85
+80-->[com.google.firebase:firebase-installations:17.0.1] /Users/mengchen/.gradle/caches/transforms-3/1bad217a838a29b2207be1d3e8ad34aa/transformed/jetified-firebase-installations-17.0.1/AndroidManifest.xml:18:13-20:85
 81                android:name="com.google.firebase.components:com.google.firebase.installations.FirebaseInstallationsRegistrar"
-81-->[com.google.firebase:firebase-installations:17.0.1] /Users/mengchen/.gradle/caches/transforms-3/4b26ad3357905184741476c11297f891/transformed/jetified-firebase-installations-17.0.1/AndroidManifest.xml:19:17-127
+81-->[com.google.firebase:firebase-installations:17.0.1] /Users/mengchen/.gradle/caches/transforms-3/1bad217a838a29b2207be1d3e8ad34aa/transformed/jetified-firebase-installations-17.0.1/AndroidManifest.xml:19:17-127
 82                android:value="com.google.firebase.components.ComponentRegistrar" />
-82-->[com.google.firebase:firebase-installations:17.0.1] /Users/mengchen/.gradle/caches/transforms-3/4b26ad3357905184741476c11297f891/transformed/jetified-firebase-installations-17.0.1/AndroidManifest.xml:20:17-82
+82-->[com.google.firebase:firebase-installations:17.0.1] /Users/mengchen/.gradle/caches/transforms-3/1bad217a838a29b2207be1d3e8ad34aa/transformed/jetified-firebase-installations-17.0.1/AndroidManifest.xml:20:17-82
 83        </service>
 84
 85        <activity
-85-->[com.google.android.gms:play-services-base:18.0.1] /Users/mengchen/.gradle/caches/transforms-3/6fc7f47394a68508918e35814e70c73a/transformed/jetified-play-services-base-18.0.1/AndroidManifest.xml:20:9-22:45
+85-->[com.google.android.gms:play-services-base:18.0.1] /Users/mengchen/.gradle/caches/transforms-3/854163994b78fcc2b8f9628517123854/transformed/jetified-play-services-base-18.0.1/AndroidManifest.xml:20:9-22:45
 86            android:name="com.google.android.gms.common.api.GoogleApiActivity"
-86-->[com.google.android.gms:play-services-base:18.0.1] /Users/mengchen/.gradle/caches/transforms-3/6fc7f47394a68508918e35814e70c73a/transformed/jetified-play-services-base-18.0.1/AndroidManifest.xml:20:19-85
+86-->[com.google.android.gms:play-services-base:18.0.1] /Users/mengchen/.gradle/caches/transforms-3/854163994b78fcc2b8f9628517123854/transformed/jetified-play-services-base-18.0.1/AndroidManifest.xml:20:19-85
 87            android:exported="false"
-87-->[com.google.android.gms:play-services-base:18.0.1] /Users/mengchen/.gradle/caches/transforms-3/6fc7f47394a68508918e35814e70c73a/transformed/jetified-play-services-base-18.0.1/AndroidManifest.xml:22:19-43
+87-->[com.google.android.gms:play-services-base:18.0.1] /Users/mengchen/.gradle/caches/transforms-3/854163994b78fcc2b8f9628517123854/transformed/jetified-play-services-base-18.0.1/AndroidManifest.xml:22:19-43
 88            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-88-->[com.google.android.gms:play-services-base:18.0.1] /Users/mengchen/.gradle/caches/transforms-3/6fc7f47394a68508918e35814e70c73a/transformed/jetified-play-services-base-18.0.1/AndroidManifest.xml:21:19-78
+88-->[com.google.android.gms:play-services-base:18.0.1] /Users/mengchen/.gradle/caches/transforms-3/854163994b78fcc2b8f9628517123854/transformed/jetified-play-services-base-18.0.1/AndroidManifest.xml:21:19-78
 89
 90        <receiver
-90-->[com.google.android.gms:play-services-measurement:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/9bccc542a47b0ac80a4232285a29c9da/transformed/jetified-play-services-measurement-21.1.0/AndroidManifest.xml:29:9-33:20
+90-->[com.google.android.gms:play-services-measurement:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/fd2537612c7d182a63432e2c486c81aa/transformed/jetified-play-services-measurement-21.1.0/AndroidManifest.xml:29:9-33:20
 91            android:name="com.google.android.gms.measurement.AppMeasurementReceiver"
-91-->[com.google.android.gms:play-services-measurement:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/9bccc542a47b0ac80a4232285a29c9da/transformed/jetified-play-services-measurement-21.1.0/AndroidManifest.xml:30:13-85
+91-->[com.google.android.gms:play-services-measurement:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/fd2537612c7d182a63432e2c486c81aa/transformed/jetified-play-services-measurement-21.1.0/AndroidManifest.xml:30:13-85
 92            android:enabled="true"
-92-->[com.google.android.gms:play-services-measurement:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/9bccc542a47b0ac80a4232285a29c9da/transformed/jetified-play-services-measurement-21.1.0/AndroidManifest.xml:31:13-35
+92-->[com.google.android.gms:play-services-measurement:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/fd2537612c7d182a63432e2c486c81aa/transformed/jetified-play-services-measurement-21.1.0/AndroidManifest.xml:31:13-35
 93            android:exported="false" >
-93-->[com.google.android.gms:play-services-measurement:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/9bccc542a47b0ac80a4232285a29c9da/transformed/jetified-play-services-measurement-21.1.0/AndroidManifest.xml:32:13-37
+93-->[com.google.android.gms:play-services-measurement:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/fd2537612c7d182a63432e2c486c81aa/transformed/jetified-play-services-measurement-21.1.0/AndroidManifest.xml:32:13-37
 94        </receiver>
 95
 96        <service
-96-->[com.google.android.gms:play-services-measurement:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/9bccc542a47b0ac80a4232285a29c9da/transformed/jetified-play-services-measurement-21.1.0/AndroidManifest.xml:35:9-38:40
+96-->[com.google.android.gms:play-services-measurement:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/fd2537612c7d182a63432e2c486c81aa/transformed/jetified-play-services-measurement-21.1.0/AndroidManifest.xml:35:9-38:40
 97            android:name="com.google.android.gms.measurement.AppMeasurementService"
-97-->[com.google.android.gms:play-services-measurement:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/9bccc542a47b0ac80a4232285a29c9da/transformed/jetified-play-services-measurement-21.1.0/AndroidManifest.xml:36:13-84
+97-->[com.google.android.gms:play-services-measurement:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/fd2537612c7d182a63432e2c486c81aa/transformed/jetified-play-services-measurement-21.1.0/AndroidManifest.xml:36:13-84
 98            android:enabled="true"
-98-->[com.google.android.gms:play-services-measurement:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/9bccc542a47b0ac80a4232285a29c9da/transformed/jetified-play-services-measurement-21.1.0/AndroidManifest.xml:37:13-35
+98-->[com.google.android.gms:play-services-measurement:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/fd2537612c7d182a63432e2c486c81aa/transformed/jetified-play-services-measurement-21.1.0/AndroidManifest.xml:37:13-35
 99            android:exported="false" />
-99-->[com.google.android.gms:play-services-measurement:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/9bccc542a47b0ac80a4232285a29c9da/transformed/jetified-play-services-measurement-21.1.0/AndroidManifest.xml:38:13-37
+99-->[com.google.android.gms:play-services-measurement:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/fd2537612c7d182a63432e2c486c81aa/transformed/jetified-play-services-measurement-21.1.0/AndroidManifest.xml:38:13-37
 100        <service
-100-->[com.google.android.gms:play-services-measurement:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/9bccc542a47b0ac80a4232285a29c9da/transformed/jetified-play-services-measurement-21.1.0/AndroidManifest.xml:39:9-43:72
+100-->[com.google.android.gms:play-services-measurement:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/fd2537612c7d182a63432e2c486c81aa/transformed/jetified-play-services-measurement-21.1.0/AndroidManifest.xml:39:9-43:72
 101            android:name="com.google.android.gms.measurement.AppMeasurementJobService"
-101-->[com.google.android.gms:play-services-measurement:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/9bccc542a47b0ac80a4232285a29c9da/transformed/jetified-play-services-measurement-21.1.0/AndroidManifest.xml:40:13-87
+101-->[com.google.android.gms:play-services-measurement:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/fd2537612c7d182a63432e2c486c81aa/transformed/jetified-play-services-measurement-21.1.0/AndroidManifest.xml:40:13-87
 102            android:enabled="true"
-102-->[com.google.android.gms:play-services-measurement:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/9bccc542a47b0ac80a4232285a29c9da/transformed/jetified-play-services-measurement-21.1.0/AndroidManifest.xml:41:13-35
+102-->[com.google.android.gms:play-services-measurement:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/fd2537612c7d182a63432e2c486c81aa/transformed/jetified-play-services-measurement-21.1.0/AndroidManifest.xml:41:13-35
 103            android:exported="false"
-103-->[com.google.android.gms:play-services-measurement:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/9bccc542a47b0ac80a4232285a29c9da/transformed/jetified-play-services-measurement-21.1.0/AndroidManifest.xml:42:13-37
+103-->[com.google.android.gms:play-services-measurement:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/fd2537612c7d182a63432e2c486c81aa/transformed/jetified-play-services-measurement-21.1.0/AndroidManifest.xml:42:13-37
 104            android:permission="android.permission.BIND_JOB_SERVICE" />
-104-->[com.google.android.gms:play-services-measurement:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/9bccc542a47b0ac80a4232285a29c9da/transformed/jetified-play-services-measurement-21.1.0/AndroidManifest.xml:43:13-69
+104-->[com.google.android.gms:play-services-measurement:21.1.0] /Users/mengchen/.gradle/caches/transforms-3/fd2537612c7d182a63432e2c486c81aa/transformed/jetified-play-services-measurement-21.1.0/AndroidManifest.xml:43:13-69
 105
 106        <provider
-106-->[com.google.firebase:firebase-common:20.1.1] /Users/mengchen/.gradle/caches/transforms-3/d0e65322a3d9f76e132759690d485b94/transformed/jetified-firebase-common-20.1.1/AndroidManifest.xml:26:9-31:39
+106-->[com.google.firebase:firebase-common:20.1.1] /Users/mengchen/.gradle/caches/transforms-3/0c663c35369b912ae56b19eb41efb673/transformed/jetified-firebase-common-20.1.1/AndroidManifest.xml:26:9-31:39
 107            android:name="com.google.firebase.provider.FirebaseInitProvider"
-107-->[com.google.firebase:firebase-common:20.1.1] /Users/mengchen/.gradle/caches/transforms-3/d0e65322a3d9f76e132759690d485b94/transformed/jetified-firebase-common-20.1.1/AndroidManifest.xml:27:13-77
+107-->[com.google.firebase:firebase-common:20.1.1] /Users/mengchen/.gradle/caches/transforms-3/0c663c35369b912ae56b19eb41efb673/transformed/jetified-firebase-common-20.1.1/AndroidManifest.xml:27:13-77
 108            android:authorities="com.example.crepe.firebaseinitprovider"
-108-->[com.google.firebase:firebase-common:20.1.1] /Users/mengchen/.gradle/caches/transforms-3/d0e65322a3d9f76e132759690d485b94/transformed/jetified-firebase-common-20.1.1/AndroidManifest.xml:28:13-72
+108-->[com.google.firebase:firebase-common:20.1.1] /Users/mengchen/.gradle/caches/transforms-3/0c663c35369b912ae56b19eb41efb673/transformed/jetified-firebase-common-20.1.1/AndroidManifest.xml:28:13-72
 109            android:directBootAware="true"
-109-->[com.google.firebase:firebase-common:20.1.1] /Users/mengchen/.gradle/caches/transforms-3/d0e65322a3d9f76e132759690d485b94/transformed/jetified-firebase-common-20.1.1/AndroidManifest.xml:29:13-43
+109-->[com.google.firebase:firebase-common:20.1.1] /Users/mengchen/.gradle/caches/transforms-3/0c663c35369b912ae56b19eb41efb673/transformed/jetified-firebase-common-20.1.1/AndroidManifest.xml:29:13-43
 110            android:exported="false"
-110-->[com.google.firebase:firebase-common:20.1.1] /Users/mengchen/.gradle/caches/transforms-3/d0e65322a3d9f76e132759690d485b94/transformed/jetified-firebase-common-20.1.1/AndroidManifest.xml:30:13-37
+110-->[com.google.firebase:firebase-common:20.1.1] /Users/mengchen/.gradle/caches/transforms-3/0c663c35369b912ae56b19eb41efb673/transformed/jetified-firebase-common-20.1.1/AndroidManifest.xml:30:13-37
 111            android:initOrder="100" />
-111-->[com.google.firebase:firebase-common:20.1.1] /Users/mengchen/.gradle/caches/transforms-3/d0e65322a3d9f76e132759690d485b94/transformed/jetified-firebase-common-20.1.1/AndroidManifest.xml:31:13-36
+111-->[com.google.firebase:firebase-common:20.1.1] /Users/mengchen/.gradle/caches/transforms-3/0c663c35369b912ae56b19eb41efb673/transformed/jetified-firebase-common-20.1.1/AndroidManifest.xml:31:13-36
 112
 113        <meta-data
-113-->[com.google.android.gms:play-services-basement:18.0.0] /Users/mengchen/.gradle/caches/transforms-3/37ffb1714aece9a3394600f25827a0b9/transformed/jetified-play-services-basement-18.0.0/AndroidManifest.xml:21:9-23:69
+113-->[com.google.android.gms:play-services-basement:18.0.0] /Users/mengchen/.gradle/caches/transforms-3/060ed8a04d2f50e0da1c48a1d3166f88/transformed/jetified-play-services-basement-18.0.0/AndroidManifest.xml:21:9-23:69
 114            android:name="com.google.android.gms.version"
-114-->[com.google.android.gms:play-services-basement:18.0.0] /Users/mengchen/.gradle/caches/transforms-3/37ffb1714aece9a3394600f25827a0b9/transformed/jetified-play-services-basement-18.0.0/AndroidManifest.xml:22:13-58
+114-->[com.google.android.gms:play-services-basement:18.0.0] /Users/mengchen/.gradle/caches/transforms-3/060ed8a04d2f50e0da1c48a1d3166f88/transformed/jetified-play-services-basement-18.0.0/AndroidManifest.xml:22:13-58
 115            android:value="@integer/google_play_services_version" />
-115-->[com.google.android.gms:play-services-basement:18.0.0] /Users/mengchen/.gradle/caches/transforms-3/37ffb1714aece9a3394600f25827a0b9/transformed/jetified-play-services-basement-18.0.0/AndroidManifest.xml:23:13-66
+115-->[com.google.android.gms:play-services-basement:18.0.0] /Users/mengchen/.gradle/caches/transforms-3/060ed8a04d2f50e0da1c48a1d3166f88/transformed/jetified-play-services-basement-18.0.0/AndroidManifest.xml:23:13-66
 116
 117        <provider
-117-->[androidx.emoji2:emoji2:1.0.0] /Users/mengchen/.gradle/caches/transforms-3/31bedaf03efc988c5da68550901f2b3a/transformed/jetified-emoji2-1.0.0/AndroidManifest.xml:26:9-34:20
+117-->[androidx.emoji2:emoji2:1.0.0] /Users/mengchen/.gradle/caches/transforms-3/eea128b3ff01aeb6f6e9010ecab02fa6/transformed/jetified-emoji2-1.0.0/AndroidManifest.xml:26:9-34:20
 118            android:name="androidx.startup.InitializationProvider"
-118-->[androidx.emoji2:emoji2:1.0.0] /Users/mengchen/.gradle/caches/transforms-3/31bedaf03efc988c5da68550901f2b3a/transformed/jetified-emoji2-1.0.0/AndroidManifest.xml:27:13-67
+118-->[androidx.emoji2:emoji2:1.0.0] /Users/mengchen/.gradle/caches/transforms-3/eea128b3ff01aeb6f6e9010ecab02fa6/transformed/jetified-emoji2-1.0.0/AndroidManifest.xml:27:13-67
 119            android:authorities="com.example.crepe.androidx-startup"
-119-->[androidx.emoji2:emoji2:1.0.0] /Users/mengchen/.gradle/caches/transforms-3/31bedaf03efc988c5da68550901f2b3a/transformed/jetified-emoji2-1.0.0/AndroidManifest.xml:28:13-68
+119-->[androidx.emoji2:emoji2:1.0.0] /Users/mengchen/.gradle/caches/transforms-3/eea128b3ff01aeb6f6e9010ecab02fa6/transformed/jetified-emoji2-1.0.0/AndroidManifest.xml:28:13-68
 120            android:exported="false" >
-120-->[androidx.emoji2:emoji2:1.0.0] /Users/mengchen/.gradle/caches/transforms-3/31bedaf03efc988c5da68550901f2b3a/transformed/jetified-emoji2-1.0.0/AndroidManifest.xml:29:13-37
+120-->[androidx.emoji2:emoji2:1.0.0] /Users/mengchen/.gradle/caches/transforms-3/eea128b3ff01aeb6f6e9010ecab02fa6/transformed/jetified-emoji2-1.0.0/AndroidManifest.xml:29:13-37
 121            <meta-data
-121-->[androidx.emoji2:emoji2:1.0.0] /Users/mengchen/.gradle/caches/transforms-3/31bedaf03efc988c5da68550901f2b3a/transformed/jetified-emoji2-1.0.0/AndroidManifest.xml:31:13-33:52
+121-->[androidx.emoji2:emoji2:1.0.0] /Users/mengchen/.gradle/caches/transforms-3/eea128b3ff01aeb6f6e9010ecab02fa6/transformed/jetified-emoji2-1.0.0/AndroidManifest.xml:31:13-33:52
 122                android:name="androidx.emoji2.text.EmojiCompatInitializer"
-122-->[androidx.emoji2:emoji2:1.0.0] /Users/mengchen/.gradle/caches/transforms-3/31bedaf03efc988c5da68550901f2b3a/transformed/jetified-emoji2-1.0.0/AndroidManifest.xml:32:17-75
+122-->[androidx.emoji2:emoji2:1.0.0] /Users/mengchen/.gradle/caches/transforms-3/eea128b3ff01aeb6f6e9010ecab02fa6/transformed/jetified-emoji2-1.0.0/AndroidManifest.xml:32:17-75
 123                android:value="androidx.startup" />
-123-->[androidx.emoji2:emoji2:1.0.0] /Users/mengchen/.gradle/caches/transforms-3/31bedaf03efc988c5da68550901f2b3a/transformed/jetified-emoji2-1.0.0/AndroidManifest.xml:33:17-49
+123-->[androidx.emoji2:emoji2:1.0.0] /Users/mengchen/.gradle/caches/transforms-3/eea128b3ff01aeb6f6e9010ecab02fa6/transformed/jetified-emoji2-1.0.0/AndroidManifest.xml:33:17-49
 124            <meta-data
-124-->[androidx.lifecycle:lifecycle-process:2.4.0] /Users/mengchen/.gradle/caches/transforms-3/96beaec88985174e3d2c6fa6fca435ec/transformed/jetified-lifecycle-process-2.4.0/AndroidManifest.xml:31:13-33:52
+124-->[androidx.lifecycle:lifecycle-process:2.4.0] /Users/mengchen/.gradle/caches/transforms-3/b9eab0a575ab9cd7a03f7a8166438606/transformed/jetified-lifecycle-process-2.4.0/AndroidManifest.xml:31:13-33:52
 125                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
-125-->[androidx.lifecycle:lifecycle-process:2.4.0] /Users/mengchen/.gradle/caches/transforms-3/96beaec88985174e3d2c6fa6fca435ec/transformed/jetified-lifecycle-process-2.4.0/AndroidManifest.xml:32:17-78
+125-->[androidx.lifecycle:lifecycle-process:2.4.0] /Users/mengchen/.gradle/caches/transforms-3/b9eab0a575ab9cd7a03f7a8166438606/transformed/jetified-lifecycle-process-2.4.0/AndroidManifest.xml:32:17-78
 126                android:value="androidx.startup" />
-126-->[androidx.lifecycle:lifecycle-process:2.4.0] /Users/mengchen/.gradle/caches/transforms-3/96beaec88985174e3d2c6fa6fca435ec/transformed/jetified-lifecycle-process-2.4.0/AndroidManifest.xml:33:17-49
+126-->[androidx.lifecycle:lifecycle-process:2.4.0] /Users/mengchen/.gradle/caches/transforms-3/b9eab0a575ab9cd7a03f7a8166438606/transformed/jetified-lifecycle-process-2.4.0/AndroidManifest.xml:33:17-49
 127        </provider>
 128
 129        <uses-library
-129-->[androidx.window:window:1.0.0] /Users/mengchen/.gradle/caches/transforms-3/846c8550ebf903fe339d4879c33c1f89/transformed/jetified-window-1.0.0/AndroidManifest.xml:25:9-27:40
+129-->[androidx.window:window:1.0.0] /Users/mengchen/.gradle/caches/transforms-3/cd6a7c777fed2644709177f786e058fa/transformed/jetified-window-1.0.0/AndroidManifest.xml:25:9-27:40
 130            android:name="androidx.window.extensions"
-130-->[androidx.window:window:1.0.0] /Users/mengchen/.gradle/caches/transforms-3/846c8550ebf903fe339d4879c33c1f89/transformed/jetified-window-1.0.0/AndroidManifest.xml:26:13-54
+130-->[androidx.window:window:1.0.0] /Users/mengchen/.gradle/caches/transforms-3/cd6a7c777fed2644709177f786e058fa/transformed/jetified-window-1.0.0/AndroidManifest.xml:26:13-54
 131            android:required="false" />
-131-->[androidx.window:window:1.0.0] /Users/mengchen/.gradle/caches/transforms-3/846c8550ebf903fe339d4879c33c1f89/transformed/jetified-window-1.0.0/AndroidManifest.xml:27:13-37
+131-->[androidx.window:window:1.0.0] /Users/mengchen/.gradle/caches/transforms-3/cd6a7c777fed2644709177f786e058fa/transformed/jetified-window-1.0.0/AndroidManifest.xml:27:13-37
 132        <uses-library
-132-->[androidx.window:window:1.0.0] /Users/mengchen/.gradle/caches/transforms-3/846c8550ebf903fe339d4879c33c1f89/transformed/jetified-window-1.0.0/AndroidManifest.xml:28:9-30:40
+132-->[androidx.window:window:1.0.0] /Users/mengchen/.gradle/caches/transforms-3/cd6a7c777fed2644709177f786e058fa/transformed/jetified-window-1.0.0/AndroidManifest.xml:28:9-30:40
 133            android:name="androidx.window.sidecar"
-133-->[androidx.window:window:1.0.0] /Users/mengchen/.gradle/caches/transforms-3/846c8550ebf903fe339d4879c33c1f89/transformed/jetified-window-1.0.0/AndroidManifest.xml:29:13-51
+133-->[androidx.window:window:1.0.0] /Users/mengchen/.gradle/caches/transforms-3/cd6a7c777fed2644709177f786e058fa/transformed/jetified-window-1.0.0/AndroidManifest.xml:29:13-51
 134            android:required="false" />
-134-->[androidx.window:window:1.0.0] /Users/mengchen/.gradle/caches/transforms-3/846c8550ebf903fe339d4879c33c1f89/transformed/jetified-window-1.0.0/AndroidManifest.xml:30:13-37
+134-->[androidx.window:window:1.0.0] /Users/mengchen/.gradle/caches/transforms-3/cd6a7c777fed2644709177f786e058fa/transformed/jetified-window-1.0.0/AndroidManifest.xml:30:13-37
 135    </application>
 136
 137</manifest>

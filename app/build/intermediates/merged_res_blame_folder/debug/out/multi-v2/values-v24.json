@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "/Users/mengchen/AndroidStudioProjects/crepe/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values-v24/values-v24.xml",
+            "outputFile": "com.example.crepe.app-mergeDebugResources-34:/values-v24/values-v24.xml",
             "map": [
                 {
-                    "source": "/Users/mengchen/.gradle/caches/transforms-3/ebd0039c3ef911a6a0c1165b7a7fb4b3/transformed/appcompat-1.4.1/res/values-v24/values-v24.xml",
+                    "source": "/Users/mengchen/.gradle/caches/transforms-3/495ff7333d159d537dff70260646d6d2/transformed/appcompat-1.4.1/res/values-v24/values-v24.xml",
                     "from": {
                         "startLines": "2,3",
                         "startColumns": "4,4",
@@ -14,7 +14,7 @@
                     }
                 },
                 {
-                    "source": "/Users/mengchen/.gradle/caches/transforms-3/52a2c3d4d0d79fefc5adcd1559f0bafe/transformed/material-1.5.0/res/values-v24/values-v24.xml",
+                    "source": "/Users/mengchen/.gradle/caches/transforms-3/3c743416b2ba6aba4132782f30d60f7d/transformed/material-1.5.0/res/values-v24/values-v24.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,9,12,15",
                         "startColumns": "4,4,4,4,4,4,4,4",

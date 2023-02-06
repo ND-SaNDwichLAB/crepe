@@ -5,6 +5,7 @@ import static android.icu.lang.UCharacter.GraphemeClusterBreak.T;
 import static com.example.crepe.graphquery.Const.OVERLAY_TYPE;
 import static com.example.crepe.graphquery.DemonstrationUtil.findClosestSiblingNode;
 import static com.example.crepe.graphquery.DemonstrationUtil.generateDefaultQueries;
+import static com.example.crepe.graphquery.DemonstrationUtil.storeQueryToDatabase;
 
 import android.content.Context;
 import android.content.Intent;
@@ -236,10 +237,7 @@ public class FullScreenOverlayManager {
 
                     // TODO meng: store the query in database, then constantly check it in another thread
                     // 1. store the query in local database
-                    DatabaseManager dbManager = new DatabaseManager(context);
-                    FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(context);
-                    Data data = new Data("1","2","3", defaultQueries.get(0).first.toString());
-                    Datafield datafield = new Datafield("752916f46f6bcd47+1","2", defaultQueries.get(0).first.toString(),"test", Boolean.TRUE);
+                    storeQueryToDatabase(context, defaultQueries);
                     // naming convention: "752916f46f6bcd47+1" is the app package name + the number of queries in the app
 
                     // 2. check the query in another thread

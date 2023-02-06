@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "/Users/mengchen/AndroidStudioProjects/crepe/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values-h550dp-port-v13/values-h550dp-port-v13.xml",
+            "outputFile": "com.example.crepe.app-mergeDebugResources-34:/values-h550dp-port-v13/values-h550dp-port-v13.xml",
             "map": [
                 {
-                    "source": "/Users/mengchen/.gradle/caches/transforms-3/52a2c3d4d0d79fefc5adcd1559f0bafe/transformed/material-1.5.0/res/values-h550dp-port-v13/values-h550dp-port-v13.xml",
+                    "source": "/Users/mengchen/.gradle/caches/transforms-3/3c743416b2ba6aba4132782f30d60f7d/transformed/material-1.5.0/res/values-h550dp-port-v13/values-h550dp-port-v13.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",

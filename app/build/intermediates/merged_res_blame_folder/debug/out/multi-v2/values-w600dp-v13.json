@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "/Users/mengchen/AndroidStudioProjects/crepe/app/build/intermediates/incremental/mergeDebugResources/merged.dir/values-w600dp-v13/values-w600dp-v13.xml",
+            "outputFile": "com.example.crepe.app-mergeDebugResources-34:/values-w600dp-v13/values-w600dp-v13.xml",
             "map": [
                 {
                     "source": "/Users/mengchen/AndroidStudioProjects/crepe/app/src/main/res/values-w600dp/dimens.xml",
