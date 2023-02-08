@@ -81,6 +81,9 @@ public class MainActivity extends AppCompatActivity {
     // the unique id extracted from the user's device, used as their user id
     private String androidId;
 
+    // the wrapper for the graph query thread
+    private GraphQueryThreadWrapper graphQueryThreadWrapper;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -338,22 +341,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // run all collectors stored in the database on the device in the background. This is called when the app is opened
+    // once a new collector is created, this functino should be called again to run the new collector
     private void runAllCollectors() {
+        // check if there is a thread running already. If there is, stop and rerun
+        if (graphQueryThreadWrapper != null) {
+            graphQueryThreadWrapper.stopThread();
+        }
         // get all collectors from the database
         List<Collector> collectors = dbManager.getAllCollectors();
         // create a thread wrapper to run the collectors
-        // get the current context
-        Context c = this;
-        GraphQueryThreadWrapper wrapper = new GraphQueryThreadWrapper(collectors);
+        GraphQueryThreadWrapper wrapper = new GraphQueryThreadWrapper(collectors, this);
+        graphQueryThreadWrapper = wrapper;
         // run the thread
-        wrapper.run();
-        // check if there is a thread running already. If there is, stop and rerun
-        if (wrapper.isThreadRunning()) {
-            wrapper.stopThread();
-            wrapper.run();
-        }
-
-
+        wrapper.startThread();
     }
 
 

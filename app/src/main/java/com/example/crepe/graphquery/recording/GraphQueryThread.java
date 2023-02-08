@@ -20,10 +20,8 @@ public class GraphQueryThread extends Thread {
     public Looper looper;
 
 
-    public GraphQueryThread(CrepeAccessibilityService service, String graphQuery) {
-        this.graphQuery = graphQuery;
+    public GraphQueryThread() {
     }
-
 
 
     @Override

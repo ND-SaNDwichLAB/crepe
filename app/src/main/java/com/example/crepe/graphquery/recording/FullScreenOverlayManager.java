@@ -235,49 +235,8 @@ public class FullScreenOverlayManager {
                     }
                     defaultQueries.get(0).first.executeOn(uiSnapshot);
 
-                    // TODO meng: store the query in database, then constantly check it in another thread
+                    // TODO Yuwen: store the query in database, return it to the CollectorConfigurationDiagWrapper
                     // 1. store the query in local database
-                    storeQueryToDatabase(context, defaultQueries);
-                    // naming convention: "752916f46f6bcd47+1" is the app package name + the number of queries in the app
-
-                    // 2. check the query in another thread
-                    // call the startQueryCheckingThread() method in the main activity
-
-
-
-
-
-                    // 2. everytime the app launches / runs in the background, retrieve the query from local database
-
-
-
-
-                    // 3. in CrepeAccessibilityService.java, every time the screen content changes, generate a new UIsnapshot, execute the query on UI snapshot to get results
-                    // UISnapshot newuiSnapshot = CrepeAccessibilityService.getsSharedInstance().generateUISnapshot();
-
-
-                    // 4. every time the local database changes, push to remote
-                    firebaseCommunicationManager.putData(data).addOnSuccessListener(suc->{
-                        Log.i("Firebase","Successfully added data " + data.getDataId() + " to firebase.");
-                    }).addOnFailureListener(er->{
-                        Log.e("Firebase","Failed to add data " + data.getDataId() + " to firebase.");
-                    });;
-                    firebaseCommunicationManager.putDatafield(datafield).addOnSuccessListener(suc->{
-                        Log.i("Firebase","Successfully added datafield " + datafield.getDataFieldId() + " to firebase.");
-                    }).addOnFailureListener(er->{
-                        Log.e("Firebase","Failed to add datafield " + datafield.getDataFieldId() + " to firebase.");
-                    });;
-
-                    dbManager.addData(data);
-                    dbManager.addOneDataField(datafield);
-                    System.out.println("Query: " + defaultQueries.get(0).first.toString());
-
-
-                    if(defaultQueries != null) {
-                        for(Pair<OntologyQuery, Double> query : defaultQueries) {
-                            results.addAll(query.first.executeOn(uiSnapshot));
-                        }
-                    }
                     return true;
                 }
 
