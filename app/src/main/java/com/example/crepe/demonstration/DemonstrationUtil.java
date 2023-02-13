@@ -14,6 +14,11 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import androidx.annotation.RequiresApi;
 
 import com.example.crepe.CrepeAccessibilityService;
+import com.example.crepe.database.Collector;
+import com.example.crepe.database.Data;
+import com.example.crepe.database.DatabaseManager;
+import com.example.crepe.database.Datafield;
+import com.example.crepe.demonstration.WidgetDisplay;
 import com.example.crepe.graphquery.Const;
 import com.example.crepe.graphquery.automation.AutomatorUtil;
 import com.example.crepe.graphquery.model.Node;
@@ -24,6 +29,7 @@ import com.example.crepe.graphquery.ontology.SugiliteEntity;
 import com.example.crepe.graphquery.ontology.SugiliteRelation;
 import com.example.crepe.graphquery.ontology.SugiliteTriple;
 import com.example.crepe.graphquery.ontology.UISnapshot;
+import com.example.crepe.network.FirebaseCommunicationManager;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -695,6 +701,23 @@ public class DemonstrationUtil {
             return list.get(0);
         }
         return null;
+    }
+
+    // store query data to local database
+    public static void  storeQueryToDatabase(Context context, List<Pair<OntologyQuery, Double>> defaultQueries){
+        // call databaseManager to store the query
+        DatabaseManager dbManager = new DatabaseManager(context);
+        FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(context);
+
+        Datafield datafield = new Datafield("752916f46f6bcd47+1","2", defaultQueries.get(0).first.toString(),"test", Boolean.TRUE);
+
+        // parse the query to data
+        Data data = new Data("752916f46f6bcd47+1","2", defaultQueries.get(0).first.toString(),0, "test");
+        // TODO：when first time to store the query, the collector hasn't been created yet. THerefore, we might need to pass it back
+        // store data to local database
+        dbManager.addOneDataField(datafield);
+        dbManager.addData(data);
+
     }
 
 

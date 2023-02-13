@@ -4,17 +4,7 @@
             "outputFile": "com.example.crepe.app-mergeDebugResources-34:/values-v16/values-v16.xml",
             "map": [
                 {
-                    "source": "/Users/yuwenlu/.gradle/caches/transforms-3/b19d6920e8badc0bfccb885966022a39/transformed/core-1.7.0/res/values-v16/values-v16.xml",
-                    "from": {
-                        "startLines": "2",
-                        "startColumns": "4",
-                        "startOffsets": "55",
-                        "endColumns": "65",
-                        "endOffsets": "116"
-                    }
-                },
-                {
-                    "source": "/Users/yuwenlu/.gradle/caches/transforms-3/495ff7333d159d537dff70260646d6d2/transformed/appcompat-1.4.1/res/values-v16/values-v16.xml",
+                    "source": "/Users/mengchen/.gradle/caches/transforms-3/495ff7333d159d537dff70260646d6d2/transformed/appcompat-1.4.1/res/values-v16/values-v16.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",
@@ -30,6 +20,16 @@
                         "endLines": "6",
                         "endColumns": "12",
                         "endOffsets": "289"
+                    }
+                },
+                {
+                    "source": "/Users/mengchen/.gradle/caches/transforms-3/b19d6920e8badc0bfccb885966022a39/transformed/core-1.7.0/res/values-v16/values-v16.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "65",
+                        "endOffsets": "116"
                     }
                 }
             ]

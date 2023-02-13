@@ -4,6 +4,9 @@ import static android.content.Context.WINDOW_SERVICE;
 import static com.example.crepe.demonstration.DemonstrationUtil.processOverlayClick;
 import static com.example.crepe.graphquery.Const.OVERLAY_TYPE;
 import static com.example.crepe.demonstration.DemonstrationUtil.generateDefaultQueries;
+import static com.example.crepe.demonstration.DemonstrationUtil.findClosestSiblingNode;
+import static com.example.crepe.demonstration.DemonstrationUtil.generateDefaultQueries;
+import static com.example.crepe.demonstration.DemonstrationUtil.storeQueryToDatabase;
 
 import android.content.Context;
 import android.content.Intent;
@@ -51,6 +54,8 @@ public class FullScreenOverlayManager {
     private int overlayCurrentWidth;
     private int overlayCurrentFlag;
     private SelectionOverlayViewManager selectionOverlayViewManager;
+//    // Create a new graph query thread
+//    GraphQueryThread graphQueryThread = new GraphQueryThread();
 
     private int entityId = 0;
 
@@ -191,9 +196,6 @@ public class FullScreenOverlayManager {
                     float adjustedY = rawY - navHeight;
 
                     windowManager = (WindowManager) context.getSystemService(WINDOW_SERVICE);
-
-
-
                     // if we need to use the following code block to show clicked spot on screen, remember to refresh the overlay and widget views so we can continue to click
 //                    WindowManager.LayoutParams selectionLayoutParams = updateLayoutParams(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
 //                    SelectionOverlayView selectionOverlay = selectionOverlayViewManager.getCircleOverlay(rawX, adjustedY, radius);
@@ -201,27 +203,52 @@ public class FullScreenOverlayManager {
 
                     List<Pair<OntologyQuery, Double>> defaultQueries = processOverlayClick(rawX, rawY);
 
+                    // get the current uisnapshot
+                    UISnapshot uiSnapshot = CrepeAccessibilityService.getsSharedInstance().generateUISnapshot();
+
+                    List<AccessibilityNodeInfo> matchedAccessibilityNodeList = CrepeAccessibilityService.getsSharedInstance().getMatchingNodeFromClickWithText(rawX, rawY);
+                    // this matchedAccessibilityNode is an AccessibilityNodeInfo, which is not exactly the node stored in the screen's nodeSugiliteEntityMap.
+                    // We retrieved that stored node from this screen's uisnapshot
+
+                    SugiliteEntity<Node> targetEntity = new SugiliteEntity<>();
+                    AccessibilityNodeInfo matchedNode;
+
+                    if(matchedAccessibilityNodeList.size() == 1) {
+                        matchedNode = matchedAccessibilityNodeList.get(0);
+                        targetEntity = uiSnapshot.getEntityWithAccessibilityNode(matchedNode);
+                    } else {
+                        // TODO: Find the node that we actually need
+
+                    }
 
 
-                    // TODO meng: store the query in database, then constantly check it in another thread
+                    Set<SugiliteEntity> results = new HashSet<>();
+                    if(targetEntity != null) {
+                        SugiliteRelation[] relationsToExclude = new SugiliteRelation[1];
+                        relationsToExclude[0] = SugiliteRelation.HAS_TEXT;
+                        defaultQueries = generateDefaultQueries(uiSnapshot, targetEntity, relationsToExclude);
+                    } else {
+                        Log.e("generate queries", "Cannot find the tapped entity!");
+                    }
+                    defaultQueries.get(0).first.executeOn(uiSnapshot);
+
+                    // TODO Yuwen: store the query in database, return it to the CollectorConfigurationDiagWrapper
                     // 1. store the query in local database
-//                    DatabaseManager dbManager = new DatabaseManager(context);
-//                    FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(context);
-//                    Data data = new Data("1","2","3", defaultQueries.get(0).first.toString());
-//                    Datafield datafield = new Datafield("752916f46f6bcd47+1","2", defaultQueries.get(0).first.toString(),"test", Boolean.TRUE);
-
+                    DatabaseManager dbManager = new DatabaseManager(context);
+                    FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(context);
+                    Data data = new Data("1","2","3", defaultQueries.get(0).first.toString());
+                    Datafield datafield = new Datafield("752916f46f6bcd47+1","2", defaultQueries.get(0).first.toString(),"test", Boolean.TRUE);
+                    // naming convention: "752916f46f6bcd47+1" is the app package name + the number of queries in the app
 
                     // 2. check the query in another thread
-                    // create a thread to use the query to get data
-//                    Thread queryThread = new Thread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//
-//                        }
-//
-//                        }
+                    // call the startQueryCheckingThread() method in the main activity
+
+
+
+
 
                     // 2. everytime the app launches / runs in the background, retrieve the query from local database
+
 
 
 
@@ -230,21 +257,27 @@ public class FullScreenOverlayManager {
 
 
                     // 4. every time the local database changes, push to remote
-//                    firebaseCommunicationManager.putData(data).addOnSuccessListener(suc->{
-//                        Log.i("Firebase","Successfully added data " + data.getDataId() + " to firebase.");
-//                    }).addOnFailureListener(er->{
-//                        Log.e("Firebase","Failed to add data " + data.getDataId() + " to firebase.");
-//                    });;
-//                    firebaseCommunicationManager.putDatafield(datafield).addOnSuccessListener(suc->{
-//                        Log.i("Firebase","Successfully added datafield " + datafield.getDataFieldId() + " to firebase.");
-//                    }).addOnFailureListener(er->{
-//                        Log.e("Firebase","Failed to add datafield " + datafield.getDataFieldId() + " to firebase.");
-//                    });;
+                    firebaseCommunicationManager.putData(data).addOnSuccessListener(suc->{
+                        Log.i("Firebase","Successfully added data " + data.getDataId() + " to firebase.");
+                    }).addOnFailureListener(er->{
+                        Log.e("Firebase","Failed to add data " + data.getDataId() + " to firebase.");
+                    });;
+                    firebaseCommunicationManager.putDatafield(datafield).addOnSuccessListener(suc->{
+                        Log.i("Firebase","Successfully added datafield " + datafield.getDataFieldId() + " to firebase.");
+                    }).addOnFailureListener(er->{
+                        Log.e("Firebase","Failed to add datafield " + datafield.getDataFieldId() + " to firebase.");
+                    });;
 
-//                    dbManager.addData(data);
-//                    dbManager.addOneDataField(datafield);
-//                    System.out.println("Query: " + defaultQueries.get(0).first.toString());
+                    dbManager.addData(data);
+                    dbManager.addOneDataField(datafield);
+                    System.out.println("Query: " + defaultQueries.get(0).first.toString());
 
+
+                    if(defaultQueries != null) {
+                        for(Pair<OntologyQuery, Double> query : defaultQueries) {
+                            results.addAll(query.first.executeOn(uiSnapshot));
+                        }
+                    }
                     return true;
                 }
 
