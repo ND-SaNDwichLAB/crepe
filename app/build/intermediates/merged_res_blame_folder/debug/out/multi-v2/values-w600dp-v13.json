@@ -4,7 +4,7 @@
             "outputFile": "com.example.crepe.app-mergeDebugResources-34:/values-w600dp-v13/values-w600dp-v13.xml",
             "map": [
                 {
-                    "source": "/Users/mengchen/AndroidStudioProjects/crepe/app/src/main/res/values-w600dp/dimens.xml",
+                    "source": "/Users/yuwenlu/Documents/Coding Projects/crepe/app/src/main/res/values-w600dp/dimens.xml",
                     "from": {
                         "startLines": "1",
                         "startColumns": "4",

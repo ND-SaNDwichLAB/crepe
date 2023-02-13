@@ -7,7 +7,6 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityWindowInfo;
 
-import java.sql.Array;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -19,7 +18,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import com.example.crepe.graphquery.DemonstrationUtil;
+import com.example.crepe.demonstration.DemonstrationUtil;
 import com.example.crepe.graphquery.model.Node;
 import com.example.crepe.graphquery.ontology.helper.ListOrderResolver;
 //import com.example.crepe.graphquery.automation.AutomatorUtil;
@@ -345,19 +344,19 @@ public class UISnapshot {
                     // 2. spatialDistanceMap: key – all other nodes, value – distance to current node
                     Map<Node, Double> spatialDistanceMap = new HashMap<>();
 
-                    for(Node relationNode: allNodes) {
-                        if (!relationNode.equals(node)) {   // ensure it's not the same node
-                            if (relationNode.getIsVisibleToUser()) { // if the node is visible to user
+                    for(Node objectNode: allNodes) {
+                        if (!objectNode.equals(node)) {   // ensure it's not the same node
+                            if (objectNode.getIsVisibleToUser()) { // if the node is visible to user
                                 // 1. figure out the relationship between the nodes, store in spatialRelationMap
                                 // Note there can be 1 - 2 spatial relationships between nodes: e.g. above and right
-                                List<SugiliteRelation> spatialRelationList = getSpatialRelationBetweenNodes(node, relationNode);
+                                List<SugiliteRelation> spatialRelationList = getSpatialRelationBetweenNodes(node, objectNode);
 
                                 //  2. calculate the distance, store in spatialDistanceMap
-                                Double spatialDistance = getSpatialDistanceBetweenNodes(node, relationNode);
+                                Double spatialDistance = getSpatialDistanceBetweenNodes(node, objectNode);
                                 if (spatialDistance != null) {
-                                    spatialDistanceMap.put(relationNode, spatialDistance);
+                                    spatialDistanceMap.put(objectNode, spatialDistance);
                                 } else {
-                                    Log.e("UISnapshot", "Spatial distance for node pair is null");
+                                    // the two nodes intersect, skip
                                 }
 
                                 if (spatialRelationList != null && spatialRelationList.size() > 0) {
@@ -365,10 +364,10 @@ public class UISnapshot {
                                         if (spatialRelationMap.containsKey(spatialRelation)) {  // if there has been a node added to this direction
                                             Double currentClosestDistance = spatialDistanceMap.get(spatialRelationMap.get(spatialRelation));
                                             if (currentClosestDistance != null && currentClosestDistance >= spatialDistance) {  // see if the new spatial distance is smaller
-                                                spatialRelationMap.put(spatialRelation, relationNode);  // if so, update
+                                                spatialRelationMap.put(spatialRelation, objectNode);  // if so, update
                                             }
                                         } else {
-                                            spatialRelationMap.put(spatialRelation, relationNode);  // if there has not been a node in this direction, add it to the map directly
+                                            spatialRelationMap.put(spatialRelation, objectNode);  // if there has not been a node in this direction, add it to the map directly
                                         }
                                     }
                                 }
@@ -610,36 +609,36 @@ public class UISnapshot {
 
     /**
      * helper function to figure out the spatial relation between a pair of Nodes
-     * @param referenceNode
-     * @param secondNode
+     * @param subjectNode
+     * @param objectNode
      */
-    private List<SugiliteRelation> getSpatialRelationBetweenNodes(Node referenceNode, Node secondNode) {
-        Rect referenceRect = Rect.unflattenFromString(referenceNode.getBoundsInScreen());
-        Rect secondRect = Rect.unflattenFromString(secondNode.getBoundsInScreen());
+    private List<SugiliteRelation> getSpatialRelationBetweenNodes(Node subjectNode, Node objectNode) {
+        Rect subjectRect = Rect.unflattenFromString(subjectNode.getBoundsInScreen());
+        Rect objectRect = Rect.unflattenFromString(objectNode.getBoundsInScreen());
 
         // check for intersect first
-        if (referenceRect.intersect(secondRect)) {
+        if (subjectRect.intersect(objectRect)) {
             return null;
         } else {
             // make sure the top/bottom or left/right are not flipped
-            referenceRect.sort();
-            secondRect.sort();
+            subjectRect.sort();
+            objectRect.sort();
 
-            Integer referenceLeft = referenceRect.left;
-            Integer referenceRight = referenceRect.right;
-            Integer referenceBottom = referenceRect.bottom;
-            Integer referenceTop = referenceRect.top;
+            Integer subjectLeft = subjectRect.left;
+            Integer subjectRight = subjectRect.right;
+            Integer subjectBottom = subjectRect.bottom;
+            Integer subjectTop = subjectRect.top;
 
-            Integer secondLeft = secondRect.left;
-            Integer secondRight = secondRect.right;
-            Integer secondBottom = secondRect.bottom;
-            Integer secondTop = secondRect.top;
+            Integer objectLeft = objectRect.left;
+            Integer objectRight = objectRect.right;
+            Integer objectBottom = objectRect.bottom;
+            Integer objectTop = objectRect.top;
 
             List<SugiliteRelation> resultRelationList = new ArrayList<>();
-            if ( referenceLeft >= secondRight ) resultRelationList.add(SugiliteRelation.RIGHT);
-            if ( referenceRight <= secondLeft ) resultRelationList.add(SugiliteRelation.LEFT);
-            if ( referenceBottom <= secondTop ) resultRelationList.add(SugiliteRelation.ABOVE);
-            if ( referenceTop >= secondBottom ) resultRelationList.add(SugiliteRelation.BELOW);
+            if ( subjectLeft >= objectRight ) resultRelationList.add(SugiliteRelation.RIGHT);   // subject is to the right of object
+            if ( subjectRight <= objectLeft ) resultRelationList.add(SugiliteRelation.LEFT);    // subject is to the left of object
+            if ( subjectBottom <= objectTop ) resultRelationList.add(SugiliteRelation.ABOVE);   // subject is above the object
+            if ( subjectTop >= objectBottom ) resultRelationList.add(SugiliteRelation.BELOW);   // subject is below the object
 
             return resultRelationList;
         }
@@ -875,9 +874,9 @@ public class UISnapshot {
         return result;
     }
 
-    public Set<Node> getNodeValuesForObjectEntityAndRelation(SugiliteEntity objectEntity, SugiliteRelation relation) {
+    public Set<Node> getNodeValuesForSubjectEntityAndRelation(SugiliteEntity subjectEntity, SugiliteRelation relation) {
         Set<Node> result = new LinkedHashSet<>();
-        Integer subjectEntityId = objectEntity.getEntityId();
+        Integer subjectEntityId = subjectEntity.getEntityId();
         if (subjectTriplesMap.get(subjectEntityId) != null) {
             Set<SugiliteTriple> triples = new HashSet<>(subjectTriplesMap.get(subjectEntityId));
             triples.removeIf(t -> !t.getPredicate().equals(relation));
