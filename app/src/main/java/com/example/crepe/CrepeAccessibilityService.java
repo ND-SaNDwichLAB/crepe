@@ -78,7 +78,6 @@ public class CrepeAccessibilityService extends AccessibilityService {
         // 1. retrieve all stored graph queries and stored results
         // TODO maybe optimize: only re-retrieve graph queries if there are actually new queries being added to the database,
         // meaning we need to have a shared instance of such queries
-        // TODO use only 1 dbManager for the activity
 
         List<Collector> collectors = dbManager.getAllCollectors();
         List<Datafield> datafields = dbManager.getAllDatafields();
@@ -99,7 +98,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
                         // Start a new graph query thread and execute the graph query
                         // 1. convert the graph query string to a graph query object
                         OntologyQuery currentQuery = OntologyQuery.deserialize(datafield.getGraphQuery());
-                        // TODO: 2. run the graph query on the uiSnapshot
+                        // 2. run the graph query on the uiSnapshot
                         Set<SugiliteEntity> currentResults = currentQuery.executeOn(uiSnapshot);
                         // TODO: 3. if there are new results (by comparing new and old entries using dbManager), send the new results to the server
                     }
@@ -107,9 +106,6 @@ public class CrepeAccessibilityService extends AccessibilityService {
 
             }
         }
-
-        // TODO: check if there is an existing thread. Use a thread pool
-
         // 2. for each graph query, run the graph query on the uiSnapshot
         // 3. if there are new results (by comparing new and old entries using dbManager), send the new results to the server
 

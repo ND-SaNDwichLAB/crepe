@@ -127,6 +127,9 @@ public class SugiliteEntity<T> implements Serializable {
         if(type == Boolean.class || (entityValue instanceof Boolean)) {
             return ((Boolean)entityValue).toString();
         }
+        if(type == Double.class || (entityValue instanceof Double)) {
+            return ((Double)entityValue).toString();
+        }
         //type == Node.class
         return "@" + entityId.toString();
     }

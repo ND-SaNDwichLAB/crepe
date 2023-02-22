@@ -359,18 +359,18 @@ public class DemonstrationUtil {
             }
         }
 
-        if (! relationsToExclude.contains(SugiliteRelation.HAS_SIBLING_TEXT)) {
-            if (getValueIfOnlyOneObject(uiSnapshot.getListValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_SIBLING_TEXT)) != null) {
-                CombinedOntologyQuery clonedQuery = andQuery.clone();
-                LeafOntologyQuery subQuery = new LeafOntologyQuery();
-                Set<SugiliteEntity> object = new HashSet<>();
-                object.add(new SugiliteEntity(-1, List.class, getValueIfOnlyOneObject(uiSnapshot.getListValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_SIBLING_TEXT))));
-                subQuery.setObjectSet(object);
-                subQuery.setQueryFunction(SugiliteRelation.HAS_SIBLING_TEXT);
-                clonedQuery.addSubQuery(subQuery);
-                queries.add(Pair.create(clonedQuery, 1.0));
-            }
-        }
+//        if (! relationsToExclude.contains(SugiliteRelation.HAS_SIBLING_TEXT)) {
+//            if (getValueIfOnlyOneObject(uiSnapshot.getListValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_SIBLING_TEXT)) != null) {
+//                CombinedOntologyQuery clonedQuery = andQuery.clone();
+//                LeafOntologyQuery subQuery = new LeafOntologyQuery();
+//                Set<SugiliteEntity> object = new HashSet<>();
+//                object.add(new SugiliteEntity(-1, List.class, getValueIfOnlyOneObject(uiSnapshot.getListValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_SIBLING_TEXT))));
+//                subQuery.setObjectSet(object);
+//                subQuery.setQueryFunction(SugiliteRelation.HAS_SIBLING_TEXT);
+//                clonedQuery.addSubQuery(subQuery);
+//                queries.add(Pair.create(clonedQuery, 1.0));
+//            }
+//        }
 
         if (! relationsToExclude.contains(SugiliteRelation.HAS_VIEW_ID)) {
             if (getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_VIEW_ID)) != null) {
