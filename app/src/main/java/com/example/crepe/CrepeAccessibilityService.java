@@ -18,11 +18,13 @@ import com.example.crepe.database.DatabaseManager;
 import com.example.crepe.database.Datafield;
 import com.example.crepe.demonstration.DemonstrationUtil;
 import com.example.crepe.graphquery.ontology.OntologyQuery;
+import com.example.crepe.graphquery.ontology.SugiliteEntity;
 import com.example.crepe.graphquery.ontology.UISnapshot;
 import com.example.crepe.graphquery.thread.GraphQueryThread;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -95,6 +97,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
                     // 1. convert the graph query string to a graph query object
                     OntologyQuery currentQuery = OntologyQuery.deserialize(datafield.getGraphQuery());
                     // TODO: 2. run the graph query on the uiSnapshot
+                    Set<SugiliteEntity> currentResults = currentQuery.executeOn(uiSnapshot);
                     // TODO: 3. if there are new results (by comparing new and old entries using dbManager), send the new results to the server
                 }
             });
