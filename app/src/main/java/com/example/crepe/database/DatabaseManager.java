@@ -436,14 +436,21 @@ public class DatabaseManager extends SQLiteOpenHelper {
         cv.put(COLUMN_DATAFIELD_ID, dataField.getDataFieldId());
         cv.put(COLUMN_COLLECTOR_ID, dataField.getCollectorId());
         cv.put(COLUMN_GRAPH_QUERY, dataField.getGraphQuery());
-        cv.put(COLUMN_NAME, dataField.getName());
+        cv.put(COLUMN_DATAFIELD_NAME, dataField.getName());
         cv.put(COLUMN_DATAFIELD_TIME_CREATED, dataField.getTimeCreated());
         cv.put(COLUMN_DATAFIELD_TIME_LAST_EDITED, dataField.getTimelastEdited());
         cv.put(COLUMN_DATAFIELD_IS_DEMONSTRATED, dataField.getDemonstrated());
 
-        long result = db.insert(DATAFIELD_TABLE, null, cv);
-        db.close();
-        return result != -1;
+        // catch exception of the insert operation
+        try {
+            long result = db.insert(DATAFIELD_TABLE, null, cv);
+            db.close();
+            return result != -1;
+        } catch (Exception e) {
+            Log.i("database", "add one datafield error: " + e.getMessage());
+            return false;
+        }
+
     }
 
     public void removeDatafieldById(String datafieldId) {

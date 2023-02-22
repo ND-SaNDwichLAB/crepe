@@ -87,21 +87,25 @@ public class CrepeAccessibilityService extends AccessibilityService {
         uiSnapshot = generateUISnapshot(accessibilityEvent);
         allNodeList = getAllNodesOnScreen();
 
-        // for each collector, run the graph query on the uiSnapshot
-        for (Datafield datafield : datafields) {
-            // Submit a task to the thread pool
-            threadPool.submit(new Runnable() {
-                @Override
-                public void run() {
-                    // Start a new graph query thread and execute the graph query
-                    // 1. convert the graph query string to a graph query object
-                    OntologyQuery currentQuery = OntologyQuery.deserialize(datafield.getGraphQuery());
-                    // TODO: 2. run the graph query on the uiSnapshot
-                    Set<SugiliteEntity> currentResults = currentQuery.executeOn(uiSnapshot);
-                    // TODO: 3. if there are new results (by comparing new and old entries using dbManager), send the new results to the server
-                }
-            });
+        Log.i("accessibility Event", "current datafields: " + datafields);
 
+        // for each datafield, run the graph query on the uiSnapshot
+        if (datafields != null) {
+            for (Datafield datafield : datafields) {
+                // Submit a task to the thread pool
+                threadPool.submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        // Start a new graph query thread and execute the graph query
+                        // 1. convert the graph query string to a graph query object
+                        OntologyQuery currentQuery = OntologyQuery.deserialize(datafield.getGraphQuery());
+                        // TODO: 2. run the graph query on the uiSnapshot
+                        Set<SugiliteEntity> currentResults = currentQuery.executeOn(uiSnapshot);
+                        // TODO: 3. if there are new results (by comparing new and old entries using dbManager), send the new results to the server
+                    }
+                });
+
+            }
         }
 
         // TODO: check if there is an existing thread. Use a thread pool
