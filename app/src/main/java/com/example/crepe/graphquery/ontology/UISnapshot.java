@@ -119,13 +119,15 @@ public class UISnapshot {
         List<Node> allNodes = new ArrayList<>();
         if(allOldNodes != null) {
             for (AccessibilityNodeInfo oldNode : allOldNodes) {
-                Node node = new Node(oldNode, activePackageName.equals(oldNode.getPackageName()) ? activeActivityName : null);
-                if (node.getPackageName() != null && (node.getPackageName().contains("com.android.systemui") || node.getPackageName().contains("crepe"))) {
-                    continue;
-                }
-                allNodes.add(node);
-                if (toConstructNodeAccessibilityNodeInfoMap) {
-                    nodeAccessibilityNodeInfoMap.put(node, oldNode);
+                if (activePackageName != null) {
+                    Node node = new Node(oldNode, activePackageName.equals(oldNode.getPackageName()) ? activeActivityName : null);
+                    if (node.getPackageName() != null && (node.getPackageName().contains("com.android.systemui") || node.getPackageName().contains("crepe"))) {
+                        continue;
+                    }
+                    allNodes.add(node);
+                    if (toConstructNodeAccessibilityNodeInfoMap) {
+                        nodeAccessibilityNodeInfoMap.put(node, oldNode);
+                    }
                 }
             }
         }

@@ -13,11 +13,18 @@ import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
+import com.example.crepe.database.Collector;
+import com.example.crepe.database.DatabaseManager;
+import com.example.crepe.database.Datafield;
 import com.example.crepe.demonstration.DemonstrationUtil;
+import com.example.crepe.graphquery.ontology.OntologyQuery;
 import com.example.crepe.graphquery.ontology.UISnapshot;
+import com.example.crepe.graphquery.thread.GraphQueryThread;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 public class CrepeAccessibilityService extends AccessibilityService {
@@ -28,6 +35,11 @@ public class CrepeAccessibilityService extends AccessibilityService {
 
     // Binder given to clients
     private final IBinder binder = new LocalBinder();
+
+    private DatabaseManager dbManager = new DatabaseManager(this);
+
+    // maintain a thread pool inside of the accessibility for running graph queries
+     private ExecutorService threadPool = Executors.newFixedThreadPool(10);
 
     private WindowManager windowManager;
     private String currentAppActivityName;
@@ -58,18 +70,42 @@ public class CrepeAccessibilityService extends AccessibilityService {
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
-        Log.i(TAG, "An accessibility event just happened");
-        int eventType = accessibilityEvent.getEventType();
-        Log.i(TAG, "Event type: " + String.valueOf(eventType));
 
+        // for almost all accessibility events, we want to re-run existing stored graph queries to see if there are new results
 
-        //update currentAppActivityName and currentPackageName on TYPE_WINDOW_STATE_CHANGED events
-        if (accessibilityEvent.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
-            uiSnapshot = generateUISnapshot(accessibilityEvent);
-            allNodeList = getAllNodesOnScreen();
-        } else if (accessibilityEvent.getEventType() == AccessibilityEvent.TYPE_VIEW_SCROLLED) {
-            allNodeList = getAllNodesOnScreen();
+        // 1. retrieve all stored graph queries and stored results
+        // TODO maybe optimize: only re-retrieve graph queries if there are actually new queries being added to the database,
+        // meaning we need to have a shared instance of such queries
+        // TODO use only 1 dbManager for the activity
+
+        List<Collector> collectors = dbManager.getAllCollectors();
+        List<Datafield> datafields = dbManager.getAllDatafields();
+
+        // get a UISnapshot and all nodes on screen
+        uiSnapshot = generateUISnapshot(accessibilityEvent);
+        allNodeList = getAllNodesOnScreen();
+
+        // for each collector, run the graph query on the uiSnapshot
+        for (Datafield datafield : datafields) {
+            // Submit a task to the thread pool
+            threadPool.submit(new Runnable() {
+                @Override
+                public void run() {
+                    // Start a new graph query thread and execute the graph query
+                    // 1. convert the graph query string to a graph query object
+                    OntologyQuery currentQuery = OntologyQuery.deserialize(datafield.getGraphQuery());
+                    // TODO: 2. run the graph query on the uiSnapshot
+                    // TODO: 3. if there are new results (by comparing new and old entries using dbManager), send the new results to the server
+                }
+            });
+
         }
+
+        // TODO: check if there is an existing thread. Use a thread pool
+
+        // 2. for each graph query, run the graph query on the uiSnapshot
+        // 3. if there are new results (by comparing new and old entries using dbManager), send the new results to the server
+
 
     }
 

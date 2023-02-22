@@ -1,7 +1,6 @@
 package com.example.crepe;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.content.pm.PackageManager;
 import android.provider.Settings;
 import android.os.Bundle;
@@ -9,7 +8,6 @@ import android.os.Bundle;
 import com.example.crepe.database.Collector;
 import com.example.crepe.database.DatabaseManager;
 import com.example.crepe.database.User;
-import com.example.crepe.graphquery.recording.GraphQueryThreadWrapper;
 import com.example.crepe.network.FirebaseCommunicationManager;
 import com.example.crepe.ui.dialog.CollectorConfigurationDialogWrapper;
 import com.example.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilder;
@@ -80,9 +78,6 @@ public class MainActivity extends AppCompatActivity {
 
     // the unique id extracted from the user's device, used as their user id
     private String androidId;
-
-    // the wrapper for the graph query thread
-    private GraphQueryThreadWrapper graphQueryThreadWrapper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -338,22 +333,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    // run all collectors stored in the database on the device in the background. This is called when the app is opened
-    // once a new collector is created, this functino should be called again to run the new collector
-    private void runAllCollectors() {
-        // check if there is a thread running already. If there is, stop and rerun
-        if (graphQueryThreadWrapper != null) {
-            graphQueryThreadWrapper.stopThread();
-        }
-        // get all collectors from the database
-        List<Collector> collectors = dbManager.getAllCollectors();
-        // create a thread wrapper to run the collectors
-        GraphQueryThreadWrapper wrapper = new GraphQueryThreadWrapper(collectors, this);
-        graphQueryThreadWrapper = wrapper;
-        // run the thread
-        wrapper.startThread();
     }
 
 

@@ -30,7 +30,7 @@ public abstract class OntologyQuery implements Serializable {
                 return resultQuery;
             }
 
-            // s: conj (IS_CLICKABLE true) (HAS_TEXT coffee)
+            // example of a complex s: (conj (has_class_name "android.widget.TextView") (has_package_name "com.android.settings") (right ( conj (has_text "xxx") (has_package_name "com.android.settings") ))
             int spaceIndex = s.indexOf(' ');
             String firstWord = s.substring(0, spaceIndex);
             // firstWord: conj
