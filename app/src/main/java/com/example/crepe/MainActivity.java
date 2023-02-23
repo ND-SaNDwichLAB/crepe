@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
             List<Pair<String,String>> testList = new ArrayList<>();
             testList.add(new Pair<>("test1", "test1"));
             testList.add(new Pair<>("test2", "test2"));
-            testCollector = new Collector("16", "1", "Uber", "description for a Uber collector", "what", 100, 100, testList,"active");
+            testCollector = new Collector("2", "1", "com.google.android.apps.youtube.music", "description for a Youtube Music collector", "local", 100, 100, testList,"active");
             testCollector2 = new Collector("7", "1", "Doordash", "description for a Doordash collector", "what", "https", 139148015, 1491789595, "graphQuery","DataFields","active");
             Boolean addResult = dbManager.addOneCollector(testCollector);
             Boolean addResult2 = dbManager.addOneCollector(testCollector2);

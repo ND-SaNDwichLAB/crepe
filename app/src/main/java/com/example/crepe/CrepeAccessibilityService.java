@@ -12,8 +12,10 @@ import android.util.Log;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.widget.Toast;
 
 import com.example.crepe.database.Collector;
+import com.example.crepe.database.Data;
 import com.example.crepe.database.DatabaseManager;
 import com.example.crepe.database.Datafield;
 import com.example.crepe.demonstration.DemonstrationUtil;
@@ -46,6 +48,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
     private WindowManager windowManager;
     private String currentAppActivityName;
     private String currentPackageName;
+    private UISnapshot prevUiSnapshot;  // used to check if the retrieved data exists in the previous frame
     private UISnapshot uiSnapshot;
     private List<AccessibilityNodeInfo> allNodeList;
 
@@ -72,43 +75,79 @@ public class CrepeAccessibilityService extends AccessibilityService {
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
-
-        // for almost all accessibility events, we want to re-run existing stored graph queries to see if there are new results
-
-        // 1. retrieve all stored graph queries and stored results
-        // TODO maybe optimize: only re-retrieve graph queries if there are actually new queries being added to the database,
-        // meaning we need to have a shared instance of such queries
-
-        List<Collector> collectors = dbManager.getAllCollectors();
-        List<Datafield> datafields = dbManager.getAllDatafields();
-
-        // get a UISnapshot and all nodes on screen
+        // update a UISnapshot and all nodes on screen
+        prevUiSnapshot = uiSnapshot;
         uiSnapshot = generateUISnapshot(accessibilityEvent);
         allNodeList = getAllNodesOnScreen();
 
-        Log.i("accessibility Event", "current datafields: " + datafields);
+        // retrieve all stored collectors and datafields
+        List<Collector> collectors = dbManager.getAllCollectors();
+        List<Datafield> datafields = dbManager.getAllDatafields();
 
-        // for each datafield, run the graph query on the uiSnapshot
-        if (datafields != null) {
-            for (Datafield datafield : datafields) {
-                // Submit a task to the thread pool
-                threadPool.submit(new Runnable() {
-                    @Override
-                    public void run() {
-                        // Start a new graph query thread and execute the graph query
-                        // 1. convert the graph query string to a graph query object
-                        OntologyQuery currentQuery = OntologyQuery.deserialize(datafield.getGraphQuery());
-                        // 2. run the graph query on the uiSnapshot
-                        Set<SugiliteEntity> currentResults = currentQuery.executeOn(uiSnapshot);
-                        // TODO: 3. if there are new results (by comparing new and old entries using dbManager), send the new results to the server
+        // update the list of apps we need to monitor
+        List<String> monitoredApps = new ArrayList<>();
+        for (Collector collector : collectors) {
+            monitoredApps.add(collector.getAppName());
+        }
+
+        // get the current package
+        currentPackageName = accessibilityEvent.getPackageName().toString();
+
+        // if the current package is in the monitored apps list, start the data collection for collectors that are monitoring this app
+        if (currentPackageName != null && monitoredApps.contains(currentPackageName)) {
+            ArrayList<String> collectorIdsToStart = new ArrayList<>();
+            ArrayList<Datafield> datafieldsToStart = new ArrayList<>();
+            if (collectors != null && datafields != null) {
+                for (Collector collector : collectors) {
+                    if (collector.getAppName().equals(currentPackageName)) {
+                        // if the current package is the same as the collector's app name, start the data collection
+                        collectorIdsToStart.add(collector.getCollectorId());
+                        // also add the datafields that are associated with this collector
+                        for (Datafield datafield : datafields) {
+                            if (datafield.getCollectorId().equals(collector.getCollectorId())) {
+                                datafieldsToStart.add(datafield);
+                            }
+                        }
+
                     }
-                });
+                }
+            }
 
+            // for each datafield, run the graph query on the uiSnapshot
+            if (datafieldsToStart.size() > 0) {
+                for (Datafield datafield : datafieldsToStart) {
+                    // Submit a task to the thread pool
+                    threadPool.submit(new Runnable() {
+                        @Override
+                        public void run() {
+                            // Start a new graph query thread and execute the graph query
+                            // 1. convert the graph query string to a graph query object
+                            OntologyQuery currentQuery = OntologyQuery.deserialize(datafield.getGraphQuery());
+                            // 2. run the graph query on the uiSnapshot
+                            Set<SugiliteEntity> prevResults = currentQuery.executeOn(prevUiSnapshot);
+                            Set<SugiliteEntity> currentResults = currentQuery.executeOn(uiSnapshot);
+                            // 3. store the new results in the database
+                            for (SugiliteEntity result : currentResults) {
+                                if (!prevResults.contains(result)) {
+                                    // if the result is not in the previous results, add it to the database
+                                    Data resultData = new Data(datafield.getCollectorId(), datafield.getDataFieldId(), "", result.toString());
+                                    Boolean addDataResult = false;
+                                    try {
+                                        addDataResult = dbManager.addData(resultData);
+                                    } catch (Exception e) {
+                                        Log.i("dataset", addDataResult.toString());
+                                        Log.i("dataset", "failed to add data: " + resultData.toString());
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+
+                        }
+                    });
+
+                }
             }
         }
-        // 2. for each graph query, run the graph query on the uiSnapshot
-        // 3. if there are new results (by comparing new and old entries using dbManager), send the new results to the server
-
 
     }
 
@@ -134,9 +173,6 @@ public class CrepeAccessibilityService extends AccessibilityService {
 
         uiSnapshot = new UISnapshot(windowManager.getDefaultDisplay(), rootNode, true, currentPackageName, currentAppActivityName);
         return uiSnapshot;
-//        Map<Node, AccessibilityNodeInfo> nodeInfoMap =  uiSnapshot.getNodeAccessibilityNodeInfoMap();
-//        Log.i("uisnapshot", String.valueOf(uiSnapshot));
-//        Log.i("uisnapshot", String.valueOf(nodeInfoMap));
 
     }
 

@@ -83,7 +83,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             "            " + COLUMN_DATAFIELD_ID + " VARCHAR, " +
             "            " + COLUMN_USER_ID + " VARCHAR, " +
             "            " + COLUMN_TIMESTAMP + " BIGINT, " +
-            "            " + COLUMN_DATA_CONTENT + "VARCHAR, " +
+            "            " + COLUMN_DATA_CONTENT + " VARCHAR, " +
             "            " + "FOREIGN KEY(" + COLUMN_DATAFIELD_ID + ") REFERENCES " + DATAFIELD_TABLE + "(" + COLUMN_DATAFIELD_ID + "), " +
             "            " + "FOREIGN KEY(" + COLUMN_USER_ID + ") REFERENCES " + USER_TABLE + "(" + COLUMN_USER_ID + "));" ;
 
