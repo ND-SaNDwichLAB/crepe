@@ -118,7 +118,7 @@ public class FirebaseCommunicationManager {
                             System.out.println(i.get("second").toString());
                             dataFields.add(new Pair<String,String>(i.get("first").toString(), i.get("second").toString()));
                         }
-                        Collector collector = new Collector(collectorId,"1",appName,description,mode,collectorStartTime,collectorEndTime,dataFields,status);
+                        Collector collector = new Collector(collectorId,"1",appName, "packageName", description,mode,collectorStartTime,collectorEndTime,dataFields,status);
                         // call firebase callback to update collector
                         firebaseCallback.onResponse(collector);
                     } else {

@@ -21,6 +21,7 @@ public class Collector {
     private String collectorId;
     private String creatorUserId;
     private String appName;
+    private String appPackage;
     private String description;
     private String mode;
     private String targetServerIp;
@@ -37,10 +38,11 @@ public class Collector {
     public static final String EXPIRED = "expired";
 
 
-    public Collector(String collectorId, String creatorUserID, String appName, String description, String mode, String targetServerIp, long collectorStartTime, long collectorEndTime, String collectorGraphQuery, String collectorAppDataFields) {
+    public Collector(String collectorId, String creatorUserID, String appName, String appPackage, String description, String mode, String targetServerIp, long collectorStartTime, long collectorEndTime, String collectorGraphQuery, String collectorAppDataFields) {
         this.collectorId = collectorId;
         this.creatorUserId = creatorUserID;
         this.appName = appName;
+        this.appPackage = appPackage;
         this.description = description;
         this.mode = mode;
         this.targetServerIp = targetServerIp;
@@ -54,10 +56,11 @@ public class Collector {
 
     }
 
-    public Collector(String collectorId, String creatorUserID, String appName, String description, String mode, String targetServerIp, long collectorStartTime, long collectorEndTime, String collectorGraphQuery, String collectorAppDataFields, String collectorStatus) {
+    public Collector(String collectorId, String creatorUserID, String appName, String appPackage, String description, String mode, String targetServerIp, long collectorStartTime, long collectorEndTime, String collectorGraphQuery, String collectorAppDataFields, String collectorStatus) {
         this.collectorId = collectorId;
         this.creatorUserId = creatorUserID;
         this.appName = appName;
+        this.appPackage = appPackage;
         this.description = description;
         this.mode = mode;
         this.targetServerIp = targetServerIp;
@@ -68,10 +71,11 @@ public class Collector {
         this.collectorStatus = collectorStatus;
     }
 
-    public Collector(String collectorId, String creatorUserID, String appName, String description, String mode, long collectorStartTime, long collectorEndTime, List<Pair<String, String>> collectorDataFields, String collectorStatus) {
+    public Collector(String collectorId, String creatorUserID, String appName, String appPackage, String description, String mode, long collectorStartTime, long collectorEndTime, List<Pair<String, String>> collectorDataFields, String collectorStatus) {
         this.collectorId = collectorId;
         this.creatorUserId = creatorUserID;
         this.appName = appName;
+        this.appPackage = appPackage;
         this.description = description;
         this.mode = mode;
         this.collectorStartTime = collectorStartTime;
@@ -91,6 +95,7 @@ public class Collector {
                 "collectorId='" + collectorId + '\'' +
                 ", creatorUserId='" + creatorUserId + '\'' +
                 ", appName='" + appName + '\'' +
+                ", appPackage='" + appPackage + '\'' +
                 ", description='" + description + '\'' +
                 ", collectorStartTime=" + collectorStartTime +
                 ", collectorEndTime=" + collectorEndTime +
@@ -127,6 +132,14 @@ public class Collector {
 
     public void setAppName(String appName) {
         this.appName = appName;
+    }
+
+    public String getAppPackage() {
+        return appPackage;
+    }
+
+    public void setAppPackage(String appPackage) {
+        this.appPackage = appPackage;
     }
 
     public String getDescription() {

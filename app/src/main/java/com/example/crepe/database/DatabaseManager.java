@@ -21,6 +21,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     public static final String COLUMN_COLLECTOR_ID = "collectorId";
     public static final String COLUMN_CREATOR_USER_ID = "creatorUserId";
     public static final String COLUMN_APP_NAME = "appName";
+    public static final String COLUMN_APP_PACKAGE = "appPackage";
     public static final String COLUMN_NAME = "name";
     public static final String COLUMN_COLLECTOR_START_TIME = "collectorStartTime";
     public static final String COLUMN_COLLECTOR_END_TIME = "collectorEndTime";
@@ -56,6 +57,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     private final String createCollectorTableStatement = "CREATE TABLE IF NOT EXISTS " + COLLECTOR_TABLE + " (" + COLUMN_COLLECTOR_ID + " VARCHAR PRIMARY KEY, " +
             "            " + COLUMN_CREATOR_USER_ID + " VARCHAR, " +
             "            " + COLUMN_APP_NAME + " VARCHAR, " +
+            "            " + COLUMN_APP_PACKAGE + " VARCHAR, " +
             "            " + COLUMN_NAME + " VARCHAR, " +
             "            " + COLUMN_MODE + " VARCHAR, " +
             "            " + COLUMN_TARGET_SERVER_IP + " VARCHAR, " +
@@ -128,6 +130,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         cv.put(COLUMN_CREATOR_USER_ID, collector.getCreatorUserId());
         cv.put(COLUMN_NAME, collector.getDescription());
         cv.put(COLUMN_APP_NAME, collector.getAppName());
+        cv.put(COLUMN_APP_PACKAGE, collector.getAppPackage());
         cv.put(COLUMN_MODE, collector.getMode());
         cv.put(COLUMN_TARGET_SERVER_IP, collector.getTargetServerIp());
         cv.put(COLUMN_COLLECTOR_START_TIME, collector.getCollectorStartTime());
@@ -171,16 +174,17 @@ public class DatabaseManager extends SQLiteOpenHelper {
                 String collectorID = cursor.getString(0);
                 String creatorUserID = cursor.getString(1);
                 String appName = cursor.getString(2);
-                String name = cursor.getString(3);
-                String mode = cursor.getString(4);
-                String targetServerIP = cursor.getString(5);
-                long collectorStartTime = cursor.getLong(6);
-                long collectorEndTime = cursor.getLong(7);
-                String collectorGraphQuery = cursor.getString(8);
-                String collectorAppDataFields = cursor.getString(9);
-                String collectorStatus = cursor.getString(10);
+                String appPackage = cursor.getString(3);
+                String name = cursor.getString(4);
+                String mode = cursor.getString(5);
+                String targetServerIP = cursor.getString(6);
+                long collectorStartTime = cursor.getLong(7);
+                long collectorEndTime = cursor.getLong(8);
+                String collectorGraphQuery = cursor.getString(9);
+                String collectorAppDataFields = cursor.getString(10);
+                String collectorStatus = cursor.getString(11);
                 List<Pair<String, String>> dataFields = stringToListOfPairs(collectorAppDataFields);
-                Collector receivedCollector = new Collector(collectorID, creatorUserID, appName, name, mode, collectorStartTime, collectorEndTime, dataFields, collectorStatus);
+                Collector receivedCollector = new Collector(collectorID, creatorUserID, appName, appPackage, name, mode, collectorStartTime, collectorEndTime, dataFields, collectorStatus);
                 collectorList.add(receivedCollector);
 
             } while(cursor.moveToNext());

@@ -79,47 +79,50 @@ public class CrepeAccessibilityService extends AccessibilityService {
         prevUiSnapshot = uiSnapshot;
         uiSnapshot = generateUISnapshot(accessibilityEvent);
         allNodeList = getAllNodesOnScreen();
+        // Submit a task to the thread pool
+        threadPool.submit(new Runnable() {
+            @Override
+            public void run() {
 
-        // retrieve all stored collectors and datafields
-        List<Collector> collectors = dbManager.getAllCollectors();
-        List<Datafield> datafields = dbManager.getAllDatafields();
 
-        // update the list of apps we need to monitor
-        List<String> monitoredApps = new ArrayList<>();
-        for (Collector collector : collectors) {
-            monitoredApps.add(collector.getAppName());
-        }
+                // retrieve all stored collectors and datafields
+                // TODO Yuwen change dbManager and add a method for getAllRunningCollectors
+                // TODO Yuwen make sure the collected data toString doesn't just return the hashcode
+                List<Collector> collectors = dbManager.getAllCollectors();
+                List<Datafield> datafields = dbManager.getAllDatafields();
 
-        // get the current package
-        currentPackageName = accessibilityEvent.getPackageName().toString();
-
-        // if the current package is in the monitored apps list, start the data collection for collectors that are monitoring this app
-        if (currentPackageName != null && monitoredApps.contains(currentPackageName)) {
-            ArrayList<String> collectorIdsToStart = new ArrayList<>();
-            ArrayList<Datafield> datafieldsToStart = new ArrayList<>();
-            if (collectors != null && datafields != null) {
+                // update the list of apps we need to monitor
+                List<String> monitoredApps = new ArrayList<>();
                 for (Collector collector : collectors) {
-                    if (collector.getAppName().equals(currentPackageName)) {
-                        // if the current package is the same as the collector's app name, start the data collection
-                        collectorIdsToStart.add(collector.getCollectorId());
-                        // also add the datafields that are associated with this collector
-                        for (Datafield datafield : datafields) {
-                            if (datafield.getCollectorId().equals(collector.getCollectorId())) {
-                                datafieldsToStart.add(datafield);
+                    monitoredApps.add(collector.getAppPackage());
+                }
+
+                // get the current package
+                currentPackageName = accessibilityEvent.getPackageName().toString();
+
+                // if the current package is in the monitored apps list, start the data collection for collectors that are monitoring this app
+                if (currentPackageName != null && monitoredApps.contains(currentPackageName)) {
+                    ArrayList<String> collectorIdsToStart = new ArrayList<>();
+                    ArrayList<Datafield> datafieldsToStart = new ArrayList<>();
+                    if (collectors != null && datafields != null) {
+                        for (Collector collector : collectors) {
+                            if (collector.getAppPackage().equals(currentPackageName)) {
+                                // if the current package is the same as the collector's app name, start the data collection
+                                collectorIdsToStart.add(collector.getCollectorId());
+                                // also add the datafields that are associated with this collector
+                                for (Datafield datafield : datafields) {
+                                    if (datafield.getCollectorId().equals(collector.getCollectorId())) {
+                                        datafieldsToStart.add(datafield);
+                                    }
+                                }
+
                             }
                         }
-
                     }
-                }
-            }
 
-            // for each datafield, run the graph query on the uiSnapshot
-            if (datafieldsToStart.size() > 0) {
-                for (Datafield datafield : datafieldsToStart) {
-                    // Submit a task to the thread pool
-                    threadPool.submit(new Runnable() {
-                        @Override
-                        public void run() {
+                    // for each datafield, run the graph query on the uiSnapshot
+                    if (datafieldsToStart.size() > 0) {
+                        for (Datafield datafield : datafieldsToStart) {
                             // Start a new graph query thread and execute the graph query
                             // 1. convert the graph query string to a graph query object
                             OntologyQuery currentQuery = OntologyQuery.deserialize(datafield.getGraphQuery());
@@ -131,8 +134,9 @@ public class CrepeAccessibilityService extends AccessibilityService {
                                 if (!prevResults.contains(result)) {
                                     // if the result is not in the previous results, add it to the database
                                     Data resultData = new Data(datafield.getCollectorId(), datafield.getDataFieldId(), "", result.toString());
+                                    Boolean addDataResult = false;
                                     try {
-                                        dbManager.addData(resultData);
+                                        addDataResult = dbManager.addData(resultData);
                                     } catch (Exception e) {
                                         Log.i("dataset", "failed to add data: " + resultData.toString());
                                         e.printStackTrace();
@@ -141,12 +145,12 @@ public class CrepeAccessibilityService extends AccessibilityService {
                             }
 
                         }
-                    });
 
+                    }
                 }
-            }
-        }
 
+            }
+        });
     }
 
     public UISnapshot generateUISnapshot(AccessibilityEvent accessibilityEvent) {
