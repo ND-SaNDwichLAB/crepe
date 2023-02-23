@@ -3,6 +3,8 @@ package com.example.crepe.graphquery.ontology;
 import android.graphics.Rect;
 import android.view.accessibility.AccessibilityNodeInfo;
 
+import com.example.crepe.graphquery.model.Node;
+
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -132,5 +134,13 @@ public class SugiliteEntity<T> implements Serializable {
         }
         //type == Node.class
         return "@" + entityId.toString();
+    }
+
+    public String saveToDatabaseAsString() {
+        if (type == Node.class) {
+            return "Text: " + ((Node) entityValue).getText() + ", Content description: " + ((Node) entityValue).getContentDescription();
+        } else {
+            return entityValue.toString();
+        }
     }
 }
