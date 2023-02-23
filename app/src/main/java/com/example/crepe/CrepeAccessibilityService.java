@@ -86,6 +86,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
 
 
                 // retrieve all stored collectors and datafields
+                // TODO Yuwen maybe have to change Firebase code
                 // TODO Yuwen change dbManager and add a method for getAllRunningCollectors
                 // TODO Yuwen make sure the collected data toString doesn't just return the hashcode
                 List<Collector> collectors = dbManager.getAllCollectors();

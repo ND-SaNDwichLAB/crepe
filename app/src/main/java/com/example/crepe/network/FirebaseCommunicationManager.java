@@ -106,6 +106,7 @@ public class FirebaseCommunicationManager {
                         String collectorId = String.valueOf(dataSnapshot.child("collectorId").getValue());
                         //String creatorUserId = String.valueOf(dataSnapshot.child("creatorUserId").getValue());
                         String appName = String.valueOf(dataSnapshot.child("appName").getValue());
+                        String appPackage = String.valueOf(dataSnapshot.child("appPackage").getValue());
                         String description = String.valueOf(dataSnapshot.child("description").getValue());
                         String mode = String.valueOf(dataSnapshot.child("mode").getValue());
                         String status = String.valueOf(dataSnapshot.child("collectorStatus").getValue());
