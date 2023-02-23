@@ -85,6 +85,10 @@ public abstract class OntologyQuery implements Serializable {
                     } else if (objectString.equalsIgnoreCase("false")) {
                         SugiliteEntity<Boolean> o = new SugiliteEntity<Boolean>(-1, Boolean.class, false);
                         oSet.add(o);
+                    } else if (isNumeric(objectString)) {
+                        // if the object is a double number, then add it to the object set as a double
+                        SugiliteEntity<Double> o = new SugiliteEntity<Double>(-1, Double.class, Double.parseDouble(objectString));
+                        oSet.add(o);
                     } else {
                         SugiliteEntity<String> o = new SugiliteEntity<String>(-1, String.class, OntologyQueryUtils.removeQuoteSigns(objectString));
                         oSet.add(o);
@@ -173,5 +177,9 @@ public abstract class OntologyQuery implements Serializable {
         public void setSubject(SugiliteEntity subject) {
             this.subject = subject;
         }
+    }
+
+    private static boolean isNumeric(String str) {
+        return str.matches("-?\\d+(\\.\\d+)?");  //match a number with optional '-' and decimal.
     }
 }
