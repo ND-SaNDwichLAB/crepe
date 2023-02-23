@@ -131,11 +131,9 @@ public class CrepeAccessibilityService extends AccessibilityService {
                                 if (!prevResults.contains(result)) {
                                     // if the result is not in the previous results, add it to the database
                                     Data resultData = new Data(datafield.getCollectorId(), datafield.getDataFieldId(), "", result.toString());
-                                    Boolean addDataResult = false;
                                     try {
-                                        addDataResult = dbManager.addData(resultData);
+                                        dbManager.addData(resultData);
                                     } catch (Exception e) {
-                                        Log.i("dataset", addDataResult.toString());
                                         Log.i("dataset", "failed to add data: " + resultData.toString());
                                         e.printStackTrace();
                                     }
