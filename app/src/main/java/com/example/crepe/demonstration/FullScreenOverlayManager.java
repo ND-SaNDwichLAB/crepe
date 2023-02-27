@@ -11,6 +11,7 @@ import static com.example.crepe.demonstration.DemonstrationUtil.storeQueryToData
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
@@ -19,6 +20,7 @@ import android.util.Log;
 import android.util.Pair;
 import android.view.GestureDetector;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -54,8 +56,6 @@ public class FullScreenOverlayManager {
     private int overlayCurrentWidth;
     private int overlayCurrentFlag;
     private SelectionOverlayViewManager selectionOverlayViewManager;
-//    // Create a new graph query thread
-//    GraphQueryThread graphQueryThread = new GraphQueryThread();
 
     private int entityId = 0;
 
@@ -197,9 +197,12 @@ public class FullScreenOverlayManager {
 
                     windowManager = (WindowManager) context.getSystemService(WINDOW_SERVICE);
                     // if we need to use the following code block to show clicked spot on screen, remember to refresh the overlay and widget views so we can continue to click
-//                    WindowManager.LayoutParams selectionLayoutParams = updateLayoutParams(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
-//                    SelectionOverlayView selectionOverlay = selectionOverlayViewManager.getCircleOverlay(rawX, adjustedY, radius);
-//                    windowManager.addView(selectionOverlay, selectionLayoutParams);
+                    WindowManager.LayoutParams selectionLayoutParams = updateLayoutParams(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
+                    Rect clickedItemBounds = DemonstrationUtil.getBoundingBoxOfClickedItem(rawX, rawY);
+                    // move the clickedItemBounds up by the navHeight
+                    clickedItemBounds.offset(0, -1 * (int) navHeight);
+                    SelectionOverlayView selectionOverlay = selectionOverlayViewManager.getRectOverlay(clickedItemBounds);
+                    windowManager.addView(selectionOverlay, selectionLayoutParams);
 
                     List<Pair<OntologyQuery, Double>> defaultQueries = processOverlayClick(rawX, rawY);
 

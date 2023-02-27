@@ -183,6 +183,25 @@ public class DemonstrationUtil {
         return closestNode;
     }
 
+    public static Rect getBoundingBoxOfClickedItem(float clickX, float clickY) {
+        Rect resultBounds = new Rect();
+        // create uiSnapshot for current screen
+        UISnapshot uiSnapshot = CrepeAccessibilityService.getsSharedInstance().generateUISnapshot();
+
+        List<AccessibilityNodeInfo> matchedAccessibilityNodeList = CrepeAccessibilityService.getsSharedInstance().getMatchingNodeFromClickWithText(clickX, clickY);
+
+        SugiliteEntity<Node> targetEntity = new SugiliteEntity<>();
+        AccessibilityNodeInfo matchedNode;
+
+        if(matchedAccessibilityNodeList.size() == 1) {
+            matchedNode = matchedAccessibilityNodeList.get(0);
+            matchedNode.getBoundsInScreen(resultBounds);
+            return resultBounds;
+        } else {
+            return null;
+        }
+    }
+
     public static List<Pair<OntologyQuery, Double>> processOverlayClick(float clickX, float clickY) {
 
         // create uiSnapshot for current screen
