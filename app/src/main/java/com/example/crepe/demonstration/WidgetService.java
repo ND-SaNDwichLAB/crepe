@@ -60,7 +60,7 @@ public class WidgetService extends Service {
         width = windowManager.getDefaultDisplay().getHeight();
 
         // initialize fullScreenOverlayManager
-        fullScreenOverlayManager= new FullScreenOverlayManager(c, windowManager, getResources().getDisplayMetrics() );
+        fullScreenOverlayManager = new FullScreenOverlayManager(c, windowManager, getResources().getDisplayMetrics() );
 
         FloatingActionButton closeFltBtn = (FloatingActionButton) mFloatingView.findViewById(R.id.floating_close);
         FloatingActionButton drawFltBtn = (FloatingActionButton) mFloatingView.findViewById(R.id.floating_draw_frame);

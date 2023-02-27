@@ -8,6 +8,7 @@ import static com.example.crepe.demonstration.DemonstrationUtil.findClosestSibli
 import static com.example.crepe.demonstration.DemonstrationUtil.generateDefaultQueries;
 import static com.example.crepe.demonstration.DemonstrationUtil.storeQueryToDatabase;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
@@ -23,12 +24,14 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 import androidx.annotation.RequiresApi;
 
 import com.example.crepe.CrepeAccessibilityService;
+import com.example.crepe.R;
 import com.example.crepe.database.Data;
 import com.example.crepe.database.DatabaseManager;
 import com.example.crepe.database.Datafield;
@@ -195,8 +198,8 @@ public class FullScreenOverlayManager {
                     float navHeight = navigationBarUtil.getStatusBarHeight(context);
                     float adjustedY = rawY - navHeight;
 
+                    // show the matched item on screen
                     windowManager = (WindowManager) context.getSystemService(WINDOW_SERVICE);
-                    // if we need to use the following code block to show clicked spot on screen, remember to refresh the overlay and widget views so we can continue to click
                     WindowManager.LayoutParams selectionLayoutParams = updateLayoutParams(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
                     Rect clickedItemBounds = DemonstrationUtil.getBoundingBoxOfClickedItem(rawX, rawY);
                     // move the clickedItemBounds up by the navHeight
@@ -221,11 +224,8 @@ public class FullScreenOverlayManager {
                         targetEntity = uiSnapshot.getEntityWithAccessibilityNode(matchedNode);
                     } else {
                         // TODO: Find the node that we actually need
-
                     }
 
-
-                    Set<SugiliteEntity> results = new HashSet<>();
                     if(targetEntity != null) {
                         SugiliteRelation[] relationsToExclude = new SugiliteRelation[1];
                         relationsToExclude[0] = SugiliteRelation.HAS_TEXT;
@@ -233,19 +233,30 @@ public class FullScreenOverlayManager {
                     } else {
                         Log.e("generate queries", "Cannot find the tapped entity!");
                     }
-                    defaultQueries.get(0).first.executeOn(uiSnapshot);
 
-                    // TODO Yuwen: store the query in database, return it to the CollectorConfigurationDiagWrapper
+                    // inflate the demonstration_confirmation.xml layout
+                    // Specify a layoutparams to display the dialog at the center of the screen
+
+                    DisplayMetrics metrics = new DisplayMetrics();
+                    windowManager.getDefaultDisplay().getMetrics(metrics);
+                    double currentDensity = metrics.density;
+
+                    WindowManager.LayoutParams dialogParams = new WindowManager.LayoutParams(
+                            (int) ((windowManager.getCurrentWindowMetrics().getBounds().width() / currentDensity - 48) * currentDensity),   // leave 24 dp margin on both sides
+                            WindowManager.LayoutParams.WRAP_CONTENT,
+                            OVERLAY_TYPE,
+                            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                            PixelFormat.TRANSLUCENT);
+                    LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    View confirmationView = layoutInflater.inflate(R.layout.demonstration_confirmation, null);
+                    windowManager.addView(confirmationView, dialogParams);
+
+                    // TODO Yuwen: don't store this query in database here, return it to the CollectorConfigurationDiagWrapper
                     // 1. store the query in local database
-                    DatabaseManager dbManager = new DatabaseManager(context);
-                    FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(context);
+//                    DatabaseManager dbManager = new DatabaseManager(context);
+//                    FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(context);
                     Datafield datafield = new Datafield("752916f46f6bcd47+1", "2", defaultQueries.get(0).first.toString(), "test", Boolean.TRUE);
                     // naming convention: "752916f46f6bcd47+1" is the app package name + the number of queries in the app
-
-                    // 2. check the query in another thread
-                    // call the startQueryCheckingThread() method in the main activity
-
-
 
 
 
@@ -270,15 +281,8 @@ public class FullScreenOverlayManager {
 //                        Log.e("Firebase","Failed to add datafield " + datafield.getDataFieldId() + " to firebase.");
 //                    });;
 
-                    Boolean datafieldResult = dbManager.addOneDataField(datafield);
-                    Log.i("crepe database","Query: " + defaultQueries.get(0).first.toString());
+//                    Boolean datafieldResult = dbManager.addOneDataField(datafield);
 
-
-                    if(defaultQueries != null) {
-                        for(Pair<OntologyQuery, Double> query : defaultQueries) {
-                            results.addAll(query.first.executeOn(uiSnapshot));
-                        }
-                    }
                     return true;
                 }
 
