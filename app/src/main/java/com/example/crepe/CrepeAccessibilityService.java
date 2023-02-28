@@ -87,7 +87,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
 
                 // retrieve all stored collectors and datafields
                 // TODO Meng Chen: here we are retrieving all collectors from the database, but we only need the ones that are actively running
-                // TODO Task: in the dbManager class, add a method that returns all collectors that are currently running (compare the current timestamp with the start and end time)
+                // TODO Task: in the dbManager class, add a method that returns all collectors that have the status "active". We might need to refresh collector status every time we start the app
                 List<Collector> collectors = dbManager.getAllCollectors();
                 List<Datafield> datafields = dbManager.getAllDatafields();
 
