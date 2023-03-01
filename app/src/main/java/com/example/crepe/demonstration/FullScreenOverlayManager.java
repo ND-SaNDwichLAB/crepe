@@ -27,6 +27,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
 
@@ -224,6 +225,7 @@ public class FullScreenOverlayManager {
                         targetEntity = uiSnapshot.getEntityWithAccessibilityNode(matchedNode);
                     } else {
                         // TODO: Find the node that we actually need
+                        matchedNode = matchedAccessibilityNodeList.get(0);
                     }
 
                     if(targetEntity != null) {
@@ -249,6 +251,10 @@ public class FullScreenOverlayManager {
                             PixelFormat.TRANSLUCENT);
                     LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                     View confirmationView = layoutInflater.inflate(R.layout.demonstration_confirmation, null);
+                    TextView queryTextView = confirmationView.findViewById(R.id.confirmationInfo);
+                    // set the text of the dialog window
+                    String displayText = "You clicked on " + targetEntity.getEntityValue().getText() + ". Do you want to collect this data?";
+                    queryTextView.setText(displayText);
                     windowManager.addView(confirmationView, dialogParams);
 
                     // TODO Yuwen: don't store this query in database here, return it to the CollectorConfigurationDiagWrapper
