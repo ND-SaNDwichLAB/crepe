@@ -216,7 +216,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
         cursor.close();
 
         if (cursorCount <= 0) {
-
             return false;
         } else {
             return true;
@@ -547,5 +546,47 @@ public class DatabaseManager extends SQLiteOpenHelper {
     }
 
 
+    // a function that retrieve collectors that has active status
+    public List<Collector> getActiveCollectors() {
+        List<Collector> collectorList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        String getActiveCollectorsQuery = "SELECT * FROM " + COLLECTOR_TABLE + " WHERE " + COLUMN_COLLECTOR_STATUS + " = \"active\";";
 
+        Cursor cursor = db.rawQuery(getActiveCollectorsQuery, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                // parse every info from cursor
+                String collectorID = cursor.getString(0);
+                String creatorUserID = cursor.getString(1);
+                String appName = cursor.getString(2);
+                String appPackage = cursor.getString(3);
+                String name = cursor.getString(4);
+                String mode = cursor.getString(5);
+                String targetServerIP = cursor.getString(6);
+                long collectorStartTime = cursor.getLong(7);
+                long collectorEndTime = cursor.getLong(8);
+                String collectorGraphQuery = cursor.getString(9);
+                String collectorAppDataFields = cursor.getString(10);
+                String collectorStatus = cursor.getString(11);
+                List<Pair<String, String>> dataFields = stringToListOfPairs(collectorAppDataFields);
+                Collector receivedCollector = new Collector(collectorID, creatorUserID, appName, appPackage, name, mode, collectorStartTime, collectorEndTime, dataFields, collectorStatus);
+                collectorList.add(receivedCollector);
+
+            } while(cursor.moveToNext());
+        }
+
+        else {
+            // do nothing since it's empty
+            Log.i("", "The collector list is empty.");
+        }
+        cursor.close();
+        db.close();
+        return collectorList;
+    }
 }
+
+
+
+
+

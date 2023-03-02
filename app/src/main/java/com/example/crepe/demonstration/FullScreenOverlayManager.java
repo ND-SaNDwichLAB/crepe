@@ -27,7 +27,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 
@@ -62,6 +64,8 @@ public class FullScreenOverlayManager {
     private SelectionOverlayViewManager selectionOverlayViewManager;
 
     private int entityId = 0;
+
+    private HashSet desiredDataFields = new HashSet<Datafield>();
 
     public FullScreenOverlayManager(Context context, WindowManager windowManager, DisplayMetrics displayMetrics) {
         this.context = context;
@@ -256,6 +260,40 @@ public class FullScreenOverlayManager {
                     String displayText = "You clicked on " + targetEntity.getEntityValue().getText() + ". Do you want to collect this data?";
                     queryTextView.setText(displayText);
                     windowManager.addView(confirmationView, dialogParams);
+
+                    // set the onclick listener for the buttons
+                    Button yesButton = confirmationView.findViewById(R.id.confirmationYesButton);
+                    Button noButton = confirmationView.findViewById(R.id.confirmationNoButton);
+
+                    final String data = targetEntity.toString();
+
+
+                    yesButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            //confirm the selection
+                            // remove the confirmation dialog
+                            windowManager.removeView(confirmationView);
+                            // remove the selection overlay
+                            windowManager.removeView(selectionOverlay);
+                            // broadcast the query to the CollectorConfigurationDialogWrapper
+                            Intent intent = new Intent();
+                            intent.setAction("com.example.crepe.broadcaster.query");
+                            intent.putExtra("query", data);
+                            Toast.makeText(context, "Successfully identify data field ", Toast.LENGTH_SHORT).show();
+
+                        }
+                    });
+
+                    noButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            // remove the confirmation dialog
+                            windowManager.removeView(confirmationView);
+                            // remove the selection overlay
+                            windowManager.removeView(selectionOverlay);
+                        }
+                    });
 
                     // TODO Yuwen: don't store this query in database here, return it to the CollectorConfigurationDiagWrapper
                     // 1. store the query in local database
