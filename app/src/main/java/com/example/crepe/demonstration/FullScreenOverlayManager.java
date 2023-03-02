@@ -29,6 +29,7 @@ import android.view.WindowManager;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 
@@ -63,6 +64,8 @@ public class FullScreenOverlayManager {
     private SelectionOverlayViewManager selectionOverlayViewManager;
 
     private int entityId = 0;
+
+    private HashSet desiredDataFields = new HashSet<Datafield>();
 
     public FullScreenOverlayManager(Context context, WindowManager windowManager, DisplayMetrics displayMetrics) {
         this.context = context;
@@ -262,10 +265,22 @@ public class FullScreenOverlayManager {
                     Button yesButton = confirmationView.findViewById(R.id.confirmationYesButton);
                     Button noButton = confirmationView.findViewById(R.id.confirmationNoButton);
 
+                    final String data = targetEntity.toString();
+
+
                     yesButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            //Datafield datafield = new Datafield("752916f46f6bcd47+1", "2", defaultQueries.get(0).first.toString(), "test", Boolean.TRUE);
+                            //confirm the selection
+                            // remove the confirmation dialog
+                            windowManager.removeView(confirmationView);
+                            // remove the selection overlay
+                            windowManager.removeView(selectionOverlay);
+                            // broadcast the query to the CollectorConfigurationDialogWrapper
+                            Intent intent = new Intent();
+                            intent.setAction("com.example.crepe.broadcaster.query");
+                            intent.putExtra("query", data);
+                            Toast.makeText(context, "Successfully identify data field ", Toast.LENGTH_SHORT).show();
 
                         }
                     });

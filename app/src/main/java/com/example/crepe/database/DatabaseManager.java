@@ -224,7 +224,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
         cursor.close();
 
         if (cursorCount <= 0) {
-
             return false;
         } else {
             return true;

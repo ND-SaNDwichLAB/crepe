@@ -2,15 +2,18 @@ package com.example.crepe.ui.dialog;
 
 import android.app.ActivityManager;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.net.Uri;
+import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.util.Pair;
@@ -352,11 +355,8 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                                 finish();
                             }
                         }
-
-
                     }
                 });
-
 
                 graphQueryBckBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -375,8 +375,37 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         int blankFlag = 0;
                         // get graph query by input
 //                        String graphQueryContent = graphQueryEditTxt.getText().toString();
-                        String graphQueryContent = "graph";
-                        String appDataField = "data field test";
+                        String graphQueryContent = "";
+                        String appDataField = "";
+//                        Intent intent = getIntent();
+//                        if (intent != null && intent.getExtras() != null) {
+//                            Bundle extras = intent.getExtras();
+//                            // access the extras here
+//                            graphQueryContent = extras.getString("query");
+//                        } else {
+//                            // handle the case where the intent or extras are null
+//                            Log.d("intent", "intent is null");
+//                        }
+//                         wait for the data sent from broadcast receiver
+                        class MyReceiver extends BroadcastReceiver {
+                            private String data = "";
+                            @Override
+                            public void onReceive(Context context, Intent intent) {
+                                // get the data from the intent
+                                data = intent.getStringExtra("query");
+                            }
+
+                            public String getData() {
+                                return data;
+                            }
+                        }
+                        // register the receiver
+                        MyReceiver receiver = new MyReceiver();
+                        IntentFilter filter = new IntentFilter("com.example.crepe.broadcaster.query");
+                        registerReceiver(receiver, filter);
+                        String graphQuery = receiver.getData();
+                        System.out.println("graph query: " + graphQueryContent);
+
                         if (graphQueryContent != null) {
                             collector.putNewGraphQueryAndDataField(graphQueryContent, appDataField);
                         } else {
