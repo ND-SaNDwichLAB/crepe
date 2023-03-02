@@ -433,20 +433,9 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                 LinearLayout dataFieldLinearLayout = (LinearLayout) dialogMainView.findViewById(R.id.dataFiledLinearLayout);
 
 
-                // show data fields info in the collector if available
-//                if (collector.getCollectorAppDataFields() != null) {
-//                    dataFieldEditText.setText(collector.getCollectorAppDataFields());
-//                }
                 // get size of ril and create a list
-                List<Pair<String,String>> dataFields = collector.getDataFields();
                 DataFieldConstraintLayoutBuilder builder = new DataFieldConstraintLayoutBuilder(context);
                 updateDataField(collector,dataFieldLinearLayout, builder);
-//                dataFieldLinearLayout.removeAllViews();
-//
-//                for (Pair<String, String> i : dataFields){
-//                    ConstraintLayout collectorCardView = builder.build(i.second, dataFieldLinearLayout, collector, dataFieldUpdateRunnable);
-//                    dataFieldLinearLayout.addView(collectorCardView);
-//                }
 
 
 
@@ -682,11 +671,11 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
     public void updateDataField(Collector collector, ViewGroup rootView, DataFieldConstraintLayoutBuilder builder){
         rootView.removeAllViews();
-        for (Pair<String, String> i : collector.getDataFields()){
-            ConstraintLayout collectorCardView = builder.build(i.second, rootView, collector);
-            rootView.addView(collectorCardView);
-        }
+        // TODO Yuwen figure out what to do here: we need to maintain a list of data fields independent of the collector
+//        for (Pair<String, String> i : collector.getDataFields()){
+//            ConstraintLayout collectorCardView = builder.build(i.second, rootView, collector);
+//            rootView.addView(collectorCardView);
+//        }
     }
-
 
 }

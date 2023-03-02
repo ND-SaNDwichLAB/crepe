@@ -52,7 +52,9 @@ public class CollectorCardDetailBuilder {
         } else{
             enableSwitch.setChecked(true);
         }
-        collectorDataField.setText(collector.getDataFieldsToString());
+
+        // TODO Yuwen figure out what to do here
+//        collectorDataField.setText(collector.getDataFieldsToString());
 
 
         deleteBtn.setOnClickListener(new View.OnClickListener() {

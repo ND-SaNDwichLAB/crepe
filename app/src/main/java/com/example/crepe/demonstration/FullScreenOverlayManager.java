@@ -190,6 +190,8 @@ public class FullScreenOverlayManager {
             }
 
             class MyGestureDetector extends GestureDetector.SimpleOnGestureListener {
+
+                SelectionOverlayView selectionOverlay = null;
                 @RequiresApi(api = Build.VERSION_CODES.R)
                 @Override
                 public boolean onSingleTapConfirmed(MotionEvent event) {
@@ -209,9 +211,11 @@ public class FullScreenOverlayManager {
                     WindowManager.LayoutParams selectionLayoutParams = updateLayoutParams(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
                     Rect clickedItemBounds = DemonstrationUtil.getBoundingBoxOfClickedItem(rawX, rawY);
                     // move the clickedItemBounds up by the navHeight
-                    clickedItemBounds.offset(0, -1 * (int) navHeight);
-                    SelectionOverlayView selectionOverlay = selectionOverlayViewManager.getRectOverlay(clickedItemBounds);
-                    windowManager.addView(selectionOverlay, selectionLayoutParams);
+                    if (clickedItemBounds != null) {
+                        clickedItemBounds.offset(0, -1 * (int) navHeight);
+                        this.selectionOverlay = selectionOverlayViewManager.getRectOverlay(clickedItemBounds);
+                        windowManager.addView(this.selectionOverlay, selectionLayoutParams);
+                    }
 
                     List<Pair<OntologyQuery, Double>> defaultQueries = processOverlayClick(rawX, rawY);
 
@@ -225,13 +229,17 @@ public class FullScreenOverlayManager {
                     SugiliteEntity<Node> targetEntity = new SugiliteEntity<>();
                     AccessibilityNodeInfo matchedNode;
 
-                    if(matchedAccessibilityNodeList.size() == 1) {
-                        matchedNode = matchedAccessibilityNodeList.get(0);
-                        targetEntity = uiSnapshot.getEntityWithAccessibilityNode(matchedNode);
-                    } else {
-                        // TODO: Find the node that we actually need
-                        matchedNode = matchedAccessibilityNodeList.get(0);
+                    if (matchedAccessibilityNodeList != null) {
+                        if(matchedAccessibilityNodeList.size() == 1) {
+                            matchedNode = matchedAccessibilityNodeList.get(0);
+                            targetEntity = uiSnapshot.getEntityWithAccessibilityNode(matchedNode);
+                        } else {
+                            // TODO: Find the node that we actually need
+                            matchedNode = matchedAccessibilityNodeList.get(0);
+                            targetEntity = uiSnapshot.getEntityWithAccessibilityNode(matchedNode);
+                        }
                     }
+
 
                     if(targetEntity != null) {
                         SugiliteRelation[] relationsToExclude = new SugiliteRelation[1];
@@ -239,6 +247,12 @@ public class FullScreenOverlayManager {
                         defaultQueries = generateDefaultQueries(uiSnapshot, targetEntity, relationsToExclude);
                     } else {
                         Log.e("generate queries", "Cannot find the tapped entity!");
+                        return false;
+                    }
+
+                    if (targetEntity.getEntityValue() == null || defaultQueries.size() == 0) {
+                        Toast.makeText(context, "Sorry! We do not support the data you just clicked. Please try again.", Toast.LENGTH_SHORT).show();
+                        return false;
                     }
 
                     // inflate the demonstration_confirmation.xml layout
@@ -258,9 +272,13 @@ public class FullScreenOverlayManager {
                     View confirmationView = layoutInflater.inflate(R.layout.demonstration_confirmation, null);
                     TextView queryTextView = confirmationView.findViewById(R.id.confirmationInfo);
                     // set the text of the dialog window
-                    String displayText = "You clicked on " + targetEntity.getEntityValue().getText() + ". Do you want to collect this data?";
+                    String displayText = "";
+
+                    displayText = "You clicked on \"" + targetEntity.getEntityValue().getText() + "\". Do you want to collect this data?";
                     queryTextView.setText(displayText);
                     windowManager.addView(confirmationView, dialogParams);
+
+
 
                     // set the onclick listener for the buttons
                     Button yesButton = confirmationView.findViewById(R.id.confirmationYesButton);
@@ -286,6 +304,7 @@ public class FullScreenOverlayManager {
                             windowManager.removeView(confirmationView);
                             // remove the selection overlay
                             windowManager.removeView(selectionOverlay);
+                            Toast.makeText(context, "Please click on the data to collect again", Toast.LENGTH_SHORT).show();
                         }
                     });
 

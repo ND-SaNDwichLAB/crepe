@@ -49,9 +49,10 @@ public class DataFieldConstraintLayoutBuilder {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // remove this graph query
-                        if (!collector.removeDataField(text)){
-                            Toast.makeText(c, "This data field is already removed!", Toast.LENGTH_LONG).show();
-                        };
+                        // TODO Yuwen figure out what to do here
+//                        if (!collector.removeDataField(text)){
+//                            Toast.makeText(c, "This data field is already removed!", Toast.LENGTH_LONG).show();
+//                        };
                         // refresh the list
                         rootView.removeView(dataFieldConstraintLayout);
                     }
