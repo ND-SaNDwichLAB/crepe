@@ -25,8 +25,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
     public static final String COLUMN_NAME = "name";
     public static final String COLUMN_COLLECTOR_START_TIME = "collectorStartTime";
     public static final String COLUMN_COLLECTOR_END_TIME = "collectorEndTime";
-    public static final String COLUMN_COLLECTOR_GRAPH_QUERY = "collectorGraphQuery";
-    public static final String COLUMN_COLLECTOR_APP_DATA_FIELDS = "collectorAppDataFields";
     public static final String COLUMN_MODE = "mode";
     public static final String COLUMN_TARGET_SERVER_IP = "targetServerIp";
     public static final String COLUMN_COLLECTOR_STATUS = "collectorStatus";
@@ -63,8 +61,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
             "            " + COLUMN_TARGET_SERVER_IP + " VARCHAR, " +
             "            " + COLUMN_COLLECTOR_START_TIME + " BIGINT, " +
             "            " + COLUMN_COLLECTOR_END_TIME + " BIGINT, " +
-            "            " + COLUMN_COLLECTOR_GRAPH_QUERY + " VARCHAR, " +
-            "            " + COLUMN_COLLECTOR_APP_DATA_FIELDS + " VARCHAR, " +
             "            " + COLUMN_COLLECTOR_STATUS + " VARCHAR)";
 
     private final String createUserTableStatement = "CREATE TABLE IF NOT EXISTS " + USER_TABLE + " (" + COLUMN_USER_ID + " VARCHAR PRIMARY KEY, " +
@@ -136,7 +132,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
         cv.put(COLUMN_COLLECTOR_START_TIME, collector.getCollectorStartTime());
         cv.put(COLUMN_COLLECTOR_END_TIME, collector.getCollectorEndTime());
         cv.put(COLUMN_COLLECTOR_STATUS, collector.getCollectorStatus());
-        cv.put(COLUMN_COLLECTOR_APP_DATA_FIELDS,  collector.getDataFieldsToJson());
         long insert = db.insert(COLLECTOR_TABLE, null, cv);
         if (insert == -1) {
             return false;
@@ -180,11 +175,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
                 String targetServerIP = cursor.getString(6);
                 long collectorStartTime = cursor.getLong(7);
                 long collectorEndTime = cursor.getLong(8);
-                String collectorGraphQuery = cursor.getString(9);
-                String collectorAppDataFields = cursor.getString(10);
-                String collectorStatus = cursor.getString(11);
-                List<Pair<String, String>> dataFields = stringToListOfPairs(collectorAppDataFields);
-                Collector receivedCollector = new Collector(collectorID, creatorUserID, appName, appPackage, name, mode, collectorStartTime, collectorEndTime, dataFields, collectorStatus);
+                String collectorStatus = cursor.getString(9);
+                Collector receivedCollector = new Collector(collectorID, creatorUserID, appName, appPackage, name, mode, collectorStartTime, collectorEndTime, collectorStatus);
                 collectorList.add(receivedCollector);
 
             } while(cursor.moveToNext());
@@ -554,19 +546,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
         c.close();
     }
 
-    public List<Pair<String,String>> stringToListOfPairs(String string) {
-        List<Pair<String,String>> list = new ArrayList<>();
-        string = string.substring(1, string.length()-1);
-        String[] pairs = string.split(",");
-        for (String pair : pairs) {
-            String[] keyValue = pair.split(":");
-            String key = keyValue[0];
-            String value = keyValue[1];
-            list.add(new Pair<>(key, value));
-        }
-        return list;
-
-    }
 
 
 }
