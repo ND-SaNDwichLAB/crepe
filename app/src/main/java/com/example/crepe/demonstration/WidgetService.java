@@ -43,6 +43,8 @@ public class WidgetService extends Service {
             LAYOUT_FLAG = WindowManager.LayoutParams.TYPE_PHONE;
         }
 
+        this.graphQueryCallback = (GraphQueryCallback) intent.getSerializableExtra("graphQueryCallback");
+
         // inflate widget layout
         mFloatingView = LayoutInflater.from(c).inflate(R.layout.demonstration_float_widget, null);
         WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT,
@@ -63,8 +65,8 @@ public class WidgetService extends Service {
         width = windowManager.getDefaultDisplay().getHeight();
 
         // initialize fullScreenOverlayManager
-        fullScreenOverlayManager = new FullScreenOverlayManager(c, windowManager, getResources().getDisplayMetrics() );
-        processData();
+        fullScreenOverlayManager = new FullScreenOverlayManager(c, windowManager, getResources().getDisplayMetrics(), this.graphQueryCallback);
+
 
         // initialize callback for the data received from the demonstration
 
@@ -225,19 +227,6 @@ public class WidgetService extends Service {
     public void registerCallback(GraphQueryCallback dataCallback) {
         graphQueryCallback = dataCallback;
     }
-
-    public void processData() {
-        fullScreenOverlayManager.process(new GraphQueryCallback() {
-            @Override
-            public void onDataReceived(String data) {
-                if (graphQueryCallback != null) {
-                    graphQueryCallback.onDataReceived(data);
-                }
-            }
-        });
-    }
-
-
 
 
 }

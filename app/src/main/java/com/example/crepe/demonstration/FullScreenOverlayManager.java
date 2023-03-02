@@ -4,11 +4,7 @@ import static android.content.Context.WINDOW_SERVICE;
 import static com.example.crepe.demonstration.DemonstrationUtil.processOverlayClick;
 import static com.example.crepe.graphquery.Const.OVERLAY_TYPE;
 import static com.example.crepe.demonstration.DemonstrationUtil.generateDefaultQueries;
-import static com.example.crepe.demonstration.DemonstrationUtil.findClosestSiblingNode;
-import static com.example.crepe.demonstration.DemonstrationUtil.generateDefaultQueries;
-import static com.example.crepe.demonstration.DemonstrationUtil.storeQueryToDatabase;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
@@ -24,7 +20,6 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.Button;
@@ -35,21 +30,15 @@ import androidx.annotation.RequiresApi;
 
 import com.example.crepe.CrepeAccessibilityService;
 import com.example.crepe.R;
-import com.example.crepe.database.Data;
-import com.example.crepe.database.DatabaseManager;
-import com.example.crepe.database.Datafield;
 import com.example.crepe.graphquery.Const;
 import com.example.crepe.graphquery.model.Node;
 import com.example.crepe.graphquery.ontology.OntologyQuery;
 import com.example.crepe.graphquery.ontology.SugiliteEntity;
 import com.example.crepe.graphquery.ontology.SugiliteRelation;
 import com.example.crepe.graphquery.ontology.UISnapshot;
-import com.example.crepe.network.FirebaseCommunicationManager;
 import com.example.crepe.ui.dialog.GraphQueryCallback;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class FullScreenOverlayManager {
 
@@ -57,6 +46,7 @@ public class FullScreenOverlayManager {
     private WindowManager windowManager;
     private View overlay;
     private DisplayMetrics displayMetrics;
+    private GraphQueryCallback graphQueryCallback;
     private Boolean showingOverlay;
     private NavigationBarUtil navigationBarUtil;
     private int overlayCurrentHeight;
@@ -68,10 +58,11 @@ public class FullScreenOverlayManager {
 
     private String desiredQuery = "";
 
-    public FullScreenOverlayManager(Context context, WindowManager windowManager, DisplayMetrics displayMetrics) {
+    public FullScreenOverlayManager(Context context, WindowManager windowManager, DisplayMetrics displayMetrics, GraphQueryCallback graphQueryCallback) {
         this.context = context;
         this.windowManager = windowManager;
         this.displayMetrics = displayMetrics;
+        this.graphQueryCallback = graphQueryCallback;
         this.overlay = getRectangleOverlay(context, displayMetrics.widthPixels, displayMetrics.heightPixels, Const.RECORDING_OVERLAY_COLOR);
         this.showingOverlay = false;
         this.navigationBarUtil = new NavigationBarUtil();
@@ -283,7 +274,7 @@ public class FullScreenOverlayManager {
                     // set the onclick listener for the buttons
                     Button yesButton = confirmationView.findViewById(R.id.confirmationYesButton);
                     Button noButton = confirmationView.findViewById(R.id.confirmationNoButton);
-                    final String data = targetEntity.toString();
+                    final String data = defaultQueries.get(0).first.toString();
                     yesButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -294,6 +285,7 @@ public class FullScreenOverlayManager {
                             windowManager.removeView(selectionOverlay);
                             // set the data to the main activity
                             desiredQuery = data;
+                            processCallback();
                         }
                     });
 
@@ -406,8 +398,8 @@ public class FullScreenOverlayManager {
         });
     }
 
-    public void process(GraphQueryCallback callback) {
-        callback.onDataReceived(desiredQuery);
+    private void processCallback() {
+        this.graphQueryCallback.onDataReceived(desiredQuery);
     }
 
 

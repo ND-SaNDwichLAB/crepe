@@ -2,21 +2,17 @@ package com.example.crepe.ui.dialog;
 
 import android.app.ActivityManager;
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.net.Uri;
-import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,7 +26,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.example.crepe.CrepeAccessibilityService;
 import com.example.crepe.MainActivity;
@@ -44,6 +39,7 @@ import com.example.crepe.network.FirebaseCommunicationManager;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 
+import java.io.Serializable;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -61,13 +57,8 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
     private DatabaseManager dbManager;
 
     private List<Datafield> datafields;
-    public class GQCallback implements GraphQueryCallback {
-        @Override
-        public void onDataReceived(String query) {
-            Log.d("graphQueryCallback", "onDataReceived: " + query);
-            datafields.add(new Datafield("DatafieldID",collector.getCollectorId(),query,"name",true));
-        }
-    }
+
+    private GQCallback gqCallback = new GQCallback();
 
     CollectorConfigurationDialogWrapper(Context context, AlertDialog dialog, Collector collector, Runnable refreshCollectorListRunnable) {
         this.context = context;
@@ -362,9 +353,9 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                             } else {
                                 WidgetService widgetService = new WidgetService();
                                 Intent intent = new Intent(context, widgetService.getClass());
+                                intent.putExtra("graphQueryCallback", gqCallback);
                                 context.startService(intent);
-                                GQCallback graphQueryCallback = new GQCallback();
-                                widgetService.registerCallback(graphQueryCallback);
+
                                 finish();
                             }
                         }
@@ -391,7 +382,8 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         String appDataField = "";
 
                         if (graphQueryContent != "") {
-                            collector.putNewGraphQueryAndDataField(graphQueryContent, appDataField);
+                            // TODO Yuwen figure out what to do here
+//                            collector.putNewGraphQueryAndDataField(graphQueryContent, appDataField);
                         } else {
                             // remind user to add graph query
                             Context currentContext = context.getApplicationContext();
@@ -677,5 +669,4 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 //            rootView.addView(collectorCardView);
 //        }
     }
-
 }
