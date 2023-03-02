@@ -45,6 +45,7 @@ import com.example.crepe.graphquery.ontology.SugiliteEntity;
 import com.example.crepe.graphquery.ontology.SugiliteRelation;
 import com.example.crepe.graphquery.ontology.UISnapshot;
 import com.example.crepe.network.FirebaseCommunicationManager;
+import com.example.crepe.ui.dialog.GraphQueryCallback;
 
 import java.util.HashSet;
 import java.util.List;
@@ -65,7 +66,7 @@ public class FullScreenOverlayManager {
 
     private int entityId = 0;
 
-    private HashSet desiredDataFields = new HashSet<Datafield>();
+    private String desiredQuery = "";
 
     public FullScreenOverlayManager(Context context, WindowManager windowManager, DisplayMetrics displayMetrics) {
         this.context = context;
@@ -264,10 +265,7 @@ public class FullScreenOverlayManager {
                     // set the onclick listener for the buttons
                     Button yesButton = confirmationView.findViewById(R.id.confirmationYesButton);
                     Button noButton = confirmationView.findViewById(R.id.confirmationNoButton);
-
                     final String data = targetEntity.toString();
-
-
                     yesButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -276,12 +274,8 @@ public class FullScreenOverlayManager {
                             windowManager.removeView(confirmationView);
                             // remove the selection overlay
                             windowManager.removeView(selectionOverlay);
-                            // broadcast the query to the CollectorConfigurationDialogWrapper
-                            Intent intent = new Intent();
-                            intent.setAction("com.example.crepe.broadcaster.query");
-                            intent.putExtra("query", data);
-                            Toast.makeText(context, "Successfully identify data field ", Toast.LENGTH_SHORT).show();
-
+                            // set the data to the main activity
+                            desiredQuery = data;
                         }
                     });
 
@@ -295,11 +289,10 @@ public class FullScreenOverlayManager {
                         }
                     });
 
-                    // TODO Yuwen: don't store this query in database here, return it to the CollectorConfigurationDiagWrapper
                     // 1. store the query in local database
 //                    DatabaseManager dbManager = new DatabaseManager(context);
 //                    FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(context);
-                    Datafield datafield = new Datafield("752916f46f6bcd47+1", "2", defaultQueries.get(0).first.toString(), "test", Boolean.TRUE);
+//                    Datafield datafield = new Datafield("752916f46f6bcd47+1", "2", defaultQueries.get(0).first.toString(), "test", Boolean.TRUE);
                     // naming convention: "752916f46f6bcd47+1" is the app package name + the number of queries in the app
 
 
@@ -344,6 +337,8 @@ public class FullScreenOverlayManager {
                     System.out.println("Context click detected");
                     return super.onContextClick(e);
                 }
+
+
 
 //                @Override
 //                public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
@@ -390,6 +385,10 @@ public class FullScreenOverlayManager {
             */
 
         });
+    }
+
+    public void process(GraphQueryCallback callback) {
+        callback.onDataReceived(desiredQuery);
     }
 
 

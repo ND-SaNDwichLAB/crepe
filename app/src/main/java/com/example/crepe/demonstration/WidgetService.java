@@ -16,6 +16,7 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.example.crepe.R;
+import com.example.crepe.ui.dialog.GraphQueryCallback;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.Calendar;
@@ -27,6 +28,8 @@ public class WidgetService extends Service {
     float height, width;
     Context c = WidgetService.this;
     FullScreenOverlayManager fullScreenOverlayManager;
+
+    GraphQueryCallback graphQueryCallback;
 
     public IBinder onBind(Intent intent){
         return null;
@@ -61,6 +64,9 @@ public class WidgetService extends Service {
 
         // initialize fullScreenOverlayManager
         fullScreenOverlayManager = new FullScreenOverlayManager(c, windowManager, getResources().getDisplayMetrics() );
+        processData();
+
+        // initialize callback for the data received from the demonstration
 
         FloatingActionButton closeFltBtn = (FloatingActionButton) mFloatingView.findViewById(R.id.floating_close);
         FloatingActionButton drawFltBtn = (FloatingActionButton) mFloatingView.findViewById(R.id.floating_draw_frame);
@@ -214,6 +220,21 @@ public class WidgetService extends Service {
             // if the fab icon is clicked to be closed, set the visibilities to invisible
             btn.setVisibility(View.INVISIBLE);
         }
+    }
+
+    public void registerCallback(GraphQueryCallback dataCallback) {
+        graphQueryCallback = dataCallback;
+    }
+
+    public void processData() {
+        fullScreenOverlayManager.process(new GraphQueryCallback() {
+            @Override
+            public void onDataReceived(String data) {
+                if (graphQueryCallback != null) {
+                    graphQueryCallback.onDataReceived(data);
+                }
+            }
+        });
     }
 
 

@@ -37,6 +37,7 @@ import com.example.crepe.MainActivity;
 import com.example.crepe.R;
 import com.example.crepe.database.Collector;
 import com.example.crepe.database.DatabaseManager;
+import com.example.crepe.database.Datafield;
 import com.example.crepe.demonstration.WidgetService;
 import com.example.crepe.graphquery.Const;
 import com.example.crepe.network.FirebaseCommunicationManager;
@@ -58,6 +59,15 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
     private Collector collector;
     private Runnable refreshCollectorListRunnable;
     private DatabaseManager dbManager;
+
+    private List<Datafield> datafields;
+    public class GQCallback implements GraphQueryCallback {
+        @Override
+        public void onDataReceived(String query) {
+            Log.d("graphQueryCallback", "onDataReceived: " + query);
+            datafields.add(new Datafield("DatafieldID",collector.getCollectorId(),query,"name",true));
+        }
+    }
 
     CollectorConfigurationDialogWrapper(Context context, AlertDialog dialog, Collector collector, Runnable refreshCollectorListRunnable) {
         this.context = context;
@@ -350,8 +360,11 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                             if (!Settings.canDrawOverlays(context)){
                                 getPermission();
                             } else {
-                                Intent intent = new Intent(context, WidgetService.class);
+                                WidgetService widgetService = new WidgetService();
+                                Intent intent = new Intent(context, widgetService.getClass());
                                 context.startService(intent);
+                                GQCallback graphQueryCallback = new GQCallback();
+                                widgetService.registerCallback(graphQueryCallback);
                                 finish();
                             }
                         }
@@ -373,40 +386,11 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         int blankFlag = 0;
-                        // get graph query by input
-//                        String graphQueryContent = graphQueryEditTxt.getText().toString();
+                        // get graph query
                         String graphQueryContent = "";
                         String appDataField = "";
-//                        Intent intent = getIntent();
-//                        if (intent != null && intent.getExtras() != null) {
-//                            Bundle extras = intent.getExtras();
-//                            // access the extras here
-//                            graphQueryContent = extras.getString("query");
-//                        } else {
-//                            // handle the case where the intent or extras are null
-//                            Log.d("intent", "intent is null");
-//                        }
-//                         wait for the data sent from broadcast receiver
-                        class MyReceiver extends BroadcastReceiver {
-                            private String data = "";
-                            @Override
-                            public void onReceive(Context context, Intent intent) {
-                                // get the data from the intent
-                                data = intent.getStringExtra("query");
-                            }
 
-                            public String getData() {
-                                return data;
-                            }
-                        }
-                        // register the receiver
-                        MyReceiver receiver = new MyReceiver();
-                        IntentFilter filter = new IntentFilter("com.example.crepe.broadcaster.query");
-                        registerReceiver(receiver, filter);
-                        String graphQuery = receiver.getData();
-                        System.out.println("graph query: " + graphQueryContent);
-
-                        if (graphQueryContent != null) {
+                        if (graphQueryContent != "") {
                             collector.putNewGraphQueryAndDataField(graphQueryContent, appDataField);
                         } else {
                             // remind user to add graph query
@@ -703,5 +687,6 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
             rootView.addView(collectorCardView);
         }
     }
+
 
 }
