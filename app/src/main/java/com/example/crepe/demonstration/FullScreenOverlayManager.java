@@ -27,6 +27,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
@@ -256,6 +257,28 @@ public class FullScreenOverlayManager {
                     String displayText = "You clicked on " + targetEntity.getEntityValue().getText() + ". Do you want to collect this data?";
                     queryTextView.setText(displayText);
                     windowManager.addView(confirmationView, dialogParams);
+
+                    // set the onclick listener for the buttons
+                    Button yesButton = confirmationView.findViewById(R.id.confirmationYesButton);
+                    Button noButton = confirmationView.findViewById(R.id.confirmationNoButton);
+
+                    yesButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            //Datafield datafield = new Datafield("752916f46f6bcd47+1", "2", defaultQueries.get(0).first.toString(), "test", Boolean.TRUE);
+
+                        }
+                    });
+
+                    noButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            // remove the confirmation dialog
+                            windowManager.removeView(confirmationView);
+                            // remove the selection overlay
+                            windowManager.removeView(selectionOverlay);
+                        }
+                    });
 
                     // TODO Yuwen: don't store this query in database here, return it to the CollectorConfigurationDiagWrapper
                     // 1. store the query in local database

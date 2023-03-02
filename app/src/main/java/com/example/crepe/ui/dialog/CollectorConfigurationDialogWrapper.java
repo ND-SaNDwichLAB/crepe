@@ -505,6 +505,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         // add a callback to refresh homepage every time
                         DatabaseManager dbManager = new DatabaseManager(context);
                         dbManager.addOneCollector(collector);
+//                        List<Collector> collectors = dbManager.getActiveCollectors();
 
                         // update currentScreen String value
                         currentScreenState = "buildDialogFromConfigSuccessMessage";
