@@ -566,11 +566,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
                 String targetServerIP = cursor.getString(6);
                 long collectorStartTime = cursor.getLong(7);
                 long collectorEndTime = cursor.getLong(8);
-                String collectorGraphQuery = cursor.getString(9);
-                String collectorAppDataFields = cursor.getString(10);
-                String collectorStatus = cursor.getString(11);
-                List<Pair<String, String>> dataFields = stringToListOfPairs(collectorAppDataFields);
-                Collector receivedCollector = new Collector(collectorID, creatorUserID, appName, appPackage, name, mode, collectorStartTime, collectorEndTime, dataFields, collectorStatus);
+                String collectorStatus = cursor.getString(9);
+                Collector receivedCollector = new Collector(collectorID, creatorUserID, appName, appPackage, name, mode, collectorStartTime, collectorEndTime, collectorStatus);
                 collectorList.add(receivedCollector);
 
             } while(cursor.moveToNext());
