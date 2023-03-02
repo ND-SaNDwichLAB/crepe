@@ -193,7 +193,7 @@ public class DemonstrationUtil {
         SugiliteEntity<Node> targetEntity = new SugiliteEntity<>();
         AccessibilityNodeInfo matchedNode;
 
-        if(matchedAccessibilityNodeList.size() == 1) {
+        if(matchedAccessibilityNodeList != null && matchedAccessibilityNodeList.size() == 1) {
             matchedNode = matchedAccessibilityNodeList.get(0);
             matchedNode.getBoundsInScreen(resultBounds);
             return resultBounds;
@@ -215,7 +215,7 @@ public class DemonstrationUtil {
         SugiliteEntity<Node> targetEntity = new SugiliteEntity<>();
         AccessibilityNodeInfo matchedNode;
 
-        if(matchedAccessibilityNodeList.size() == 1) {
+        if(matchedAccessibilityNodeList != null && matchedAccessibilityNodeList.size() == 1) {
             matchedNode = matchedAccessibilityNodeList.get(0);
             targetEntity = uiSnapshot.getEntityWithAccessibilityNode(matchedNode);
         } else {
