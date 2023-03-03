@@ -36,7 +36,7 @@ import com.example.crepe.graphquery.ontology.OntologyQuery;
 import com.example.crepe.graphquery.ontology.SugiliteEntity;
 import com.example.crepe.graphquery.ontology.SugiliteRelation;
 import com.example.crepe.graphquery.ontology.UISnapshot;
-import com.example.crepe.ui.dialog.GraphQueryCallback;
+import com.example.crepe.ui.dialog.Callback;
 
 import java.util.List;
 
@@ -46,7 +46,7 @@ public class FullScreenOverlayManager {
     private WindowManager windowManager;
     private View overlay;
     private DisplayMetrics displayMetrics;
-    private GraphQueryCallback graphQueryCallback;
+    private Callback callback;
     private Boolean showingOverlay;
     private NavigationBarUtil navigationBarUtil;
     private int overlayCurrentHeight;
@@ -58,11 +58,11 @@ public class FullScreenOverlayManager {
 
     private String desiredQuery = "";
 
-    public FullScreenOverlayManager(Context context, WindowManager windowManager, DisplayMetrics displayMetrics, GraphQueryCallback graphQueryCallback) {
+    public FullScreenOverlayManager(Context context, WindowManager windowManager, DisplayMetrics displayMetrics, Callback callback) {
         this.context = context;
         this.windowManager = windowManager;
         this.displayMetrics = displayMetrics;
-        this.graphQueryCallback = graphQueryCallback;
+        this.callback = callback;
         this.overlay = getRectangleOverlay(context, displayMetrics.widthPixels, displayMetrics.heightPixels, Const.RECORDING_OVERLAY_COLOR);
         this.showingOverlay = false;
         this.navigationBarUtil = new NavigationBarUtil();
@@ -399,7 +399,7 @@ public class FullScreenOverlayManager {
     }
 
     private void processCallback() {
-        this.graphQueryCallback.onDataReceived(desiredQuery);
+        this.callback.onDataReceived(desiredQuery);
     }
 
 

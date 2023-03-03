@@ -39,7 +39,6 @@ import com.example.crepe.network.FirebaseCommunicationManager;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 
-import java.io.Serializable;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -58,7 +57,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
     private List<Datafield> datafields;
 
-    private GQCallback gqCallback = new GQCallback();
+    private GraphQueryCallback graphQueryCallback = new GraphQueryCallback();
 
     CollectorConfigurationDialogWrapper(Context context, AlertDialog dialog, Collector collector, Runnable refreshCollectorListRunnable) {
         this.context = context;
@@ -353,7 +352,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                             } else {
                                 WidgetService widgetService = new WidgetService();
                                 Intent intent = new Intent(context, widgetService.getClass());
-                                intent.putExtra("graphQueryCallback", gqCallback);
+                                intent.putExtra("graphQueryCallback", graphQueryCallback);
                                 context.startService(intent);
 
                                 finish();
