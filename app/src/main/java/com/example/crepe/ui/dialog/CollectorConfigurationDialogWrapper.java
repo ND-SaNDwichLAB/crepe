@@ -105,12 +105,11 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
                 // When coming back from later popups using back button, if there's previously a selection made
                 if (collector.getAppName() != null) {
-                    int i;
-                    for (i = 0; i < appItems.length; i++) {
+                    for (int i = 0; i < appItems.length; i++) {
                         if (collector.getAppName() == appItems[i])
-                            break;
+                            appDropDown.setSelection(i);
                     }
-                    appDropDown.setSelection(i);
+
                 }
 
                 // location spinner
@@ -271,18 +270,27 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                 Button graphQueryNxtBtn = (Button) dialogMainView.findViewById(R.id.graphQueryNextButton);
                 Button graphQueryBckBtn = (Button) dialogMainView.findViewById(R.id.graphQueryBackButton);
                 Button graphQueryAddBtn = (Button) dialogMainView.findViewById(R.id.graphQueryAddAnotherButton);
-                Button openAppBtn = (Button) dialogMainView.findViewById(R.id.openAppButton);
+                Button openAppButton = (Button) dialogMainView.findViewById(R.id.openAppButton);
                 ImageButton graphQueryCloseImg = (ImageButton) dialogMainView.findViewById(R.id.closeGraphQueryPopupImageButton);
 
                 // update interface elements based on the specified app in the previous popup box
-                Button openAppButton = (Button) dialogMainView.findViewById(R.id.openAppButton);
                 TextView commentOnOpenAppButton = (TextView) dialogMainView.findViewById(R.id.commentOnOpenAppButton);
                 String appName = collector.getAppName();
                 openAppButton.setText("Open " + appName);
                 commentOnOpenAppButton.setText("Demonstrate in the " + appName +" app");
 
+                // modify content of the popup box based on current state
+                if (datafields.size() == 0) {
+                    graphQueryAddBtn.setVisibility(View.GONE);
+                } else {
+                    graphQueryAddBtn.setVisibility(View.VISIBLE);
+
+                    openAppButton.setText("Add Another in" + appName);
+
+                }
+
                 // Open App button
-                openAppBtn.setOnClickListener(new View.OnClickListener() {
+                openAppButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
 
@@ -395,7 +403,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         } else {
                             // remind user to add graph query
                             Context currentContext = context.getApplicationContext();
-                            Toast.makeText(currentContext, "Please type in the graph query!", Toast.LENGTH_LONG).show();
+                            Toast.makeText(currentContext, "Please demonstrate the data to collect!", Toast.LENGTH_LONG).show();
                             blankFlag = 1;
                         }
                         if (blankFlag == 0) {
