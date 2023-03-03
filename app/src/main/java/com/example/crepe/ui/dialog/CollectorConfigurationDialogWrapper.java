@@ -56,6 +56,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
     private Collector collector;
     private Runnable refreshCollectorListRunnable;
     private DatabaseManager dbManager;
+    private View dialogMainView;
 
     private static List<Datafield> datafields = new ArrayList<>();
 
@@ -65,6 +66,9 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
         public void onDataReceived(String query) {
             Log.d("graphQueryCallback", "onDataReceived: " + query);
             datafields.add(new Datafield("DatafieldID","1",query,"name",true));
+            // TODO Yuwen issue: here we don't have the parameters to pass in
+            // TODO Maybe we can retrieve the buttons from the dialogmainview and pass them in
+//            updateDisplayedDataFieldsFromDemonstration();
         }
     }
     private GraphQueryCallback graphQueryCallback = new GraphQueryCallback();
@@ -79,7 +83,6 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
     }
 
     public void updateCurrentView() {
-        View dialogMainView;
 
         switch (currentScreenState) {
             case "buildDialogFromConfig":
@@ -280,14 +283,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                 commentOnOpenAppButton.setText("Demonstrate in the " + appName +" app");
 
                 // modify content of the popup box based on current state
-                if (datafields.size() == 0) {
-                    graphQueryAddBtn.setVisibility(View.GONE);
-                } else {
-                    graphQueryAddBtn.setVisibility(View.VISIBLE);
-
-                    openAppButton.setText("Add Another in" + appName);
-
-                }
+                updateDisplayedDataFieldsFromDemonstration(graphQueryAddBtn, openAppButton, appName);
 
                 // Open App button
                 openAppButton.setOnClickListener(new View.OnClickListener() {
@@ -431,53 +427,53 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                 break;
 
 
-            case "buildDialogFromConfigDataField":
-                dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_add_collector_from_config_data_field, null);
-                dialog.setContentView(dialogMainView);
-
-                Button dataFieldNxtBtn = (Button) dialogMainView.findViewById(R.id.dataFieldNextButton);
-                Button dataFieldBckBtn = (Button) dialogMainView.findViewById(R.id.dataFieldBackButton);
-                ImageButton dataFieldCloseImg = (ImageButton) dialogMainView.findViewById(R.id.closeDataFieldImageButton);
-                LinearLayout dataFieldLinearLayout = (LinearLayout) dialogMainView.findViewById(R.id.dataFiledLinearLayout);
-
-
-                // get size of ril and create a list
-                DataFieldConstraintLayoutBuilder builder = new DataFieldConstraintLayoutBuilder(context);
-                updateDataField(collector,dataFieldLinearLayout, builder);
-
-
-
-                dataFieldBckBtn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        // update currentScreen String value
-                        currentScreenState = "buildDialogFromConfigGraphQuery";
-                        // recursively call itself with new currentScreen String value
-                        updateCurrentView();
-                    }
-                });
-
-                dataFieldNxtBtn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        // write data field into collector
-                        //String dataFieldContent = dataFieldEditText.getText().toString();
-                        //collector.setCollectorAppDataFields(dataFieldContent);
-                        // update currentScreen String value
-                        currentScreenState = "buildDialogFromConfigDescription";
-
-                        // recursively call itself with new currentScreen String value
-                        updateCurrentView();
-                    }
-                });
-
-                dataFieldCloseImg.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        dialog.dismiss();
-                    }
-                });
-                break;
+//            case "buildDialogFromConfigDataField":
+//                dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_add_collector_from_config_data_field, null);
+//                dialog.setContentView(dialogMainView);
+//
+//                Button dataFieldNxtBtn = (Button) dialogMainView.findViewById(R.id.dataFieldNextButton);
+//                Button dataFieldBckBtn = (Button) dialogMainView.findViewById(R.id.dataFieldBackButton);
+//                ImageButton dataFieldCloseImg = (ImageButton) dialogMainView.findViewById(R.id.closeDataFieldImageButton);
+//                LinearLayout dataFieldLinearLayout = (LinearLayout) dialogMainView.findViewById(R.id.dataFiledLinearLayout);
+//
+//
+//                // get size of ril and create a list
+//                DataFieldConstraintLayoutBuilder builder = new DataFieldConstraintLayoutBuilder(context);
+//                updateDataField(collector,dataFieldLinearLayout, builder);
+//
+//
+//
+//                dataFieldBckBtn.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        // update currentScreen String value
+//                        currentScreenState = "buildDialogFromConfigGraphQuery";
+//                        // recursively call itself with new currentScreen String value
+//                        updateCurrentView();
+//                    }
+//                });
+//
+//                dataFieldNxtBtn.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        // write data field into collector
+//                        //String dataFieldContent = dataFieldEditText.getText().toString();
+//                        //collector.setCollectorAppDataFields(dataFieldContent);
+//                        // update currentScreen String value
+//                        currentScreenState = "buildDialogFromConfigDescription";
+//
+//                        // recursively call itself with new currentScreen String value
+//                        updateCurrentView();
+//                    }
+//                });
+//
+//                dataFieldCloseImg.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        dialog.dismiss();
+//                    }
+//                });
+//                break;
 
 
             case "buildDialogFromConfigDescription":
@@ -677,12 +673,14 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
         updateCurrentView();
     }
 
-    public void updateDataField(Collector collector, ViewGroup rootView, DataFieldConstraintLayoutBuilder builder){
-        rootView.removeAllViews();
-        // TODO Yuwen figure out what to do here: we need to maintain a list of data fields independent of the collector
-//        for (Pair<String, String> i : collector.getDataFields()){
-//            ConstraintLayout collectorCardView = builder.build(i.second, rootView, collector);
-//            rootView.addView(collectorCardView);
-//        }
+    private static void updateDisplayedDataFieldsFromDemonstration(Button graphQueryAddBtn, Button openAppButton, String appName) {
+        // TODO Yuwen: update displayed data fields from demonstration
+        // TODO maybe we don't need these buttons as the parameters.  Just use a dialogMainView
+        if (datafields.size() == 0) {
+            graphQueryAddBtn.setVisibility(View.GONE);
+        } else {
+            graphQueryAddBtn.setVisibility(View.VISIBLE);
+            openAppButton.setText("Add One in" + appName);
+        }
     }
 }
