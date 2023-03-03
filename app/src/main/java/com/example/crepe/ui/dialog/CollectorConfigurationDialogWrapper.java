@@ -39,6 +39,7 @@ import com.example.crepe.network.FirebaseCommunicationManager;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 
+import java.io.Serializable;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -57,6 +58,14 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
     private List<Datafield> datafields;
 
+
+    public static class GraphQueryCallback implements Callback, Serializable {
+        @Override
+        public void onDataReceived(String query) {
+            Log.d("graphQueryCallback", "onDataReceived: " + query);
+//            datafields.add(new Datafield("DatafieldID","1",query,"name",true));
+        }
+    }
     private GraphQueryCallback graphQueryCallback = new GraphQueryCallback();
 
     CollectorConfigurationDialogWrapper(Context context, AlertDialog dialog, Collector collector, Runnable refreshCollectorListRunnable) {
@@ -293,7 +302,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         if (!accessibilityServiceRunning) {
                             AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
                             builder1.setTitle("Service Permission Required")
-                                    .setMessage("The accessiblity service is not enabled for " + Const.appNameUpperCase + ". Please enable the service in the phone settings before recording.")
+                                    .setMessage("The accessibility service is not enabled for " + Const.appNameUpperCase + ". Please enable the service in the phone settings before recording.")
                                     .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
