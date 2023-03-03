@@ -29,6 +29,7 @@ import android.widget.Toast;
 import androidx.annotation.RequiresApi;
 
 import com.example.crepe.CrepeAccessibilityService;
+import com.example.crepe.MainActivity;
 import com.example.crepe.R;
 import com.example.crepe.graphquery.Const;
 import com.example.crepe.graphquery.model.Node;
@@ -283,9 +284,22 @@ public class FullScreenOverlayManager {
                             windowManager.removeView(confirmationView);
                             // remove the selection overlay
                             windowManager.removeView(selectionOverlay);
+
                             // set the data to the main activity
                             desiredQuery = data;
                             processCallback();
+                            // clear the overlay
+                            disableOverlay();
+                            // stop widget service
+                            Intent intent = new Intent(context, WidgetService.class);
+                            context.stopService(intent);
+                            // go back to the main activity
+                            Intent mainActivityIntent = context.getPackageManager().getLaunchIntentForPackage("com.example.crepe");
+                            if (mainActivityIntent != null) {
+                                context.startActivity(mainActivityIntent);
+                            } else {
+                                Toast.makeText(context, "There is no package available in android", Toast.LENGTH_LONG).show();
+                            }
                         }
                     });
 
