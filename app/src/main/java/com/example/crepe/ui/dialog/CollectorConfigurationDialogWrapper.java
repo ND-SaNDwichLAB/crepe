@@ -263,7 +263,6 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                 Button graphQueryAddBtn = (Button) dialogMainView.findViewById(R.id.graphQueryAddAnotherButton);
                 Button openAppBtn = (Button) dialogMainView.findViewById(R.id.openAppButton);
                 ImageButton graphQueryCloseImg = (ImageButton) dialogMainView.findViewById(R.id.closeGraphQueryPopupImageButton);
-                EditText graphQueryEditTxt = (EditText) dialogMainView.findViewById(R.id.graphQueryEditText);
 
                 // update interface elements based on the specified app in the previous popup box
                 Button openAppButton = (Button) dialogMainView.findViewById(R.id.openAppButton);
