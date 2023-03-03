@@ -67,7 +67,8 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
             Log.d("graphQueryCallback", "onDataReceived: " + query);
             datafields.add(new Datafield("DatafieldID","1",query,"name",true));
             // TODO Yuwen issue: here we don't have the parameters to pass in
-            // TODO Maybe we can retrieve the buttons from the dialogmainview and pass them in
+            // TODO Maybe we can retrieve the buttons from the dialogmainview and pass them in. But the problem is dialogMainView is not static
+            // TODO investigate how to change the dialogMainView to static, investigate what are usages for this class and whether we can have only 1 copy of the dialogMainView in the whole app
 //            updateDisplayedDataFieldsFromDemonstration();
         }
     }
