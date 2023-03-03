@@ -42,6 +42,7 @@ import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClic
 import java.io.Serializable;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -56,14 +57,14 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
     private Runnable refreshCollectorListRunnable;
     private DatabaseManager dbManager;
 
-    private List<Datafield> datafields;
+    private static List<Datafield> datafields = new ArrayList<>();
 
 
     public static class GraphQueryCallback implements Callback, Serializable {
         @Override
         public void onDataReceived(String query) {
             Log.d("graphQueryCallback", "onDataReceived: " + query);
-//            datafields.add(new Datafield("DatafieldID","1",query,"name",true));
+            datafields.add(new Datafield("DatafieldID","1",query,"name",true));
         }
     }
     private GraphQueryCallback graphQueryCallback = new GraphQueryCallback();
