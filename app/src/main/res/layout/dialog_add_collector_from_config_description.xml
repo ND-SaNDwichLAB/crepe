@@ -14,7 +14,7 @@
         android:layout_marginTop="24dp"
         android:layout_marginEnd="24dp"
         android:background="@drawable/custom_input"
-        android:hint="Collect price, departure and destination,\nand duration from the Uber app \nfor research purpose only."
+        android:hint="Describe the data and purpose for this collector"
         android:lineSpacingExtra="5dp"
         android:paddingStart="16dp"
         android:paddingTop="12dp"
@@ -33,7 +33,7 @@
         android:layout_marginStart="24dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="24dp"
-        android:text="ADD A DESCRIPTION"
+        android:text="COLLECTOR DESCRIPTION"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -52,7 +52,7 @@
         android:textColorHint="@color/ND_gold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/commentOnDescription" />
+        app:layout_constraintTop_toBottomOf="@+id/descriptionEditText" />
 
     <Button
         android:id="@+id/descriptionBackButton"
@@ -65,19 +65,19 @@
         android:textColor="@color/ND_blue"
         android:textColorHint="@color/ND_blue"
         app:layout_constraintEnd_toStartOf="@+id/descriptionCreateButton"
-        app:layout_constraintTop_toBottomOf="@+id/commentOnDescription" />
-
-    <TextView
-        android:id="@+id/commentOnDescription"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="36dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="36dp"
-        android:text="Describe the data and purpose for this collector"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/descriptionEditText" />
+
+<!--    <TextView-->
+<!--        android:id="@+id/commentOnDescription"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginStart="36dp"-->
+<!--        android:layout_marginTop="8dp"-->
+<!--        android:layout_marginEnd="36dp"-->
+<!--        android:text="Describe the data and purpose for this collector"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/descriptionEditText" />-->
 
     <TextView
         android:id="@+id/hintEnterDescription"

@@ -388,14 +388,8 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         int blankFlag = 0;
-                        // get graph query
-                        String graphQueryContent = "";
-                        String appDataField = "";
 
-                        if (graphQueryContent != "") {
-                            // TODO Yuwen figure out what to do here
-//                            collector.putNewGraphQueryAndDataField(graphQueryContent, appDataField);
-                        } else {
+                        if (datafields.size() == 0) {
                             // remind user to add graph query
                             Context currentContext = context.getApplicationContext();
                             Toast.makeText(currentContext, "Please demonstrate the data to collect!", Toast.LENGTH_LONG).show();
@@ -403,7 +397,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         }
                         if (blankFlag == 0) {
                             // update currentScreen String value
-                            currentScreenState = "buildDialogFromConfigDataField";
+                            currentScreenState = "buildDialogFromConfigDescription";
                             // recursively call itself with new currentScreen String value
                             updateCurrentView();
                         }
