@@ -63,9 +63,9 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
     public static class GraphQueryCallback implements Callback, Serializable {
         @Override
-        public void onDataReceived(String query) {
+        public void onDataReceived(String query, String targetText) {
             Log.d("graphQueryCallback", "onDataReceived: " + query);
-            datafields.add(new Datafield("DatafieldID","1",query,"name",true));
+            datafields.add(new Datafield("DatafieldID","1",query,targetText,true));
             updateDisplayedDataFieldsFromDemonstration(dialogMainView);
         }
     }
@@ -702,7 +702,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
             View datafieldView = LayoutInflater.from(context).inflate(R.layout.datafield_card, null);
             // get datafield name
             TextView datafieldName = (TextView) datafieldView.findViewById(R.id.datafieldTextView);
-            datafieldName.setText(datafields.get(i).getGraphQuery());
+            datafieldName.setText(datafields.get(i).getName());
 
             // set onclicklistener for datafield remove
             ImageButton deleteDatafieldButton = (ImageButton) datafieldView.findViewById(R.id.removeDataFieldButton);

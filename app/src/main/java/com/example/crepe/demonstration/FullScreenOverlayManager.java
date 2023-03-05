@@ -276,6 +276,8 @@ public class FullScreenOverlayManager {
                     Button yesButton = confirmationView.findViewById(R.id.confirmationYesButton);
                     Button noButton = confirmationView.findViewById(R.id.confirmationNoButton);
                     final String data = defaultQueries.get(0).first.toString();
+
+                    SugiliteEntity<Node> finalTargetEntity = targetEntity;
                     yesButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -287,7 +289,7 @@ public class FullScreenOverlayManager {
 
                             // set the data to the main activity
                             desiredQuery = data;
-                            processCallback();
+                            processCallback(finalTargetEntity.getEntityValue().getText());
                             // clear the overlay
                             disableOverlay();
                             // stop widget service
@@ -412,8 +414,8 @@ public class FullScreenOverlayManager {
         });
     }
 
-    private void processCallback() {
-        this.callback.onDataReceived(desiredQuery);
+    private void processCallback(String targetText) {
+        this.callback.onDataReceived(desiredQuery, targetText);
     }
 
 
