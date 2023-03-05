@@ -10,15 +10,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
-        android:layout_marginTop="24dp"
         android:layout_marginBottom="24dp"
         android:background="@android:color/transparent"
         android:text="BACK"
         android:textColor="@color/ND_blue"
         android:textColorHint="@color/ND_blue"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/datafieldConstraintLayout" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/graphQueryNextButton"
@@ -33,7 +31,7 @@
         android:textColorHint="@color/ND_gold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/datafieldConstraintLayout" />
+        app:layout_constraintTop_toBottomOf="@+id/datafieldContainerLinearLayout" />
 
 <!--    <Button-->
 <!--        android:id="@+id/graphQueryAddAnotherButton"-->
@@ -64,8 +62,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/commentOnOpenAppButton" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/datafieldConstraintLayout"
+    <LinearLayout
+        android:id="@+id/datafieldContainerLinearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
@@ -73,7 +71,8 @@
         android:layout_marginEnd="24dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/openAppButton" />
+        app:layout_constraintTop_toBottomOf="@+id/openAppButton"
+        android:orientation="vertical" />
 
     <TextView
         android:id="@+id/commentOnOpenAppButton"

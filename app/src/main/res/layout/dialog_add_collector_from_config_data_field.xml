@@ -66,7 +66,7 @@
         android:layout_marginStart="36dp"
         android:text="The data fields to collect from the app"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/dataFiledLinearLayout" />
+        app:layout_constraintTop_toBottomOf="@+id/datafieldLinearLayout" />
 
     <ImageButton
         android:id="@+id/closeDataFieldImageButton"
@@ -80,7 +80,7 @@
         app:srcCompat="@drawable/ic_baseline_close_24" />
 
     <LinearLayout
-        android:id="@+id/dataFiledLinearLayout"
+        android:id="@+id/datafieldLinearLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginStart="0dp"

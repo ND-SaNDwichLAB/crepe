@@ -51,7 +51,7 @@ import java.util.List;
 public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
     private AlertDialog dialog;
-    private Context context;
+    private static Context context;
     private static String currentScreenState;
     private Collector collector;
     private Runnable refreshCollectorListRunnable;
@@ -270,6 +270,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                 dialog.setContentView(dialogMainView);
                 Button graphQueryNxtBtn = (Button) dialogMainView.findViewById(R.id.graphQueryNextButton);
                 Button graphQueryBckBtn = (Button) dialogMainView.findViewById(R.id.graphQueryBackButton);
+                LinearLayout datafieldContainerLinearLayout = (LinearLayout) dialogMainView.findViewById(R.id.datafieldContainerLinearLayout);
 //                Button graphQueryAddBtn = (Button) dialogMainView.findViewById(R.id.graphQueryAddAnotherButton);
                 Button openAppButton = (Button) dialogMainView.findViewById(R.id.openAppButton);
                 ImageButton graphQueryCloseImg = (ImageButton) dialogMainView.findViewById(R.id.closeGraphQueryPopupImageButton);
@@ -675,15 +676,54 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
         // we only update if the current screen is the demonstration screen
         if (currentScreenState == "buildDialogFromConfigGraphQuery") {
 
-                Button openAppButton = (Button) dialogMainView.findViewById(R.id.openAppButton);
+            Button openAppButton = (Button) dialogMainView.findViewById(R.id.openAppButton);
+
+            refreshDatafieldsList();
 
             if (datafields.size() == 0) {
+
             } else {
                 openAppButton.setText("Add another");
-                // TODO also update the datafields
+
             }
         } else {
             Log.e("Dialog", "updateDisplayedDataFieldsFromDemonstration() called when currentScreenState is not buildDialogFromConfigGraphQuery");
+        }
+    }
+
+    private static void refreshDatafieldsList() {
+        // remove all subviews from the linearlayout
+        LinearLayout datafieldContainerLinearLayout = (LinearLayout) dialogMainView.findViewById(R.id.datafieldContainerLinearLayout);
+        datafieldContainerLinearLayout.removeAllViews();
+
+        // inflate datafields into the dialog
+        for (int i = 0; i < datafields.size(); i++) {
+            // inflate datafield
+            View datafieldView = LayoutInflater.from(context).inflate(R.layout.datafield_card, null);
+            // get datafield name
+            TextView datafieldName = (TextView) datafieldView.findViewById(R.id.datafieldTextView);
+            datafieldName.setText(datafields.get(i).getGraphQuery());
+
+            // set onclicklistener for datafield remove
+            ImageButton deleteDatafieldButton = (ImageButton) datafieldView.findViewById(R.id.removeDataFieldButton);
+            int finalI = i;
+            deleteDatafieldButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    // remove datafield from datafields list
+                    datafields.remove(finalI);
+                    // update dialog
+                    updateDisplayedDataFieldsFromDemonstration(dialogMainView);
+                }
+            });
+
+            // add datafield to dialog
+
+            if (datafieldContainerLinearLayout != null) {
+                datafieldContainerLinearLayout.addView(datafieldView);
+            } else {
+                Log.e("Dialog", "datafieldContainerLinearLayout is null");
+            }
         }
     }
 }
