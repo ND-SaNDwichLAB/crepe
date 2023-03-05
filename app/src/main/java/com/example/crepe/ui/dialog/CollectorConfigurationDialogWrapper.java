@@ -52,11 +52,11 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
     private AlertDialog dialog;
     private Context context;
-    private String currentScreenState;
+    private static String currentScreenState;
     private Collector collector;
     private Runnable refreshCollectorListRunnable;
     private DatabaseManager dbManager;
-    private View dialogMainView;
+    private static View dialogMainView;
 
     private static List<Datafield> datafields = new ArrayList<>();
 
@@ -66,10 +66,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
         public void onDataReceived(String query) {
             Log.d("graphQueryCallback", "onDataReceived: " + query);
             datafields.add(new Datafield("DatafieldID","1",query,"name",true));
-            // TODO Yuwen issue: here we don't have the parameters to pass in
-            // TODO Maybe we can retrieve the buttons from the dialogmainview and pass them in. But the problem is dialogMainView is not static
-            // TODO investigate how to change the dialogMainView to static, investigate what are usages for this class and whether we can have only 1 copy of the dialogMainView in the whole app
-//            updateDisplayedDataFieldsFromDemonstration();
+            updateDisplayedDataFieldsFromDemonstration(dialogMainView);
         }
     }
     private GraphQueryCallback graphQueryCallback = new GraphQueryCallback();
@@ -273,7 +270,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                 dialog.setContentView(dialogMainView);
                 Button graphQueryNxtBtn = (Button) dialogMainView.findViewById(R.id.graphQueryNextButton);
                 Button graphQueryBckBtn = (Button) dialogMainView.findViewById(R.id.graphQueryBackButton);
-                Button graphQueryAddBtn = (Button) dialogMainView.findViewById(R.id.graphQueryAddAnotherButton);
+//                Button graphQueryAddBtn = (Button) dialogMainView.findViewById(R.id.graphQueryAddAnotherButton);
                 Button openAppButton = (Button) dialogMainView.findViewById(R.id.openAppButton);
                 ImageButton graphQueryCloseImg = (ImageButton) dialogMainView.findViewById(R.id.closeGraphQueryPopupImageButton);
 
@@ -284,7 +281,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                 commentOnOpenAppButton.setText("Demonstrate in the " + appName +" app");
 
                 // modify content of the popup box based on current state
-                updateDisplayedDataFieldsFromDemonstration(graphQueryAddBtn, openAppButton, appName);
+                updateDisplayedDataFieldsFromDemonstration(dialogMainView);
 
                 // Open App button
                 openAppButton.setOnClickListener(new View.OnClickListener() {
@@ -412,12 +409,12 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                     }
                 });
 
-                graphQueryAddBtn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        currentScreenState = "buildDialogFromConfigGraphQuery";
-                    }
-                });
+//                graphQueryAddBtn.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {f
+//                        currentScreenState = "buildDialogFromConfigGraphQuery";
+//                    }
+//                });
 
                 graphQueryCloseImg.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -674,14 +671,19 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
         updateCurrentView();
     }
 
-    private static void updateDisplayedDataFieldsFromDemonstration(Button graphQueryAddBtn, Button openAppButton, String appName) {
-        // TODO Yuwen: update displayed data fields from demonstration
-        // TODO maybe we don't need these buttons as the parameters.  Just use a dialogMainView
-        if (datafields.size() == 0) {
-            graphQueryAddBtn.setVisibility(View.GONE);
+    private static void updateDisplayedDataFieldsFromDemonstration(View dialogMainView) {
+        // we only update if the current screen is the demonstration screen
+        if (currentScreenState == "buildDialogFromConfigGraphQuery") {
+
+                Button openAppButton = (Button) dialogMainView.findViewById(R.id.openAppButton);
+
+            if (datafields.size() == 0) {
+            } else {
+                openAppButton.setText("Add another");
+                // TODO also update the datafields
+            }
         } else {
-            graphQueryAddBtn.setVisibility(View.VISIBLE);
-            openAppButton.setText("Add One in" + appName);
+            Log.e("Dialog", "updateDisplayedDataFieldsFromDemonstration() called when currentScreenState is not buildDialogFromConfigGraphQuery");
         }
     }
 }

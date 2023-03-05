@@ -4,6 +4,7 @@ import static android.content.Context.WINDOW_SERVICE;
 import static com.example.crepe.demonstration.DemonstrationUtil.processOverlayClick;
 import static com.example.crepe.graphquery.Const.OVERLAY_TYPE;
 import static com.example.crepe.demonstration.DemonstrationUtil.generateDefaultQueries;
+import static com.example.crepe.graphquery.Const.appName;
 
 import android.content.Context;
 import android.content.Intent;
@@ -29,7 +30,6 @@ import android.widget.Toast;
 import androidx.annotation.RequiresApi;
 
 import com.example.crepe.CrepeAccessibilityService;
-import com.example.crepe.MainActivity;
 import com.example.crepe.R;
 import com.example.crepe.graphquery.Const;
 import com.example.crepe.graphquery.model.Node;
