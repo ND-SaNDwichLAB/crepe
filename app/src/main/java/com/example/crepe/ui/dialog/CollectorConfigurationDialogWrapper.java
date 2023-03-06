@@ -542,7 +542,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
                 // update the displayed app info
                 TextView successMessageTextView = (TextView) dialogMainView.findViewById(R.id.successMessageTitle);
-                successMessageTextView.setText("Your collector for " + collector.getAppName() + "is created");
+                successMessageTextView.setText("Your collector for " + collector.getAppName() + " is created");
 
                 // TODO: Create a new class to handle url generation e.g. collectorUrlManager
                 //      1. create url
@@ -600,7 +600,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
                         ClipData clip = ClipData.newPlainText("share URL", collectorURL);
                         clipboard.setPrimaryClip(clip);
-                        Toast.makeText(context," Copied URL to clipboard", Toast.LENGTH_LONG).show();
+                        Toast.makeText(context,"URL copied to clipboard", Toast.LENGTH_LONG).show();
                     }
                 });
 

@@ -21,6 +21,9 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.example.crepe.R;
 import com.example.crepe.database.Collector;
 import com.example.crepe.database.DatabaseManager;
+import com.example.crepe.database.Datafield;
+
+import java.util.List;
 
 public class CollectorCardDetailBuilder {
     private Context c;
@@ -42,16 +45,26 @@ public class CollectorCardDetailBuilder {
         dialogBuilder.setView(popupView);
         Dialog dialog = dialogBuilder.create();
 
+        List<Datafield> datafieldsForCollector = dbManager.getAllDatafieldsForCollector(collector);
+
         TextView collectorDataField = (TextView) popupView.findViewById(R.id.collectorDetailDataField);
+        if (datafieldsForCollector.size() > 0) {
+            for (Datafield datafield : datafieldsForCollector) {
+                collectorDataField.append(datafield.getName() + "\n");
+            }
+        } else {
+            collectorDataField.setText("No datafields available");
+        }
+
         Button closeBtn = (Button) popupView.findViewById(R.id.collectorCloseButton);
         Button deleteBtn = (Button) popupView.findViewById(R.id.collectorDeleteButton);
-        Switch enableSwitch = (Switch) popupView.findViewById(R.id.collectorStatusSwitch);
-        if(collector.getCollectorStatus().equals("disabled")){
-            enableSwitch.setChecked(false);
-            enableSwitch.setText("Disabled");
-        } else{
-            enableSwitch.setChecked(true);
-        }
+//        Switch enableSwitch = (Switch) popupView.findViewById(R.id.collectorStatusSwitch);
+//        if(collector.getCollectorStatus().equals("disabled")){
+//            enableSwitch.setChecked(false);
+//            enableSwitch.setText("Disabled");
+//        } else{
+//            enableSwitch.setChecked(true);
+//        }
 
         // TODO Yuwen figure out what to do here
 //        collectorDataField.setText(collector.getDataFieldsToString());
@@ -75,30 +88,30 @@ public class CollectorCardDetailBuilder {
         closeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(enableSwitch.isChecked()){
-                    collector.activateCollector();
-                    dbManager.updateCollectorStatus(collector);
-                } else {
-                    collector.disableCollector();
-                    dbManager.updateCollectorStatus(collector);
-                }
-                // update the home fragment list
-                refreshCollectorListRunnable.run();
+//                if(enableSwitch.isChecked()){
+//                    collector.activateCollector();
+//                    dbManager.updateCollectorStatus(collector);
+//                } else {
+//                    collector.disableCollector();
+//                    dbManager.updateCollectorStatus(collector);
+//                }
+//                // update the home fragment list
+//                refreshCollectorListRunnable.run();
                 dialog.dismiss();
             }
         });
 
-        enableSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                // Commented the following block out, don't feel it's necessary because the collector status is updated at the closeBtn onclicklistener
-                if (!isChecked){
-                    enableSwitch.setText("Disabled");
-                } else {
-                    enableSwitch.setText("Enabled");
-                }
-            }
-        });
+//        enableSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+//                // Commented the following block out, don't feel it's necessary because the collector status is updated at the closeBtn onclicklistener
+//                if (!isChecked){
+//                    enableSwitch.setText("Disabled");
+//                } else {
+//                    enableSwitch.setText("Enabled");
+//                }
+//            }
+//        });
 
 
         return dialog;

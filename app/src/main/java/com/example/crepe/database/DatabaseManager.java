@@ -505,7 +505,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return dataList;
     }
 
-    public List<Datafield> getDatafieldForCollector(Collector collector) {
+    public List<Datafield> getAllDatafieldsForCollector(Collector collector) {
         List<Datafield> dataList = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         String getAllDataQuery = "SELECT * FROM " + DATAFIELD_TABLE + " WHERE " + COLUMN_COLLECTOR_ID + " = \"" + collector.getCollectorId() + "\";";
