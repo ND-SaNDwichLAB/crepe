@@ -76,22 +76,23 @@ public class CreateCollectorFromURLDialogBuilder {
 
                     // Firebase
                     FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(c);
-                    firebaseCommunicationManager.retrieveCollector(urlText.getText().toString(), new FirebaseCallback() {
-                        @Override
-                        public void onResponse(Collector result) {
-                            DatabaseManager dbManager = new DatabaseManager(c);
-                            dbManager.addOneCollector(result);
-                            refreshCollectorListRunnable.run();
-                            List<Collector> collectors = dbManager.getAllCollectors();
-                            for (Collector collector : collectors) {
-                                System.out.println(collector.toString());
-                            }
-                        }
-                    });
+//                    firebaseCommunicationManager.retrieveCollector(urlText.getText().toString(), new FirebaseCallback() {
+//                        @Override
+//                        public void onResponse(Collector result) {
+//                            DatabaseManager dbManager = new DatabaseManager(c);
+//                            dbManager.addOneCollector(result);
+//                            refreshCollectorListRunnable.run();
+//                            List<Collector> collectors = dbManager.getAllCollectors();
+//                            for (Collector collector : collectors) {
+//                                System.out.println(collector.toString());
+//                            }
+//                        }
+//                    });
                     // next popup
                     dialog.dismiss();
-                    CreateCollectorFromURLDialogSuccessMessage nextPopup = new CreateCollectorFromURLDialogSuccessMessage(c);
-                    nextPopup.build();
+//                    CreateCollectorFromURLDialogSuccessMessage nextPopup = new CreateCollectorFromURLDialogSuccessMessage(c);
+//                    nextPopup.build();
+                    Toast.makeText(c, "Collector successfully added!", Toast.LENGTH_LONG).show();
                 } else {
                     Toast.makeText(c,"Please enter a valid URL", Toast.LENGTH_LONG).show();
                 }
