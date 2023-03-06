@@ -84,7 +84,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="© Sandwich Lab, University of Notre Dame 2021, All rights reserved."
+                android:text="© Sandwich Lab, University of Notre Dame 2023, All rights reserved."
                 android:textSize="12sp"
                 android:lineSpacingMultiplier="1.2"/>
         </LinearLayout>
