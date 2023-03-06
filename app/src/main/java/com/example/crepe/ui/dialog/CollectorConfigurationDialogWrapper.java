@@ -540,6 +540,10 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                 dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_add_collector_from_config_success_message, null);
                 dialog.setContentView(dialogMainView);
 
+                // update the displayed app info
+                TextView successMessageTextView = (TextView) dialogMainView.findViewById(R.id.successMessageTitle);
+                successMessageTextView.setText("Your collector for " + collector.getAppName() + "is created");
+
                 // TODO: Create a new class to handle url generation e.g. collectorUrlManager
                 //      1. create url
                 //      2. get collector from url
@@ -633,12 +637,10 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
         // get list of all the apps installed
         // ril stands for ResolveInfoList
         List<ResolveInfo> ril = context.getPackageManager().queryIntentActivities(mainIntent, 0);
-//        List<String> componentList = new ArrayList<String>();
         String name = null;
         int i = 0;
 
-        // get size of ril and create a list
-//        String[] apps = new String[ril.size()];
+        // get size of ril and create a dictionary of app names and package names
         Dictionary<String, String> appDict = new Hashtable<String, String>();
         for (ResolveInfo ri : ril) {
             if (ri.activityInfo != null) {
