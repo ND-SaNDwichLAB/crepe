@@ -50,7 +50,7 @@ public class CollectorCardDetailBuilder {
         TextView collectorDataField = (TextView) popupView.findViewById(R.id.collectorDetailDataField);
         if (datafieldsForCollector.size() > 0) {
             for (Datafield datafield : datafieldsForCollector) {
-                collectorDataField.append(datafield.getName() + "\n");
+                collectorDataField.append("\"" + datafield.getName() + "\"\n\n");
             }
         } else {
             collectorDataField.setText("No datafields available");

@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
-import android.util.Pair;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 
@@ -424,7 +423,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     }
 
 
-    public Boolean addOneDataField(Datafield dataField) {
+    public Boolean addOneDatafield(Datafield dataField) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
 

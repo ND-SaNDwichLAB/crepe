@@ -15,7 +15,6 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -44,7 +43,6 @@ import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Dictionary;
@@ -57,7 +55,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
     private AlertDialog dialog;
     private static Context context;
     private static String currentScreenState;
-    private Collector collector;
+    private static Collector collector;
     private Runnable refreshCollectorListRunnable;
     private DatabaseManager dbManager;
     private static View dialogMainView;
@@ -69,7 +67,10 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
         @Override
         public void onDataReceived(String query, String targetText) {
             Log.d("graphQueryCallback", "onDataReceived: " + query);
-            datafields.add(new Datafield("DatafieldID","1",query,targetText,true));
+            // TODO Yuwen use a legit id here
+            // generate a random number
+            int random = (int)(Math.random() * 1000 + 1);
+            datafields.add(new Datafield(String.valueOf(random), collector.getCollectorId(),query,targetText,true));
             updateDisplayedDataFieldsFromDemonstration(dialogMainView);
         }
     }
@@ -515,6 +516,12 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         // add a callback to refresh homepage every time
                         DatabaseManager dbManager = new DatabaseManager(context);
                         dbManager.addOneCollector(collector);
+
+                        // store the data fields into database
+                        for (Datafield datafield : datafields) {
+                            dbManager.addOneDatafield(datafield);
+                        }
+
                         clearDatafields();
 //                        List<Collector> collectors = dbManager.getActiveCollectors();
 
