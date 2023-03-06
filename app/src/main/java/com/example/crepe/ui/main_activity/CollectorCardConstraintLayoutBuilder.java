@@ -128,7 +128,7 @@ public class CollectorCardConstraintLayoutBuilder {
             @Override
             public void onClick(View view) {
                 CollectorCardDetailBuilder cardDetailBuilder = new CollectorCardDetailBuilder(c, collector, refreshCollectorListRunnable);
-                Dialog newDialog =cardDetailBuilder.build();
+                Dialog newDialog = cardDetailBuilder.build();
                 newDialog.show();
             }
         });

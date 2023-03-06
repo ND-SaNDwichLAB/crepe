@@ -44,7 +44,11 @@ import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.List;
 
 
@@ -95,11 +99,15 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
                 // app spinner
                 String[] appItems = {""};
+                Dictionary<String, String> appPackageDict = new Hashtable<>();
                 try {
-                    appItems = getAllInstalledAppNames();
+                    appPackageDict = getAllInstalledAppNames();
                 } catch (PackageManager.NameNotFoundException e) {
                     e.getMessage();
                 }
+
+                // get the keys of the dictionary and put them into an array
+                appItems = Collections.list(appPackageDict.keys()).toArray(new String[0]);
                 ArrayAdapter<String> appAdapter = new ArrayAdapter<String>(context.getApplicationContext(), android.R.layout.simple_spinner_dropdown_item, appItems);
                 appAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 appDropDown.setAdapter(appAdapter);
@@ -212,14 +220,17 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                     }
                 });
 
+                Dictionary<String, String> finalAppPackageDict = appPackageDict;
                 popupNextBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         int blankFlag = 0;
                         // update app info
                         String appName = appDropDown.getSelectedItem().toString();
+                        String appPackage = finalAppPackageDict.get(appName);
                         if (appName != " ") {
                             collector.setAppName(appName);
+                            collector.setAppPackage(appPackage);
                         } else {
                             // set the border of spinner to red
                             Context currentContext = context.getApplicationContext();
@@ -609,7 +620,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
         }
     }
 
-    public String[] getAllInstalledAppNames() throws PackageManager.NameNotFoundException {
+    public Dictionary<String, String> getAllInstalledAppNames() throws PackageManager.NameNotFoundException {
         final Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
         mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
 
@@ -621,7 +632,8 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
         int i = 0;
 
         // get size of ril and create a list
-        String[] apps = new String[ril.size()];
+//        String[] apps = new String[ril.size()];
+        Dictionary<String, String> appDict = new Hashtable<String, String>();
         for (ResolveInfo ri : ril) {
             if (ri.activityInfo != null) {
                 // get package
@@ -633,12 +645,13 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                     name = ri.activityInfo.applicationInfo.loadLabel(
                             context.getPackageManager()).toString();
                 }
-                apps[i] = name;
+//                apps[i] = name;
+                appDict.put(name, ri.activityInfo.packageName);
                 i++;
             }
         }
 //        Toast.makeText(context, ril.size() + " apps are installed on this phone", Toast.LENGTH_LONG).show();
-        return apps;
+        return appDict;
     }
 
     public void getPermission() {
