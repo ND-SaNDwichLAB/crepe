@@ -515,6 +515,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         // add a callback to refresh homepage every time
                         DatabaseManager dbManager = new DatabaseManager(context);
                         dbManager.addOneCollector(collector);
+                        clearDatafields();
 //                        List<Collector> collectors = dbManager.getActiveCollectors();
 
                         // update currentScreen String value
@@ -618,6 +619,11 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                 throw new IllegalStateException("Unexpected value: " + currentScreenState);
 
         }
+    }
+
+    private void clearDatafields() {
+        // remove all elements from datafields
+        datafields.clear();
     }
 
     public Dictionary<String, String> getAllInstalledAppNames() throws PackageManager.NameNotFoundException {

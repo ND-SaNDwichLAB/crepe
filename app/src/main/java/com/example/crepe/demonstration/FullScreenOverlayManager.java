@@ -283,9 +283,13 @@ public class FullScreenOverlayManager {
                         public void onClick(View v) {
                             //confirm the selection
                             // remove the confirmation dialog
-                            windowManager.removeView(confirmationView);
+                            if (confirmationView != null) {
+                                windowManager.removeView(confirmationView);
+                            }
                             // remove the selection overlay
-                            windowManager.removeView(selectionOverlay);
+                            if (selectionOverlay != null) {
+                                windowManager.removeView(selectionOverlay);
+                            }
 
                             // set the data to the main activity
                             desiredQuery = data;
