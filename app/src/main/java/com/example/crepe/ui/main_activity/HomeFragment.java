@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -55,7 +56,15 @@ public class HomeFragment extends Fragment {
 
     public void initCollectorList() throws PackageManager.NameNotFoundException {
         collectorList = dbManager.getAllCollectors();
-        Toast.makeText(this.getActivity(), "Collector number: " + collectorList.size(), Toast.LENGTH_LONG).show();
+
+        TextView noCollectorTextView = getView().findViewById(R.id.empty_text_view);
+        if(collectorList.size() > 0) {
+            noCollectorTextView.setVisibility(View.GONE);
+        } else {
+            noCollectorTextView.setVisibility(View.VISIBLE);
+        }
+
+
         //get all installed apps
         Map<String, Drawable> apps = getAppImage();
         CollectorCardConstraintLayoutBuilder builder = new CollectorCardConstraintLayoutBuilder(getActivity(), homeFragmentRefreshCollectorListRunnable,apps);

@@ -97,10 +97,10 @@ public class MainActivity extends AppCompatActivity {
         }
         try {
             List<Pair<String,String>> testList = new ArrayList<>();
-            testCollector = new Collector("2", "1", "YouTube Music", "com.google.android.apps.youtube.music", "description for a Youtube Music collector", "local", 100, 100,"active");
-            testCollector2 = new Collector("7", "1", "Doordash", "com.app.doordash", "description for a Doordash collector", "what", "https", 139148015, 1491789595,"active");
-            Boolean addResult = dbManager.addOneCollector(testCollector);
-            Boolean addResult2 = dbManager.addOneCollector(testCollector2);
+//            testCollector = new Collector("2", "1", "YouTube Music", "com.google.android.apps.youtube.music", "description for a Youtube Music collector", "local", 100, 100,"active");
+//            testCollector2 = new Collector("7", "1", "Doordash", "com.app.doordash", "description for a Doordash collector", "what", "https", 139148015, 1491789595,"active");
+//            Boolean addResult = dbManager.addOneCollector(testCollector);
+//            Boolean addResult2 = dbManager.addOneCollector(testCollector2);
 
         }
         catch (Exception e) {
@@ -219,6 +219,10 @@ public class MainActivity extends AppCompatActivity {
         addUrlBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // collapse the fab icon
+                clicked = !clicked;
+                setAnimation(clicked);
+
                 Dialog dialog = createCollectorFromURLDialogBuilder.build();
                 dialog.show();
                 displaySelectedScreen(R.id.nav_menu_home);
@@ -228,9 +232,12 @@ public class MainActivity extends AppCompatActivity {
         createNewBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // collapse the fab icon
+                clicked = !clicked;
+                setAnimation(clicked);
+
                 CollectorConfigurationDialogWrapper wrapper = createCollectorFromConfigDialogBuilder.buildDialogWrapperWithNewCollector();
                 wrapper.show();
-
             }
         });
     }
@@ -274,7 +281,6 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 clicked = !clicked;
                 Log.i(null, "clicked value: " + clicked);
-                setVisibility(clicked);
                 setAnimation(clicked);
             }
         });
@@ -285,18 +291,6 @@ public class MainActivity extends AppCompatActivity {
         sidemenuToggle.syncState();
         super.onPostCreate(savedInstanceState);
 
-    }
-
-    private void setVisibility(Boolean clicked) {
-        // if the fab icon is clicked, show the small buttons
-        if(!clicked) {
-            addUrlBtn.setVisibility(View.VISIBLE);
-            createNewBtn.setVisibility(View.VISIBLE);
-        } else {
-            // if the fab icon is clicked to be closed, set the visibilities to invisible
-            addUrlBtn.setVisibility(View.INVISIBLE);
-            createNewBtn.setVisibility(View.INVISIBLE);
-        }
     }
 
     private void setAnimation(Boolean clicked) {
