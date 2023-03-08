@@ -1,5 +1,7 @@
 package com.example.crepe;
 
+import static com.example.crepe.MainActivity.androidId;
+
 import android.accessibilityservice.AccessibilityService;
 import android.app.ActivityManager;
 import android.content.ComponentName;
@@ -86,8 +88,6 @@ public class CrepeAccessibilityService extends AccessibilityService {
 
 
                 // retrieve all stored collectors and datafields
-                // TODO Meng Chen: here we are retrieving all collectors from the database, but we only need the ones that are actively running
-                // TODO Task: in the dbManager class, add a method that returns all collectors that have the status "active". We might need to refresh collector status every time we start the app
                 List<Collector> collectors = dbManager.getActiveCollectors();
                 List<Datafield> datafields = dbManager.getAllDatafields();
 
@@ -133,10 +133,13 @@ public class CrepeAccessibilityService extends AccessibilityService {
                             for (SugiliteEntity result : currentResults) {
                                 if (!prevResults.contains(result)) {
                                     // if the result is not in the previous results, add it to the database
-                                    Data resultData = new Data(datafield.getCollectorId(), datafield.getDataFieldId(), "", result.saveToDatabaseAsString());
+                                    long timestamp = System.currentTimeMillis();
+                                    // the data id is the collector id + "%" + timestamp
+                                    Data resultData = new Data(datafield.getCollectorId() + "%" + String.valueOf(timestamp), datafield.getDataFieldId(), androidId, result.saveToDatabaseAsString());
                                     Boolean addDataResult = false;
                                     try {
                                         addDataResult = dbManager.addData(resultData);
+                                        Log.i("dataset", "added data: " + resultData.toString());
                                     } catch (Exception e) {
                                         Log.i("dataset", "failed to add data: " + resultData.toString());
                                         e.printStackTrace();

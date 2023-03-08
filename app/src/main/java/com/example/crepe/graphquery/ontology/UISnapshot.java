@@ -289,7 +289,7 @@ public class UISnapshot {
 
                     AccessibilityNodeInfo parentAccessibilityNode = nodeAccessibilityNodeInfoMap.get(parentNode);
                     // add parent text relation
-                    if (parentAccessibilityNode.getText()!= null && !parentAccessibilityNode.getText().toString().isEmpty()) {
+                    if (parentAccessibilityNode != null && parentAccessibilityNode.getText()!= null && !parentAccessibilityNode.getText().toString().isEmpty()) {
                         addEntityStringTriple(currentEntity, parentAccessibilityNode.getText().toString(), SugiliteRelation.HAS_PARENT_TEXT);
                     }
 
