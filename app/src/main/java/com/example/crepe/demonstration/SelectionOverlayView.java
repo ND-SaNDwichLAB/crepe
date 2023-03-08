@@ -4,6 +4,8 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
+import android.util.Log;
 import android.view.View;
 
 
@@ -11,23 +13,20 @@ import android.view.View;
 public class SelectionOverlayView extends View {
 
     private Paint paint;
-    private float x;
-    private float y;
+    private Rect bounds;
     private float radius;
 
-    public SelectionOverlayView(Context context, float x, float y, float radius) {
+    public SelectionOverlayView(Context context, Rect bounds) {
         super(context);
-        this.x = x;
-        this.y = y;
-        this.radius = radius;
+        this.bounds = bounds;
         this.paint = new Paint();
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        paint.setColor(Color.RED);
-        paint.setStrokeWidth(5);
-        canvas.drawCircle(x, y, radius, paint);
+        // draw a rectangle with a half-transparent gray color
+        paint.setColor(Color.argb(128, 128, 128, 128));
+        canvas.drawRect(bounds, paint);
     }
 }

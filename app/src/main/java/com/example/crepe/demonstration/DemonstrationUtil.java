@@ -14,7 +14,9 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import androidx.annotation.RequiresApi;
 
 import com.example.crepe.CrepeAccessibilityService;
-import com.example.crepe.demonstration.WidgetDisplay;
+import com.example.crepe.database.Data;
+import com.example.crepe.database.DatabaseManager;
+import com.example.crepe.database.Datafield;
 import com.example.crepe.graphquery.Const;
 import com.example.crepe.graphquery.automation.AutomatorUtil;
 import com.example.crepe.graphquery.model.Node;
@@ -25,7 +27,7 @@ import com.example.crepe.graphquery.ontology.SugiliteEntity;
 import com.example.crepe.graphquery.ontology.SugiliteRelation;
 import com.example.crepe.graphquery.ontology.SugiliteTriple;
 import com.example.crepe.graphquery.ontology.UISnapshot;
-import com.example.crepe.demonstration.FullScreenOverlayManager;
+import com.example.crepe.network.FirebaseCommunicationManager;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -179,6 +181,25 @@ public class DemonstrationUtil {
         return closestNode;
     }
 
+    public static Rect getBoundingBoxOfClickedItem(float clickX, float clickY) {
+        Rect resultBounds = new Rect();
+        // create uiSnapshot for current screen
+        UISnapshot uiSnapshot = CrepeAccessibilityService.getsSharedInstance().generateUISnapshot();
+
+        List<AccessibilityNodeInfo> matchedAccessibilityNodeList = CrepeAccessibilityService.getsSharedInstance().getMatchingNodeFromClickWithText(clickX, clickY);
+
+        SugiliteEntity<Node> targetEntity = new SugiliteEntity<>();
+        AccessibilityNodeInfo matchedNode;
+
+        if(matchedAccessibilityNodeList != null && matchedAccessibilityNodeList.size() == 1) {
+            matchedNode = matchedAccessibilityNodeList.get(0);
+            matchedNode.getBoundsInScreen(resultBounds);
+            return resultBounds;
+        } else {
+            return null;
+        }
+    }
+
     public static List<Pair<OntologyQuery, Double>> processOverlayClick(float clickX, float clickY) {
 
         // create uiSnapshot for current screen
@@ -192,7 +213,7 @@ public class DemonstrationUtil {
         SugiliteEntity<Node> targetEntity = new SugiliteEntity<>();
         AccessibilityNodeInfo matchedNode;
 
-        if(matchedAccessibilityNodeList.size() == 1) {
+        if(matchedAccessibilityNodeList != null && matchedAccessibilityNodeList.size() == 1) {
             matchedNode = matchedAccessibilityNodeList.get(0);
             targetEntity = uiSnapshot.getEntityWithAccessibilityNode(matchedNode);
         } else {
@@ -201,7 +222,8 @@ public class DemonstrationUtil {
 
 
         List<Pair<OntologyQuery, Double>> defaultQueries = null;
-        Set<SugiliteEntity> results = new HashSet<>();
+        // temporarily change this to a list to store duplicate values from different query results
+        List<Set<SugiliteEntity>> results = new ArrayList<>();
         if(targetEntity != null) {
             SugiliteRelation[] relationsToExclude = new SugiliteRelation[1];
             relationsToExclude[0] = SugiliteRelation.HAS_TEXT;
@@ -213,7 +235,8 @@ public class DemonstrationUtil {
         // test if the queries can retrieve components on screen
         if(defaultQueries != null) {
             for(Pair<OntologyQuery, Double> query : defaultQueries) {
-                results.addAll(query.first.executeOn(uiSnapshot));
+                Set<SugiliteEntity> queryResult = query.first.executeOn(uiSnapshot);
+                results.add(queryResult);
             }
         }
 
@@ -269,7 +292,7 @@ public class DemonstrationUtil {
         Set<SugiliteRelation> relationsToExclude = new HashSet<>(Arrays.asList(relationsToExcludeArray));
         //generate parent query
         List<Pair<OntologyQuery, Double>> queries = new ArrayList<>();
-        CombinedOntologyQuery q = new CombinedOntologyQuery(CombinedOntologyQuery.RelationType.AND);
+        CombinedOntologyQuery andQuery = new CombinedOntologyQuery(CombinedOntologyQuery.RelationType.AND);
         CombinedOntologyQuery prevQuery = new CombinedOntologyQuery(CombinedOntologyQuery.RelationType.PREV);
         boolean hasNonBoundingBoxFeature = false;
         boolean hasNonChildFeature = false;
@@ -287,7 +310,9 @@ public class DemonstrationUtil {
                 object.add(new SugiliteEntity(-1, String.class, getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_PACKAGE_NAME))));
                 subQuery.setObjectSet(object);
                 subQuery.setQueryFunction(SugiliteRelation.HAS_PACKAGE_NAME);
-                q.addSubQuery(subQuery);
+                andQuery.addSubQuery(subQuery); // note that here instead of adding to the function's output variable queries, we add to the andQuery,
+                                                // because for each query candidate, we want to always add the packageName and className constraints
+                                                // this is only true for HAS_PACKAGE_NAME and HAS_CLASS_NAME
             }
         }
 
@@ -299,14 +324,16 @@ public class DemonstrationUtil {
                 object.add(new SugiliteEntity(-1, String.class, getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_CLASS_NAME))));
                 subQuery.setObjectSet(object);
                 subQuery.setQueryFunction(SugiliteRelation.HAS_CLASS_NAME);
-                q.addSubQuery(subQuery);
+                andQuery.addSubQuery(subQuery); // note that here instead of adding to the function's output variable queries, we add to the andQuery,
+                                                // because for each query candidate, we want to always add the packageName and className constraints
+                                                // this is only true for HAS_PACKAGE_NAME and HAS_CLASS_NAME
             }
         }
 
         if (! relationsToExclude.contains(SugiliteRelation.HAS_TEXT)) {
             if (getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_TEXT)) != null) {
                 //add a text query
-                CombinedOntologyQuery clonedQuery = q.clone();
+                CombinedOntologyQuery clonedQuery = andQuery.clone();
                 LeafOntologyQuery subQuery = new LeafOntologyQuery();
                 Set<SugiliteEntity> object = new HashSet<>();
                 object.add(new SugiliteEntity(-1, String.class, getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_TEXT))));
@@ -315,20 +342,20 @@ public class DemonstrationUtil {
                 clonedQuery.addSubQuery(subQuery);
                 hasNonBoundingBoxFeature = true;
                 hasNonChildFeature = true;
-                queries.add(Pair.create(clonedQuery, 1.1));
+                queries.add(Pair.create(clonedQuery, 0.1));
             }
         }
 
         if (! relationsToExclude.contains(SugiliteRelation.HAS_PARENT_TEXT)) {
             if (getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_PARENT_TEXT)) != null) {
-                CombinedOntologyQuery clonedQuery = q.clone();
+                CombinedOntologyQuery clonedQuery = andQuery.clone();
                 LeafOntologyQuery subQuery = new LeafOntologyQuery();
                 Set<SugiliteEntity> object = new HashSet<>();
                 object.add(new SugiliteEntity(-1, String.class, getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_PARENT_TEXT))));
                 subQuery.setObjectSet(object);
                 subQuery.setQueryFunction(SugiliteRelation.HAS_PARENT_TEXT);
-                q.addSubQuery(subQuery);
-//                queries.add(Pair.create(clonedQuery, 1.0));
+//                andQuery.addSubQuery(subQuery);
+                queries.add(Pair.create(clonedQuery, 1.0));
             }
         }
 
@@ -336,7 +363,7 @@ public class DemonstrationUtil {
             if ((getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_CONTENT_DESCRIPTION)) != null) &&
                     (!getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_CONTENT_DESCRIPTION)).equals(getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_TEXT))))) {
                 //add content description
-                CombinedOntologyQuery clonedQuery = q.clone();
+                CombinedOntologyQuery clonedQuery = andQuery.clone();
                 LeafOntologyQuery subQuery = new LeafOntologyQuery();
                 Set<SugiliteEntity> object = new HashSet<>();
                 object.add(new SugiliteEntity(-1, String.class, getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_CONTENT_DESCRIPTION))));
@@ -349,23 +376,23 @@ public class DemonstrationUtil {
             }
         }
 
-        if (! relationsToExclude.contains(SugiliteRelation.HAS_SIBLING_TEXT)) {
-            if (getValueIfOnlyOneObject(uiSnapshot.getListValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_SIBLING_TEXT)) != null) {
-                CombinedOntologyQuery clonedQuery = q.clone();
-                LeafOntologyQuery subQuery = new LeafOntologyQuery();
-                Set<SugiliteEntity> object = new HashSet<>();
-                object.add(new SugiliteEntity(-1, List.class, getValueIfOnlyOneObject(uiSnapshot.getListValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_SIBLING_TEXT))));
-                subQuery.setObjectSet(object);
-                subQuery.setQueryFunction(SugiliteRelation.HAS_SIBLING_TEXT);
-                clonedQuery.addSubQuery(subQuery);
-                queries.add(Pair.create(clonedQuery, 1.0));
-            }
-        }
+//        if (! relationsToExclude.contains(SugiliteRelation.HAS_SIBLING_TEXT)) {
+//            if (getValueIfOnlyOneObject(uiSnapshot.getListValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_SIBLING_TEXT)) != null) {
+//                CombinedOntologyQuery clonedQuery = andQuery.clone();
+//                LeafOntologyQuery subQuery = new LeafOntologyQuery();
+//                Set<SugiliteEntity> object = new HashSet<>();
+//                object.add(new SugiliteEntity(-1, List.class, getValueIfOnlyOneObject(uiSnapshot.getListValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_SIBLING_TEXT))));
+//                subQuery.setObjectSet(object);
+//                subQuery.setQueryFunction(SugiliteRelation.HAS_SIBLING_TEXT);
+//                clonedQuery.addSubQuery(subQuery);
+//                queries.add(Pair.create(clonedQuery, 1.0));
+//            }
+//        }
 
         if (! relationsToExclude.contains(SugiliteRelation.HAS_VIEW_ID)) {
             if (getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_VIEW_ID)) != null) {
                 //add view id
-                CombinedOntologyQuery clonedQuery = q.clone();
+                CombinedOntologyQuery clonedQuery = andQuery.clone();
                 LeafOntologyQuery subQuery = new LeafOntologyQuery();
                 Set<SugiliteEntity> object = new HashSet<>();
                 object.add(new SugiliteEntity(-1, String.class, getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_VIEW_ID))));
@@ -393,7 +420,7 @@ public class DemonstrationUtil {
                     for (SugiliteTriple triple : triples) {
                         String order = triple.getObject().getEntityValue().toString();
 
-                        CombinedOntologyQuery clonedQuery = q.clone();
+                        CombinedOntologyQuery clonedQuery = andQuery.clone();
                         LeafOntologyQuery subQuery = new LeafOntologyQuery();
                         Set<SugiliteEntity> object = new HashSet<>();
                         object.add(new SugiliteEntity(-1, String.class, order));
@@ -411,12 +438,12 @@ public class DemonstrationUtil {
                 Set<SugiliteTriple> triples2 = uiSnapshot.getSubjectPredicateTriplesMap().get(new AbstractMap.SimpleEntry<>(foundEntity.getEntityId(), SugiliteRelation.HAS_PARENT_WITH_LIST_ORDER.getRelationId()));
                 if (triples2 != null) {
                     for (SugiliteTriple triple : triples2) {
-                        String order = triple.getObject().getEntityValue().toString();
+                        Double order = (Double) triple.getObject().getEntityValue();
 
-                        CombinedOntologyQuery clonedQuery = q.clone();
+                        CombinedOntologyQuery clonedQuery = andQuery.clone();
                         LeafOntologyQuery subQuery = new LeafOntologyQuery();
                         Set<SugiliteEntity> object = new HashSet<>();
-                        object.add(new SugiliteEntity(-1, String.class, order));
+                        object.add(new SugiliteEntity(-1, Double.class, order));
                         subQuery.setObjectSet(object);
                         subQuery.setQueryFunction(SugiliteRelation.HAS_PARENT_WITH_LIST_ORDER);
                         clonedQuery.addSubQuery(subQuery);
@@ -439,7 +466,7 @@ public class DemonstrationUtil {
 
                     for (String childText : childTexts) {
                         if (childText != null && !childText.equals(relationsToExclude.contains(SugiliteRelation.HAS_TEXT))) {
-                            CombinedOntologyQuery clonedQuery = q.clone();
+                            CombinedOntologyQuery clonedQuery = andQuery.clone();
                             LeafOntologyQuery subQuery = new LeafOntologyQuery();
                             Set<SugiliteEntity> object = new HashSet<>();
                             object.add(new SugiliteEntity(-1, String.class, childText));
@@ -462,7 +489,7 @@ public class DemonstrationUtil {
 
         if (! relationsToExclude.contains(SugiliteRelation.HAS_SCREEN_LOCATION)) {
             if (getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_SCREEN_LOCATION)) != null) {
-                CombinedOntologyQuery clonedQuery = q.clone();
+                CombinedOntologyQuery clonedQuery = andQuery.clone();
                 LeafOntologyQuery subQuery = new LeafOntologyQuery();
                 Set<SugiliteEntity> object = new HashSet<>();
                 object.add(new SugiliteEntity(-1, String.class, getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_SCREEN_LOCATION))));
@@ -475,7 +502,7 @@ public class DemonstrationUtil {
 
         if (! relationsToExclude.contains(SugiliteRelation.HAS_PARENT_LOCATION)) {
             if (getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_PARENT_LOCATION)) != null) {
-                CombinedOntologyQuery clonedQuery = q.clone();
+                CombinedOntologyQuery clonedQuery = andQuery.clone();
                 LeafOntologyQuery subQuery = new LeafOntologyQuery();
                 Set<SugiliteEntity> object = new HashSet<>();
                 object.add(new SugiliteEntity(-1, String.class, getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_PARENT_LOCATION))));
@@ -494,31 +521,48 @@ public class DemonstrationUtil {
         spatialRelationsToExclude[2] = SugiliteRelation.LEFT;
         spatialRelationsToExclude[3] = SugiliteRelation.RIGHT;
 
+        // for the outer addCombinedQuery, for now we just use has_class_name and has_package attributes, ignore all others
+        SugiliteRelation[] addOuterQueryRelations = new SugiliteRelation[2];
+        addOuterQueryRelations[0] = SugiliteRelation.HAS_CLASS_NAME;
+        addOuterQueryRelations[1] = SugiliteRelation.HAS_PACKAGE_NAME;
+
         // spatial relations
         if (! relationsToExclude.contains(SugiliteRelation.LEFT)) {
             if (getValueIfOnlyOneObject(uiSnapshot.getNodeValuesForSubjectEntityAndRelation(targetEntity, SugiliteRelation.LEFT)) != null) {
-                CombinedOntologyQuery clonedQuery = prevQuery.clone();
+
+                // we will create a nested query, more specifically, a double nested query
+                // the outer query is the andQuery (for adding class and package attributes of our target query),
+                // the inner query is the prevQuery (for left relations). Within the prevQuery, we will add the subQuery
+                // example: (conj (has_class_name "android.widget.TextView") (has_package_name "com.android.settings") (left ( conj (has_text "xxx") (has_package_name "com.android.settings") ))
+
+
+                CombinedOntologyQuery clonedAndQuery = andQuery.clone();
+                CombinedOntologyQuery clonedPrevQuery = prevQuery.clone();
                 OntologyQuery subQuery = new CombinedOntologyQuery(CombinedOntologyQuery.RelationType.AND);
                 Set<OntologyQuery> object = new HashSet<>();
 
                 Node targetNode = getValueIfOnlyOneObject(uiSnapshot.getNodeValuesForSubjectEntityAndRelation(targetEntity, SugiliteRelation.LEFT));
                 if (uiSnapshot.getEntityWithNode(targetNode) != null) {
 
-                    // add info for subQuery
+                    // First, add info for the subQuery of prevQuery
                     // the following lines creates an empty array of SugiliteRelation that the generateDefaultQueries function can take in
                     // using the empty array is because for the subQuery, we assume the restriction for the outer query doesn't apply.
                     // e.g. if we exclude HAS_TEXT for the outer query, we still can use (PREV (LEFT (HAS_TEXT "xxx")))
                     List<Pair<OntologyQuery, Double>> subQueryCandidates = generateDefaultQueries(uiSnapshot, uiSnapshot.getEntityWithNode(targetNode), spatialRelationsToExclude);
-                    // parse the result, for now just take the first query
+                    // parse the result, for now just take the first query, later we can change this and take a few different reasonable queries
                     subQuery = subQueryCandidates.get(0).first;
                     Double subQueryValue = subQueryCandidates.get(0).second;
 
+                    // add info for clonedPrevQuery
+                    clonedPrevQuery.setQueryRelation(SugiliteRelation.LEFT);
+                    clonedPrevQuery.addSubQuery(subQuery);
 
-                    // add info for clonedQuery
-                    clonedQuery.setQueryFunction(SugiliteRelation.LEFT);
-                    clonedQuery.addSubQuery(subQuery);
+                    // Second, add info for the outer query, i.e. clondedAndQuery
+                    // the above clonedPrevQuery is the subQuery of the outer query
+                    clonedAndQuery.addSubQuery(clonedPrevQuery);
+                    // HAS_CLASS_NAME and HAS_PACKAGE_NAME are already attributes of the outer query, see the first 2 if statements of this function
 
-                    queries.add(Pair.create(clonedQuery, subQueryValue + 0.1));
+                    queries.add(Pair.create(clonedAndQuery, subQueryValue + 0.1));
                 } else {
                     Log.e("generateDefaultQueries", "Error generate recursive queries: cannot find the corresponding entity for target node");
                 }
@@ -528,25 +572,40 @@ public class DemonstrationUtil {
 
         if (! relationsToExclude.contains(SugiliteRelation.RIGHT)) {
             if (getValueIfOnlyOneObject(uiSnapshot.getNodeValuesForSubjectEntityAndRelation(targetEntity, SugiliteRelation.RIGHT)) != null) {
-                CombinedOntologyQuery clonedQuery = prevQuery.clone();
+
+                // we will create a nested query, more specifically, a double nested query
+                // the outer query is the andQuery (for adding class and package attributes of our target query),
+                // the inner query is the prevQuery (for right relations). Within the prevQuery, we will add the subQuery
+                // example: (conj (has_class_name "android.widget.TextView") (has_package_name "com.android.settings") (right ( conj (has_text "xxx") (has_package_name "com.android.settings") ))
+
+
+                CombinedOntologyQuery clonedAndQuery = andQuery.clone();
+                CombinedOntologyQuery clonedPrevQuery = prevQuery.clone();
                 OntologyQuery subQuery = new CombinedOntologyQuery(CombinedOntologyQuery.RelationType.AND);
                 Set<OntologyQuery> object = new HashSet<>();
 
                 Node targetNode = getValueIfOnlyOneObject(uiSnapshot.getNodeValuesForSubjectEntityAndRelation(targetEntity, SugiliteRelation.RIGHT));
                 if (uiSnapshot.getEntityWithNode(targetNode) != null) {
 
-                    // add info for subQuery
+                    // First, add info for the subQuery of prevQuery
+                    // the following lines creates an empty array of SugiliteRelation that the generateDefaultQueries function can take in
+                    // using the empty array is because for the subQuery, we assume the restriction for the outer query doesn't apply.
+                    // e.g. if we exclude HAS_TEXT for the outer query, we still can use (PREV (LEFT (HAS_TEXT "xxx")))
                     List<Pair<OntologyQuery, Double>> subQueryCandidates = generateDefaultQueries(uiSnapshot, uiSnapshot.getEntityWithNode(targetNode), spatialRelationsToExclude);
-                    // parse the result, for now just take the first query
+                    // parse the result, for now just take the first query, later we can change this and take a few different reasonable queries
                     subQuery = subQueryCandidates.get(0).first;
                     Double subQueryValue = subQueryCandidates.get(0).second;
 
+                    // add info for clonedPrevQuery
+                    clonedPrevQuery.setQueryRelation(SugiliteRelation.RIGHT);
+                    clonedPrevQuery.addSubQuery(subQuery);
 
-                    // add info for clonedQuery
-                    clonedQuery.setQueryFunction(SugiliteRelation.RIGHT);
-                    clonedQuery.addSubQuery(subQuery);
+                    // Second, add info for the outer query, i.e. clondedAndQuery
+                    // the above clonedPrevQuery is the subQuery of the outer query
+                    clonedAndQuery.addSubQuery(clonedPrevQuery);
+                    // HAS_CLASS_NAME and HAS_PACKAGE_NAME are already attributes of the outer query, see the first 2 if statements of this function
 
-                    queries.add(Pair.create(clonedQuery, subQueryValue + 0.1));
+                    queries.add(Pair.create(clonedAndQuery, subQueryValue + 0.1));
                 } else {
                     Log.e("generateDefaultQueries", "Error generate recursive queries: cannot find the corresponding entity for target node");
                 }
@@ -556,25 +615,40 @@ public class DemonstrationUtil {
 
         if (! relationsToExclude.contains(SugiliteRelation.ABOVE)) {
             if (getValueIfOnlyOneObject(uiSnapshot.getNodeValuesForSubjectEntityAndRelation(targetEntity, SugiliteRelation.ABOVE)) != null) {
-                CombinedOntologyQuery clonedQuery = prevQuery.clone();
+
+                // we will create a nested query, more specifically, a double nested query
+                // the outer query is the andQuery (for adding class and package attributes of our target query),
+                // the inner query is the prevQuery (for right relations). Within the prevQuery, we will add the subQuery
+                // example: (conj (has_class_name "android.widget.TextView") (has_package_name "com.android.settings") (right ( conj (has_text "xxx") (has_package_name "com.android.settings") ))
+
+
+                CombinedOntologyQuery clonedAndQuery = andQuery.clone();
+                CombinedOntologyQuery clonedPrevQuery = prevQuery.clone();
                 OntologyQuery subQuery = new CombinedOntologyQuery(CombinedOntologyQuery.RelationType.AND);
                 Set<OntologyQuery> object = new HashSet<>();
 
                 Node targetNode = getValueIfOnlyOneObject(uiSnapshot.getNodeValuesForSubjectEntityAndRelation(targetEntity, SugiliteRelation.ABOVE));
                 if (uiSnapshot.getEntityWithNode(targetNode) != null) {
 
-                    // add info for subQuery
+                    // First, add info for the subQuery of prevQuery
+                    // the following lines creates an empty array of SugiliteRelation that the generateDefaultQueries function can take in
+                    // using the empty array is because for the subQuery, we assume the restriction for the outer query doesn't apply.
+                    // e.g. if we exclude HAS_TEXT for the outer query, we still can use (PREV (LEFT (HAS_TEXT "xxx")))
                     List<Pair<OntologyQuery, Double>> subQueryCandidates = generateDefaultQueries(uiSnapshot, uiSnapshot.getEntityWithNode(targetNode), spatialRelationsToExclude);
-                    // parse the result, for now just take the first query
+                    // parse the result, for now just take the first query, later we can change this and take a few different reasonable queries
                     subQuery = subQueryCandidates.get(0).first;
                     Double subQueryValue = subQueryCandidates.get(0).second;
 
+                    // add info for clonedPrevQuery
+                    clonedPrevQuery.setQueryRelation(SugiliteRelation.ABOVE);
+                    clonedPrevQuery.addSubQuery(subQuery);
 
-                    // add info for clonedQuery
-                    clonedQuery.setQueryFunction(SugiliteRelation.ABOVE);
-                    clonedQuery.addSubQuery(subQuery);
+                    // Second, add info for the outer query, i.e. clondedAndQuery
+                    // the above clonedPrevQuery is the subQuery of the outer query
+                    clonedAndQuery.addSubQuery(clonedPrevQuery);
+                    // HAS_CLASS_NAME and HAS_PACKAGE_NAME are already attributes of the outer query, see the first 2 if statements of this function
 
-                    queries.add(Pair.create(clonedQuery, subQueryValue + 0.1));
+                    queries.add(Pair.create(clonedAndQuery, subQueryValue + 0.1));
                 } else {
                     Log.e("generateDefaultQueries", "Error generate recursive queries: cannot find the corresponding entity for target node");
                 }
@@ -584,26 +658,40 @@ public class DemonstrationUtil {
 
         if (! relationsToExclude.contains(SugiliteRelation.BELOW)) {
             if (getValueIfOnlyOneObject(uiSnapshot.getNodeValuesForSubjectEntityAndRelation(targetEntity, SugiliteRelation.BELOW)) != null) {
-                CombinedOntologyQuery clonedQuery = prevQuery.clone();
+
+                // we will create a nested query, more specifically, a double nested query
+                // the outer query is the andQuery (for adding class and package attributes of our target query),
+                // the inner query is the prevQuery (for right relations). Within the prevQuery, we will add the subQuery
+                // example: (conj (has_class_name "android.widget.TextView") (has_package_name "com.android.settings") (right ( conj (has_text "xxx") (has_package_name "com.android.settings") ))
+
+
+                CombinedOntologyQuery clonedAndQuery = andQuery.clone();
+                CombinedOntologyQuery clonedPrevQuery = prevQuery.clone();
                 OntologyQuery subQuery = new CombinedOntologyQuery(CombinedOntologyQuery.RelationType.AND);
                 Set<OntologyQuery> object = new HashSet<>();
 
                 Node targetNode = getValueIfOnlyOneObject(uiSnapshot.getNodeValuesForSubjectEntityAndRelation(targetEntity, SugiliteRelation.BELOW));
                 if (uiSnapshot.getEntityWithNode(targetNode) != null) {
 
-                    // add info for subQuery
-
+                    // First, add info for the subQuery of prevQuery
+                    // the following lines creates an empty array of SugiliteRelation that the generateDefaultQueries function can take in
+                    // using the empty array is because for the subQuery, we assume the restriction for the outer query doesn't apply.
+                    // e.g. if we exclude HAS_TEXT for the outer query, we still can use (PREV (LEFT (HAS_TEXT "xxx")))
                     List<Pair<OntologyQuery, Double>> subQueryCandidates = generateDefaultQueries(uiSnapshot, uiSnapshot.getEntityWithNode(targetNode), spatialRelationsToExclude);
-                    // parse the result, for now just take the first query
+                    // parse the result, for now just take the first query, later we can change this and take a few different reasonable queries
                     subQuery = subQueryCandidates.get(0).first;
                     Double subQueryValue = subQueryCandidates.get(0).second;
 
+                    // add info for clonedPrevQuery
+                    clonedPrevQuery.setQueryRelation(SugiliteRelation.BELOW);
+                    clonedPrevQuery.addSubQuery(subQuery);
 
-                    // add info for clonedQuery
-                    clonedQuery.setQueryFunction(SugiliteRelation.BELOW);
-                    clonedQuery.addSubQuery(subQuery);
+                    // Second, add info for the outer query, i.e. clondedAndQuery
+                    // the above clonedPrevQuery is the subQuery of the outer query
+                    clonedAndQuery.addSubQuery(clonedPrevQuery);
+                    // HAS_CLASS_NAME and HAS_PACKAGE_NAME are already attributes of the outer query, see the first 2 if statements of this function
 
-                    queries.add(Pair.create(clonedQuery, subQueryValue + 0.1));
+                    queries.add(Pair.create(clonedAndQuery, subQueryValue + 0.1));
                 } else {
                     Log.e("generateDefaultQueries", "Error generate recursive queries: cannot find the corresponding entity for target node");
                 }
@@ -630,6 +718,23 @@ public class DemonstrationUtil {
             return list.get(0);
         }
         return null;
+    }
+
+    // store query data to local database
+    public static void  storeQueryToDatabase(Context context, List<Pair<OntologyQuery, Double>> defaultQueries){
+        // call databaseManager to store the query
+        DatabaseManager dbManager = new DatabaseManager(context);
+        FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(context);
+
+        Datafield datafield = new Datafield("752916f46f6bcd47+1","2", defaultQueries.get(0).first.toString(),"test", Boolean.TRUE);
+
+        // parse the query to data
+        Data data = new Data("752916f46f6bcd47+1","2", defaultQueries.get(0).first.toString(),0, "test");
+        // TODO：when first time to store the query, the collector hasn't been created yet. THerefore, we might need to pass it back
+        // store data to local database
+        dbManager.addOneDatafield(datafield);
+        dbManager.addData(data);
+
     }
 
 

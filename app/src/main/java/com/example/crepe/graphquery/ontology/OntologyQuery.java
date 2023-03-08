@@ -30,7 +30,7 @@ public abstract class OntologyQuery implements Serializable {
                 return resultQuery;
             }
 
-            // s: conj (IS_CLICKABLE true) (HAS_TEXT coffee)
+            // example of a complex s: (conj (has_class_name "android.widget.TextView") (has_package_name "com.android.settings") (right ( conj (has_text "xxx") (has_package_name "com.android.settings") ))
             int spaceIndex = s.indexOf(' ');
             String firstWord = s.substring(0, spaceIndex);
             // firstWord: conj
@@ -47,7 +47,7 @@ public abstract class OntologyQuery implements Serializable {
                         q.setSubRelation(CombinedOntologyQuery.RelationType.OR);
                     } else {
                         q.setSubRelation(CombinedOntologyQuery.RelationType.PREV);
-                        q.setQueryFunction(SugiliteRelation.getRelationFromString(firstWord));
+                        q.setQueryRelation(SugiliteRelation.getRelationFromString(firstWord));
                     }
 
                     Set<OntologyQuery> subQ = new HashSet<>();
@@ -84,6 +84,10 @@ public abstract class OntologyQuery implements Serializable {
                         oSet.add(o);
                     } else if (objectString.equalsIgnoreCase("false")) {
                         SugiliteEntity<Boolean> o = new SugiliteEntity<Boolean>(-1, Boolean.class, false);
+                        oSet.add(o);
+                    } else if (isNumeric(objectString)) {
+                        // if the object is a double number, then add it to the object set as a double
+                        SugiliteEntity<Double> o = new SugiliteEntity<Double>(-1, Double.class, Double.parseDouble(objectString));
                         oSet.add(o);
                     } else {
                         SugiliteEntity<String> o = new SugiliteEntity<String>(-1, String.class, OntologyQueryUtils.removeQuoteSigns(objectString));
@@ -173,5 +177,9 @@ public abstract class OntologyQuery implements Serializable {
         public void setSubject(SugiliteEntity subject) {
             this.subject = subject;
         }
+    }
+
+    private static boolean isNumeric(String str) {
+        return str.matches("-?\\d+(\\.\\d+)?");  //match a number with optional '-' and decimal.
     }
 }

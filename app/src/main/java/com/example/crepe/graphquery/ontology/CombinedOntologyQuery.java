@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 /**
  * Created by nancyli on 9/27/17.
  */
-
+// You can also call this nested ontology query. It's used when we need to use one entity (node) as a reference to our target entity.
 // Example queries
 // AND query:   (conj (numeric_parent_index 1.0) (HAS_CLASS_NAME android.widget.TextView) (HAS_PACKAGE_NAME com.google.android.apps.youtube.music))
 // OR query:   (or (numeric_parent_index 1.0) (HAS_CLASS_NAME android.widget.TextView) (HAS_PACKAGE_NAME com.google.android.apps.youtube.music))
@@ -18,13 +18,15 @@ import java.util.stream.Collectors;
 public class CombinedOntologyQuery extends OntologyQueryWithSubQueries {
 
     private RelationType subRelation;   // one of the RelationType below, i.e. AND, OR, PREV
-    private Set<OntologyQuery> subQueries = null;
-    // the r variable is only used for PREV quries, e.g. for (LEFT (conj (numeric_parent_index 1.0) (HAS_CLASS_NAME android.widget.TextView)) ) the r variable is SugiliteRelation.LEFT
-    protected SugiliteRelation r = null;
-
     public enum RelationType {
         AND, OR, PREV
     }
+
+    private Set<OntologyQuery> subQueries = null;
+
+    protected SugiliteRelation r = null;    // the r variable is only used for PREV quries, e.g. for (LEFT (conj (numeric_parent_index 1.0) (HAS_CLASS_NAME android.widget.TextView)) ) the r variable is SugiliteRelation.LEFT
+                                            // call the setQueryRelation() method to set the r variable
+
 
     public CombinedOntologyQuery(){
         subQueries = new HashSet<OntologyQuery>();
@@ -35,7 +37,7 @@ public class CombinedOntologyQuery extends OntologyQueryWithSubQueries {
         setOntologyQueryFilter(sq.getOntologyQueryFilter());
         r = sq.getR();
         if(getR() != null){
-            setQueryFunction(getR());
+            setQueryRelation(getR());
         }
         subQueries = new HashSet<OntologyQuery>();
         Set<SerializableOntologyQuery> pSubq = sq.getSubQueries();
@@ -74,7 +76,7 @@ public class CombinedOntologyQuery extends OntologyQueryWithSubQueries {
         subQueries.add(sub);
     }
 
-    public void setQueryFunction(SugiliteRelation relation){
+    public void setQueryRelation(SugiliteRelation relation){
         r = relation;
     }
 
@@ -102,7 +104,7 @@ public class CombinedOntologyQuery extends OntologyQueryWithSubQueries {
         q.setSubRelation(subRelation);
         q.setOntologyQueryFilter(getOntologyQueryFilter());
         if (getR() != null) {
-            q.setQueryFunction(getR());
+            q.setQueryRelation(getR());
         }
         for (OntologyQuery subQ : newSubQueries) {
             q.addSubQuery(subQ.clone());
@@ -116,7 +118,7 @@ public class CombinedOntologyQuery extends OntologyQueryWithSubQueries {
         q.setSubRelation(subRelation);
         q.setOntologyQueryFilter(getOntologyQueryFilter());
         if (getR() != null) {
-            q.setQueryFunction(getR());
+            q.setQueryRelation(getR());
         }
         for (OntologyQuery subQ : subQueries) {
             q.addSubQuery(subQ.clone());
@@ -150,14 +152,14 @@ public class CombinedOntologyQuery extends OntologyQueryWithSubQueries {
         }
         else if (subRelation == RelationType.PREV) {
             OntologyQuery prevQuery = subQueries.toArray(new OntologyQuery[subQueries.size()])[0];
-            if (prevQuery instanceof  CombinedOntologyQuery) {
-                return ((CombinedOntologyQuery) prevQuery).overallQueryFunction(currNode, graph);
-            }
+            // get the result of the previous query (e.g. prevQuery for (LEFT (conj (numeric_parent_index 1.0) (HAS_CLASS_NAME android.widget.TextView)) ) is (conj (numeric_parent_index 1.0) (HAS_CLASS_NAME android.widget.TextView))
             Set<SugiliteEntity> prevResultObjects = prevQuery.executeOn(graph);
+
             Set<SugiliteTriple> subjectTriples = graph.getSubjectTriplesMap().get(currNode.getEntityId());
             if (subjectTriples == null) {
                 return false;
             }
+            // LEFT is not showing any result
             for (SugiliteEntity objectEntity : prevResultObjects) {
                 SugiliteTriple newTriple = new SugiliteTriple(currNode, r, objectEntity);
                 if (subjectTriples.contains(newTriple)) {

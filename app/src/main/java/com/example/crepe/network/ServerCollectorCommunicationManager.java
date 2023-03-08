@@ -46,7 +46,6 @@ public class ServerCollectorCommunicationManager extends AppCompatActivity {
         params.put("targetServerIp", collector.getTargetServerIp() == null ? "1" : collector.getTargetServerIp());
         params.put("collectorStartTime", collector.getCollectorStartTime());
         params.put("collectorEndTime", collector.getCollectorEndTime());
-        params.put("collectorDataFields", collector.getDataFieldsToString());
         params.put("collectorStatus", collector.getCollectorStatus());
 
         String url = "http://35.222.12.92:8000/";

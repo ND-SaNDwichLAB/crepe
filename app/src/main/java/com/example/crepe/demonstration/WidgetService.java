@@ -16,6 +16,7 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.example.crepe.R;
+import com.example.crepe.ui.dialog.Callback;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.Calendar;
@@ -28,6 +29,8 @@ public class WidgetService extends Service {
     Context c = WidgetService.this;
     FullScreenOverlayManager fullScreenOverlayManager;
 
+    Callback callback;
+
     public IBinder onBind(Intent intent){
         return null;
     }
@@ -39,6 +42,8 @@ public class WidgetService extends Service {
         } else {
             LAYOUT_FLAG = WindowManager.LayoutParams.TYPE_PHONE;
         }
+
+        this.callback = (Callback) intent.getSerializableExtra("graphQueryCallback");
 
         // inflate widget layout
         mFloatingView = LayoutInflater.from(c).inflate(R.layout.demonstration_float_widget, null);
@@ -60,7 +65,10 @@ public class WidgetService extends Service {
         width = windowManager.getDefaultDisplay().getHeight();
 
         // initialize fullScreenOverlayManager
-        fullScreenOverlayManager= new FullScreenOverlayManager(c, windowManager, getResources().getDisplayMetrics() );
+        fullScreenOverlayManager = new FullScreenOverlayManager(c, windowManager, getResources().getDisplayMetrics(), this.callback);
+
+
+        // initialize callback for the data received from the demonstration
 
         FloatingActionButton closeFltBtn = (FloatingActionButton) mFloatingView.findViewById(R.id.floating_close);
         FloatingActionButton drawFltBtn = (FloatingActionButton) mFloatingView.findViewById(R.id.floating_draw_frame);
@@ -90,6 +98,7 @@ public class WidgetService extends Service {
             @Override
             public void onClick(View view) {
                 initiateDemonstration(c, fullScreenOverlayManager, widgetDisplay);
+                Toast.makeText(c, "Please click on the data to collect", Toast.LENGTH_LONG).show();
             }
         });
 
@@ -214,6 +223,10 @@ public class WidgetService extends Service {
             // if the fab icon is clicked to be closed, set the visibilities to invisible
             btn.setVisibility(View.INVISIBLE);
         }
+    }
+
+    public void registerCallback(Callback dataCallback) {
+        callback = dataCallback;
     }
 
 

@@ -4,10 +4,12 @@ import static android.content.Context.WINDOW_SERVICE;
 import static com.example.crepe.demonstration.DemonstrationUtil.processOverlayClick;
 import static com.example.crepe.graphquery.Const.OVERLAY_TYPE;
 import static com.example.crepe.demonstration.DemonstrationUtil.generateDefaultQueries;
+import static com.example.crepe.graphquery.Const.appName;
 
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
@@ -16,28 +18,28 @@ import android.util.Log;
 import android.util.Pair;
 import android.view.GestureDetector;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 
 import com.example.crepe.CrepeAccessibilityService;
-import com.example.crepe.database.Data;
-import com.example.crepe.database.DatabaseManager;
-import com.example.crepe.database.Datafield;
+import com.example.crepe.R;
 import com.example.crepe.graphquery.Const;
 import com.example.crepe.graphquery.model.Node;
 import com.example.crepe.graphquery.ontology.OntologyQuery;
 import com.example.crepe.graphquery.ontology.SugiliteEntity;
 import com.example.crepe.graphquery.ontology.SugiliteRelation;
 import com.example.crepe.graphquery.ontology.UISnapshot;
-import com.example.crepe.network.FirebaseCommunicationManager;
+import com.example.crepe.ui.dialog.Callback;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class FullScreenOverlayManager {
 
@@ -45,6 +47,7 @@ public class FullScreenOverlayManager {
     private WindowManager windowManager;
     private View overlay;
     private DisplayMetrics displayMetrics;
+    private Callback callback;
     private Boolean showingOverlay;
     private NavigationBarUtil navigationBarUtil;
     private int overlayCurrentHeight;
@@ -54,10 +57,13 @@ public class FullScreenOverlayManager {
 
     private int entityId = 0;
 
-    public FullScreenOverlayManager(Context context, WindowManager windowManager, DisplayMetrics displayMetrics) {
+    private String desiredQuery = "";
+
+    public FullScreenOverlayManager(Context context, WindowManager windowManager, DisplayMetrics displayMetrics, Callback callback) {
         this.context = context;
         this.windowManager = windowManager;
         this.displayMetrics = displayMetrics;
+        this.callback = callback;
         this.overlay = getRectangleOverlay(context, displayMetrics.widthPixels, displayMetrics.heightPixels, Const.RECORDING_OVERLAY_COLOR);
         this.showingOverlay = false;
         this.navigationBarUtil = new NavigationBarUtil();
@@ -176,6 +182,8 @@ public class FullScreenOverlayManager {
             }
 
             class MyGestureDetector extends GestureDetector.SimpleOnGestureListener {
+
+                SelectionOverlayView selectionOverlay = null;
                 @RequiresApi(api = Build.VERSION_CODES.R)
                 @Override
                 public boolean onSingleTapConfirmed(MotionEvent event) {
@@ -190,38 +198,138 @@ public class FullScreenOverlayManager {
                     float navHeight = navigationBarUtil.getStatusBarHeight(context);
                     float adjustedY = rawY - navHeight;
 
+                    // show the matched item on screen
                     windowManager = (WindowManager) context.getSystemService(WINDOW_SERVICE);
-
-
-
-                    // if we need to use the following code block to show clicked spot on screen, remember to refresh the overlay and widget views so we can continue to click
-//                    WindowManager.LayoutParams selectionLayoutParams = updateLayoutParams(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
-//                    SelectionOverlayView selectionOverlay = selectionOverlayViewManager.getCircleOverlay(rawX, adjustedY, radius);
-//                    windowManager.addView(selectionOverlay, selectionLayoutParams);
+                    WindowManager.LayoutParams selectionLayoutParams = updateLayoutParams(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
+                    Rect clickedItemBounds = DemonstrationUtil.getBoundingBoxOfClickedItem(rawX, rawY);
+                    // move the clickedItemBounds up by the navHeight
+                    if (clickedItemBounds != null) {
+                        clickedItemBounds.offset(0, -1 * (int) navHeight);
+                        this.selectionOverlay = selectionOverlayViewManager.getRectOverlay(clickedItemBounds);
+                        windowManager.addView(this.selectionOverlay, selectionLayoutParams);
+                    }
 
                     List<Pair<OntologyQuery, Double>> defaultQueries = processOverlayClick(rawX, rawY);
 
+                    // get the current uisnapshot
+                    UISnapshot uiSnapshot = CrepeAccessibilityService.getsSharedInstance().generateUISnapshot();
+
+                    List<AccessibilityNodeInfo> matchedAccessibilityNodeList = CrepeAccessibilityService.getsSharedInstance().getMatchingNodeFromClickWithText(rawX, rawY);
+                    // this matchedAccessibilityNode is an AccessibilityNodeInfo, which is not exactly the node stored in the screen's nodeSugiliteEntityMap.
+                    // We retrieved that stored node from this screen's uisnapshot
+
+                    SugiliteEntity<Node> targetEntity = new SugiliteEntity<>();
+                    AccessibilityNodeInfo matchedNode;
+
+                    if (matchedAccessibilityNodeList != null) {
+                        if(matchedAccessibilityNodeList.size() == 1) {
+                            matchedNode = matchedAccessibilityNodeList.get(0);
+                            targetEntity = uiSnapshot.getEntityWithAccessibilityNode(matchedNode);
+                        } else {
+                            // TODO: Find the node that we actually need
+                            matchedNode = matchedAccessibilityNodeList.get(0);
+                            targetEntity = uiSnapshot.getEntityWithAccessibilityNode(matchedNode);
+                        }
+                    }
 
 
-                    // TODO meng: store the query in database, then constantly check it in another thread
+                    if(targetEntity != null) {
+                        SugiliteRelation[] relationsToExclude = new SugiliteRelation[1];
+                        relationsToExclude[0] = SugiliteRelation.HAS_TEXT;
+                        defaultQueries = generateDefaultQueries(uiSnapshot, targetEntity, relationsToExclude);
+                    } else {
+                        Log.e("generate queries", "Cannot find the tapped entity!");
+                        return false;
+                    }
+
+                    if (targetEntity.getEntityValue() == null || defaultQueries.size() == 0) {
+                        Toast.makeText(context, "Sorry! We do not support the data you just clicked. Please try again.", Toast.LENGTH_SHORT).show();
+                        return false;
+                    }
+
+                    // inflate the demonstration_confirmation.xml layout
+                    // Specify a layoutparams to display the dialog at the center of the screen
+
+                    DisplayMetrics metrics = new DisplayMetrics();
+                    windowManager.getDefaultDisplay().getMetrics(metrics);
+                    double currentDensity = metrics.density;
+
+                    WindowManager.LayoutParams dialogParams = new WindowManager.LayoutParams(
+                            (int) ((windowManager.getCurrentWindowMetrics().getBounds().width() / currentDensity - 48) * currentDensity),   // leave 24 dp margin on both sides
+                            WindowManager.LayoutParams.WRAP_CONTENT,
+                            OVERLAY_TYPE,
+                            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                            PixelFormat.TRANSLUCENT);
+                    LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    View confirmationView = layoutInflater.inflate(R.layout.demonstration_confirmation, null);
+                    TextView queryTextView = confirmationView.findViewById(R.id.confirmationInfo);
+                    // set the text of the dialog window
+                    String displayText = "";
+
+                    displayText = "You clicked on \"" + targetEntity.getEntityValue().getText() + "\". Do you want to collect this data?";
+                    queryTextView.setText(displayText);
+                    windowManager.addView(confirmationView, dialogParams);
+
+
+
+                    // set the onclick listener for the buttons
+                    Button yesButton = confirmationView.findViewById(R.id.confirmationYesButton);
+                    Button noButton = confirmationView.findViewById(R.id.confirmationNoButton);
+                    final String data = defaultQueries.get(0).first.toString();
+
+                    SugiliteEntity<Node> finalTargetEntity = targetEntity;
+                    yesButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            //confirm the selection
+                            // remove the confirmation dialog
+                            if (confirmationView != null) {
+                                windowManager.removeView(confirmationView);
+                            }
+                            // remove the selection overlay
+                            if (selectionOverlay != null) {
+                                windowManager.removeView(selectionOverlay);
+                            }
+
+                            // set the data to the main activity
+                            desiredQuery = data;
+                            processCallback(finalTargetEntity.getEntityValue().getText());
+                            // clear the overlay
+                            disableOverlay();
+                            // stop widget service
+                            Intent intent = new Intent(context, WidgetService.class);
+                            context.stopService(intent);
+                            // go back to the main activity
+                            Intent mainActivityIntent = context.getPackageManager().getLaunchIntentForPackage("com.example.crepe");
+                            if (mainActivityIntent != null) {
+                                context.startActivity(mainActivityIntent);
+                            } else {
+                                Toast.makeText(context, "There is no package available in android", Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    });
+
+                    noButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            // remove the confirmation dialog
+                            windowManager.removeView(confirmationView);
+                            // remove the selection overlay
+                            windowManager.removeView(selectionOverlay);
+                            Toast.makeText(context, "Please click on the data to collect again", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
                     // 1. store the query in local database
 //                    DatabaseManager dbManager = new DatabaseManager(context);
 //                    FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(context);
-//                    Data data = new Data("1","2","3", defaultQueries.get(0).first.toString());
-//                    Datafield datafield = new Datafield("752916f46f6bcd47+1","2", defaultQueries.get(0).first.toString(),"test", Boolean.TRUE);
+//                    Datafield datafield = new Datafield("752916f46f6bcd47+1", "2", defaultQueries.get(0).first.toString(), "test", Boolean.TRUE);
+                    // naming convention: "752916f46f6bcd47+1" is the app package name + the number of queries in the app
 
 
-                    // 2. check the query in another thread
-                    // create a thread to use the query to get data
-//                    Thread queryThread = new Thread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//
-//                        }
-//
-//                        }
 
                     // 2. everytime the app launches / runs in the background, retrieve the query from local database
+
 
 
 
@@ -241,9 +349,7 @@ public class FullScreenOverlayManager {
 //                        Log.e("Firebase","Failed to add datafield " + datafield.getDataFieldId() + " to firebase.");
 //                    });;
 
-//                    dbManager.addData(data);
-//                    dbManager.addOneDataField(datafield);
-//                    System.out.println("Query: " + defaultQueries.get(0).first.toString());
+//                    Boolean datafieldResult = dbManager.addOneDataField(datafield);
 
                     return true;
                 }
@@ -262,6 +368,8 @@ public class FullScreenOverlayManager {
                     System.out.println("Context click detected");
                     return super.onContextClick(e);
                 }
+
+
 
 //                @Override
 //                public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
@@ -308,6 +416,10 @@ public class FullScreenOverlayManager {
             */
 
         });
+    }
+
+    private void processCallback(String targetText) {
+        this.callback.onDataReceived(desiredQuery, targetText);
     }
 
 

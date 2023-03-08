@@ -1,32 +1,23 @@
 package com.example.crepe.database;
 
 import android.util.Log;
-import android.util.Pair;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
 
-import java.util.ListIterator;
 import java.util.TimeZone;
 
 public class Collector {
     private String collectorId;
     private String creatorUserId;
     private String appName;
-    private String description;
+    private String appPackage;
+    private String description; // description of the collector, the field in the database is actually called name *facepalm*
     private String mode;
     private String targetServerIp;
     private long collectorStartTime;
     private long collectorEndTime;
-    private List<Pair<String, String>> dataFields;
     private String collectorStatus;
 
     // some constants for collector status
@@ -37,52 +28,49 @@ public class Collector {
     public static final String EXPIRED = "expired";
 
 
-    public Collector(String collectorId, String creatorUserID, String appName, String description, String mode, String targetServerIp, long collectorStartTime, long collectorEndTime, String collectorGraphQuery, String collectorAppDataFields) {
+    public Collector(String collectorId, String creatorUserID, String appName, String appPackage, String description, String mode, String targetServerIp, String collectorStartTime, String collectorEndTime) {
         this.collectorId = collectorId;
         this.creatorUserId = creatorUserID;
         this.appName = appName;
+        this.appPackage = appPackage;
         this.description = description;
         this.mode = mode;
         this.targetServerIp = targetServerIp;
-        this.collectorStartTime = collectorStartTime;
-        this.collectorEndTime = collectorEndTime;
-        this.dataFields = new ArrayList<>();
-        this.dataFields.add(new Pair<String, String>(collectorGraphQuery,collectorAppDataFields));
+        this.collectorStartTime = Long.parseLong(collectorStartTime);
+        this.collectorEndTime = Long.parseLong(collectorEndTime);
 
         // auto generate the status of the collector based on current time
         this.autoSetCollectorStatus();
 
     }
 
-    public Collector(String collectorId, String creatorUserID, String appName, String description, String mode, String targetServerIp, long collectorStartTime, long collectorEndTime, String collectorGraphQuery, String collectorAppDataFields, String collectorStatus) {
+    public Collector(String collectorId, String creatorUserID, String appName, String appPackage, String description, String mode, String targetServerIp, long collectorStartTime, long collectorEndTime, String collectorStatus) {
         this.collectorId = collectorId;
         this.creatorUserId = creatorUserID;
         this.appName = appName;
+        this.appPackage = appPackage;
         this.description = description;
         this.mode = mode;
         this.targetServerIp = targetServerIp;
         this.collectorStartTime = collectorStartTime;
         this.collectorEndTime = collectorEndTime;
-        this.dataFields = new ArrayList<>();
-        this.dataFields.add(new Pair<String, String>(collectorGraphQuery,collectorAppDataFields));
         this.collectorStatus = collectorStatus;
     }
 
-    public Collector(String collectorId, String creatorUserID, String appName, String description, String mode, long collectorStartTime, long collectorEndTime, List<Pair<String, String>> collectorDataFields, String collectorStatus) {
+    public Collector(String collectorId, String creatorUserID, String appName, String appPackage, String description, String mode, long collectorStartTime, long collectorEndTime, String collectorStatus) {
         this.collectorId = collectorId;
         this.creatorUserId = creatorUserID;
         this.appName = appName;
+        this.appPackage = appPackage;
         this.description = description;
         this.mode = mode;
         this.collectorStartTime = collectorStartTime;
         this.collectorEndTime = collectorEndTime;
-        this.dataFields = collectorDataFields;
         this.collectorStatus = collectorStatus;
     }
 
     public Collector(String collectorId) {
         this.collectorId = collectorId;
-        this.dataFields = new ArrayList<>();
     }
 
     @Override
@@ -91,10 +79,10 @@ public class Collector {
                 "collectorId='" + collectorId + '\'' +
                 ", creatorUserId='" + creatorUserId + '\'' +
                 ", appName='" + appName + '\'' +
+                ", appPackage='" + appPackage + '\'' +
                 ", description='" + description + '\'' +
                 ", collectorStartTime=" + collectorStartTime +
                 ", collectorEndTime=" + collectorEndTime +
-                ", collectorDataFields= " + getDataFieldsToString() +
                 ", mode='" + mode + '\'' +
                 ", targetServerIP='" + targetServerIp + '\'' +
                 ", collectorStatus='" + collectorStatus + '\'' +
@@ -127,6 +115,14 @@ public class Collector {
 
     public void setAppName(String appName) {
         this.appName = appName;
+    }
+
+    public String getAppPackage() {
+        return appPackage;
+    }
+
+    public void setAppPackage(String appPackage) {
+        this.appPackage = appPackage;
     }
 
     public String getDescription() {
@@ -189,49 +185,6 @@ public class Collector {
         this.collectorEndTime = collectorEndTime;
     }
 
-    public List<Pair<String,String>> getDataFields() { return dataFields; }
-
-    public String findDataField(String graphQuery){
-        for (Pair<String,String> i : this.dataFields){
-            if (i.first.equals(graphQuery)) {
-                return i.second;
-            }
-        }
-        return null;
-    }
-
-    public boolean removeDataField(String dataField){
-        for (Pair<String,String> i : this.dataFields){
-            if (i.second.equals(dataField)) {
-                dataFields.remove(i);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public void putNewGraphQueryAndDataField(String collectorGraphQuery, String collectorAppDataFields){
-        this.dataFields.add(new Pair<String, String>(collectorGraphQuery,collectorAppDataFields));
-    }
-
-    public String getDataFieldsToJson(){
-        String dataFieldString = "{";
-        for (Pair i : this.dataFields) {
-            dataFieldString += i.first + ":" + i.second + ",";
-        }
-        if (!dataFieldString.equals("")){dataFieldString = dataFieldString.substring(0, dataFieldString.length() - 2);} // remove last ", "
-        dataFieldString += "}";
-        return dataFieldString;
-    }
-
-    public String getDataFieldsToString(){
-        String dataFieldString = "";
-        for (Pair i : this.dataFields) {
-            dataFieldString += i.second + ",";
-        }
-        if (!dataFieldString.equals("")){ dataFieldString = dataFieldString.substring(0, dataFieldString.length() - 1);} // remove last "\n"
-        return dataFieldString;
-    }
 
     public String getCollectorStatus() {return collectorStatus;}
 

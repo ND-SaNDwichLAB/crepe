@@ -95,7 +95,7 @@ public class FirebaseCommunicationManager {
         return databaseReference.child(key).removeValue();
     }
 
-    public void retrieveCollector(String key, FirebaseCallback firebaseCallback){
+    public void retrieveCollector(String key, FirebaseCallback firebaseCallback){   // TODO Yuwen key is collectorId
         DatabaseReference databaseReference = db.getReference(Collector.class.getSimpleName());
         databaseReference.child(key).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
             @Override
@@ -106,6 +106,7 @@ public class FirebaseCommunicationManager {
                         String collectorId = String.valueOf(dataSnapshot.child("collectorId").getValue());
                         //String creatorUserId = String.valueOf(dataSnapshot.child("creatorUserId").getValue());
                         String appName = String.valueOf(dataSnapshot.child("appName").getValue());
+                        String appPackage = String.valueOf(dataSnapshot.child("appPackage").getValue());
                         String description = String.valueOf(dataSnapshot.child("description").getValue());
                         String mode = String.valueOf(dataSnapshot.child("mode").getValue());
                         String status = String.valueOf(dataSnapshot.child("collectorStatus").getValue());
@@ -113,12 +114,13 @@ public class FirebaseCommunicationManager {
                         long collectorEndTime = (long) dataSnapshot.child("collectorEndTime").getValue();
                         List<HashMap<String,String>> dataFieldsRaw = (List<HashMap<String,String>>)dataSnapshot.child("dataFields").getValue();
                         List<Pair<String,String>> dataFields = new ArrayList<>();
+                        // TODO Yuwen Update Firebase schema
                         for (HashMap i : dataFieldsRaw){
                             System.out.println(i.get("first").toString());
                             System.out.println(i.get("second").toString());
                             dataFields.add(new Pair<String,String>(i.get("first").toString(), i.get("second").toString()));
                         }
-                        Collector collector = new Collector(collectorId,"1",appName,description,mode,collectorStartTime,collectorEndTime,dataFields,status);
+                        Collector collector = new Collector(collectorId,"1",appName, "packageName", description,mode,String.valueOf(collectorStartTime),String.valueOf(collectorEndTime),status);
                         // call firebase callback to update collector
                         firebaseCallback.onResponse(collector);
                     } else {

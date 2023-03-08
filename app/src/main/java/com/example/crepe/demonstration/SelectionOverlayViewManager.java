@@ -2,6 +2,7 @@ package com.example.crepe.demonstration;
 
 
 import android.content.Context;
+import android.graphics.Rect;
 
 public class SelectionOverlayViewManager {
 
@@ -11,8 +12,8 @@ public class SelectionOverlayViewManager {
         this.context = context;
     }
 
-    public SelectionOverlayView getCircleOverlay(float x, float y, float radius) {
-        SelectionOverlayView selectionOverlayView = new SelectionOverlayView(context, x, y, radius);
+    public SelectionOverlayView getRectOverlay(Rect clickedItemBounds) {
+        SelectionOverlayView selectionOverlayView = new SelectionOverlayView(context, clickedItemBounds);
         return selectionOverlayView;
     }
 }

@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -54,15 +55,22 @@ public class HomeFragment extends Fragment {
     }
 
     public void initCollectorList() throws PackageManager.NameNotFoundException {
-        collectorList = dbManager.getAllCollectors();
-        Toast.makeText(this.getActivity(), "Collector number: " + collectorList.size(), Toast.LENGTH_LONG).show();
-        //get all installed apps
-        Map<String, Drawable> apps = getAppImage();
-        CollectorCardConstraintLayoutBuilder builder = new CollectorCardConstraintLayoutBuilder(getActivity(), homeFragmentRefreshCollectorListRunnable,apps);
+        collectorList = dbManager.getActiveCollectors();
 
+        TextView noCollectorTextView = getView().findViewById(R.id.empty_text_view);
         LinearLayout fragmentInnerLinearLayout = getView().findViewById(R.id.fragment_home_inner_linear_layout);
+        // clear the collector list
         fragmentInnerLinearLayout.removeAllViews();
-        for (Collector collector : collectorList) {
+
+        if(collectorList.size() > 0) {
+            noCollectorTextView.setVisibility(View.GONE);
+
+            // get all installed apps
+            Map<String, Drawable> apps = getAppImage();
+            CollectorCardConstraintLayoutBuilder builder = new CollectorCardConstraintLayoutBuilder(getActivity(), homeFragmentRefreshCollectorListRunnable,apps);
+
+
+            for (Collector collector : collectorList) {
 
                 ConstraintLayout collectorCardView = builder.build(collector, fragmentInnerLinearLayout, "cardLayout");
                 // if the cardView is not null, meaning the collector is not in deleted status
@@ -72,7 +80,14 @@ public class HomeFragment extends Fragment {
                     // Toast.makeText(this.getActivity(), fragmentInnerConstraintLayout.toString(), Toast.LENGTH_LONG).show();
                     fragmentInnerLinearLayout.addView(collectorCardView);
                 }
+            }
+
+        } else {
+            noCollectorTextView.setVisibility(View.VISIBLE);
         }
+
+
+
     }
 
     Runnable homeFragmentRefreshCollectorListRunnable = new Runnable() {

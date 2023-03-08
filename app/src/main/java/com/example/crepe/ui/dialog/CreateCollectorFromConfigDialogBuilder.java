@@ -27,7 +27,7 @@ public class CreateCollectorFromConfigDialogBuilder {
 
     private Context c;
     private AlertDialog.Builder builder;
-    private  Runnable refreshCollectorListRunnable;
+    private Runnable refreshCollectorListRunnable;
 
     private CollectorConfigurationDialogWrapper collectorConfigurationDialogWrapper;
 

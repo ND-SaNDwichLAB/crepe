@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginTop="24dp"
-        android:text="UBER COLLECTOR"
+        android:text="COLLECTOR DETAIL"
         android:textSize="20sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -27,33 +27,35 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/collectorDetailTitle" />
 
-    <TextView
-        android:id="@+id/collectorResearcherContactTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="Rider Contact"
-        android:textSize="20sp"
-        app:layout_constraintStart_toStartOf="@+id/collectorDetailDataField"
-        app:layout_constraintTop_toBottomOf="@+id/collectorDetailDataField" />
+<!--    <TextView-->
+<!--        android:id="@+id/collectorResearcherContactTitle"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="24dp"-->
+<!--        android:text="Rider Contact"-->
+<!--        android:textSize="20sp"-->
+<!--        app:layout_constraintStart_toStartOf="@+id/collectorDetailDataField"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/collectorDetailDataField" />-->
 
     <TextView
         android:id="@+id/collectorDetailDataField"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="48dp"
         android:layout_marginTop="12dp"
-        android:text="Price Label from NewTaskWindow \nDeparture from NewTaskWindow \nDestination from NewTaskWindow \nDuration from NewTaskWindow"
+        android:layout_marginEnd="48dp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/collectorDataFieldTitle"
         app:layout_constraintTop_toBottomOf="@+id/collectorDataFieldTitle" />
 
-    <TextView
-        android:id="@+id/collectorResearcherContact"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:text="John Doe, University of Notre Dame \nEmail: jdoe6@nd.edu"
-        app:layout_constraintStart_toStartOf="@+id/collectorResearcherContactTitle"
-        app:layout_constraintTop_toBottomOf="@+id/collectorResearcherContactTitle" />
+<!--    <TextView-->
+<!--        android:id="@+id/collectorResearcherContact"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="12dp"-->
+<!--        android:text="John Doe, University of Notre Dame \nEmail: jdoe6@nd.edu"-->
+<!--        app:layout_constraintStart_toStartOf="@+id/collectorResearcherContactTitle"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/collectorResearcherContactTitle" />-->
 
     <Button
         android:id="@+id/collectorDeleteButton"
@@ -62,13 +64,13 @@
         android:layout_marginTop="24dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="24dp"
-        android:text="DELETE"
         android:background="@android:color/transparent"
+        android:text="DELETE"
         android:textColor="@color/ND_blue"
         android:textColorHint="@color/ND_blue"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/collectorCloseButton"
-        app:layout_constraintTop_toBottomOf="@+id/collectorResearcherContact"
+        app:layout_constraintTop_toBottomOf="@+id/collectorDetailDataField"
         app:layout_constraintVertical_bias="0.501" />
 
     <Button
@@ -85,16 +87,16 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/collectorResearcherContact" />
 
-    <Switch
-        android:id="@+id/collectorStatusSwitch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="24dp"
-        android:checked="true"
-        android:text="Enabled"
-        android:shadowColor="@color/ND_blue"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+<!--    <Switch-->
+<!--        android:id="@+id/collectorStatusSwitch"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="24dp"-->
+<!--        android:layout_marginEnd="24dp"-->
+<!--        android:checked="true"-->
+<!--        android:text="Enabled"-->
+<!--        android:shadowColor="@color/ND_blue"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintTop_toTopOf="parent" />-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

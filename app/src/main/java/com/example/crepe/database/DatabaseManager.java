@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
-import android.util.Pair;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 
@@ -21,16 +20,15 @@ public class DatabaseManager extends SQLiteOpenHelper {
     public static final String COLUMN_COLLECTOR_ID = "collectorId";
     public static final String COLUMN_CREATOR_USER_ID = "creatorUserId";
     public static final String COLUMN_APP_NAME = "appName";
+    public static final String COLUMN_APP_PACKAGE = "appPackage";
     public static final String COLUMN_NAME = "name";
     public static final String COLUMN_COLLECTOR_START_TIME = "collectorStartTime";
     public static final String COLUMN_COLLECTOR_END_TIME = "collectorEndTime";
-    public static final String COLUMN_COLLECTOR_GRAPH_QUERY = "collectorGraphQuery";
-    public static final String COLUMN_COLLECTOR_APP_DATA_FIELDS = "collectorAppDataFields";
     public static final String COLUMN_MODE = "mode";
     public static final String COLUMN_TARGET_SERVER_IP = "targetServerIp";
     public static final String COLUMN_COLLECTOR_STATUS = "collectorStatus";
 
-    public static final String USER_TABLE = "usertable";
+    public static final String USER_TABLE = "user";
     public static final String COLUMN_USER_ID = "userId";
     public static final String COLUMN_USER_NAME = "userName";
 
@@ -56,13 +54,12 @@ public class DatabaseManager extends SQLiteOpenHelper {
     private final String createCollectorTableStatement = "CREATE TABLE IF NOT EXISTS " + COLLECTOR_TABLE + " (" + COLUMN_COLLECTOR_ID + " VARCHAR PRIMARY KEY, " +
             "            " + COLUMN_CREATOR_USER_ID + " VARCHAR, " +
             "            " + COLUMN_APP_NAME + " VARCHAR, " +
+            "            " + COLUMN_APP_PACKAGE + " VARCHAR, " +
             "            " + COLUMN_NAME + " VARCHAR, " +
             "            " + COLUMN_MODE + " VARCHAR, " +
             "            " + COLUMN_TARGET_SERVER_IP + " VARCHAR, " +
             "            " + COLUMN_COLLECTOR_START_TIME + " BIGINT, " +
             "            " + COLUMN_COLLECTOR_END_TIME + " BIGINT, " +
-            "            " + COLUMN_COLLECTOR_GRAPH_QUERY + " VARCHAR, " +
-            "            " + COLUMN_COLLECTOR_APP_DATA_FIELDS + " VARCHAR, " +
             "            " + COLUMN_COLLECTOR_STATUS + " VARCHAR)";
 
     private final String createUserTableStatement = "CREATE TABLE IF NOT EXISTS " + USER_TABLE + " (" + COLUMN_USER_ID + " VARCHAR PRIMARY KEY, " +
@@ -83,7 +80,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             "            " + COLUMN_DATAFIELD_ID + " VARCHAR, " +
             "            " + COLUMN_USER_ID + " VARCHAR, " +
             "            " + COLUMN_TIMESTAMP + " BIGINT, " +
-            "            " + COLUMN_DATA_CONTENT + "VARCHAR, " +
+            "            " + COLUMN_DATA_CONTENT + " VARCHAR, " +
             "            " + "FOREIGN KEY(" + COLUMN_DATAFIELD_ID + ") REFERENCES " + DATAFIELD_TABLE + "(" + COLUMN_DATAFIELD_ID + "), " +
             "            " + "FOREIGN KEY(" + COLUMN_USER_ID + ") REFERENCES " + USER_TABLE + "(" + COLUMN_USER_ID + "));" ;
 
@@ -128,12 +125,12 @@ public class DatabaseManager extends SQLiteOpenHelper {
         cv.put(COLUMN_CREATOR_USER_ID, collector.getCreatorUserId());
         cv.put(COLUMN_NAME, collector.getDescription());
         cv.put(COLUMN_APP_NAME, collector.getAppName());
+        cv.put(COLUMN_APP_PACKAGE, collector.getAppPackage());
         cv.put(COLUMN_MODE, collector.getMode());
         cv.put(COLUMN_TARGET_SERVER_IP, collector.getTargetServerIp());
         cv.put(COLUMN_COLLECTOR_START_TIME, collector.getCollectorStartTime());
         cv.put(COLUMN_COLLECTOR_END_TIME, collector.getCollectorEndTime());
         cv.put(COLUMN_COLLECTOR_STATUS, collector.getCollectorStatus());
-        cv.put(COLUMN_COLLECTOR_APP_DATA_FIELDS,  collector.getDataFieldsToJson());
         long insert = db.insert(COLLECTOR_TABLE, null, cv);
         if (insert == -1) {
             return false;
@@ -171,16 +168,14 @@ public class DatabaseManager extends SQLiteOpenHelper {
                 String collectorID = cursor.getString(0);
                 String creatorUserID = cursor.getString(1);
                 String appName = cursor.getString(2);
-                String name = cursor.getString(3);
-                String mode = cursor.getString(4);
-                String targetServerIP = cursor.getString(5);
-                long collectorStartTime = cursor.getLong(6);
-                long collectorEndTime = cursor.getLong(7);
-                String collectorGraphQuery = cursor.getString(8);
-                String collectorAppDataFields = cursor.getString(9);
-                String collectorStatus = cursor.getString(10);
-                List<Pair<String, String>> dataFields = stringToListOfPairs(collectorAppDataFields);
-                Collector receivedCollector = new Collector(collectorID, creatorUserID, appName, name, mode, collectorStartTime, collectorEndTime, dataFields, collectorStatus);
+                String appPackage = cursor.getString(3);
+                String name = cursor.getString(4);
+                String mode = cursor.getString(5);
+                String targetServerIP = cursor.getString(6);
+                long collectorStartTime = cursor.getLong(7);
+                long collectorEndTime = cursor.getLong(8);
+                String collectorStatus = cursor.getString(9);
+                Collector receivedCollector = new Collector(collectorID, creatorUserID, appName, appPackage, name, mode, collectorStartTime, collectorEndTime, collectorStatus);
                 collectorList.add(receivedCollector);
 
             } while(cursor.moveToNext());
@@ -220,7 +215,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
         cursor.close();
 
         if (cursorCount <= 0) {
-
             return false;
         } else {
             return true;
@@ -429,21 +423,28 @@ public class DatabaseManager extends SQLiteOpenHelper {
     }
 
 
-    public Boolean addOneDataField(Datafield dataField) {
+    public Boolean addOneDatafield(Datafield dataField) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
 
         cv.put(COLUMN_DATAFIELD_ID, dataField.getDataFieldId());
         cv.put(COLUMN_COLLECTOR_ID, dataField.getCollectorId());
         cv.put(COLUMN_GRAPH_QUERY, dataField.getGraphQuery());
-        cv.put(COLUMN_NAME, dataField.getName());
+        cv.put(COLUMN_DATAFIELD_NAME, dataField.getName());
         cv.put(COLUMN_DATAFIELD_TIME_CREATED, dataField.getTimeCreated());
         cv.put(COLUMN_DATAFIELD_TIME_LAST_EDITED, dataField.getTimelastEdited());
         cv.put(COLUMN_DATAFIELD_IS_DEMONSTRATED, dataField.getDemonstrated());
 
-        long result = db.insert(DATAFIELD_TABLE, null, cv);
-        db.close();
-        return result != -1;
+        // catch exception of the insert operation
+        try {
+            long result = db.insert(DATAFIELD_TABLE, null, cv);
+            db.close();
+            return result != -1;
+        } catch (Exception e) {
+            Log.i("database", "add one datafield error: " + e.getMessage());
+            return false;
+        }
+
     }
 
     public void removeDatafieldById(String datafieldId) {
@@ -503,7 +504,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return dataList;
     }
 
-    public List<Datafield> getDatafieldForCollector(Collector collector) {
+    public List<Datafield> getAllDatafieldsForCollector(Collector collector) {
         List<Datafield> dataList = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         String getAllDataQuery = "SELECT * FROM " + DATAFIELD_TABLE + " WHERE " + COLUMN_COLLECTOR_ID + " = \"" + collector.getCollectorId() + "\";";
@@ -543,18 +544,45 @@ public class DatabaseManager extends SQLiteOpenHelper {
         c.close();
     }
 
-    public List<Pair<String,String>> stringToListOfPairs(String string) {
-        List<Pair<String,String>> list = new ArrayList<>();
-        string = string.substring(1, string.length()-1);
-        String[] pairs = string.split(",");
-        for (String pair : pairs) {
-            String[] keyValue = pair.split(":");
-            String key = keyValue[0];
-            String value = keyValue[1];
-            list.add(new Pair<>(key, value));
+
+    // a function that retrieve collectors that has active status
+    public List<Collector> getActiveCollectors() {
+        List<Collector> collectorList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        String getActiveCollectorsQuery = "SELECT * FROM " + COLLECTOR_TABLE + " WHERE " + COLUMN_COLLECTOR_STATUS + " = \"active\";";
+
+        Cursor cursor = db.rawQuery(getActiveCollectorsQuery, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                // parse every info from cursor
+                String collectorID = cursor.getString(0);
+                String creatorUserID = cursor.getString(1);
+                String appName = cursor.getString(2);
+                String appPackage = cursor.getString(3);
+                String name = cursor.getString(4);
+                String mode = cursor.getString(5);
+                String targetServerIP = cursor.getString(6);
+                long collectorStartTime = cursor.getLong(7);
+                long collectorEndTime = cursor.getLong(8);
+                String collectorStatus = cursor.getString(9);
+                Collector receivedCollector = new Collector(collectorID, creatorUserID, appName, appPackage, name, mode, collectorStartTime, collectorEndTime, collectorStatus);
+                collectorList.add(receivedCollector);
+
+            } while(cursor.moveToNext());
         }
-        return list;
 
+        else {
+            // do nothing since it's empty
+            Log.i("", "The collector list is empty.");
+        }
+        cursor.close();
+        db.close();
+        return collectorList;
     }
-
 }
+
+
+
+
+

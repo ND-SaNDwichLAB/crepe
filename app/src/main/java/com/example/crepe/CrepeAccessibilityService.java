@@ -1,5 +1,7 @@
 package com.example.crepe;
 
+import static com.example.crepe.MainActivity.androidId;
+
 import android.accessibilityservice.AccessibilityService;
 import android.app.ActivityManager;
 import android.content.ComponentName;
@@ -12,12 +14,23 @@ import android.util.Log;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.widget.Toast;
 
+import com.example.crepe.database.Collector;
+import com.example.crepe.database.Data;
+import com.example.crepe.database.DatabaseManager;
+import com.example.crepe.database.Datafield;
 import com.example.crepe.demonstration.DemonstrationUtil;
+import com.example.crepe.graphquery.ontology.OntologyQuery;
+import com.example.crepe.graphquery.ontology.SugiliteEntity;
 import com.example.crepe.graphquery.ontology.UISnapshot;
+import com.example.crepe.graphquery.thread.GraphQueryThread;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 public class CrepeAccessibilityService extends AccessibilityService {
@@ -29,9 +42,15 @@ public class CrepeAccessibilityService extends AccessibilityService {
     // Binder given to clients
     private final IBinder binder = new LocalBinder();
 
+    private DatabaseManager dbManager = new DatabaseManager(this);
+
+    // maintain a thread pool inside of the accessibility for running graph queries
+     private ExecutorService threadPool = Executors.newFixedThreadPool(10);
+
     private WindowManager windowManager;
     private String currentAppActivityName;
     private String currentPackageName;
+    private UISnapshot prevUiSnapshot;  // used to check if the retrieved data exists in the previous frame
     private UISnapshot uiSnapshot;
     private List<AccessibilityNodeInfo> allNodeList;
 
@@ -58,19 +77,83 @@ public class CrepeAccessibilityService extends AccessibilityService {
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
-        Log.i(TAG, "An accessibility event just happened");
-        int eventType = accessibilityEvent.getEventType();
-        Log.i(TAG, "Event type: " + String.valueOf(eventType));
+        // update a UISnapshot and all nodes on screen
+        prevUiSnapshot = uiSnapshot;
+        uiSnapshot = generateUISnapshot(accessibilityEvent);
+        allNodeList = getAllNodesOnScreen();
+        // Submit a task to the thread pool
+        threadPool.submit(new Runnable() {
+            @Override
+            public void run() {
 
 
-        //update currentAppActivityName and currentPackageName on TYPE_WINDOW_STATE_CHANGED events
-        if (accessibilityEvent.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
-            uiSnapshot = generateUISnapshot(accessibilityEvent);
-            allNodeList = getAllNodesOnScreen();
-        } else if (accessibilityEvent.getEventType() == AccessibilityEvent.TYPE_VIEW_SCROLLED) {
-            allNodeList = getAllNodesOnScreen();
-        }
+                // retrieve all stored collectors and datafields
+                List<Collector> collectors = dbManager.getActiveCollectors();
+                List<Datafield> datafields = dbManager.getAllDatafields();
 
+                // update the list of apps we need to monitor
+                List<String> monitoredApps = new ArrayList<>();
+                for (Collector collector : collectors) {
+                    monitoredApps.add(collector.getAppPackage());
+                }
+
+                // get the current package
+                currentPackageName = accessibilityEvent.getPackageName().toString();
+
+                // if the current package is in the monitored apps list, start the data collection for collectors that are monitoring this app
+                if (currentPackageName != null && monitoredApps.contains(currentPackageName)) {
+                    ArrayList<String> collectorIdsToStart = new ArrayList<>();
+                    ArrayList<Datafield> datafieldsToStart = new ArrayList<>();
+                    if (collectors != null && datafields != null) {
+                        for (Collector collector : collectors) {
+                            if (collector.getAppPackage().equals(currentPackageName)) {
+                                // if the current package is the same as the collector's app name, start the data collection
+                                collectorIdsToStart.add(collector.getCollectorId());
+                                // also add the datafields that are associated with this collector
+                                for (Datafield datafield : datafields) {
+                                    if (datafield.getCollectorId().equals(collector.getCollectorId())) {
+                                        datafieldsToStart.add(datafield);
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+
+                    // for each datafield, run the graph query on the uiSnapshot
+                    if (datafieldsToStart.size() > 0) {
+                        for (Datafield datafield : datafieldsToStart) {
+                            // Start a new graph query thread and execute the graph query
+                            // 1. convert the graph query string to a graph query object
+                            OntologyQuery currentQuery = OntologyQuery.deserialize(datafield.getGraphQuery());
+                            // 2. run the graph query on the uiSnapshot
+                            Set<SugiliteEntity> prevResults = currentQuery.executeOn(prevUiSnapshot);
+                            Set<SugiliteEntity> currentResults = currentQuery.executeOn(uiSnapshot);
+                            // 3. store the new results in the database
+                            for (SugiliteEntity result : currentResults) {
+                                if (!prevResults.contains(result)) {
+                                    // if the result is not in the previous results, add it to the database
+                                    long timestamp = System.currentTimeMillis();
+                                    // the data id is the collector id + "%" + timestamp
+                                    Data resultData = new Data(datafield.getCollectorId() + "%" + String.valueOf(timestamp), datafield.getDataFieldId(), androidId, result.saveToDatabaseAsString());
+                                    Boolean addDataResult = false;
+                                    try {
+                                        addDataResult = dbManager.addData(resultData);
+                                        Log.i("dataset", "added data: " + resultData.toString());
+                                    } catch (Exception e) {
+                                        Log.i("dataset", "failed to add data: " + resultData.toString());
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+
+                        }
+
+                    }
+                }
+
+            }
+        });
     }
 
     public UISnapshot generateUISnapshot(AccessibilityEvent accessibilityEvent) {
@@ -95,9 +178,6 @@ public class CrepeAccessibilityService extends AccessibilityService {
 
         uiSnapshot = new UISnapshot(windowManager.getDefaultDisplay(), rootNode, true, currentPackageName, currentAppActivityName);
         return uiSnapshot;
-//        Map<Node, AccessibilityNodeInfo> nodeInfoMap =  uiSnapshot.getNodeAccessibilityNodeInfoMap();
-//        Log.i("uisnapshot", String.valueOf(uiSnapshot));
-//        Log.i("uisnapshot", String.valueOf(nodeInfoMap));
 
     }
 

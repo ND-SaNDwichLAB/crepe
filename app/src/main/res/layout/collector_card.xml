@@ -29,13 +29,15 @@
 
             <TextView
                 android:id="@+id/collectorTitle"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="24dp"
-                android:layout_marginTop="4dp"
-                android:text="App name"
+                android:layout_marginEnd="16dp"
+                android:ellipsize="end"
                 android:textAppearance="@style/TextAppearance.AppCompat.Large"
                 android:textSize="22sp"
+                app:layout_constraintEnd_toStartOf="@+id/runningLightImageView"
+                app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toEndOf="@+id/collectorImg"
                 app:layout_constraintTop_toTopOf="@+id/collectorImg" />
 
@@ -46,6 +48,8 @@
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="20dp"
                 android:adjustViewBounds="true"
+                android:cropToPadding="true"
+                android:padding="1dp"
                 android:scaleType="centerCrop"
                 android:soundEffectsEnabled="false"
                 android:src="@mipmap/ic_uber_icon"
@@ -53,21 +57,21 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:shapeAppearanceOverlay="@style/circular"
                 app:strokeColor="@color/ND_gold"
-                app:strokeWidth="2dp"
-                android:padding="1dp"
-                android:cropToPadding="true"
-                />
+                app:strokeWidth="2dp" />
 
             <TextView
                 android:id="@+id/collectorDataDescription"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="24dp"
-                android:layout_marginBottom="4dp"
+                android:maxWidth="250dp"
+                android:ellipsize="end"
                 android:layout_marginTop="6dp"
+                android:layout_marginEnd="20dp"
                 android:text="collector data description"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                app:layout_constraintStart_toEndOf="@+id/collectorImg"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="@+id/collectorTitle"
                 app:layout_constraintTop_toBottomOf="@+id/collectorTitle" />
 
             <TextView
@@ -76,9 +80,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="16dp"
-                android:text="Start:  MM DD, YYYY"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/collectorImg" />
+                app:layout_constraintTop_toBottomOf="@+id/collectorDataDescription" />
 
             <TextView
                 android:id="@+id/endTime"
