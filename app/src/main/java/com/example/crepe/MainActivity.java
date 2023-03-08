@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
     private Fragment currentFragment;
 
     // the unique id extracted from the user's device, used as their user id
-    private String androidId;
+    public static String androidId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -28,7 +28,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     public static final String COLUMN_TARGET_SERVER_IP = "targetServerIp";
     public static final String COLUMN_COLLECTOR_STATUS = "collectorStatus";
 
-    public static final String USER_TABLE = "usertable";
+    public static final String USER_TABLE = "user";
     public static final String COLUMN_USER_ID = "userId";
     public static final String COLUMN_USER_NAME = "userName";
 

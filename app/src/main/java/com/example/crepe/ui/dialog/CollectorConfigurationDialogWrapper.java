@@ -1,5 +1,7 @@
 package com.example.crepe.ui.dialog;
 
+import static com.example.crepe.MainActivity.androidId;
+
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.ClipData;
@@ -89,6 +91,9 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
         switch (currentScreenState) {
             case "buildDialogFromConfig":
+
+                collector.setCreatorUserId(androidId);
+
                 dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_add_collector_from_config, null);
                 dialog.setContentView(dialogMainView);
                 // buttons
@@ -548,8 +553,8 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                 dialog.setContentView(dialogMainView);
 
                 // update the displayed app info
-                TextView successMessageTextView = (TextView) dialogMainView.findViewById(R.id.successMessageTitle);
-                successMessageTextView.setText("Your collector for " + collector.getAppName() + " is created");
+                TextView successMessageTextView = (TextView) dialogMainView.findViewById(R.id.shareText);
+                successMessageTextView.setText("Your collector for " + collector.getAppName() + " is created. Share with your participants");
 
                 // TODO: Create a new class to handle url generation e.g. collectorUrlManager
                 //      1. create url
