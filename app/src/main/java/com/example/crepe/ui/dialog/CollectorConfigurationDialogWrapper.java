@@ -499,7 +499,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         // update currentScreen String value
-                        currentScreenState = "buildDialogFromConfigDataField";
+                        currentScreenState = "buildDialogFromConfigGraphQuery";
                         // recursively call itself with new currentScreen String value
                         updateCurrentView();
                     }
