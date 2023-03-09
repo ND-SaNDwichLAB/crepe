@@ -88,6 +88,12 @@ public class CreateCollectorFromURLDialogBuilder {
 //                            }
 //                        }
 //                    });
+
+                    DatabaseManager dbManager = new DatabaseManager(c);
+                    // TODO Yuwen 1. retrieve the collector from firebase 2. store the collector to the local database
+                    // TODO maybe 3. refresh the home fragment
+
+
                     // next popup
                     dialog.dismiss();
 //                    CreateCollectorFromURLDialogSuccessMessage nextPopup = new CreateCollectorFromURLDialogSuccessMessage(c);

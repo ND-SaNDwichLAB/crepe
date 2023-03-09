@@ -1,5 +1,16 @@
 package com.example.crepe;
 
+import static android.view.accessibility.AccessibilityEvent.TYPE_ANNOUNCEMENT;
+import static android.view.accessibility.AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED;
+import static android.view.accessibility.AccessibilityEvent.TYPE_VIEW_CONTEXT_CLICKED;
+import static android.view.accessibility.AccessibilityEvent.TYPE_VIEW_HOVER_ENTER;
+import static android.view.accessibility.AccessibilityEvent.TYPE_VIEW_HOVER_EXIT;
+import static android.view.accessibility.AccessibilityEvent.TYPE_VIEW_SCROLLED;
+import static android.view.accessibility.AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED;
+import static android.view.accessibility.AccessibilityEvent.TYPE_VIEW_TEXT_SELECTION_CHANGED;
+import static android.view.accessibility.AccessibilityEvent.TYPE_WINDOWS_CHANGED;
+import static android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED;
+import static android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED;
 import static com.example.crepe.MainActivity.androidId;
 
 import android.accessibilityservice.AccessibilityService;
@@ -27,6 +38,7 @@ import com.example.crepe.graphquery.ontology.UISnapshot;
 import com.example.crepe.graphquery.thread.GraphQueryThread;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -77,83 +89,106 @@ public class CrepeAccessibilityService extends AccessibilityService {
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
-        // update a UISnapshot and all nodes on screen
-        prevUiSnapshot = uiSnapshot;
-        uiSnapshot = generateUISnapshot(accessibilityEvent);
-        allNodeList = getAllNodesOnScreen();
-        // Submit a task to the thread pool
-        threadPool.submit(new Runnable() {
-            @Override
-            public void run() {
+
+        List<Integer> targetEventTypes = Arrays.asList(
+                TYPE_VIEW_TEXT_CHANGED,
+                TYPE_WINDOW_STATE_CHANGED,
+                TYPE_NOTIFICATION_STATE_CHANGED,
+                TYPE_VIEW_HOVER_ENTER,
+                TYPE_VIEW_HOVER_EXIT,
+                TYPE_WINDOW_CONTENT_CHANGED,
+                TYPE_VIEW_SCROLLED,
+                TYPE_VIEW_TEXT_SELECTION_CHANGED,
+                TYPE_ANNOUNCEMENT,
+                TYPE_WINDOWS_CHANGED,
+                TYPE_VIEW_CONTEXT_CLICKED);
+
+        if (!targetEventTypes.contains(accessibilityEvent.getEventType())) {
+            Log.i("accessbilityEvent", accessibilityEvent.toString() + " not in the target event list");
+        } else {
+
+            // update a UISnapshot and all nodes on screen
+            prevUiSnapshot = uiSnapshot;
+            uiSnapshot = generateUISnapshot(accessibilityEvent);
+            allNodeList = getAllNodesOnScreen();
+            // Submit a task to the thread pool
+            threadPool.submit(new Runnable() {
+                @Override
+                public void run() {
 
 
-                // retrieve all stored collectors and datafields
-                List<Collector> collectors = dbManager.getActiveCollectors();
-                List<Datafield> datafields = dbManager.getAllDatafields();
+                    // retrieve all stored collectors and datafields
+                    List<Collector> collectors = dbManager.getActiveCollectors();
+                    List<Datafield> datafields = dbManager.getAllDatafields();
 
-                // update the list of apps we need to monitor
-                List<String> monitoredApps = new ArrayList<>();
-                for (Collector collector : collectors) {
-                    monitoredApps.add(collector.getAppPackage());
-                }
+                    // update the list of apps we need to monitor
+                    List<String> monitoredApps = new ArrayList<>();
+                    for (Collector collector : collectors) {
+                        monitoredApps.add(collector.getAppPackage());
+                    }
 
-                // get the current package
-                currentPackageName = accessibilityEvent.getPackageName().toString();
+                    // get the current package
+                    currentPackageName = accessibilityEvent.getPackageName().toString();
 
-                // if the current package is in the monitored apps list, start the data collection for collectors that are monitoring this app
-                if (currentPackageName != null && monitoredApps.contains(currentPackageName)) {
-                    ArrayList<String> collectorIdsToStart = new ArrayList<>();
-                    ArrayList<Datafield> datafieldsToStart = new ArrayList<>();
-                    if (collectors != null && datafields != null) {
-                        for (Collector collector : collectors) {
-                            if (collector.getAppPackage().equals(currentPackageName)) {
-                                // if the current package is the same as the collector's app name, start the data collection
-                                collectorIdsToStart.add(collector.getCollectorId());
-                                // also add the datafields that are associated with this collector
-                                for (Datafield datafield : datafields) {
-                                    if (datafield.getCollectorId().equals(collector.getCollectorId())) {
-                                        datafieldsToStart.add(datafield);
+                    // if the current package is in the monitored apps list, start the data collection for collectors that are monitoring this app
+                    if (currentPackageName != null && monitoredApps.contains(currentPackageName)) {
+                        ArrayList<String> collectorIdsToStart = new ArrayList<>();
+                        ArrayList<Datafield> datafieldsToStart = new ArrayList<>();
+                        if (collectors != null && datafields != null) {
+                            for (Collector collector : collectors) {
+                                if (collector.getAppPackage().equals(currentPackageName)) {
+                                    // if the current package is the same as the collector's app name, start the data collection
+                                    collectorIdsToStart.add(collector.getCollectorId());
+                                    // also add the datafields that are associated with this collector
+                                    for (Datafield datafield : datafields) {
+                                        if (datafield.getCollectorId().equals(collector.getCollectorId())) {
+                                            datafieldsToStart.add(datafield);
+                                        }
+                                    }
+
+                                }
+                            }
+                        }
+
+                        // for each datafield, run the graph query on the uiSnapshot
+                        if (datafieldsToStart.size() > 0) {
+                            for (Datafield datafield : datafieldsToStart) {
+                                // Start a new graph query thread and execute the graph query
+                                // 1. convert the graph query string to a graph query object
+                                OntologyQuery currentQuery = OntologyQuery.deserialize(datafield.getGraphQuery());
+                                // 2. run the graph query on the uiSnapshot
+                                Set<SugiliteEntity> prevResults = currentQuery.executeOn(prevUiSnapshot);
+                                Set<SugiliteEntity> currentResults = currentQuery.executeOn(uiSnapshot);
+                                // 3. store the new results in the database
+                                for (SugiliteEntity result : currentResults) {
+                                    if (!prevResults.contains(result)) {
+                                        // if the result is not in the previous results, add it to the database
+                                        long timestamp = System.currentTimeMillis();
+                                        // the data id is the collector id + "%" + timestamp
+                                        Data resultData = new Data(datafield.getCollectorId() + "%" + String.valueOf(timestamp), datafield.getDataFieldId(), androidId, result.saveToDatabaseAsString());
+                                        Boolean addDataResult = false;
+                                        try {
+                                            addDataResult = dbManager.addData(resultData);
+                                            Log.i("dataset", "added data: " + resultData.toString());
+                                        } catch (Exception e) {
+                                            Log.i("dataset", "failed to add data: " + resultData.toString());
+                                            e.printStackTrace();
+                                        }
                                     }
                                 }
 
                             }
+
                         }
                     }
 
-                    // for each datafield, run the graph query on the uiSnapshot
-                    if (datafieldsToStart.size() > 0) {
-                        for (Datafield datafield : datafieldsToStart) {
-                            // Start a new graph query thread and execute the graph query
-                            // 1. convert the graph query string to a graph query object
-                            OntologyQuery currentQuery = OntologyQuery.deserialize(datafield.getGraphQuery());
-                            // 2. run the graph query on the uiSnapshot
-                            Set<SugiliteEntity> prevResults = currentQuery.executeOn(prevUiSnapshot);
-                            Set<SugiliteEntity> currentResults = currentQuery.executeOn(uiSnapshot);
-                            // 3. store the new results in the database
-                            for (SugiliteEntity result : currentResults) {
-                                if (!prevResults.contains(result)) {
-                                    // if the result is not in the previous results, add it to the database
-                                    long timestamp = System.currentTimeMillis();
-                                    // the data id is the collector id + "%" + timestamp
-                                    Data resultData = new Data(datafield.getCollectorId() + "%" + String.valueOf(timestamp), datafield.getDataFieldId(), androidId, result.saveToDatabaseAsString());
-                                    Boolean addDataResult = false;
-                                    try {
-                                        addDataResult = dbManager.addData(resultData);
-                                        Log.i("dataset", "added data: " + resultData.toString());
-                                    } catch (Exception e) {
-                                        Log.i("dataset", "failed to add data: " + resultData.toString());
-                                        e.printStackTrace();
-                                    }
-                                }
-                            }
-
-                        }
-
-                    }
                 }
+            });
 
-            }
-        });
+        }
+
+
+
     }
 
     public UISnapshot generateUISnapshot(AccessibilityEvent accessibilityEvent) {

@@ -556,10 +556,12 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                 TextView successMessageTextView = (TextView) dialogMainView.findViewById(R.id.shareText);
                 successMessageTextView.setText("Your collector for " + collector.getAppName() + " is created. Share with your participants");
 
-                // TODO: Create a new class to handle url generation e.g. collectorUrlManager
-                //      1. create url
-                //      2. get collector from url
-                collector.setCollectorId("9");
+                // set the id of the collector
+                // format: androidId%appName%timestamp
+                collector.setCollectorId(androidId + "%" + collector.getAppName() + "%" + String.valueOf(System.currentTimeMillis()));
+
+
+
                 // connect to crepe server
 //                ServerCollectorCommunicationManager sccManager = new ServerCollectorCommunicationManager(context);
 //                try {
@@ -576,10 +578,6 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                     Log.e("Firebase","Failed to add collector " + collector.getCollectorId() + " to firebase.");
                 });
 
-
-                // Create url for current collector
-                String collectorURL = "http://35.222.12.92:8000?id=" + collector.getCollectorId();
-
                 Button closeSuccessMessage = (Button) dialogMainView.findViewById(R.id.closeSuccessMessagePopupButton);
                 ImageButton shareUrlLinkButton = (ImageButton) dialogMainView.findViewById(R.id.shareUrlImageButton);
                 ImageButton shareEmailLinkButton = (ImageButton) dialogMainView.findViewById(R.id.shareEmailImageButton);
@@ -593,7 +591,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         intent.setData(Uri.parse("mailto:"+"ylu23@nd.edu"));
                         //intent.putExtra(Intent.EXTRA_EMAIL, "ylu23@nd.edu");
                         intent.putExtra(Intent.EXTRA_SUBJECT, "Data Collector for " + collector.getAppName());
-                        intent.putExtra(Intent.EXTRA_TEXT, collectorURL);
+                        intent.putExtra(Intent.EXTRA_TEXT, collector.getCollectorId());
 
                         if (intent.resolveActivity(getPackageManager()) != null) {
                             startActivity(intent);
@@ -605,14 +603,15 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                     }
                 });
 
+
                 shareUrlLinkButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        // share url link
+                        // we will just share the id of the collector for now, instead of a url
                         ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-                        ClipData clip = ClipData.newPlainText("share URL", collectorURL);
+                        ClipData clip = ClipData.newPlainText("share URL", collector.getCollectorId());
                         clipboard.setPrimaryClip(clip);
-                        Toast.makeText(context,"URL copied to clipboard", Toast.LENGTH_LONG).show();
+                        Toast.makeText(context,"collector ID copied to clipboard " + collector.getCollectorId(), Toast.LENGTH_LONG).show();
                     }
                 });
 

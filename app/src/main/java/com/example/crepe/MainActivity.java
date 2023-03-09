@@ -88,24 +88,7 @@ public class MainActivity extends AppCompatActivity {
         androidId = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
         Boolean userExists = false;
 
-        // TODO: this is test code, clean database and generate example collectors
         dbManager = new DatabaseManager(this);
-        try {
-            dbManager.clearDatabase(MainActivity.this);
-        } catch (Exception e) {
-            Toast.makeText(MainActivity.this, "Error clearing database", Toast.LENGTH_SHORT).show();
-        }
-        try {
-            List<Pair<String,String>> testList = new ArrayList<>();
-//            testCollector = new Collector("2", "1", "YouTube Music", "com.google.android.apps.youtube.music", "description for a Youtube Music collector", "local", 100, 100,"active");
-//            testCollector2 = new Collector("7", "1", "Doordash", "com.app.doordash", "description for a Doordash collector", "what", "https", 139148015, 1491789595,"active");
-//            Boolean addResult = dbManager.addOneCollector(testCollector);
-//            Boolean addResult2 = dbManager.addOneCollector(testCollector2);
-
-        }
-        catch (Exception e) {
-            Toast.makeText(MainActivity.this, "Error Creating Collector", Toast.LENGTH_SHORT).show();
-        }
 
         if(androidId == null) {
             Log.e("User id", "Fail to retrieve device id, userid is null");
