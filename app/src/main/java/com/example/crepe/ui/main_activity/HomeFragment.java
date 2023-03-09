@@ -96,7 +96,7 @@ public class HomeFragment extends Fragment {
         public void run() {
             try {
                 initCollectorList();
-                CrepeAccessibilityService.getsSharedInstance().refreshCollector();
+
             } catch (PackageManager.NameNotFoundException e) {
                 e.printStackTrace();
             }

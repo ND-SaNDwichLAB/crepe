@@ -534,6 +534,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         currentScreenState = "buildDialogFromConfigSuccessMessage";
                         // recursively call itself with new currentScreen String value
                         refreshCollectorListRunnable.run();
+                        CrepeAccessibilityService.getsSharedInstance().refreshCollector();
                         updateCurrentView();
                     }
                 });

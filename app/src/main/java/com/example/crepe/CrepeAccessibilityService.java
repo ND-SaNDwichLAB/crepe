@@ -79,8 +79,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
         super.onCreate();
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
 
-        collectors = dbManager.getActiveCollectors();
-        datafields = dbManager.getAllDatafields();
+        refreshCollector();
     }
 
     public void refreshCollector() {
@@ -165,7 +164,8 @@ public class CrepeAccessibilityService extends AccessibilityService {
                                 Set<SugiliteEntity> currentResults = currentQuery.executeOn(uiSnapshot);
                                 // 3. store the new results in the database
                                 for (SugiliteEntity result : currentResults) {
-                                    if (!prevResults.contains(result)) {
+//                                    if (!prevResults.contains(result)) {
+                                    if (!savedOnCurrentSnapshot) {
                                         // if the result is not in the previous results, add it to the database
                                         long timestamp = System.currentTimeMillis();
                                         // the data id is the collector id + "%" + timestamp

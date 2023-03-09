@@ -90,6 +90,13 @@ public class MainActivity extends AppCompatActivity {
 
         dbManager = new DatabaseManager(this);
 
+        // TODO remove this line after testing
+        try {
+            dbManager.clearDatabase(this);
+        } catch (Exception e) {
+            Toast.makeText(MainActivity.this, "Error clearing database", Toast.LENGTH_SHORT).show();
+        }
+
         if(androidId == null) {
             Log.e("User id", "Fail to retrieve device id, userid is null");
         } else {
