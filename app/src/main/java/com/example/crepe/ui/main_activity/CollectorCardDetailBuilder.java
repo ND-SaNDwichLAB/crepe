@@ -18,6 +18,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.crepe.CrepeAccessibilityService;
 import com.example.crepe.R;
 import com.example.crepe.database.Collector;
 import com.example.crepe.database.DatabaseManager;
@@ -81,6 +82,7 @@ public class CollectorCardDetailBuilder {
 
                 // update the home fragment list
                 refreshCollectorListRunnable.run();
+                CrepeAccessibilityService.getsSharedInstance().refreshCollector();
                 dialog.dismiss();
             }
         });

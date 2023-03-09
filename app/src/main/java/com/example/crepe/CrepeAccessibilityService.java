@@ -64,7 +64,11 @@ public class CrepeAccessibilityService extends AccessibilityService {
     private String currentPackageName;
     private UISnapshot prevUiSnapshot;  // used to check if the retrieved data exists in the previous frame
     private UISnapshot uiSnapshot;
+    private List<Collector> collectors;
+    private List<Datafield> datafields;
     private List<AccessibilityNodeInfo> allNodeList;
+
+    private Boolean savedOnCurrentSnapshot = false;
 
     public UISnapshot getCurrentUiSnapshot() {
         return uiSnapshot;
@@ -74,6 +78,14 @@ public class CrepeAccessibilityService extends AccessibilityService {
     public void onCreate() {
         super.onCreate();
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+
+        refreshCollector();
+    }
+
+    public void refreshCollector() {
+        // retrieve all stored collectors and datafields
+        collectors = dbManager.getActiveCollectors();
+        datafields = dbManager.getAllDatafields();
     }
 
     /**
@@ -94,58 +106,49 @@ public class CrepeAccessibilityService extends AccessibilityService {
                 TYPE_VIEW_TEXT_CHANGED,
                 TYPE_WINDOW_STATE_CHANGED,
                 TYPE_NOTIFICATION_STATE_CHANGED,
-                TYPE_VIEW_HOVER_ENTER,
-                TYPE_VIEW_HOVER_EXIT,
                 TYPE_WINDOW_CONTENT_CHANGED,
                 TYPE_VIEW_SCROLLED,
                 TYPE_VIEW_TEXT_SELECTION_CHANGED,
                 TYPE_ANNOUNCEMENT,
-                TYPE_WINDOWS_CHANGED,
-                TYPE_VIEW_CONTEXT_CLICKED);
+                TYPE_WINDOWS_CHANGED);
 
         if (!targetEventTypes.contains(accessibilityEvent.getEventType())) {
-            Log.i("accessbilityEvent", accessibilityEvent.toString() + " not in the target event list");
+            Log.i("accessibilityEvent", accessibilityEvent.getEventType() + " not in the target event list");
         } else {
+            savedOnCurrentSnapshot = false; // because the window content refreshed
+
+            // update the list of apps we need to monitor
+            List<String> monitoredApps = new ArrayList<>();
+            for (Collector collector : collectors) {
+                monitoredApps.add(collector.getAppPackage());
+            }
+
+            // get the current package
+            currentPackageName = accessibilityEvent.getPackageName().toString();
+
 
             // update a UISnapshot and all nodes on screen
             prevUiSnapshot = uiSnapshot;
             uiSnapshot = generateUISnapshot(accessibilityEvent);
             allNodeList = getAllNodesOnScreen();
-            // Submit a task to the thread pool
-            threadPool.submit(new Runnable() {
-                @Override
-                public void run() {
 
+            if (collectors.size() > 0 && !savedOnCurrentSnapshot) {
+                Log.i("accessibilityEvent", accessibilityEvent.getEventType() + ", opening a new thread, current count: " + Thread.activeCount());
 
-                    // retrieve all stored collectors and datafields
-                    List<Collector> collectors = dbManager.getActiveCollectors();
-                    List<Datafield> datafields = dbManager.getAllDatafields();
-
-                    // update the list of apps we need to monitor
-                    List<String> monitoredApps = new ArrayList<>();
-                    for (Collector collector : collectors) {
-                        monitoredApps.add(collector.getAppPackage());
-                    }
-
-                    // get the current package
-                    currentPackageName = accessibilityEvent.getPackageName().toString();
-
-                    // if the current package is in the monitored apps list, start the data collection for collectors that are monitoring this app
-                    if (currentPackageName != null && monitoredApps.contains(currentPackageName)) {
+                // Submit a task to the thread pool
+                threadPool.submit(new Runnable() {
+                    @Override
+                    public void run() {
                         ArrayList<String> collectorIdsToStart = new ArrayList<>();
                         ArrayList<Datafield> datafieldsToStart = new ArrayList<>();
                         if (collectors != null && datafields != null) {
                             for (Collector collector : collectors) {
-                                if (collector.getAppPackage().equals(currentPackageName)) {
-                                    // if the current package is the same as the collector's app name, start the data collection
-                                    collectorIdsToStart.add(collector.getCollectorId());
-                                    // also add the datafields that are associated with this collector
-                                    for (Datafield datafield : datafields) {
-                                        if (datafield.getCollectorId().equals(collector.getCollectorId())) {
-                                            datafieldsToStart.add(datafield);
-                                        }
+                                collectorIdsToStart.add(collector.getCollectorId());
+                                // also add the datafields that are associated with this collector
+                                for (Datafield datafield : datafields) {
+                                    if (datafield.getCollectorId().equals(collector.getCollectorId())) {
+                                        datafieldsToStart.add(datafield);
                                     }
-
                                 }
                             }
                         }
@@ -161,7 +164,8 @@ public class CrepeAccessibilityService extends AccessibilityService {
                                 Set<SugiliteEntity> currentResults = currentQuery.executeOn(uiSnapshot);
                                 // 3. store the new results in the database
                                 for (SugiliteEntity result : currentResults) {
-                                    if (!prevResults.contains(result)) {
+//                                    if (!prevResults.contains(result)) {
+                                    if (!savedOnCurrentSnapshot) {
                                         // if the result is not in the previous results, add it to the database
                                         long timestamp = System.currentTimeMillis();
                                         // the data id is the collector id + "%" + timestamp
@@ -169,9 +173,10 @@ public class CrepeAccessibilityService extends AccessibilityService {
                                         Boolean addDataResult = false;
                                         try {
                                             addDataResult = dbManager.addData(resultData);
-                                            Log.i("dataset", "added data: " + resultData.toString());
+                                            savedOnCurrentSnapshot = true;
+                                            Log.i("database", "added data: " + resultData.toString());
                                         } catch (Exception e) {
-                                            Log.i("dataset", "failed to add data: " + resultData.toString());
+                                            Log.i("database", "failed to add data: " + resultData.toString());
                                             e.printStackTrace();
                                         }
                                     }
@@ -180,10 +185,10 @@ public class CrepeAccessibilityService extends AccessibilityService {
                             }
 
                         }
-                    }
+                        }
 
-                }
-            });
+                    });
+            }
 
         }
 

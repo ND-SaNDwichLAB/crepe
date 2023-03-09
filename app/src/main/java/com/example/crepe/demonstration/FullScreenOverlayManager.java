@@ -254,8 +254,11 @@ public class FullScreenOverlayManager {
                     windowManager.getDefaultDisplay().getMetrics(metrics);
                     double currentDensity = metrics.density;
 
+                    int width = metrics.widthPixels;
+                    int height = metrics.heightPixels;
+
                     WindowManager.LayoutParams dialogParams = new WindowManager.LayoutParams(
-                            (int) ((windowManager.getCurrentWindowMetrics().getBounds().width() / currentDensity - 48) * currentDensity),   // leave 24 dp margin on both sides
+                            (int) ((width / currentDensity - 48) * currentDensity),   // leave 24 dp margin on both sides
                             WindowManager.LayoutParams.WRAP_CONTENT,
                             OVERLAY_TYPE,
                             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
@@ -301,6 +304,7 @@ public class FullScreenOverlayManager {
                             context.stopService(intent);
                             // go back to the main activity
                             Intent mainActivityIntent = context.getPackageManager().getLaunchIntentForPackage("com.example.crepe");
+                            mainActivityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                             if (mainActivityIntent != null) {
                                 context.startActivity(mainActivityIntent);
                             } else {
