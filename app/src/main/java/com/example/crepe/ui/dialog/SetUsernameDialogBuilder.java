@@ -57,8 +57,8 @@ public class SetUsernameDialogBuilder {
                     dbManager.updateUserName(androidId,userName);
                     List<User> users = dbManager.getAllUsers();
                     User user = users.get(0);
-                    FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(c);
-                    firebaseCommunicationManager.putUser(user);
+//                    FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(c);
+//                    firebaseCommunicationManager.putUser(user);
                     runnable.run();
                     dialog.dismiss();
                 }

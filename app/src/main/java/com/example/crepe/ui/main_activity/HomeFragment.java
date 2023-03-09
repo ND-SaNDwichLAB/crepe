@@ -55,23 +55,22 @@ public class HomeFragment extends Fragment {
     }
 
     public void initCollectorList() throws PackageManager.NameNotFoundException {
-        collectorList = dbManager.getAllCollectors();
+        collectorList = dbManager.getActiveCollectors();
 
         TextView noCollectorTextView = getView().findViewById(R.id.empty_text_view);
+        LinearLayout fragmentInnerLinearLayout = getView().findViewById(R.id.fragment_home_inner_linear_layout);
+        // clear the collector list
+        fragmentInnerLinearLayout.removeAllViews();
+
         if(collectorList.size() > 0) {
             noCollectorTextView.setVisibility(View.GONE);
-        } else {
-            noCollectorTextView.setVisibility(View.VISIBLE);
-        }
+
+            // get all installed apps
+            Map<String, Drawable> apps = getAppImage();
+            CollectorCardConstraintLayoutBuilder builder = new CollectorCardConstraintLayoutBuilder(getActivity(), homeFragmentRefreshCollectorListRunnable,apps);
 
 
-        //get all installed apps
-        Map<String, Drawable> apps = getAppImage();
-        CollectorCardConstraintLayoutBuilder builder = new CollectorCardConstraintLayoutBuilder(getActivity(), homeFragmentRefreshCollectorListRunnable,apps);
-
-        LinearLayout fragmentInnerLinearLayout = getView().findViewById(R.id.fragment_home_inner_linear_layout);
-        fragmentInnerLinearLayout.removeAllViews();
-        for (Collector collector : collectorList) {
+            for (Collector collector : collectorList) {
 
                 ConstraintLayout collectorCardView = builder.build(collector, fragmentInnerLinearLayout, "cardLayout");
 
@@ -82,7 +81,14 @@ public class HomeFragment extends Fragment {
                     // Toast.makeText(this.getActivity(), fragmentInnerConstraintLayout.toString(), Toast.LENGTH_LONG).show();
                     fragmentInnerLinearLayout.addView(collectorCardView);
                 }
+            }
+
+        } else {
+            noCollectorTextView.setVisibility(View.VISIBLE);
         }
+
+
+
     }
 
     Runnable homeFragmentRefreshCollectorListRunnable = new Runnable() {

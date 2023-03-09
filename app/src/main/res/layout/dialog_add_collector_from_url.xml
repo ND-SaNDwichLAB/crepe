@@ -82,7 +82,7 @@
         android:background="@color/white"
         android:paddingStart="2dp"
         android:paddingEnd="2dp"
-        android:text="Enter URL"
+        android:text="Enter Collector ID"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/urlPopupTitle" />
 
