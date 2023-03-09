@@ -72,7 +72,7 @@ public abstract class OntologyQuery implements Serializable {
 
             else {
                     // base case: simple relation
-                    // note: the object will never be an accessbility node info (since this is directly from user)
+                    // note: the object will never be an accessibility node info (since this is directly from user)
                     String predicateString = firstWord;
                     String objectString = s.substring(spaceIndex + 1, s.length());
                     LeafOntologyQuery q = new LeafOntologyQuery();

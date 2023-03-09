@@ -21,6 +21,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.crepe.CrepeAccessibilityService;
 import com.example.crepe.R;
 import com.example.crepe.database.Collector;
 import com.example.crepe.database.DatabaseManager;
@@ -95,6 +96,7 @@ public class HomeFragment extends Fragment {
         public void run() {
             try {
                 initCollectorList();
+                CrepeAccessibilityService.getsSharedInstance().refreshCollector();
             } catch (PackageManager.NameNotFoundException e) {
                 e.printStackTrace();
             }
