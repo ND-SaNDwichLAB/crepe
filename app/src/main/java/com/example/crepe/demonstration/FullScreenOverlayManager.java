@@ -304,6 +304,7 @@ public class FullScreenOverlayManager {
                             context.stopService(intent);
                             // go back to the main activity
                             Intent mainActivityIntent = context.getPackageManager().getLaunchIntentForPackage("com.example.crepe");
+                            mainActivityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                             if (mainActivityIntent != null) {
                                 context.startActivity(mainActivityIntent);
                             } else {
