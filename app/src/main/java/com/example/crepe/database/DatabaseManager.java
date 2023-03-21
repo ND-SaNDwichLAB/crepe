@@ -538,7 +538,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     // update statuses for all collectors to database;
     // yeah this is not the most efficient, but there won't be that many collectors anyways
     public void updateCollectorStatus(Collector collector) {
-        String updateStatement = "UPDATE " + COLLECTOR_TABLE + " SET " + COLUMN_COLLECTOR_STATUS + " =\'" + collector.getCollectorStatus() + "\' WHERE " + COLUMN_COLLECTOR_ID + "=" + collector.getCollectorId();
+        String updateStatement = "UPDATE " + COLLECTOR_TABLE + " SET " + COLUMN_COLLECTOR_STATUS + " =\'" + collector.getCollectorStatus() + "\' WHERE " + COLUMN_COLLECTOR_ID + "=\'" + collector.getCollectorId() + "\'";
         Cursor c = getWritableDatabase().rawQuery(updateStatement, null);
         c.moveToFirst();
         c.close();
