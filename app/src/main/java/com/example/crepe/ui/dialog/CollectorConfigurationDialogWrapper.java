@@ -581,28 +581,28 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
                 Button closeSuccessMessage = (Button) dialogMainView.findViewById(R.id.closeSuccessMessagePopupButton);
                 ImageButton shareUrlLinkButton = (ImageButton) dialogMainView.findViewById(R.id.shareUrlImageButton);
-                ImageButton shareEmailLinkButton = (ImageButton) dialogMainView.findViewById(R.id.shareEmailImageButton);
+//                ImageButton shareEmailLinkButton = (ImageButton) dialogMainView.findViewById(R.id.shareEmailImageButton);
 
-                shareEmailLinkButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        // share email link
-                        Intent intent = new Intent(Intent.ACTION_SENDTO);
-                        intent.setType("message/rfc822");
-                        intent.setData(Uri.parse("mailto:"+"ylu23@nd.edu"));
-                        //intent.putExtra(Intent.EXTRA_EMAIL, "ylu23@nd.edu");
-                        intent.putExtra(Intent.EXTRA_SUBJECT, "Data Collector for " + collector.getAppName());
-                        intent.putExtra(Intent.EXTRA_TEXT, collector.getCollectorId());
-
-                        if (intent.resolveActivity(getPackageManager()) != null) {
-                            startActivity(intent);
-                        } else {
-                            Toast.makeText(context,"No email app on this machine",Toast.LENGTH_LONG).show();
-                        }
-
-
-                    }
-                });
+//                shareEmailLinkButton.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        // share email link
+//                        Intent intent = new Intent(Intent.ACTION_SENDTO);
+//                        intent.setType("message/rfc822");
+//                        intent.setData(Uri.parse("mailto:"+"ylu23@nd.edu"));
+//                        //intent.putExtra(Intent.EXTRA_EMAIL, "ylu23@nd.edu");
+//                        intent.putExtra(Intent.EXTRA_SUBJECT, "Data Collector for " + collector.getAppName());
+//                        intent.putExtra(Intent.EXTRA_TEXT, collector.getCollectorId());
+//
+//                        if (intent.resolveActivity(getPackageManager()) != null) {
+//                            startActivity(intent);
+//                        } else {
+//                            Toast.makeText(context,"No email app on this machine",Toast.LENGTH_LONG).show();
+//                        }
+//
+//
+//                    }
+//                });
 
 
                 shareUrlLinkButton.setOnClickListener(new View.OnClickListener() {
