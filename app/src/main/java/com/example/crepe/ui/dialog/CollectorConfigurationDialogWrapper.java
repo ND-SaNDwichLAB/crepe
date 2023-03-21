@@ -520,12 +520,18 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         // save the collector to database
                         // add a callback to refresh homepage every time
                         DatabaseManager dbManager = new DatabaseManager(context);
+                        // store to firebase as well
+                        FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(context);
+
                         dbManager.addOneCollector(collector);
+                        firebaseCommunicationManager.putCollector(collector);
 
                         // store the data fields into database
                         for (Datafield datafield : datafields) {
                             dbManager.addOneDatafield(datafield);
+                            firebaseCommunicationManager.putDatafield(datafield);
                         }
+
 
                         clearDatafields();
 //                        List<Collector> collectors = dbManager.getActiveCollectors();
