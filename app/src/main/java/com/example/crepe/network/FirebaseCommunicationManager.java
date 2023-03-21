@@ -27,7 +27,6 @@ import java.util.Map;
 public class FirebaseCommunicationManager {
     private Context context;
     private FirebaseDatabase db;
-    private Collector collector;
 
     public FirebaseCommunicationManager(Context c) {
         this.db = FirebaseDatabase.getInstance();
@@ -120,7 +119,7 @@ public class FirebaseCommunicationManager {
                             System.out.println(i.get("second").toString());
                             dataFields.add(new Pair<String,String>(i.get("first").toString(), i.get("second").toString()));
                         }
-                        Collector collector = new Collector(collectorId,"1",appName, "packageName", description,mode,String.valueOf(collectorStartTime),String.valueOf(collectorEndTime),status);
+                        Collector collector = new Collector(collectorId,"1",appName, appPackage, description,mode,String.valueOf(collectorStartTime),String.valueOf(collectorEndTime),status);
                         // call firebase callback to update collector
                         firebaseCallback.onResponse(collector);
                     } else {
@@ -134,17 +133,6 @@ public class FirebaseCommunicationManager {
             }
         });
     }
-
-    public Collector getCollector(){
-        return this.collector;
-    }
-
-    public void setCollector(Collector collector){
-        this.collector = collector;
-    }
-
-
-
 
 
 }
