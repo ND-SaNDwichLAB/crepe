@@ -322,9 +322,13 @@ public class FullScreenOverlayManager {
                         @Override
                         public void onClick(View v) {
                             // remove the confirmation dialog
-                            windowManager.removeView(confirmationView);
+                            if(confirmationView != null) {
+                                windowManager.removeView(confirmationView);
+                            }
                             // remove the selection overlay
-                            windowManager.removeView(selectionOverlay);
+                            if(selectionOverlay != null) {
+                                windowManager.removeView(selectionOverlay);
+                            }
                             Toast.makeText(context, "Please click on the data to collect again", Toast.LENGTH_SHORT).show();
                         }
                     });
