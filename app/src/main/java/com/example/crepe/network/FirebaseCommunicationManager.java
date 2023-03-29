@@ -94,7 +94,7 @@ public class FirebaseCommunicationManager {
         return databaseReference.child(key).removeValue();
     }
 
-    public void retrieveCollector(String key, FirebaseCallback firebaseCallback){   // TODO Yuwen key is collectorId
+    public void retrieveCollector(String key, FirebaseCallback firebaseCallback){   // TODO Meng key is collectorId
         DatabaseReference databaseReference = db.getReference(Collector.class.getSimpleName());
         databaseReference.child(key).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
             @Override
@@ -113,7 +113,7 @@ public class FirebaseCommunicationManager {
                         long collectorEndTime = (long) dataSnapshot.child("collectorEndTime").getValue();
                         List<HashMap<String,String>> dataFieldsRaw = (List<HashMap<String,String>>)dataSnapshot.child("dataFields").getValue();
                         List<Pair<String,String>> dataFields = new ArrayList<>();
-                        // TODO Yuwen Update Firebase schema
+                        // TODO Meng Update Firebase schema
                         for (HashMap i : dataFieldsRaw){
                             System.out.println(i.get("first").toString());
                             System.out.println(i.get("second").toString());
