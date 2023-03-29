@@ -64,6 +64,12 @@ public class FirebaseCommunicationManager {
         return databaseReference.child(key).updateChildren(hashMap);
     }
 
+    // write a function to update the userName for a given user
+    public Task<Void> updateUserName(String key, String userName){
+        DatabaseReference databaseReference = db.getReference(User.class.getSimpleName());
+        return databaseReference.child(key).child("userName").setValue(userName);
+    }
+
     public Task<Void> updateData(String key, HashMap<String, Object> hashMap){
         DatabaseReference databaseReference = db.getReference(Data.class.getSimpleName());
         return databaseReference.child(key).updateChildren(hashMap);
