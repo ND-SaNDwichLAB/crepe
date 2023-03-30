@@ -27,7 +27,6 @@ import java.util.Map;
 public class FirebaseCommunicationManager {
     private Context context;
     private FirebaseDatabase db;
-    private Collector collector;
 
     public FirebaseCommunicationManager(Context c) {
         this.db = FirebaseDatabase.getInstance();
@@ -65,6 +64,12 @@ public class FirebaseCommunicationManager {
         return databaseReference.child(key).updateChildren(hashMap);
     }
 
+    // write a function to update the userName for a given user
+    public Task<Void> updateUserName(String key, String userName){
+        DatabaseReference databaseReference = db.getReference(User.class.getSimpleName());
+        return databaseReference.child(key).child("userName").setValue(userName);
+    }
+
     public Task<Void> updateData(String key, HashMap<String, Object> hashMap){
         DatabaseReference databaseReference = db.getReference(Data.class.getSimpleName());
         return databaseReference.child(key).updateChildren(hashMap);
@@ -95,7 +100,7 @@ public class FirebaseCommunicationManager {
         return databaseReference.child(key).removeValue();
     }
 
-    public void retrieveCollector(String key, FirebaseCallback firebaseCallback){   // TODO Yuwen key is collectorId
+    public void retrieveCollector(String key, FirebaseCallback firebaseCallback){   // TODO Meng key is collectorId
         DatabaseReference databaseReference = db.getReference(Collector.class.getSimpleName());
         databaseReference.child(key).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
             @Override
@@ -114,13 +119,13 @@ public class FirebaseCommunicationManager {
                         long collectorEndTime = (long) dataSnapshot.child("collectorEndTime").getValue();
                         List<HashMap<String,String>> dataFieldsRaw = (List<HashMap<String,String>>)dataSnapshot.child("dataFields").getValue();
                         List<Pair<String,String>> dataFields = new ArrayList<>();
-                        // TODO Yuwen Update Firebase schema
+                        // TODO Meng Update Firebase schema
                         for (HashMap i : dataFieldsRaw){
                             System.out.println(i.get("first").toString());
                             System.out.println(i.get("second").toString());
                             dataFields.add(new Pair<String,String>(i.get("first").toString(), i.get("second").toString()));
                         }
-                        Collector collector = new Collector(collectorId,"1",appName, "packageName", description,mode,String.valueOf(collectorStartTime),String.valueOf(collectorEndTime),status);
+                        Collector collector = new Collector(collectorId,"1",appName, appPackage, description,mode,String.valueOf(collectorStartTime),String.valueOf(collectorEndTime),status);
                         // call firebase callback to update collector
                         firebaseCallback.onResponse(collector);
                     } else {
@@ -134,17 +139,6 @@ public class FirebaseCommunicationManager {
             }
         });
     }
-
-    public Collector getCollector(){
-        return this.collector;
-    }
-
-    public void setCollector(Collector collector){
-        this.collector = collector;
-    }
-
-
-
 
 
 }

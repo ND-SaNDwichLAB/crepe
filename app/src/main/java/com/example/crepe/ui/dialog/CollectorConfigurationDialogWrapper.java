@@ -68,11 +68,9 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
     public static class GraphQueryCallback implements Callback, Serializable {
         @Override
         public void onDataReceived(String query, String targetText) {
-            Log.d("graphQueryCallback", "onDataReceived: " + query);
-            // TODO Yuwen use a legit id here
-            // generate a random number
-            int random = (int)(Math.random() * 1000 + 1);
-            datafields.add(new Datafield(String.valueOf(random), collector.getCollectorId(),query,targetText,true));
+            // datafield id format: collectorId%[index]
+            String datafieldId = collector.getCollectorId() + "%" + String.valueOf(datafields.size());
+            datafields.add(new Datafield(datafieldId, collector.getCollectorId(),query,targetText,true));
             updateDisplayedDataFieldsFromDemonstration(dialogMainView);
         }
     }
@@ -269,6 +267,10 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         collector.autoSetCollectorStatus();
                         // Update in database as well
                         dbManager.updateCollectorStatus(collector);
+
+                        // set the id of the collector
+                        // format: androidId%appName%timestamp
+                        collector.setCollectorId(androidId + "%" + collector.getAppName() + "%" + String.valueOf(System.currentTimeMillis()));
 
                         if (blankFlag == 0) {
                             // update currentScreen String value
@@ -520,12 +522,25 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         // save the collector to database
                         // add a callback to refresh homepage every time
                         DatabaseManager dbManager = new DatabaseManager(context);
+                        // store to firebase as well
+                        FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(context);
+
                         dbManager.addOneCollector(collector);
+
+                        // save to Firebase
+                        firebaseCommunicationManager.putCollector(collector).addOnSuccessListener(suc->{
+                            Log.i("Firebase","Successfully added collector " + collector.getCollectorId() + " to firebase.");
+                        }).addOnFailureListener(er->{
+                            Log.e("Firebase","Failed to add collector " + collector.getCollectorId() + " to firebase.");
+                        });
+
 
                         // store the data fields into database
                         for (Datafield datafield : datafields) {
                             dbManager.addOneDatafield(datafield);
+                            firebaseCommunicationManager.putDatafield(datafield);
                         }
+
 
                         clearDatafields();
 //                        List<Collector> collectors = dbManager.getActiveCollectors();
@@ -557,11 +572,6 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                 TextView successMessageTextView = (TextView) dialogMainView.findViewById(R.id.shareText);
                 successMessageTextView.setText("Your collector for " + collector.getAppName() + " is created. Share with your participants");
 
-                // set the id of the collector
-                // format: androidId%appName%timestamp
-                collector.setCollectorId(androidId + "%" + collector.getAppName() + "%" + String.valueOf(System.currentTimeMillis()));
-
-
 
                 // connect to crepe server
 //                ServerCollectorCommunicationManager sccManager = new ServerCollectorCommunicationManager(context);
@@ -571,38 +581,31 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 //                    e.printStackTrace();
 //                }
 
-                // Connect to Firebase
-                FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(context);
-                firebaseCommunicationManager.putCollector(collector).addOnSuccessListener(suc->{
-                    Log.i("Firebase","Successfully added collector " + collector.getCollectorId() + " to firebase.");
-                }).addOnFailureListener(er->{
-                    Log.e("Firebase","Failed to add collector " + collector.getCollectorId() + " to firebase.");
-                });
 
                 Button closeSuccessMessage = (Button) dialogMainView.findViewById(R.id.closeSuccessMessagePopupButton);
                 ImageButton shareUrlLinkButton = (ImageButton) dialogMainView.findViewById(R.id.shareUrlImageButton);
-                ImageButton shareEmailLinkButton = (ImageButton) dialogMainView.findViewById(R.id.shareEmailImageButton);
+//                ImageButton shareEmailLinkButton = (ImageButton) dialogMainView.findViewById(R.id.shareEmailImageButton);
 
-                shareEmailLinkButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        // share email link
-                        Intent intent = new Intent(Intent.ACTION_SENDTO);
-                        intent.setType("message/rfc822");
-                        intent.setData(Uri.parse("mailto:"+"ylu23@nd.edu"));
-                        //intent.putExtra(Intent.EXTRA_EMAIL, "ylu23@nd.edu");
-                        intent.putExtra(Intent.EXTRA_SUBJECT, "Data Collector for " + collector.getAppName());
-                        intent.putExtra(Intent.EXTRA_TEXT, collector.getCollectorId());
-
-                        if (intent.resolveActivity(getPackageManager()) != null) {
-                            startActivity(intent);
-                        } else {
-                            Toast.makeText(context,"No email app on this machine",Toast.LENGTH_LONG).show();
-                        }
-
-
-                    }
-                });
+//                shareEmailLinkButton.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        // share email link
+//                        Intent intent = new Intent(Intent.ACTION_SENDTO);
+//                        intent.setType("message/rfc822");
+//                        intent.setData(Uri.parse("mailto:"+"ylu23@nd.edu"));
+//                        //intent.putExtra(Intent.EXTRA_EMAIL, "ylu23@nd.edu");
+//                        intent.putExtra(Intent.EXTRA_SUBJECT, "Data Collector for " + collector.getAppName());
+//                        intent.putExtra(Intent.EXTRA_TEXT, collector.getCollectorId());
+//
+//                        if (intent.resolveActivity(getPackageManager()) != null) {
+//                            startActivity(intent);
+//                        } else {
+//                            Toast.makeText(context,"No email app on this machine",Toast.LENGTH_LONG).show();
+//                        }
+//
+//
+//                    }
+//                });
 
 
                 shareUrlLinkButton.setOnClickListener(new View.OnClickListener() {

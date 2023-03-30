@@ -261,10 +261,15 @@ public class FullScreenOverlayManager {
                             (int) ((width / currentDensity - 48) * currentDensity),   // leave 24 dp margin on both sides
                             WindowManager.LayoutParams.WRAP_CONTENT,
                             OVERLAY_TYPE,
-                            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                            WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_INSET_DECOR,
                             PixelFormat.TRANSLUCENT);
                     LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                     View confirmationView = layoutInflater.inflate(R.layout.demonstration_confirmation, null);
+
+                    // Set the elevation of the view
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        confirmationView.setElevation(10.0f); // Set the elevation to 10dp
+                    }
                     TextView queryTextView = confirmationView.findViewById(R.id.confirmationInfo);
                     // set the text of the dialog window
                     String displayText = "";
@@ -317,9 +322,13 @@ public class FullScreenOverlayManager {
                         @Override
                         public void onClick(View v) {
                             // remove the confirmation dialog
-                            windowManager.removeView(confirmationView);
+                            if(confirmationView != null) {
+                                windowManager.removeView(confirmationView);
+                            }
                             // remove the selection overlay
-                            windowManager.removeView(selectionOverlay);
+                            if(selectionOverlay != null) {
+                                windowManager.removeView(selectionOverlay);
+                            }
                             Toast.makeText(context, "Please click on the data to collect again", Toast.LENGTH_SHORT).show();
                         }
                     });

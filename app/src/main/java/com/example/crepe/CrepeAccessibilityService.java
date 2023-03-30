@@ -27,6 +27,8 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
 import com.example.crepe.database.Collector;
 import com.example.crepe.database.Data;
 import com.example.crepe.database.DatabaseManager;
@@ -36,6 +38,9 @@ import com.example.crepe.graphquery.ontology.OntologyQuery;
 import com.example.crepe.graphquery.ontology.SugiliteEntity;
 import com.example.crepe.graphquery.ontology.UISnapshot;
 import com.example.crepe.graphquery.thread.GraphQueryThread;
+import com.example.crepe.network.FirebaseCommunicationManager;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,6 +60,8 @@ public class CrepeAccessibilityService extends AccessibilityService {
     private final IBinder binder = new LocalBinder();
 
     private DatabaseManager dbManager = new DatabaseManager(this);
+
+    private FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(this);
 
     // maintain a thread pool inside of the accessibility for running graph queries
      private ExecutorService threadPool = Executors.newFixedThreadPool(10);
@@ -175,6 +182,14 @@ public class CrepeAccessibilityService extends AccessibilityService {
                                             addDataResult = dbManager.addData(resultData);
                                             savedOnCurrentSnapshot = true;
                                             Log.i("database", "added data: " + resultData.toString());
+
+                                            // send the data to firebase
+                                            firebaseCommunicationManager.putData(resultData).addOnSuccessListener(suc->{
+                                                Log.i("Firebase","Successfully added collector " + resultData.getDataContent() + " to firebase.");
+                                            }).addOnFailureListener(er->{
+                                                Log.e("Firebase","Failed to add collector " + resultData.getDataContent() + " to firebase.");
+                                            });
+
                                         } catch (Exception e) {
                                             Log.i("database", "failed to add data: " + resultData.toString());
                                             e.printStackTrace();
