@@ -109,7 +109,7 @@ public class FirebaseCommunicationManager {
                     if (task.getResult().exists()){
                         DataSnapshot dataSnapshot = task.getResult();
                         String collectorId = String.valueOf(dataSnapshot.child("collectorId").getValue());
-                        //String creatorUserId = String.valueOf(dataSnapshot.child("creatorUserId").getValue());
+                        String creatorUserId = String.valueOf(dataSnapshot.child("creatorUserId").getValue());
                         String appName = String.valueOf(dataSnapshot.child("appName").getValue());
                         String appPackage = String.valueOf(dataSnapshot.child("appPackage").getValue());
                         String description = String.valueOf(dataSnapshot.child("description").getValue());
@@ -117,17 +117,10 @@ public class FirebaseCommunicationManager {
                         String status = String.valueOf(dataSnapshot.child("collectorStatus").getValue());
                         long collectorStartTime = (long) dataSnapshot.child("collectorStartTime").getValue();
                         long collectorEndTime = (long) dataSnapshot.child("collectorEndTime").getValue();
-                        List<HashMap<String,String>> dataFieldsRaw = (List<HashMap<String,String>>)dataSnapshot.child("dataFields").getValue();
-                        List<Pair<String,String>> dataFields = new ArrayList<>();
-                        // TODO Meng Update Firebase schema
-                        for (HashMap i : dataFieldsRaw){
-                            System.out.println(i.get("first").toString());
-                            System.out.println(i.get("second").toString());
-                            dataFields.add(new Pair<String,String>(i.get("first").toString(), i.get("second").toString()));
-                        }
-                        Collector collector = new Collector(collectorId,"1",appName, appPackage, description,mode,String.valueOf(collectorStartTime),String.valueOf(collectorEndTime),status);
+                        Collector collector = new Collector(collectorId,creatorUserId,appName, appPackage, description,mode,String.valueOf(collectorStartTime),String.valueOf(collectorEndTime),status);
                         // call firebase callback to update collector
-                        firebaseCallback.onResponse(collector);
+                        firebaseCallback.onCollectorResponse(collector);
+
                     } else {
                         Log.e("Firebase","Failed to find the collector firebase.");
                         Toast.makeText(context,"Failed to find the collector firebase.",Toast.LENGTH_LONG).show();
@@ -139,6 +132,35 @@ public class FirebaseCommunicationManager {
             }
         });
     }
+
+    public void retrieveUser(String key, FirebaseCallback firebaseCallback) {   // TODO Meng key is userId
+        DatabaseReference databaseReference = db.getReference(User.class.getSimpleName());
+        databaseReference.child(key).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                if (!task.isSuccessful()) {
+                    if (task.getResult().exists()) {
+                        DataSnapshot dataSnapshot = task.getResult();
+                        String userId = String.valueOf(dataSnapshot.child("userId").getValue());
+                        String userName = String.valueOf(dataSnapshot.child("name").getValue());
+                        long timeCreated = (long) dataSnapshot.child("timeCreated").getValue();
+                        long timeLastEdited = (long) dataSnapshot.child("timeLastEdited").getValue();
+                        String role = String.valueOf(dataSnapshot.child("role").getValue());
+                        User user = new User(userId, userName, timeCreated, timeLastEdited);
+                        // call firebase callback to update user
+                        firebaseCallback.onUserResponse(user);
+                    } else {
+                        Log.e("Firebase", "Failed to find the user firebase.");
+                        Toast.makeText(context, "Failed to find the user firebase.", Toast.LENGTH_LONG).show();
+                    }
+            }   else{
+                    Log.e("Firebase", "Failed to launch connection to firebase.");
+                    Toast.makeText(context, "Failed to launch connection to firebase.", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+    }
+
 
 
 }
