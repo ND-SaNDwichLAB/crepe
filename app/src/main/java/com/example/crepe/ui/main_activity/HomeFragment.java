@@ -74,6 +74,7 @@ public class HomeFragment extends Fragment {
             for (Collector collector : collectorList) {
 
                 ConstraintLayout collectorCardView = builder.build(collector, fragmentInnerLinearLayout, "cardLayout");
+
                 // if the cardView is not null, meaning the collector is not in deleted status
                 if (collectorCardView != null) {
                     collectorCardView.setId(View.generateViewId());

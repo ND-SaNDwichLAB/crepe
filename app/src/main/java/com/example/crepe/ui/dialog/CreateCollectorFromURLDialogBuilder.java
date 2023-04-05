@@ -12,7 +12,10 @@ import android.widget.Toast;
 import com.example.crepe.MainActivity;
 import com.example.crepe.R;
 import com.example.crepe.database.Collector;
+import com.example.crepe.database.Data;
 import com.example.crepe.database.DatabaseManager;
+import com.example.crepe.database.Datafield;
+import com.example.crepe.database.User;
 import com.example.crepe.network.FirebaseCallback;
 import com.example.crepe.network.FirebaseCommunicationManager;
 import com.example.crepe.network.ServerCollectorCommunicationManager;
@@ -92,6 +95,32 @@ public class CreateCollectorFromURLDialogBuilder {
                     DatabaseManager dbManager = new DatabaseManager(c);
                     // TODO Yuwen 1. retrieve the collector from firebase 2. store the collector to the local database
                     // TODO maybe 3. refresh the home fragment
+                    firebaseCommunicationManager.retrieveCollector(urlText.getText().toString(), new FirebaseCallback() {
+                        @Override
+                        public void onCollectorResponse(Collector result) {
+                            dbManager.addOneCollector(result);
+                            refreshCollectorListRunnable.run();
+                            List<Collector> collectors = dbManager.getAllCollectors();
+                            for (Collector collector : collectors) {
+                                System.out.println(collector.toString());
+                            }
+                        }
+
+                        @Override
+                        public void onUserResponse(User result) {
+
+                        }
+
+                        @Override
+                        public void onDataResponse(Data result) {
+
+                        }
+
+                        @Override
+                        public void onDatafieldResponse(Datafield result) {
+
+                        }
+                    });
 
 
                     // next popup
