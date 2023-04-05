@@ -176,12 +176,12 @@ public class CrepeAccessibilityService extends AccessibilityService {
                                         // if the result is not in the previous results, add it to the database
                                         long timestamp = System.currentTimeMillis();
                                         // the data id is the collector id + "%" + timestamp
-                                        Data resultData = new Data(datafield.getCollectorId() + "%" + String.valueOf(timestamp), datafield.getDataFieldId(), androidId, result.saveToDatabaseAsString());
+                                        Data resultData = new Data(datafield.getCollectorId() + "%" + timestamp, datafield.getDataFieldId(), androidId, result.saveToDatabaseAsString());
                                         Boolean addDataResult = false;
                                         try {
                                             addDataResult = dbManager.addData(resultData);
                                             savedOnCurrentSnapshot = true;
-                                            Log.i("database", "added data: " + resultData.toString());
+                                            Log.i("database", "added data: " + resultData);
 
                                             // send the data to firebase
                                             firebaseCommunicationManager.putData(resultData).addOnSuccessListener(suc->{
