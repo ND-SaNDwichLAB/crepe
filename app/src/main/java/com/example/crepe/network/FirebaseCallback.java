@@ -5,14 +5,9 @@ import com.example.crepe.database.Data;
 import com.example.crepe.database.Datafield;
 import com.example.crepe.database.User;
 
-public interface FirebaseCallback {
-    void onCollectorResponse(Collector result);
-
-    void onUserResponse(User result);
-
-    void onDataResponse(Data result);
-
-    void onDatafieldResponse(Datafield result);
+public interface FirebaseCallback<T> {
+    void onResponse(T result);
+    void onErrorResponse(Exception e);
 
 
 }

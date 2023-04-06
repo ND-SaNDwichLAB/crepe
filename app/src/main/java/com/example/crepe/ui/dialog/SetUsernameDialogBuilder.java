@@ -16,6 +16,7 @@ import com.example.crepe.database.User;
 import com.example.crepe.network.FirebaseCommunicationManager;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class SetUsernameDialogBuilder {
@@ -57,8 +58,15 @@ public class SetUsernameDialogBuilder {
                     dbManager.updateUserName(androidId,userName);
                     List<User> users = dbManager.getAllUsers();
                     User user = users.get(0);
-//                    FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(c);
-//                    firebaseCommunicationManager.putUser(user);
+                    FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(c);
+                    // create new user hashmap
+                    HashMap<String, Object> userMap = new HashMap<>();
+                    userMap.put("userId", user.getUserId());
+                    userMap.put("name", user.getName());
+                    userMap.put("timeCreated", user.getTimeCreated());
+                    user.setTimeLastEdited(System.currentTimeMillis());
+                    userMap.put("timeLastEdited", user.getTimeLastEdited());
+                    firebaseCommunicationManager.updateUser(user.getUserId(), userMap);
                     runnable.run();
                     dialog.dismiss();
                 }

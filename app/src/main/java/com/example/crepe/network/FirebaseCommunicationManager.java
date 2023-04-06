@@ -99,7 +99,7 @@ public class FirebaseCommunicationManager {
         DatabaseReference databaseReference = db.getReference(Datafield.class.getSimpleName());
         return databaseReference.child(key).removeValue();
     }
-
+/*
     public void retrieveCollector(String key, FirebaseCallback firebaseCallback){   // TODO Meng key is collectorId
         DatabaseReference databaseReference = db.getReference(Collector.class.getSimpleName());
         databaseReference.child(key).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
@@ -119,7 +119,7 @@ public class FirebaseCommunicationManager {
                         long collectorEndTime = (long) dataSnapshot.child("collectorEndTime").getValue();
                         Collector collector = new Collector(collectorId,creatorUserId,appName, appPackage, description,mode,String.valueOf(collectorStartTime),String.valueOf(collectorEndTime),status);
                         // call firebase callback to update collector
-                        firebaseCallback.onCollectorResponse(collector);
+                        firebaseCallback.onResponse(collector);
 
                     } else {
                         Log.e("Firebase","Failed to find the collector firebase.");
@@ -133,6 +133,8 @@ public class FirebaseCommunicationManager {
         });
     }
 
+ */
+
     public void retrieveUser(String key, FirebaseCallback firebaseCallback) {   // TODO Meng key is userId
         DatabaseReference databaseReference = db.getReference(User.class.getSimpleName());
         databaseReference.child(key).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
@@ -145,10 +147,9 @@ public class FirebaseCommunicationManager {
                         String userName = String.valueOf(dataSnapshot.child("name").getValue());
                         long timeCreated = (long) dataSnapshot.child("timeCreated").getValue();
                         long timeLastEdited = (long) dataSnapshot.child("timeLastEdited").getValue();
-                        String role = String.valueOf(dataSnapshot.child("role").getValue());
                         User user = new User(userId, userName, timeCreated, timeLastEdited);
                         // call firebase callback to update user
-                        firebaseCallback.onUserResponse(user);
+                        firebaseCallback.onResponse(user);
                     } else {
                         Log.e("Firebase", "Failed to find the user firebase.");
                         Toast.makeText(context, "Failed to find the user firebase.", Toast.LENGTH_LONG).show();
@@ -156,6 +157,45 @@ public class FirebaseCommunicationManager {
             }   else{
                     Log.e("Firebase", "Failed to launch connection to firebase.");
                     Toast.makeText(context, "Failed to launch connection to firebase.", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+    }
+
+    // chatGPT's code
+    public void retrieveCollector(String key, FirebaseCallback firebaseCallback) {
+        DatabaseReference databaseReference = db.getReference(Collector.class.getSimpleName());
+        databaseReference.child(key).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                if (task.isSuccessful()) {
+                    if (task.getResult().exists()) {
+                        DataSnapshot dataSnapshot = task.getResult();
+                        String collectorId = String.valueOf(dataSnapshot.child("collectorId").getValue());
+                        String creatorUserId = String.valueOf(dataSnapshot.child("creatorUserId").getValue());
+                        String appName = String.valueOf(dataSnapshot.child("appName").getValue());
+                        String appPackage = String.valueOf(dataSnapshot.child("appPackage").getValue());
+                        String description = String.valueOf(dataSnapshot.child("description").getValue());
+                        String mode = String.valueOf(dataSnapshot.child("mode").getValue());
+                        String targetServerIp = String.valueOf(dataSnapshot.child("targetServerIp").getValue());
+                        String collectorStatus = String.valueOf(dataSnapshot.child("collectorStatus").getValue());
+                        long collectorStartTime = (long) dataSnapshot.child("collectorStartTime").getValue();
+                        long collectorEndTime = (long) dataSnapshot.child("collectorEndTime").getValue();
+
+                        Collector collector = new Collector(collectorId, creatorUserId, appName, appPackage, description, mode, targetServerIp, collectorStartTime, collectorEndTime, collectorStatus);
+
+                        // Call firebase callback to update collector
+                        firebaseCallback.onResponse(collector);
+
+                    } else {
+                        Log.e("Firebase", "Failed to find the collector in firebase.");
+                        Toast.makeText(context, "Failed to find the collector in firebase.", Toast.LENGTH_LONG).show();
+                        firebaseCallback.onErrorResponse(task.getException());
+                    }
+                } else {
+                    Log.e("Firebase", "Failed to launch connection to firebase.");
+                    Toast.makeText(context, "Failed to launch connection to firebase.", Toast.LENGTH_LONG).show();
+                    firebaseCallback.onErrorResponse(task.getException());
                 }
             }
         });

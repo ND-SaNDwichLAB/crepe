@@ -5,6 +5,8 @@ import android.app.Dialog;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -57,7 +59,10 @@ public class CreateCollectorFromURLDialogBuilder {
             public void onClick(View view) {
                 // download collector from URL
                 Gson gson = new Gson();
-                if (urlText.getText() != null) {
+                // show the keyboard when edittext is clicked
+                InputMethodManager imm = (InputMethodManager) c.getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+                if (!urlText.getText().toString().isEmpty()) {
                     // Server
 //                    ServerCollectorCommunicationManager serverCollectorCommunicationManager = new ServerCollectorCommunicationManager(c);
 //                    serverCollectorCommunicationManager.downloadJsonFromServer(new VolleyCallback() {
@@ -93,32 +98,13 @@ public class CreateCollectorFromURLDialogBuilder {
 //                    });
 
                     DatabaseManager dbManager = new DatabaseManager(c);
-                    // TODO Yuwen 1. retrieve the collector from firebase 2. store the collector to the local database
-                    // TODO maybe 3. refresh the home fragment
-                    firebaseCommunicationManager.retrieveCollector(urlText.getText().toString(), new FirebaseCallback() {
-                        @Override
-                        public void onCollectorResponse(Collector result) {
+                    firebaseCommunicationManager.retrieveCollector(urlText.getText().toString(), new FirebaseCallback<Collector>() {
+                        public void onResponse(Collector result) {
                             dbManager.addOneCollector(result);
                             refreshCollectorListRunnable.run();
-                            List<Collector> collectors = dbManager.getAllCollectors();
-                            for (Collector collector : collectors) {
-                                System.out.println(collector.toString());
-                            }
                         }
-
-                        @Override
-                        public void onUserResponse(User result) {
-
-                        }
-
-                        @Override
-                        public void onDataResponse(Data result) {
-
-                        }
-
-                        @Override
-                        public void onDatafieldResponse(Datafield result) {
-
+                        public void onErrorResponse(Exception e) {
+                            System.out.println("Error retrieving collector from firebase. Error: "+e.toString());
                         }
                     });
 
@@ -129,9 +115,10 @@ public class CreateCollectorFromURLDialogBuilder {
 //                    nextPopup.build();
                     Toast.makeText(c, "Collector successfully added!", Toast.LENGTH_LONG).show();
                 } else {
-                    Toast.makeText(c,"Please enter a valid URL", Toast.LENGTH_LONG).show();
+                    Toast.makeText(c,"Please enter a valid collector ID", Toast.LENGTH_LONG).show();
                 }
             }
+
         });
         return dialog;
     }
