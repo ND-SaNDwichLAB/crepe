@@ -74,16 +74,27 @@ public class CollectorCardDetailBuilder {
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(c, "Collector (ID:" + collector.getCollectorId() + ") is deleted", Toast.LENGTH_LONG).show();
-                // This will only set the status of collector to deleted,
-                // it will still be present in database but won't be displayed
-                collector.deleteCollector();
-                dbManager.updateCollectorStatus(collector);
+                // new popup to confirm
+                AlertDialog.Builder builder = new AlertDialog.Builder(c);
+                builder.setTitle("Delete Collector");
+                builder.setMessage("Are you sure you want to delete this collector?");
 
-                // update the home fragment list
-                refreshCollectorListRunnable.run();
-                CrepeAccessibilityService.getsSharedInstance().refreshCollector();
-                dialog.dismiss();
+                builder.setPositiveButton("Yes", (dialogInterface, i) -> {
+                    Toast.makeText(c, "Collector (ID:" + collector.getCollectorId() + ") is deleted", Toast.LENGTH_LONG).show();
+                    // This will only set the status of collector to deleted,
+                    // it will still be present in database but won't be displayed
+                    collector.deleteCollector();
+                    dbManager.updateCollectorStatus(collector);
+
+                    // update the home fragment list
+                    refreshCollectorListRunnable.run();
+                    dialog.dismiss();
+                });
+                builder.setNegativeButton("No", (dialogInterface, i) -> {
+                    dialogInterface.dismiss();
+                });
+
+                builder.show();
             }
         });
 

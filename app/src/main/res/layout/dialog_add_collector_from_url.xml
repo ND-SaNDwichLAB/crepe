@@ -7,14 +7,14 @@
     android:layout_height="wrap_content">
 
     <EditText
-        android:id="@+id/urlEditText"
+        android:id="@+id/collectorIdEditText"
         android:layout_width="match_parent"
         android:layout_height="54dp"
         android:layout_marginStart="24dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="24dp"
         android:background="@drawable/custom_input"
-        android:hint="http://"
+        android:hint="e.g. dG4pWS61QwydkhSFe"
         android:lineSpacingExtra="5dp"
         android:paddingStart="16dp"
         android:singleLine="true"
@@ -69,9 +69,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="36dp"
         android:layout_marginTop="8dp"
-        android:text="The URL you received from your researcher"
+        android:text="The collector ID you received from your researcher"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/urlEditText" />
+        app:layout_constraintTop_toBottomOf="@+id/collectorIdEditText" />
 
     <TextView
         android:id="@+id/hintEnterUrl"

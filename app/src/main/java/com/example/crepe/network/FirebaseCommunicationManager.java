@@ -2,15 +2,12 @@ package com.example.crepe.network;
 
 import android.content.Context;
 import android.util.Log;
-import android.util.Pair;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.crepe.database.Collector;
 import com.example.crepe.database.Data;
-import com.example.crepe.database.DatabaseManager;
 import com.example.crepe.database.Datafield;
 import com.example.crepe.database.User;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -18,11 +15,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class FirebaseCommunicationManager {
     private Context context;
@@ -163,9 +160,9 @@ public class FirebaseCommunicationManager {
     }
 
     // chatGPT's code
-    public void retrieveCollector(String key, FirebaseCallback firebaseCallback) {
+    public void retrieveCollector(String collectorId, FirebaseCallback firebaseCallback) {
         DatabaseReference databaseReference = db.getReference(Collector.class.getSimpleName());
-        databaseReference.child(key).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+        databaseReference.child(collectorId).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DataSnapshot> task) {
                 if (task.isSuccessful()) {
@@ -200,6 +197,40 @@ public class FirebaseCommunicationManager {
             }
         });
     }
+
+
+
+    public void retrieveDatafieldswithCollectorId(String collectorId, FirebaseCallback firebaseCallback) {
+        DatabaseReference databaseReference = db.getReference(Datafield.class.getSimpleName());
+        Query query = databaseReference.orderByChild("collectorId").equalTo(collectorId);
+
+        query.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                if (task.isSuccessful()) {
+                    List<Datafield> datafields = new ArrayList<>();
+                    for (DataSnapshot snapshot : task.getResult().getChildren()) {
+                        String dataFieldId = String.valueOf(snapshot.child("dataFieldId").getValue());
+                        String name = String.valueOf(snapshot.child("name").getValue());
+                        String graphQuery = String.valueOf(snapshot.child("graphQuery").getValue());
+                        boolean demonstrated = (boolean) snapshot.child("demonstrated").getValue();
+                        long timeCreated = (long) snapshot.child("timeCreated").getValue();
+                        long timelastEdited = (long) snapshot.child("timelastEdited").getValue();
+
+                        Datafield datafield = new Datafield(dataFieldId, collectorId, name, graphQuery, timeCreated, timelastEdited, demonstrated);
+                        datafields.add(datafield);
+                    }
+
+                    // Call firebase callback to update datafields
+                    firebaseCallback.onResponse(datafields);
+                } else {
+                    Log.e("Firebase", "Failed to launch connection to firebase.");
+                    firebaseCallback.onErrorResponse(task.getException());
+                }
+            }
+        });
+    }
+
 
 
 

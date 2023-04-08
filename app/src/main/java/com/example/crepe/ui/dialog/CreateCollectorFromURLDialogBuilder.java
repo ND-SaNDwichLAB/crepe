@@ -3,25 +3,20 @@ package com.example.crepe.ui.dialog;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.example.crepe.MainActivity;
 import com.example.crepe.R;
 import com.example.crepe.database.Collector;
-import com.example.crepe.database.Data;
 import com.example.crepe.database.DatabaseManager;
 import com.example.crepe.database.Datafield;
-import com.example.crepe.database.User;
 import com.example.crepe.network.FirebaseCallback;
 import com.example.crepe.network.FirebaseCommunicationManager;
-import com.example.crepe.network.ServerCollectorCommunicationManager;
-import com.example.crepe.network.VolleyCallback;
 import com.google.gson.Gson;
 
 import java.util.List;
@@ -45,7 +40,7 @@ public class CreateCollectorFromURLDialogBuilder {
         Dialog dialog = dialogBuilder.create();
         Button popupCancelBtn = (Button) popupView.findViewById(R.id.addFromUrlCancelButton);
         Button popupNextBtn = (Button) popupView.findViewById(R.id.addFromUrlAddButton);
-        EditText urlText = (EditText) popupView.findViewById(R.id.urlEditText);
+        EditText collectorIdEditText = (EditText) popupView.findViewById(R.id.collectorIdEditText);
 
         popupCancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -62,7 +57,7 @@ public class CreateCollectorFromURLDialogBuilder {
                 // show the keyboard when edittext is clicked
                 InputMethodManager imm = (InputMethodManager) c.getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-                if (!urlText.getText().toString().isEmpty()) {
+                if (!collectorIdEditText.getText().toString().isEmpty()) {
                     // Server
 //                    ServerCollectorCommunicationManager serverCollectorCommunicationManager = new ServerCollectorCommunicationManager(c);
 //                    serverCollectorCommunicationManager.downloadJsonFromServer(new VolleyCallback() {
@@ -98,14 +93,35 @@ public class CreateCollectorFromURLDialogBuilder {
 //                    });
 
                     DatabaseManager dbManager = new DatabaseManager(c);
-                    firebaseCommunicationManager.retrieveCollector(urlText.getText().toString(), new FirebaseCallback<Collector>() {
+                    firebaseCommunicationManager.retrieveCollector(collectorIdEditText.getText().toString(), new FirebaseCallback<Collector>() {
                         public void onResponse(Collector result) {
                             dbManager.addOneCollector(result);
                             refreshCollectorListRunnable.run();
                         }
                         public void onErrorResponse(Exception e) {
-                            System.out.println("Error retrieving collector from firebase. Error: "+e.toString());
+                            try {
+                                Log.e("Firebase collector", e.getMessage());
+                            } catch (NullPointerException ex) {
+                                Log.e("Firebase collector", "An unknown error occurred.");
+                            }
                         }
+
+                    });
+
+                    firebaseCommunicationManager.retrieveDatafieldswithCollectorId(collectorIdEditText.getText().toString(), new FirebaseCallback<List<Datafield>>() {
+                        public void onResponse(List<Datafield> results) {
+                            for (Datafield result : results) {
+                                dbManager.addOneDatafield(result);
+                            }
+                        }
+                        public void onErrorResponse(Exception e) {
+                            try {
+                                Log.e("Firebase datafield", e.getMessage());
+                            } catch (NullPointerException ex) {
+                                Log.e("Firebase datafield", "An unknown error occurred.");
+                            }
+                        }
+
                     });
 
 
