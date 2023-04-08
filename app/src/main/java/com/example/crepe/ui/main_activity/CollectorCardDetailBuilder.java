@@ -2,12 +2,15 @@ package com.example.crepe.ui.main_activity;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.ImageButton;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -56,6 +59,19 @@ public class CollectorCardDetailBuilder {
         } else {
             collectorDataField.setText("No datafields available");
         }
+
+        Button collectorShareButton = (Button) popupView.findViewById(R.id.collectorShareButton);
+        collectorShareButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // we will just share the id of the collector for now, instead of a url
+                ClipboardManager clipboard = (ClipboardManager) c.getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipData clip = ClipData.newPlainText("share URL", collector.getCollectorId());
+                clipboard.setPrimaryClip(clip);
+                Toast.makeText(c,"collector ID copied to clipboard " + collector.getCollectorId(), Toast.LENGTH_LONG).show();
+            }
+        });
+
 
         Button closeBtn = (Button) popupView.findViewById(R.id.collectorCloseButton);
         Button deleteBtn = (Button) popupView.findViewById(R.id.collectorDeleteButton);
