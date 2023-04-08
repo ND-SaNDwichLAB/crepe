@@ -1,6 +1,6 @@
 package com.example.crepe.ui.dialog;
 
-import static com.example.crepe.MainActivity.androidId;
+import static com.example.crepe.MainActivity.firebaseInstallationId;
 
 import android.app.ActivityManager;
 import android.app.AlertDialog;
@@ -90,7 +90,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
         switch (currentScreenState) {
             case "buildDialogFromConfig":
 
-                collector.setCreatorUserId(androidId);
+                collector.setCreatorUserId(firebaseInstallationId);
 
                 dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_add_collector_from_config, null);
                 dialog.setContentView(dialogMainView);
@@ -269,8 +269,8 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         dbManager.updateCollectorStatus(collector);
 
                         // set the id of the collector
-                        // format: androidId%appName%timestamp
-                        collector.setCollectorId(androidId + "%" + collector.getAppName() + "%" + String.valueOf(System.currentTimeMillis()));
+                        // format: firebaseInstallationId%appName%timestamp
+                        collector.setCollectorId(firebaseInstallationId + "%" + collector.getAppName() + "%" + String.valueOf(System.currentTimeMillis()));
 
                         if (blankFlag == 0) {
                             // update currentScreen String value

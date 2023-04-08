@@ -11,7 +11,7 @@ import static android.view.accessibility.AccessibilityEvent.TYPE_VIEW_TEXT_SELEC
 import static android.view.accessibility.AccessibilityEvent.TYPE_WINDOWS_CHANGED;
 import static android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED;
 import static android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED;
-import static com.example.crepe.MainActivity.androidId;
+import static com.example.crepe.MainActivity.firebaseInstallationId;
 
 import android.accessibilityservice.AccessibilityService;
 import android.app.ActivityManager;
@@ -176,7 +176,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
                                         // if the result is not in the previous results, add it to the database
                                         long timestamp = System.currentTimeMillis();
                                         // the data id is the collector id + "%" + timestamp
-                                        Data resultData = new Data(datafield.getCollectorId() + "%" + timestamp, datafield.getDataFieldId(), androidId, result.saveToDatabaseAsString());
+                                        Data resultData = new Data(datafield.getCollectorId() + "%" + timestamp, datafield.getDataFieldId(), firebaseInstallationId, result.saveToDatabaseAsString());
                                         Boolean addDataResult = false;
                                         try {
                                             addDataResult = dbManager.addData(resultData);

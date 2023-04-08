@@ -15,6 +15,8 @@ import com.example.crepe.ui.dialog.CreateCollectorFromURLDialogBuilder;
 import com.example.crepe.ui.dialog.SetUsernameDialogBuilder;
 import com.example.crepe.ui.main_activity.DataFragment;
 import com.example.crepe.ui.main_activity.HomeFragment;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.annotation.NonNull;
@@ -33,6 +35,8 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.example.crepe.databinding.ActivityMainBinding;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.installations.FirebaseInstallations;
 
 import android.view.Menu;
 import android.view.MenuItem;
@@ -77,18 +81,19 @@ public class MainActivity extends AppCompatActivity {
     private Fragment currentFragment;
 
     // the unique id extracted from the user's device, used as their user id
-    public static String androidId;
+    public static String firebaseInstallationId = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        FirebaseApp.initializeApp(this);
         super.onCreate(savedInstanceState);
 
-        // Check for the device's unique IMEI ID, see if it's already in the database
-        // If not, add the new user to database
-        androidId = Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
-        Boolean userExists = false;
+
+        final Boolean[] userExists = {false};
 
         dbManager = new DatabaseManager(this);
+        FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(this);
+
 
         // TODO remove this line after testing
         try {
@@ -97,21 +102,29 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(MainActivity.this, "Error clearing database", Toast.LENGTH_SHORT).show();
         }
 
-        if(androidId == null) {
-            Log.e("User id", "Fail to retrieve device id, userid is null");
-        } else {
-            userExists = dbManager.checkIfUserExists(androidId);
-            if (!userExists) {
-                long currentTime = Calendar.getInstance().getTimeInMillis();
+        // Check for the unique Firebase Installation ID, see if it's already in the database
+        // If not, add the new user to database
+        FirebaseInstallations.getInstance().getId().addOnCompleteListener(new OnCompleteListener<String>() {
+            @Override
+            public void onComplete(@NonNull Task<String> task) {
+                if (task.isSuccessful()) {
+                    firebaseInstallationId = task.getResult();
+                    userExists[0] = dbManager.checkIfUserExists(firebaseInstallationId);
+                    if (!userExists[0]) {
+                        long currentTime = Calendar.getInstance().getTimeInMillis();
 
-                // Create a new user object, with name being an empty string
-                User user = new User(androidId, "", currentTime, currentTime);
-                dbManager.addOneUser(user);
-                FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(this);
-                firebaseCommunicationManager.putUser(user);
-                userExists = true;
+                        // Create a new user object, with name being an empty string
+                        User user = new User(firebaseInstallationId, "", currentTime, currentTime);
+                        dbManager.addOneUser(user);
+                        firebaseCommunicationManager.putUser(user);
+                        userExists[0] = true;
+                        Log.i("MainActivity", "Firebase Installation ID" + firebaseInstallationId);
+                    }
+                } else {
+                    Log.e("MainActivity", "Error getting Firebase Installation ID", task.getException());
+                }
             }
-        }
+        });
 
 
         // load animations
@@ -145,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
         Runnable mainActivityRefreshUsernameRunnable = new Runnable() {
             @Override
             public void run() {
-                userNameTextView.setText(dbManager.getUsername(androidId));
+                userNameTextView.setText(dbManager.getUsername(firebaseInstallationId));
             }
         };
 
@@ -154,15 +167,15 @@ public class MainActivity extends AppCompatActivity {
         setName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                SetUsernameDialogBuilder nextPopup = new SetUsernameDialogBuilder(currentFragment.getActivity(), androidId, mainActivityRefreshUsernameRunnable);
+                SetUsernameDialogBuilder nextPopup = new SetUsernameDialogBuilder(currentFragment.getActivity(), firebaseInstallationId, mainActivityRefreshUsernameRunnable);
                 Dialog newDialog = nextPopup.build();
                 newDialog.show();
-                userNameTextView.setText(dbManager.getUsername(androidId));
+                userNameTextView.setText(dbManager.getUsername(firebaseInstallationId));
             }
         });
 
-        if (userExists) {
-            String username = dbManager.getUsername(androidId);
+        if (userExists[0]) {
+            String username = dbManager.getUsername(firebaseInstallationId);
             if (!username.isEmpty()) {
                 userNameTextView.setText(username);
             }
