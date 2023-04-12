@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 
 import com.example.crepe.database.Collector;
 import com.example.crepe.database.Data;
+import com.example.crepe.database.DatabaseManager;
 import com.example.crepe.database.Datafield;
 import com.example.crepe.database.User;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -25,9 +26,17 @@ public class FirebaseCommunicationManager {
     private Context context;
     private FirebaseDatabase db;
 
+    private static final String CREATOR = "creator";
+    private static final String PARTICIPANT = "participant";
+    private static final String NONE = "none";
+
+    private DatabaseManager dbManager;
+
+
     public FirebaseCommunicationManager(Context c) {
         this.db = FirebaseDatabase.getInstance();
         this.context = c;
+        dbManager = new DatabaseManager(context);
     }
 
     public Task<Void> putCollector(Collector collector){
@@ -97,7 +106,7 @@ public class FirebaseCommunicationManager {
         return databaseReference.child(key).removeValue();
     }
 /*
-    public void retrieveCollector(String key, FirebaseCallback firebaseCallback){   // TODO Meng key is collectorId
+    public void retrieveCollector(String key, FirebaseCallback firebaseCallback){
         DatabaseReference databaseReference = db.getReference(Collector.class.getSimpleName());
         databaseReference.child(key).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
             @Override
@@ -159,7 +168,7 @@ public class FirebaseCommunicationManager {
         });
     }
 
-    // chatGPT's code
+    // retrieve a specific datafield
     public void retrieveCollector(String collectorId, FirebaseCallback firebaseCallback) {
         DatabaseReference databaseReference = db.getReference(Collector.class.getSimpleName());
         databaseReference.child(collectorId).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
@@ -230,6 +239,50 @@ public class FirebaseCommunicationManager {
             }
         });
     }
+
+    /* check if the access rule matches with the following rule
+    User
+    - creator: read & write access to only userId = self.userId
+    - participant: read & write access to userId = self.userId
+    Data
+    - creator: read rows where data.collectorId.creatorId == creator.userId
+    - participant:
+    read: rows where data.userId == self.userId
+    write:
+    for writing to the server, check on server side: verify collectorId is in collector table, collectorStatus == active. participant.userId == the id of the account sending the data (you can’t pretend to be someone else)
+    Collector
+    - creator: read & write rows where collector.creatorId == self.userId
+    - participant: read rows when they know the collectorId (ofc the collectorId has to exist in current table, status == active)
+    Datafield
+    - creator: read & write rows where collector.creatorId == self.userId
+    - participant: read rows when they know the collectorId (ofc the collectorId has to exist in current table, status == active)
+     */
+
+    private String checkCollectorAccessRule(Collector collector, User user) {
+        if (collector.getCreatorUserId().equals(user.getUserId())) { // creator
+            return CREATOR;
+        } else { // participant
+            if (collector.getCollectorStatus().equals("active")) {
+                return PARTICIPANT;
+            }
+            return NONE;
+        }
+    }
+
+    private String checkDatafieldAccessRule(Datafield datafield, User user) {
+        if (datafield.getCreatorUserId().equals(user.getUserId())) { // creator
+            return CREATOR;
+        } else { // participant
+            if (datafield.getCollectorStatus().equals("active")) {
+                return PARTICIPANT;
+            }
+            return NONE;
+        }
+    }
+
+
+
+
 
 
 
