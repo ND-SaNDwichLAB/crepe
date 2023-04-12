@@ -1,8 +1,12 @@
 package com.example.crepe.ui.dialog;
 
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,10 +15,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.crepe.CrepeAccessibilityService;
 import com.example.crepe.R;
 import com.example.crepe.database.Collector;
 import com.example.crepe.database.DatabaseManager;
 import com.example.crepe.database.Datafield;
+import com.example.crepe.graphquery.Const;
 import com.example.crepe.network.FirebaseCallback;
 import com.example.crepe.network.FirebaseCommunicationManager;
 import com.google.gson.Gson;
@@ -58,25 +64,6 @@ public class CreateCollectorFromURLDialogBuilder {
                 InputMethodManager imm = (InputMethodManager) c.getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
                 if (!collectorIdEditText.getText().toString().isEmpty()) {
-                    // Server
-//                    ServerCollectorCommunicationManager serverCollectorCommunicationManager = new ServerCollectorCommunicationManager(c);
-//                    serverCollectorCommunicationManager.downloadJsonFromServer(new VolleyCallback() {
-//                        @Override
-//                        public void onSuccess(Collector result) {
-//                           // save collector to database
-//                            if (result == null) {
-//                                // Toast message
-//                                Toast.makeText(c, "Error Downloading Collector", Toast.LENGTH_SHORT).show();
-//                            } else {
-//                                // else: add to the collector database
-//                                DatabaseManager dbManager = new DatabaseManager(c);
-//                                dbManager.addOneCollector(result);
-//                                // refresh home fragment
-//                                refreshCollectorListRunnable.run();
-//                            }
-//                        }
-//                    },urlText.getText().toString());
-
                     // Firebase
                     FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(c);
 //                    firebaseCommunicationManager.retrieveCollector(urlText.getText().toString(), new FirebaseCallback() {
@@ -130,6 +117,36 @@ public class CreateCollectorFromURLDialogBuilder {
 //                    CreateCollectorFromURLDialogSuccessMessage nextPopup = new CreateCollectorFromURLDialogSuccessMessage(c);
 //                    nextPopup.build();
                     Toast.makeText(c, "Collector successfully added!", Toast.LENGTH_LONG).show();
+
+                    // enable accessibility service
+                    // check if the accessibility service is running
+                    Boolean accessibilityServiceRunning = false;
+                    ActivityManager manager = (ActivityManager) c.getSystemService(Context.ACTIVITY_SERVICE);
+                    Class clazz = CrepeAccessibilityService.class;
+
+                    if (manager != null) {
+                        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+                            if (clazz.getName().equals(service.service.getClassName())) {
+                                accessibilityServiceRunning = true;
+                            }
+                        }
+                    }
+
+                    // if accessibility service is not on
+                    if (!accessibilityServiceRunning) {
+                        AlertDialog.Builder builder1 = new AlertDialog.Builder(c);
+                        builder1.setTitle("Service Permission Required")
+                                .setMessage("The accessibility service is not enabled for " + Const.appNameUpperCase + ". Please enable the service in the phone settings before recording.")
+                                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+                                        c.startActivity(intent);
+                                        //do nothing
+                                    }
+                                }).show();
+                    }
+
                 } else {
                     Toast.makeText(c,"Please enter a valid collector ID", Toast.LENGTH_LONG).show();
                 }
