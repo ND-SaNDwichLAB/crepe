@@ -241,7 +241,7 @@ public class FirebaseCommunicationManager {
     }
 
     // retrieve data with datafieldId?
-    public void retrieveData(String datafieldId, FirebaseCallback firebaseCallback) {
+    public void retrieveDataWithDatafieldId(String datafieldId, FirebaseCallback firebaseCallback) {
         DatabaseReference databaseReference = db.getReference(Data.class.getSimpleName());
         // get the access to the data table
         Query query = databaseReference.orderByChild("datafieldId").equalTo(datafieldId);
