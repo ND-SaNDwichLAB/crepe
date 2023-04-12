@@ -580,6 +580,40 @@ public class DatabaseManager extends SQLiteOpenHelper {
         db.close();
         return collectorList;
     }
+
+    // query to get one collector by id
+    public Collector getCollectorById(String collectorId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String getCollectorByIdQuery = "SELECT * FROM " + COLLECTOR_TABLE + " WHERE " + COLUMN_COLLECTOR_ID + " = \"" + collectorId + "\";";
+
+        Cursor cursor = db.rawQuery(getCollectorByIdQuery, null);
+
+        if (cursor.moveToFirst()) {
+            // parse every info from cursor
+            String collectorID = cursor.getString(0);
+            String creatorUserID = cursor.getString(1);
+            String appName = cursor.getString(2);
+            String appPackage = cursor.getString(3);
+            String name = cursor.getString(4);
+            String mode = cursor.getString(5);
+            String targetServerIP = cursor.getString(6);
+            long collectorStartTime = cursor.getLong(7);
+            long collectorEndTime = cursor.getLong(8);
+            String collectorStatus = cursor.getString(9);
+            Collector receivedCollector = new Collector(collectorID, creatorUserID, appName, appPackage, name, mode, collectorStartTime, collectorEndTime, collectorStatus);
+            cursor.close();
+            db.close();
+            return receivedCollector;
+        }
+
+        else {
+            // do nothing since it's empty
+            Log.i("", "The collector list is empty.");
+            cursor.close();
+            db.close();
+            return null;
+        }
+    }
 }
 
 

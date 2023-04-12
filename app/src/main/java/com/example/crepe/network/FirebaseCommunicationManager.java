@@ -168,7 +168,7 @@ public class FirebaseCommunicationManager {
         });
     }
 
-    // retrieve a specific datafield
+    // retrieve a specific collector
     public void retrieveCollector(String collectorId, FirebaseCallback firebaseCallback) {
         DatabaseReference databaseReference = db.getReference(Collector.class.getSimpleName());
         databaseReference.child(collectorId).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
@@ -240,6 +240,42 @@ public class FirebaseCommunicationManager {
         });
     }
 
+    // retrieve data with datafieldId?
+    public void retrieveData(String datafieldId, FirebaseCallback firebaseCallback) {
+        DatabaseReference databaseReference = db.getReference(Data.class.getSimpleName());
+        // get the access to the data table
+        Query query = databaseReference.orderByChild("datafieldId").equalTo(datafieldId);
+        query.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                if (task.isSuccessful()) {
+                    List<Data> datas = new ArrayList<>();
+                    for (DataSnapshot snapshot : task.getResult().getChildren()) {
+                        String dataId = String.valueOf(snapshot.child("dataId").getValue());
+                        String userId = String.valueOf(snapshot.child("userId").getValue());
+                        String dataFieldId = String.valueOf(snapshot.child("dataFieldId").getValue());
+                        String dataContent = String.valueOf(snapshot.child("dataContent").getValue());
+                        long timestamp = (long) snapshot.child("timestamp").getValue();
+                        Data data = new Data(dataId, dataFieldId, userId,  timestamp, dataContent);
+                        // if creator, add all data
+                        if (checkDataAccessRule(userId,dbManager.getAllUsers().get(0)).equals(PARTICIPANT)) {
+                            datas.add(data);
+                        }
+                        // TODO: if creator, add all data when data.dataFieldId.creatorId == self.userId
+
+                        datas.add(data);
+                    }
+
+                    // Call firebase callback to update datas
+                    firebaseCallback.onResponse(datas);
+                } else {
+                    Log.e("Firebase", "Failed to launch connection to firebase.");
+                    firebaseCallback.onErrorResponse(task.getException());
+                }
+            }
+        });
+    }
+
     /* check if the access rule matches with the following rule
     User
     - creator: read & write access to only userId = self.userId
@@ -270,13 +306,21 @@ public class FirebaseCommunicationManager {
     }
 
     private String checkDatafieldAccessRule(Datafield datafield, User user) {
-        if (datafield.getCreatorUserId().equals(user.getUserId())) { // creator
+        if (dbManager.getCollectorById(datafield.getCollectorId()).getCreatorUserId().equals(user.getUserId())) { // creator
             return CREATOR;
         } else { // participant
-            if (datafield.getCollectorStatus().equals("active")) {
+            if (dbManager.getCollectorById(datafield.getCollectorId()).getCollectorStatus().equals("active")) {
                 return PARTICIPANT;
             }
             return NONE;
+        }
+    }
+
+    private String checkDataAccessRule(String userId, User user) {
+        if(userId.equals(user.getUserId())) { // creator
+            return CREATOR;
+        } else { // participant
+            return PARTICIPANT;
         }
     }
 
