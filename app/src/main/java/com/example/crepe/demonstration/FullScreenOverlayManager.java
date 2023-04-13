@@ -39,7 +39,11 @@ import com.example.crepe.graphquery.ontology.SugiliteRelation;
 import com.example.crepe.graphquery.ontology.UISnapshot;
 import com.example.crepe.ui.dialog.Callback;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
 public class FullScreenOverlayManager {
 
@@ -283,7 +287,9 @@ public class FullScreenOverlayManager {
                     // set the onclick listener for the buttons
                     Button yesButton = confirmationView.findViewById(R.id.confirmationYesButton);
                     Button noButton = confirmationView.findViewById(R.id.confirmationNoButton);
-                    final String data = defaultQueries.get(0).first.toString();
+
+                    // select the correct query that can retrieve our data, and can retrieve least other unrelated data
+                    final String data = selectBestQuery(defaultQueries, targetEntity, uiSnapshot);
 
                     SugiliteEntity<Node> finalTargetEntity = targetEntity;
                     yesButton.setOnClickListener(new View.OnClickListener() {
@@ -332,38 +338,6 @@ public class FullScreenOverlayManager {
                             Toast.makeText(context, "Please click on the data to collect again", Toast.LENGTH_SHORT).show();
                         }
                     });
-
-                    // 1. store the query in local database
-//                    DatabaseManager dbManager = new DatabaseManager(context);
-//                    FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(context);
-//                    Datafield datafield = new Datafield("752916f46f6bcd47+1", "2", defaultQueries.get(0).first.toString(), "test", Boolean.TRUE);
-                    // naming convention: "752916f46f6bcd47+1" is the app package name + the number of queries in the app
-
-
-
-                    // 2. everytime the app launches / runs in the background, retrieve the query from local database
-
-
-
-
-                    // 3. in CrepeAccessibilityService.java, every time the screen content changes, generate a new UIsnapshot, execute the query on UI snapshot to get results
-                    // UISnapshot newuiSnapshot = CrepeAccessibilityService.getsSharedInstance().generateUISnapshot();
-
-
-                    // 4. every time the local database changes, push to remote
-//                    firebaseCommunicationManager.putData(data).addOnSuccessListener(suc->{
-//                        Log.i("Firebase","Successfully added data " + data.getDataId() + " to firebase.");
-//                    }).addOnFailureListener(er->{
-//                        Log.e("Firebase","Failed to add data " + data.getDataId() + " to firebase.");
-//                    });;
-//                    firebaseCommunicationManager.putDatafield(datafield).addOnSuccessListener(suc->{
-//                        Log.i("Firebase","Successfully added datafield " + datafield.getDataFieldId() + " to firebase.");
-//                    }).addOnFailureListener(er->{
-//                        Log.e("Firebase","Failed to add datafield " + datafield.getDataFieldId() + " to firebase.");
-//                    });;
-
-//                    Boolean datafieldResult = dbManager.addOneDataField(datafield);
-
                     return true;
                 }
 
@@ -429,6 +403,48 @@ public class FullScreenOverlayManager {
             */
 
         });
+    }
+
+    private String selectBestQuery(List<Pair<OntologyQuery, Double>> defaultQueries, SugiliteEntity<Node> targetEntity, UISnapshot currentUISnapshot) {
+        // first, we filter out queries that cannot actually retrieve the targe data
+        List<Pair<OntologyQuery, Double>> correctQueries = new ArrayList<>();   // those that can actually retrieve the data
+        for (Pair<OntologyQuery, Double> query : defaultQueries) {
+            Set<SugiliteEntity> result = query.first.executeOn(currentUISnapshot);
+            if (result.contains(targetEntity)) {
+                correctQueries.add(query);
+            }
+        }
+
+        Log.i("graphquery", "correctQueries.size() = " + correctQueries.size());
+
+        // second, we select the query that can retrieve the least unrelated data, then rank by the heuristics score
+        if (correctQueries.size() == 0) {
+            return null;
+        }
+        else if (correctQueries.size() == 1) {
+            return correctQueries.get(0).first.toString();
+        }
+        else {
+            // sort the queries by the heuristics score
+            Collections.sort(correctQueries, new Comparator<Pair<OntologyQuery, Double>>() {
+                @Override
+                public int compare(Pair<OntologyQuery, Double> o1, Pair<OntologyQuery, Double> o2) {
+                    return o2.second.compareTo(o1.second);
+                }
+            });
+            // select the query that can retrieve the least unrelated data
+            Pair<OntologyQuery, Double> bestQuery = correctQueries.get(0);
+            int minSize = bestQuery.first.executeOn(currentUISnapshot).size();
+            for (int i = 1; i < correctQueries.size(); i++) {
+                int size = correctQueries.get(i).first.executeOn(currentUISnapshot).size();
+                if (size < minSize && size >= 1) {
+                    minSize = size;
+                    bestQuery = correctQueries.get(i);
+                }
+            }
+            return bestQuery.first.toString();
+        }
+
     }
 
     private void processCallback(String targetText) {
