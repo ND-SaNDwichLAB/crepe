@@ -140,12 +140,13 @@ public class CrepeAccessibilityService extends AccessibilityService {
             allNodeList = getAllNodesOnScreen();
 
             if (collectors.size() > 0 && !savedOnCurrentSnapshot) {
-                Log.i("accessibilityEvent", accessibilityEvent.getEventType() + ", opening a new thread, current count: " + Thread.activeCount());
+                Log.i("accessibilityEvent", "Accessibility Event Type: " + accessibilityEvent.getEventType() + ", opening a new thread, current count: " + Thread.activeCount());
 
                 // Submit a task to the thread pool
                 threadPool.submit(new Runnable() {
                     @Override
                     public void run() {
+                        Log.i("ThreadPool", "Runnable started");
                         ArrayList<String> collectorIdsToStart = new ArrayList<>();
                         ArrayList<Datafield> datafieldsToStart = new ArrayList<>();
                         if (collectors != null && datafields != null) {
@@ -160,15 +161,25 @@ public class CrepeAccessibilityService extends AccessibilityService {
                             }
                         }
 
+                        Log.i("threadpool", "size of datafields to start: " + datafieldsToStart.size());
+
                         // for each datafield, run the graph query on the uiSnapshot
                         if (datafieldsToStart.size() > 0) {
                             for (Datafield datafield : datafieldsToStart) {
+                                Log.i("threadpool", "starting for datafield: " + datafield.getDataFieldId());
                                 // Start a new graph query thread and execute the graph query
                                 // 1. convert the graph query string to a graph query object
                                 OntologyQuery currentQuery = OntologyQuery.deserialize(datafield.getGraphQuery());
+                                Log.i("threadpool", "current query: " + currentQuery);
                                 // 2. run the graph query on the uiSnapshot
                                 Set<SugiliteEntity> prevResults = currentQuery.executeOn(prevUiSnapshot);
+                                Log.i("threadpool", "prev results: " + prevResults);
                                 Set<SugiliteEntity> currentResults = currentQuery.executeOn(uiSnapshot);
+                                Log.i("threadpool", "current results: " + currentResults);
+
+                                Log.i("threadpool", "prev results: " + prevResults);
+                                Log.i("threadpool", "current results: " + currentResults);
+
                                 // 3. store the new results in the database
                                 for (SugiliteEntity result : currentResults) {
 //                                    if (!prevResults.contains(result)) {
@@ -200,9 +211,10 @@ public class CrepeAccessibilityService extends AccessibilityService {
                             }
 
                         }
-                        }
+                        Log.i("ThreadPool", "Runnable finished");
+                    }
 
-                    });
+                });
             }
 
         }

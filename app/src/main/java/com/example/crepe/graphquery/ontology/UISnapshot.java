@@ -289,24 +289,28 @@ public class UISnapshot {
 
                     AccessibilityNodeInfo parentAccessibilityNode = nodeAccessibilityNodeInfoMap.get(parentNode);
                     // add parent text relation
-                    if (parentAccessibilityNode != null && parentAccessibilityNode.getText()!= null && !parentAccessibilityNode.getText().toString().isEmpty()) {
-                        addEntityStringTriple(currentEntity, parentAccessibilityNode.getText().toString(), SugiliteRelation.HAS_PARENT_TEXT);
-                    }
-
-                    // add sibling text relation
-                    Integer siblingCount = parentAccessibilityNode.getChildCount();
-                    List<String> resultSiblingStringList = new ArrayList<>();
-                    if (siblingCount > 1) {  // if the node has siblings
-                        for (int i = 0; i < siblingCount; i++) {
-                            AccessibilityNodeInfo siblingNode = parentAccessibilityNode.getChild(i);
-                            if (siblingNode != null && !nodeAccessibilityNodeInfoMap.get(node).equals(siblingNode)) {   // the second condition makes sure we don't collect the string of current node
-                                if (siblingNode.getText() != null && !siblingNode.getText().toString().isEmpty()) {
-                                    resultSiblingStringList.add(siblingNode.getText().toString());
-                                }
-                            }
+                    try {
+                        if (parentAccessibilityNode.getText()!= null && !parentAccessibilityNode.getText().toString().isEmpty()) {
+                            addEntityStringTriple(currentEntity, parentAccessibilityNode.getText().toString(), SugiliteRelation.HAS_PARENT_TEXT);
                         }
 
-                        addEntityStringListTriple(currentEntity, resultSiblingStringList, SugiliteRelation.HAS_SIBLING_TEXT);
+                        // add sibling text relation
+                        Integer siblingCount = parentAccessibilityNode.getChildCount();
+                        List<String> resultSiblingStringList = new ArrayList<>();
+                        if (siblingCount > 1) {  // if the node has siblings
+                            for (int i = 0; i < siblingCount; i++) {
+                                AccessibilityNodeInfo siblingNode = parentAccessibilityNode.getChild(i);
+                                if (siblingNode != null && !nodeAccessibilityNodeInfoMap.get(node).equals(siblingNode)) {   // the second condition makes sure we don't collect the string of current node
+                                    if (siblingNode.getText() != null && !siblingNode.getText().toString().isEmpty()) {
+                                        resultSiblingStringList.add(siblingNode.getText().toString());
+                                    }
+                                }
+                            }
+
+                            addEntityStringListTriple(currentEntity, resultSiblingStringList, SugiliteRelation.HAS_SIBLING_TEXT);
+                        }
+                    } catch (Exception e) {
+                        Log.e("SugiliteEntityGraph", "error in adding parent text relation: " + e.getMessage());
                     }
                 }
 

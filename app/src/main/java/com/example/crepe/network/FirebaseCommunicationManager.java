@@ -226,7 +226,7 @@ public class FirebaseCommunicationManager {
                         long timeCreated = (long) snapshot.child("timeCreated").getValue();
                         long timelastEdited = (long) snapshot.child("timelastEdited").getValue();
 
-                        Datafield datafield = new Datafield(dataFieldId, collectorId, name, graphQuery, timeCreated, timelastEdited, demonstrated);
+                        Datafield datafield = new Datafield(dataFieldId, collectorId, graphQuery, name, timeCreated, timelastEdited, demonstrated);
                         datafields.add(datafield);
                     }
 
