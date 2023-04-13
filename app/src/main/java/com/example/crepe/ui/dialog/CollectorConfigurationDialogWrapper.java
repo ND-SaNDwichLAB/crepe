@@ -269,8 +269,8 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         dbManager.updateCollectorStatus(collector);
 
                         // set the id of the collector
-                        // format: firebaseInstallationId%appName%timestamp
-                        collector.setCollectorId(firebaseInstallationId + "%" + collector.getAppName() + "%" + String.valueOf(System.currentTimeMillis()));
+                        // format: firebaseInstallationId%appName%timestamp. We will remove any space in the appName
+                        collector.setCollectorId(firebaseInstallationId + "%" + collector.getAppName().replaceAll(" ", "") + "%" + String.valueOf(System.currentTimeMillis()));
 
                         if (blankFlag == 0) {
                             // update currentScreen String value
