@@ -441,6 +441,7 @@ public class FullScreenOverlayManager {
                     minSize = size;
                     bestQuery = correctQueries.get(i);
                 }
+
             }
             return bestQuery.first.toString();
         }

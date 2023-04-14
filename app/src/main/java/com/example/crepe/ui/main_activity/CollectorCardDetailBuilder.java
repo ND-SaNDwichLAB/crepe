@@ -101,6 +101,7 @@ public class CollectorCardDetailBuilder {
                     // it will still be present in database but won't be displayed
                     collector.deleteCollector();
                     dbManager.updateCollectorStatus(collector);
+                    // TODO Yuwen: maybe we should also delete all the datafields associated with this collector, also delete the collector from firebase?
 
                     // update the home fragment list
                     refreshCollectorListRunnable.run();

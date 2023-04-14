@@ -66,18 +66,6 @@ public class CreateCollectorFromURLDialogBuilder {
                 if (!collectorIdEditText.getText().toString().isEmpty()) {
                     // Firebase
                     FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(c);
-//                    firebaseCommunicationManager.retrieveCollector(urlText.getText().toString(), new FirebaseCallback() {
-//                        @Override
-//                        public void onResponse(Collector result) {
-//                            DatabaseManager dbManager = new DatabaseManager(c);
-//                            dbManager.addOneCollector(result);
-//                            refreshCollectorListRunnable.run();
-//                            List<Collector> collectors = dbManager.getAllCollectors();
-//                            for (Collector collector : collectors) {
-//                                System.out.println(collector.toString());
-//                            }
-//                        }
-//                    });
 
                     DatabaseManager dbManager = new DatabaseManager(c);
                     firebaseCommunicationManager.retrieveCollector(collectorIdEditText.getText().toString(), new FirebaseCallback<Collector>() {
