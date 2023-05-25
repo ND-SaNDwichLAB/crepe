@@ -36,6 +36,7 @@ import androidx.fragment.app.FragmentTransaction;
 import com.example.crepe.databinding.ActivityMainBinding;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.installations.FirebaseInstallations;
 
 import android.view.Menu;
@@ -78,6 +79,8 @@ public class MainActivity extends AppCompatActivity {
     private CreateCollectorFromURLDialogBuilder createCollectorFromURLDialogBuilder;
     private CreateCollectorFromConfigDialogBuilder createCollectorFromConfigDialogBuilder;
 
+    private FirebaseAuth mAuth;
+
     private Fragment currentFragment;
 
     // the unique id extracted from the user's device, used as their user id
@@ -94,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
         dbManager = new DatabaseManager(this);
         FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(this);
 
+        mAuth = FirebaseAuth.getInstance();
 
         // TODO remove this line after testing
         try {
@@ -112,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
                     userExists[0] = dbManager.checkIfUserExists(firebaseInstallationId);
                     if (!userExists[0]) {
                         long currentTime = Calendar.getInstance().getTimeInMillis();
-
+                        // TODO Meng: change the userid tothe firebase auth id
                         // Create a new user object, with name being an empty string
                         User user = new User(firebaseInstallationId, "", currentTime, currentTime);
                         dbManager.addOneUser(user);
