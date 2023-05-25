@@ -37,6 +37,7 @@ import com.example.crepe.databinding.ActivityMainBinding;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.installations.FirebaseInstallations;
 
 import android.view.Menu;
@@ -84,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
     private Fragment currentFragment;
 
     // the unique id extracted from the user's device, used as their user id
+    public static String firebaseUserId = null;
     public static String firebaseInstallationId = null;
 
     @Override
@@ -113,6 +115,8 @@ public class MainActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<String> task) {
                 if (task.isSuccessful()) {
                     firebaseInstallationId = task.getResult();
+                    FirebaseUser currentUser = mAuth.getCurrentUser();
+                    String userId = currentUser.getUid();
                     userExists[0] = dbManager.checkIfUserExists(firebaseInstallationId);
                     if (!userExists[0]) {
                         long currentTime = Calendar.getInstance().getTimeInMillis();
