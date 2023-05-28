@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.crepe.MainActivity;
 import com.example.crepe.R;
+import com.google.android.gms.auth.api.identity.BeginSignInRequest;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
@@ -25,6 +26,9 @@ import com.google.firebase.auth.FirebaseUser;
 
 public class Login extends AppCompatActivity {
 
+    /*
+    Sign in w/ email and password
+     */
     EditText accountEditText, passwordEditText;
     Button loginButton, registerButton;
     ProgressBar progressBar;
