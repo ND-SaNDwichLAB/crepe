@@ -12,7 +12,7 @@
     <string name="back">Back</string>
     <string name="positive">Yes</string>
     <string name="negative">No</string>
-    <string name="default_web_client_id">898052898988-v81oceajvc9ufo1799ju4v1ras9crhtm.apps.googleusercontent.com</string>
+<!--    <string name="default_web_client_id">898052898988-v81oceajvc9ufo1799ju4v1ras9crhtm.apps.googleusercontent.com</string>-->
     <string name="title_activity_google_login">GoogleLoginActivity</string>
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>

@@ -23,6 +23,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -39,10 +40,10 @@ public class GoogleLoginActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
 
     private ActivityResultLauncher<Intent> signInLauncher;
-    private Button signInButton;
+    private SignInButton signInButton;
     private static final String TAG = "GoogleLoginActivity";
 
-    private static final int RC_SIGN_IN = 123;
+    private static final int RC_SIGN_IN = 100;
 
 
     public void onStart() {
@@ -97,7 +98,7 @@ public class GoogleLoginActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                 } else {
-                    Log.d(TAG, "onActivityResult: Google Sign In Failed" +);
+                    Log.d(TAG, "onActivityResult: Google Sign In Failed");
                 }
             }
         });
@@ -134,7 +135,7 @@ public class GoogleLoginActivity extends AppCompatActivity {
                         Log.d(TAG, "firebaseAuthWithGoogle: Sign In Failed");
                         e.printStackTrace();
                     }
-                }
+                });
     }
 
 }
