@@ -114,13 +114,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<String> task) {
                 if (task.isSuccessful()) {
+                    // TODO: use mAuth userID instead of firebase installation id for access rule
                     firebaseInstallationId = task.getResult();
                     FirebaseUser currentUser = mAuth.getCurrentUser();
-                    String userId = currentUser.getUid();
+                    firebaseInstallationId = currentUser.getUid();
                     userExists[0] = dbManager.checkIfUserExists(firebaseInstallationId);
                     if (!userExists[0]) {
                         long currentTime = Calendar.getInstance().getTimeInMillis();
-                        // TODO Meng: change the userid tothe firebase auth id
+                        // TODO Meng: change the userid to the firebase auth id
                         // Create a new user object, with name being an empty string
                         User user = new User(firebaseInstallationId, "", currentTime, currentTime);
                         dbManager.addOneUser(user);
