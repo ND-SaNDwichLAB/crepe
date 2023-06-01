@@ -48,6 +48,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 
 public class CrepeAccessibilityService extends AccessibilityService {
@@ -64,7 +65,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
     private FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(this);
 
     // maintain a thread pool inside of the accessibility for running graph queries
-     private ExecutorService threadPool = Executors.newFixedThreadPool(10);
+     private ThreadPoolExecutor threadPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
 
     private WindowManager windowManager;
     private String currentAppActivityName;
@@ -140,7 +141,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
             allNodeList = getAllNodesOnScreen();
 
             if (collectors.size() > 0 && !savedOnCurrentSnapshot) {
-                Log.i("accessibilityEvent", "Accessibility Event Type: " + accessibilityEvent.getEventType() + ", opening a new thread, current count: " + Thread.activeCount());
+                Log.i("accessibilityEvent", "Accessibility Event Type: " + accessibilityEvent.getEventType() + ", opening a new thread, current count: " + threadPool.getActiveCount());
 
                 // Submit a task to the thread pool
                 threadPool.submit(new Runnable() {
