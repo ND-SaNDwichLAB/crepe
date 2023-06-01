@@ -109,6 +109,8 @@ public class MainActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<String> task) {
                 if (task.isSuccessful()) {
                     firebaseInstallationId = task.getResult();
+                    Log.i("MainActivity", "Firebase Installation ID: " + firebaseInstallationId);
+
                     userExists[0] = dbManager.checkIfUserExists(firebaseInstallationId);
                     if (!userExists[0]) {
                         long currentTime = Calendar.getInstance().getTimeInMillis();
@@ -116,12 +118,19 @@ public class MainActivity extends AppCompatActivity {
                         // Create a new user object, with name being an empty string
                         User user = new User(firebaseInstallationId, "", currentTime, currentTime);
                         dbManager.addOneUser(user);
-                        firebaseCommunicationManager.putUser(user);
-                        userExists[0] = true;
-                        Log.i("MainActivity", "Firebase Installation ID" + firebaseInstallationId);
+
+                        try {
+                            firebaseCommunicationManager.putUser(user);
+                            // if successfully added to Firebase, log the success and update the userExists variable
+                            Log.i("Firebase", "Successfully added user to Firebase");
+                            userExists[0] = true;
+                        } catch (Exception e) {
+                            Log.e("Firebase", "Error putting user to Firebase", e);
+                        }
+
                     }
                 } else {
-                    Log.e("MainActivity", "Error getting Firebase Installation ID", task.getException());
+                    Log.e("MainActivity", "Error getting Firebase Installation ID.", task.getException());
                 }
             }
         });
