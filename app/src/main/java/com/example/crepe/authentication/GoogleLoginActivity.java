@@ -18,6 +18,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.crepe.MainActivity;
 import com.example.crepe.R;
+import com.example.crepe.database.DatabaseManager;
+import com.example.crepe.database.User;
+import com.example.crepe.network.FirebaseCommunicationManager;
 import com.google.android.gms.auth.api.identity.SignInCredential;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -25,6 +28,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -33,6 +37,9 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.installations.FirebaseInstallations;
+
+import java.util.Calendar;
 
 public class GoogleLoginActivity extends AppCompatActivity {
 
@@ -44,6 +51,9 @@ public class GoogleLoginActivity extends AppCompatActivity {
     private static final String TAG = "GoogleLoginActivity";
 
     private static final int RC_SIGN_IN = 100;
+
+    private DatabaseManager dbManager;
+    private FirebaseCommunicationManager fbManager;
 
 
     public void onStart() {
@@ -60,6 +70,11 @@ public class GoogleLoginActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        // initialize database managers
+        dbManager = new DatabaseManager(getApplicationContext());
+        fbManager = new FirebaseCommunicationManager(getApplicationContext());
+
         // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
         // Configure Google Sign In
@@ -72,7 +87,6 @@ public class GoogleLoginActivity extends AppCompatActivity {
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d(TAG, "onClick: Google Sign In Button Clicked");
                 Intent intent = mGoogleSignInClient.getSignInIntent();
                 signInLauncher.launch(intent);
 
@@ -95,7 +109,6 @@ public class GoogleLoginActivity extends AppCompatActivity {
                 int resultCode = result.getResultCode();
                 if (resultCode == RESULT_OK) {
                     Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-                    Log.d(TAG, "onActivityResult: Google Sign In intent result");
                     try {
                         GoogleSignInAccount account = task.getResult(ApiException.class);
                         Log.d(TAG, "onActivityResult: Google Sign In Successful");
@@ -122,10 +135,7 @@ public class GoogleLoginActivity extends AppCompatActivity {
                                           public void onSuccess(AuthResult authResult) {
                                               Log.d(TAG, "firebaseAuthWithGoogle: Sign In Successful");
                                               FirebaseUser user = mAuth.getCurrentUser();
-                                              String uid = user.getUid();
-                                              String email = user.getEmail();
-                                              Log.d(TAG, "firebaseAuthWithGoogle: UID: " + uid);
-                                              Log.d(TAG, "firebaseAuthWithGoogle: Email: " + email);
+                                              createNewUser(user.getUid(), user.getDisplayName());
                                               if (authResult.getAdditionalUserInfo().isNewUser()) {
                                                   Log.d(TAG, "onSuccess: New User");
                                               } else {
@@ -144,6 +154,19 @@ public class GoogleLoginActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                 });
+    }
+
+    private void createNewUser(String uid, String name) {
+        long currentTime = Calendar.getInstance().getTimeInMillis();
+        User user = new User(uid, name, currentTime, currentTime);
+
+        try {
+            fbManager.putUser(user);
+            dbManager.addOneUser(user);
+        } catch (Exception e) {
+            Log.e(TAG, "createNewUser: Error creating new user");
+            e.printStackTrace();
+        }
     }
 
 }

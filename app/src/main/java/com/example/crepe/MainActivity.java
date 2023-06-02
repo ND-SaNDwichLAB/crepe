@@ -108,33 +108,6 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(MainActivity.this, "Error clearing database", Toast.LENGTH_SHORT).show();
         }
 
-        // Check for the unique Firebase Installation ID, see if it's already in the database
-        // If not, add the new user to database
-        FirebaseInstallations.getInstance().getId().addOnCompleteListener(new OnCompleteListener<String>() {
-            @Override
-            public void onComplete(@NonNull Task<String> task) {
-                if (task.isSuccessful()) {
-                    // TODO: use mAuth userID instead of firebase installation id for access rule
-                    firebaseInstallationId = task.getResult();
-                    FirebaseUser currentUser = mAuth.getCurrentUser();
-                    firebaseInstallationId = currentUser.getUid();
-                    userExists[0] = dbManager.checkIfUserExists(firebaseInstallationId);
-                    if (!userExists[0]) {
-                        long currentTime = Calendar.getInstance().getTimeInMillis();
-                        // TODO Meng: change the userid to the firebase auth id
-                        // Create a new user object, with name being an empty string
-                        User user = new User(firebaseInstallationId, "", currentTime, currentTime);
-                        dbManager.addOneUser(user);
-                        firebaseCommunicationManager.putUser(user);
-                        userExists[0] = true;
-                        Log.i("MainActivity", "Firebase Installation ID" + firebaseInstallationId);
-                    }
-                } else {
-                    Log.e("MainActivity", "Error getting Firebase Installation ID", task.getException());
-                }
-            }
-        });
-
 
         // load animations
         top_appear_anim = AnimationUtils.loadAnimation( this, R.anim.top_appear);
