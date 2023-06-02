@@ -44,6 +44,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -70,7 +71,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
     private WindowManager windowManager;
     private String currentAppActivityName;
     private String currentPackageName;
-    private UISnapshot prevUiSnapshot;  // used to check if the retrieved data exists in the previous frame
+    private Set<SugiliteEntity> prevResults = new HashSet<>(); // used to check if the retrieved data exists in the previous frame
     private UISnapshot uiSnapshot;
     private List<Collector> collectors;
     private List<Datafield> datafields;
@@ -115,8 +116,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
                 TYPE_WINDOW_CONTENT_CHANGED,
                 TYPE_VIEW_SCROLLED,
                 TYPE_VIEW_TEXT_SELECTION_CHANGED,
-                TYPE_ANNOUNCEMENT,
-                TYPE_WINDOWS_CHANGED);
+                TYPE_ANNOUNCEMENT);
 
         if (!targetEventTypes.contains(accessibilityEvent.getEventType())) {
             Log.i("accessibilityEvent", accessibilityEvent.getEventType() + " not in the target event list");
@@ -137,7 +137,6 @@ public class CrepeAccessibilityService extends AccessibilityService {
             }
 
             // update a UISnapshot and all nodes on screen
-            prevUiSnapshot = uiSnapshot;
             uiSnapshot = generateUISnapshot(accessibilityEvent);
             allNodeList = getAllNodesOnScreen();
 
@@ -148,35 +147,36 @@ public class CrepeAccessibilityService extends AccessibilityService {
                 threadPool.submit(new Runnable() {
                     @Override
                     public void run() {
-                        Log.i("ThreadPool", "Runnable started");
                         ArrayList<String> collectorIdsToStart = new ArrayList<>();
                         ArrayList<Datafield> datafieldsToStart = new ArrayList<>();
-                        if (collectors != null && datafields != null) {
-                            for (Collector collector : collectors) {
-                                collectorIdsToStart.add(collector.getCollectorId());
-                                // also add the datafields that are associated with this collector
-                                for (Datafield datafield : datafields) {
-                                    if (datafield.getCollectorId().equals(collector.getCollectorId())) {
-                                        datafieldsToStart.add(datafield);
-                                    }
+                        for (Collector collector : collectors) {
+                            collectorIdsToStart.add(collector.getCollectorId());
+                            // also add the datafields that are associated with this collector
+                            for (Datafield datafield : datafields) {
+                                if (datafield.getCollectorId().equals(collector.getCollectorId())) {
+                                    datafieldsToStart.add(datafield);
                                 }
                             }
                         }
 
-                        Log.i("threadpool", "size of datafields to start: " + datafieldsToStart.size());
+                        Log.i("query execution", "collectorIdsToStart: " + collectorIdsToStart.toString());
+                        Log.i("query execution", "datafieldsToStart: " + datafieldsToStart.toString());
 
                         // for each datafield, run the graph query on the uiSnapshot
                         for (Datafield datafield : datafieldsToStart) {
+                            Log.i("query execution", "starting datafield: " + datafield.toString());
                             // Start a new graph query thread and execute the graph query
                             // 1. convert the graph query string to a graph query object
                             OntologyQuery currentQuery = OntologyQuery.deserialize(datafield.getGraphQuery());
                             // 2. run the graph query on the uiSnapshot
-                            Set<SugiliteEntity> prevResults = currentQuery.executeOn(prevUiSnapshot);
                             Set<SugiliteEntity> currentResults = currentQuery.executeOn(uiSnapshot);
-
+                            Log.i("query execution", "currentResults: " + currentResults);
 
                             // 3. store the new results in the database
                             for (SugiliteEntity result : currentResults) {
+                                Log.i("query execution", "result: " + result);
+                                Log.i("query execution", "prevResults: " + prevResults);
+                                Log.i("query execution", "prevResults.contains(result): " + prevResults.contains(result));
                                     if (!prevResults.contains(result)) {
                                         // if the result is not in the previous results, add it to the database
                                         long timestamp = System.currentTimeMillis();
@@ -200,10 +200,10 @@ public class CrepeAccessibilityService extends AccessibilityService {
                                         }
                                     }
                             }
+                            prevResults = currentResults;
 
                         }
 
-                        Log.i("ThreadPool", "Runnable finished");
                     }
 
                 });
@@ -231,7 +231,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
                 currentPackageName = activityInfo.packageName;
             } catch (PackageManager.NameNotFoundException e) {
                 //e.printStackTrace();
-                Log.e(this.getClass().getName(), "Failed to get the activity name for: " + componentName);
+                Log.e(TAG, "Failed to get the activity name for: " + componentName);
             }
         }
 

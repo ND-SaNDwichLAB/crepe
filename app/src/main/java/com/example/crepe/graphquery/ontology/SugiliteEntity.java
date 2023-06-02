@@ -104,12 +104,8 @@ public class SugiliteEntity<T> implements Serializable {
                 }
                 return entityValue.equals(((SugiliteEntity) obj).entityValue);
             }
-            return false;
         }
-
-        else {
-            return false;
-        }
+        return false;
     }
 
     public SugiliteEntity<T> clone() {
