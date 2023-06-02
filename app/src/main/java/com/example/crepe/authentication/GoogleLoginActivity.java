@@ -64,7 +64,7 @@ public class GoogleLoginActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         // Configure Google Sign In
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(String.valueOf(R.string.default_web_client_id))
+                .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
@@ -84,6 +84,14 @@ public class GoogleLoginActivity extends AppCompatActivity {
             public void onActivityResult(ActivityResult result) {
                 Log.d(TAG, "onActivityResult: Google Sign In Activity Result");
                 Intent data = result.getData();
+
+                Bundle extras = data.getExtras();
+                if (extras != null) {
+                    for (String key : extras.keySet()) {
+                        Log.d(TAG, key + ": " + extras.get(key));
+                    }
+                }
+
                 int resultCode = result.getResultCode();
                 if (resultCode == RESULT_OK) {
                     Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
