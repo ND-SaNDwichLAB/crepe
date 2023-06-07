@@ -134,8 +134,6 @@ public class CreateCollectorFromURLDialogBuilder {
                                 }).show();
                     }
 
-                } else {
-                    Toast.makeText(c,"Please enter a valid collector ID", Toast.LENGTH_LONG).show();
                 }
             }
 

@@ -70,21 +70,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/endDateText" />
 
-    <Spinner
-        android:id="@+id/locationSpinner"
-        android:layout_width="0dp"
-        android:layout_height="40dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="24dp"
-        android:autofillHints="2"
-        android:background="@drawable/custom_spinner"
-        android:dropDownVerticalOffset="40dp"
-        android:lineSpacingExtra="5dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/commentOnAppSpinner" />
-
     <Button
         android:id="@+id/addCollectorFromConfigDialogCancelButton"
         android:layout_width="wrap_content"
@@ -95,7 +80,7 @@
         android:textColor="@color/ND_blue"
         android:textColorHint="@color/ND_blue"
         app:layout_constraintEnd_toStartOf="@+id/addCollectorFromConfigDialogNextButton"
-        app:layout_constraintTop_toBottomOf="@+id/commentOnLocationSpinner" />
+        app:layout_constraintTop_toBottomOf="@+id/commentOnAppSpinner" />
 
     <Button
         android:id="@+id/addCollectorFromConfigDialogNextButton"
@@ -110,7 +95,7 @@
         android:textColorHint="@color/ND_gold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/commentOnLocationSpinner" />
+        app:layout_constraintTop_toBottomOf="@+id/commentOnAppSpinner" />
 
     <TextView
         android:id="@+id/commentOnAppSpinner"
@@ -122,15 +107,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/appSpinner" />
 
-    <TextView
-        android:id="@+id/commentOnLocationSpinner"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="36dp"
-        android:layout_marginTop="8dp"
-        android:text="The location to save your collected data"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/locationSpinner" />
+
 
     <TextView
         android:id="@+id/startDateHintText"
@@ -194,18 +171,47 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/endDateText" />
 
-    <TextView
-        android:id="@+id/hintEnterLocation"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="36dp"
-        android:layout_marginTop="14dp"
-        android:background="@color/white"
-        android:paddingStart="2dp"
-        android:paddingEnd="2dp"
-        android:text="Location"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/commentOnAppSpinner" />
+
+
+    <!--    <Spinner-->
+    <!--        android:id="@+id/locationSpinner"-->
+    <!--        android:layout_width="0dp"-->
+    <!--        android:layout_height="40dp"-->
+    <!--        android:layout_marginStart="24dp"-->
+    <!--        android:layout_marginTop="24dp"-->
+    <!--        android:layout_marginEnd="24dp"-->
+    <!--        android:autofillHints="2"-->
+    <!--        android:background="@drawable/custom_spinner"-->
+    <!--        android:dropDownVerticalOffset="40dp"-->
+    <!--        android:lineSpacingExtra="5dp"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:layout_constraintStart_toStartOf="parent"-->
+    <!--        app:layout_constraintTop_toBottomOf="@+id/commentOnAppSpinner" />-->
+
+
+<!--    <TextView-->
+<!--        android:id="@+id/commentOnLocationSpinner"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginStart="36dp"-->
+<!--        android:layout_marginTop="8dp"-->
+<!--        android:text="The location to save your collected data"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/locationSpinner" />-->
+<!--    -->
+
+<!--    <TextView-->
+<!--        android:id="@+id/hintEnterLocation"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginStart="36dp"-->
+<!--        android:layout_marginTop="14dp"-->
+<!--        android:background="@color/white"-->
+<!--        android:paddingStart="2dp"-->
+<!--        android:paddingEnd="2dp"-->
+<!--        android:text="Location"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/commentOnAppSpinner" />-->
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

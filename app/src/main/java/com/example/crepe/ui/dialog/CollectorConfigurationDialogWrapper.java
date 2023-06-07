@@ -1,9 +1,11 @@
 package com.example.crepe.ui.dialog;
 
+import static com.example.crepe.CrepeAccessibilityService.isAccessibilityServiceEnabled;
 import static com.example.crepe.MainActivity.firebaseInstallationId;
 
 import android.app.ActivityManager;
 import android.app.AlertDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -99,7 +101,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                 Button popupNextBtn = (Button) dialogMainView.findViewById(R.id.addCollectorFromConfigDialogNextButton);
                 // spinners
                 Spinner appDropDown = (Spinner) dialogMainView.findViewById(R.id.appSpinner);
-                Spinner locationDropDown = (Spinner) dialogMainView.findViewById(R.id.locationSpinner);
+//                Spinner locationDropDown = (Spinner) dialogMainView.findViewById(R.id.locationSpinner);
 
                 // app spinner
                 String[] appItems = {""};
@@ -125,20 +127,20 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
                 }
 
-                // location spinner
-                String[] locationItems = new String[]{"Local", "Remote"};
-                ArrayAdapter<String> locationAdapter = new ArrayAdapter<String>(context.getApplicationContext(), android.R.layout.simple_spinner_dropdown_item, locationItems);
-                locationAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                locationDropDown.setAdapter(locationAdapter);
-                // When coming back from later popups using back button, if there's previously a selection made
-                if (collector.getMode() != null) {
-                    int i;
-                    for (i = 0; i < locationItems.length; i++) {
-                        if (collector.getMode() == locationItems[i])
-                            break;
-                    }
-                    locationDropDown.setSelection(i);
-                }
+//                // location spinner
+//                String[] locationItems = new String[]{"Local", "Remote"};
+//                ArrayAdapter<String> locationAdapter = new ArrayAdapter<String>(context.getApplicationContext(), android.R.layout.simple_spinner_dropdown_item, locationItems);
+//                locationAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//                locationDropDown.setAdapter(locationAdapter);
+//                // When coming back from later popups using back button, if there's previously a selection made
+//                if (collector.getMode() != null) {
+//                    int i;
+//                    for (i = 0; i < locationItems.length; i++) {
+//                        if (collector.getMode() == locationItems[i])
+//                            break;
+//                    }
+//                    locationDropDown.setSelection(i);
+//                }
 
                 // date picker buttons and textview
                 ImageButton startDateCalendarBtn = (ImageButton) dialogMainView.findViewById(R.id.startImageButton);
@@ -243,15 +245,15 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         }
 
                         // update location info
-                        String location = locationDropDown.getSelectedItem().toString();
-                        if (location != " ") {
-                            collector.setMode(location);
-                        } else {
-                            // set the border of spinner to red
-                            Context currentContext = context.getApplicationContext();
-                            Toast.makeText(currentContext, "Please select a location!", Toast.LENGTH_LONG).show();
-                            blankFlag = 1;
-                        }
+//                        String location = locationDropDown.getSelectedItem().toString();
+//                        if (location != " ") {
+//                            collector.setMode(location);
+//                        } else {
+//                            // set the border of spinner to red
+//                            Context currentContext = context.getApplicationContext();
+//                            Toast.makeText(currentContext, "Please select a location!", Toast.LENGTH_LONG).show();
+//                            blankFlag = 1;
+//                        }
 
                         // update date info
                         SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
@@ -309,22 +311,13 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                     public void onClick(View view) {
 
                         // check if the accessibility service is running
-                        Boolean accessibilityServiceRunning = false;
-                        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-                        Class clazz = CrepeAccessibilityService.class;
+                        Boolean accessibilityServiceEnabled = isAccessibilityServiceEnabled(context, CrepeAccessibilityService.class);
 
-                        if (manager != null) {
-                            for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-                                if (clazz.getName().equals(service.service.getClassName())) {
-                                    accessibilityServiceRunning = true;
-                                }
-                            }
-                        }
 
                         // if accessibility service is not on
-                        if (!accessibilityServiceRunning) {
-                            AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
-                            builder1.setTitle("Service Permission Required")
+                        if (!accessibilityServiceEnabled) {
+                            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context);
+                            builder.setTitle("Service Permission Required")
                                     .setMessage("The accessibility service is not enabled for " + Const.appNameUpperCase + ". Please enable the service in the phone settings before recording.")
                                     .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                                         @Override

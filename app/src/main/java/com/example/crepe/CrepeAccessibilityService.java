@@ -16,11 +16,13 @@ import static com.example.crepe.MainActivity.firebaseInstallationId;
 import android.accessibilityservice.AccessibilityService;
 import android.app.ActivityManager;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.os.Binder;
 import android.os.IBinder;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
@@ -61,9 +63,9 @@ public class CrepeAccessibilityService extends AccessibilityService {
     // Binder given to clients
     private final IBinder binder = new LocalBinder();
 
-    private DatabaseManager dbManager = DatabaseManager.getInstance(this.getApplicationContext());
+    private DatabaseManager dbManager;
 
-    private FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(this);
+    private FirebaseCommunicationManager firebaseCommunicationManager;
 
     // maintain a thread pool inside of the accessibility for running graph queries
      private ThreadPoolExecutor threadPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
@@ -85,10 +87,13 @@ public class CrepeAccessibilityService extends AccessibilityService {
     public void onCreate() {
         super.onCreate();
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+        dbManager = DatabaseManager.getInstance(this.getApplicationContext());
+        firebaseCommunicationManager = new FirebaseCommunicationManager(this);
 
         refreshCollector();
     }
 
+    // TODO Yuwen Do we really need this?
     public void refreshCollector() {
         // retrieve all stored collectors and datafields
         collectors = dbManager.getActiveCollectors();
@@ -308,6 +313,11 @@ public class CrepeAccessibilityService extends AccessibilityService {
 
     public static CrepeAccessibilityService getsSharedInstance() {
         return sSharedInstance;
+    }
+
+    public static boolean isAccessibilityServiceEnabled(Context context, Class accessibilityService) {
+        String prefString = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
+        return prefString != null && prefString.contains(context.getPackageName() + "/" + accessibilityService.getName());
     }
 
 
