@@ -29,15 +29,15 @@
         app:layout_constraintStart_toStartOf="@id/userIcon"
         app:layout_constraintTop_toBottomOf="@id/userIcon" />
 
-    <ImageButton
-        android:id="@+id/setUsernameImageButton"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:layout_marginStart="8dp"
-        android:background="#00FFFFFF"
-        app:layout_constraintBottom_toBottomOf="@+id/userName"
-        app:layout_constraintStart_toEndOf="@+id/userName"
-        app:layout_constraintTop_toTopOf="@+id/userName"
-        app:srcCompat="@drawable/ic_baseline_edit_24" />
+<!--    <ImageButton-->
+<!--        android:id="@+id/setUsernameImageButton"-->
+<!--        android:layout_width="32dp"-->
+<!--        android:layout_height="32dp"-->
+<!--        android:layout_marginStart="8dp"-->
+<!--        android:background="#00FFFFFF"-->
+<!--        app:layout_constraintBottom_toBottomOf="@+id/userName"-->
+<!--        app:layout_constraintStart_toEndOf="@+id/userName"-->
+<!--        app:layout_constraintTop_toTopOf="@+id/userName"-->
+<!--        app:srcCompat="@drawable/ic_baseline_edit_24" />-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

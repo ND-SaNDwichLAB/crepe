@@ -35,6 +35,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     public static final String USER_TABLE = "user";
     public static final String COLUMN_USER_ID = "userId";
     public static final String COLUMN_USER_NAME = "userName";
+    private static final String COLUMN_USER_PHOTO_URL = "userPhotoUrl";
 
     public static final String DATA_TABLE = "data";
     public static final String COLUMN_DATA_ID = "dataId";
@@ -68,6 +69,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     private final String createUserTableStatement = "CREATE TABLE IF NOT EXISTS " + USER_TABLE + " (" + COLUMN_USER_ID + " VARCHAR PRIMARY KEY, " +
             "            " + COLUMN_USER_NAME + " VARCHAR, " +
+            "            " + COLUMN_USER_PHOTO_URL + " VARCHAR, " +
             "            " + COLUMN_USER_TIME_CREATED + " BIGINT, " +
             "            " + COLUMN_USER_LAST_TIME_EDITED + " BIGINT);";
 
@@ -200,6 +202,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
         cv.put(COLUMN_USER_ID, user.getUserId());
         cv.put(COLUMN_USER_NAME, user.getName());
+        cv.put(COLUMN_USER_PHOTO_URL, user.getPhotoUrl());
         cv.put(COLUMN_USER_TIME_CREATED, user.getTimeCreated());
         cv.put(COLUMN_USER_LAST_TIME_EDITED, user.getTimeLastEdited());
 
@@ -230,6 +233,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         cv.put(COLUMN_USER_ID, userId);
         // use empty string for current user name, will change later using function updateUserName
         cv.put(COLUMN_USER_NAME, "");
+        cv.put(COLUMN_USER_PHOTO_URL, "");
         cv.put(COLUMN_USER_TIME_CREATED, timeCreated);
         // use the current time for last edited
         cv.put(COLUMN_USER_LAST_TIME_EDITED, timeCreated);
@@ -283,9 +287,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                 String userName = cursor.getString(1);
                 String PhotoUrl = cursor.getString(2);
                 long userTimeCreated = cursor.getLong(3);
-                long userTimelastEdited = cursor.getLong(4);
+                long userTimeLastEdited = cursor.getLong(4);
 
-                User receivedUser = new User(userId, userName, PhotoUrl, userTimeCreated, userTimelastEdited);
+                User receivedUser = new User(userId, userName, PhotoUrl, userTimeCreated, userTimeLastEdited);
 
                 userList.add(receivedUser);
 

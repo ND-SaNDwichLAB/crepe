@@ -11,11 +11,8 @@ import com.example.crepe.network.FirebaseCommunicationManager;
 import com.example.crepe.ui.dialog.CollectorConfigurationDialogWrapper;
 import com.example.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilder;
 import com.example.crepe.ui.dialog.CreateCollectorFromURLDialogBuilder;
-import com.example.crepe.ui.dialog.SetUsernameDialogBuilder;
 import com.example.crepe.ui.main_activity.DataFragment;
 import com.example.crepe.ui.main_activity.HomeFragment;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.annotation.NonNull;
@@ -35,8 +32,6 @@ import com.example.crepe.databinding.ActivityMainBinding;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.installations.FirebaseInstallations;
 
 import android.view.Menu;
 import android.view.MenuItem;
@@ -45,8 +40,6 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -84,13 +77,12 @@ public class MainActivity extends AppCompatActivity {
     public static String firebaseUserId = null;
     public static String firebaseInstallationId = null;
 
+    private static User currentUser = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         FirebaseApp.initializeApp(this);
         super.onCreate(savedInstanceState);
-
-
-        final Boolean[] userExists = {false};
 
         dbManager = DatabaseManager.getInstance(this.getApplicationContext());
         FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(this);
@@ -131,38 +123,22 @@ public class MainActivity extends AppCompatActivity {
 
         TextView userNameTextView = navHeader.findViewById(R.id.userName);
 
+        // get the current stored user from the database, saved in the log in process with google authentication
+        if (dbManager.getAllUsers().size() == 1) {
+            currentUser = dbManager.getAllUsers().get(0);
+            userNameTextView.setText(currentUser.getName());
+            Toast.makeText(this, "Welcome to Crepe, " + currentUser.getName() + "! 🥳🎉🎊", Toast.LENGTH_LONG).show();
+        }
+
 
         // refresh name
         Runnable mainActivityRefreshUsernameRunnable = new Runnable() {
             @Override
             public void run() {
-                // TODO CHANGE THIS
-                userNameTextView.setText(dbManager.getUsername(firebaseInstallationId));
+                userNameTextView.setText(currentUser.getName());
+                // TODO add user image
             }
         };
-
-        // set user popup
-        ImageButton setName = (ImageButton) navHeader.findViewById(R.id.setUsernameImageButton);
-        setName.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                SetUsernameDialogBuilder nextPopup = new SetUsernameDialogBuilder(currentFragment.getActivity(), firebaseInstallationId, mainActivityRefreshUsernameRunnable);
-                Dialog newDialog = nextPopup.build();
-                newDialog.show();
-                // TODO CHANGE THIS
-                userNameTextView.setText(dbManager.getUsername(firebaseInstallationId));
-            }
-        });
-
-        if (userExists[0]) {
-            // TODO CHANGE THIS
-            String username = dbManager.getUsername(firebaseInstallationId);
-            if (!username.isEmpty()) {
-                userNameTextView.setText(username);
-            }
-            // else the text will be default "set username"
-        }
-
 
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
