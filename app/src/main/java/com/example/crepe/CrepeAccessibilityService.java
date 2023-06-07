@@ -59,7 +59,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
     // Binder given to clients
     private final IBinder binder = new LocalBinder();
 
-    private DatabaseManager dbManager = new DatabaseManager(this);
+    private DatabaseManager dbManager = DatabaseManager.getInstance(this.getApplicationContext());
 
     private FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(this);
 

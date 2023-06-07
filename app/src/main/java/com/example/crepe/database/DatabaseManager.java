@@ -9,12 +9,16 @@ import android.util.Log;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 
+import java.sql.DatabaseMetaData;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
 public class DatabaseManager extends SQLiteOpenHelper {
+
+    private SQLiteDatabase db;
+    private static DatabaseManager instance = null;
 
     public static final String COLLECTOR_TABLE = "collector";
     public static final String COLUMN_COLLECTOR_ID = "collectorId";
@@ -86,8 +90,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
 
     // constructor
-    public DatabaseManager(@Nullable Context context) {
+    private DatabaseManager(@Nullable Context context) {
         super(context, "crepe.db", null, 1);
+        this.db = this.getWritableDatabase();
     }
 
     // will be called the first time a database is accessed.
@@ -107,19 +112,24 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     }
 
+    // singleton pattern
+    public static synchronized DatabaseManager getInstance(Context context) {
+        if (instance == null) {
+            instance = new DatabaseManager(context);
+        }
+        return instance;
+    }
+
     // clear all 4 tables in the database
     public void clearDatabase(Context c) {
-        SQLiteDatabase db = this.getWritableDatabase();
 
         for(String tableName: tableList) {
             db.delete(tableName, "1", null);
         }
         Toast.makeText(c, "Clear database success!", Toast.LENGTH_SHORT).show();
-        db.close();
     }
 
     public Boolean addOneCollector(Collector collector) {
-        SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
         cv.put(COLUMN_COLLECTOR_ID, collector.getCollectorId());
         cv.put(COLUMN_CREATOR_USER_ID, collector.getCreatorUserId());
@@ -135,12 +145,10 @@ public class DatabaseManager extends SQLiteOpenHelper {
         if (insert == -1) {
             return false;
         }
-        db.close();
         return true;
     }
 
     public void removeCollectorById(String collectorId) {
-        SQLiteDatabase db = this.getWritableDatabase();
         // the result equals to the number of entries being deleted
 
         int result = db.delete(COLLECTOR_TABLE, "collectorId = " + collectorId, null);
@@ -149,7 +157,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
         } else {
             Log.i("database", "remove collector error, current collectors: " + getAllCollectors().toString());
         }
-        db.close();
     }
 
     // a method to get all collectors in the database
@@ -158,7 +165,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
         String sqlString = "SELECT * FROM " + COLLECTOR_TABLE;
 
-        SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(sqlString, null);
 
         // if the cursor actually got something
@@ -186,12 +192,10 @@ public class DatabaseManager extends SQLiteOpenHelper {
             Log.i("", "The collector list is empty.");
         }
         cursor.close();
-        db.close();
         return collectorList;
     }
 
     public Boolean addOneUser(User user) {
-        SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
 
         cv.put(COLUMN_USER_ID, user.getUserId());
@@ -200,18 +204,15 @@ public class DatabaseManager extends SQLiteOpenHelper {
         cv.put(COLUMN_USER_LAST_TIME_EDITED, user.getTimeLastEdited());
 
         long insert = db.insert(USER_TABLE, null, cv);
-        db.close();
         return insert != -1;
     }
 
     public Boolean checkIfUserExists(String userId) {
-        SQLiteDatabase db = this.getReadableDatabase();
 
         String query = "SELECT * FROM " + USER_TABLE + " WHERE " + COLUMN_USER_ID + " = \"" + userId + "\"";
         Cursor cursor = db.rawQuery(query, null);
         int cursorCount = cursor.getCount();
 
-        db.close();
         cursor.close();
 
         if (cursorCount <= 0) {
@@ -222,7 +223,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
     }
 
     public Boolean addOneUser(String userId) {
-        SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
 
         long timeCreated = Calendar.getInstance().getTimeInMillis();
@@ -235,12 +235,10 @@ public class DatabaseManager extends SQLiteOpenHelper {
         cv.put(COLUMN_USER_LAST_TIME_EDITED, timeCreated);
 
         long insert = db.insert(USER_TABLE, null, cv);
-        db.close();
         return insert != -1;
     }
 
     public String getUsername(String userId) {
-        SQLiteDatabase db = this.getReadableDatabase();
         String query = "SELECT " + COLUMN_USER_NAME + " from " + USER_TABLE + " where " + COLUMN_USER_ID + "= \"" + userId + "\"";
 
         Cursor cursor = db.rawQuery(query, null);
@@ -248,25 +246,21 @@ public class DatabaseManager extends SQLiteOpenHelper {
         int usernameColumnIndex = cursor.getColumnIndex(COLUMN_USER_NAME);
         String username = cursor.getString(usernameColumnIndex);
 
-        db.close();
         cursor.close();
         return username;
     }
 
     // Use this function to update the database when the user set their name in the left panel
     public Boolean updateUserName(String userId, String username) {
-        SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
         cv.put(COLUMN_USER_NAME, username);
         // rows represent the number of rows updated
         int rows = db.update(USER_TABLE, cv,  "userId = ?" , new String[] {userId} );
 
-        db.close();
         return (rows > 0);
     }
 
     public void removeUserById(String userId) {
-        SQLiteDatabase db = this.getWritableDatabase();
         // the result equals to the number of entries being deleted
 
         int result = db.delete(USER_TABLE, "userId = " + userId, null);
@@ -275,11 +269,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
         } else {
             Log.i("database", "remove user error, current users: " + getAllUsers().toString());
         }
-        db.close();
     }
 
     public List<User> getAllUsers() {
-        SQLiteDatabase db = this.getReadableDatabase();
         List<User> userList = new ArrayList<>();
         String getAllUsersQuery = "SELECT * FROM " + USER_TABLE;
 
@@ -302,12 +294,10 @@ public class DatabaseManager extends SQLiteOpenHelper {
         }
 
         cursor.close();
-        db.close();
         return userList;
     }
 
     public Boolean addData(Data data) {
-        SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
 
         cv.put(COLUMN_DATA_ID, data.getDataId());
@@ -317,12 +307,10 @@ public class DatabaseManager extends SQLiteOpenHelper {
         cv.put(COLUMN_DATA_CONTENT, data.getDataContent());
 
         long result = db.insert(DATA_TABLE, null, cv);
-        db.close();
         return result != -1;
     }
 
     public void removeDataById(String dataId) {
-        SQLiteDatabase db = this.getWritableDatabase();
         // the result equals to the number of entries being deleted
 
         int result = db.delete(DATA_TABLE, "dataId = " + dataId, null);
@@ -331,11 +319,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
         } else {
             Log.i("database", "remove data entry by data id error, current data entries: " + getAllData().toString());
         }
-        db.close();
     }
 
     public void removeDataByDatafieldId(String datafieldId) {
-        SQLiteDatabase db = this.getWritableDatabase();
         // the result equals to the number of entries being deleted
 
         int result = db.delete(DATA_TABLE, "datafieldId = " + datafieldId, null);
@@ -344,11 +330,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
         } else {
             Log.i("database", "remove data entry by datafield Id error, current data entries: " + getAllData().toString());
         }
-        db.close();
     }
 
     public void removeDataByUserId(String userId) {
-        SQLiteDatabase db = this.getWritableDatabase();
         // the result equals to the number of entries being deleted
 
         int result = db.delete(DATA_TABLE, "userId = " + userId, null);
@@ -357,12 +341,10 @@ public class DatabaseManager extends SQLiteOpenHelper {
         } else {
             Log.i("database", "remove data entry by user id error, current data entries: " + getAllData().toString());
         }
-        db.close();
     }
 
     public List<Data> getAllData() {
         List<Data> dataList = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
         String getAllDataQuery = "SELECT * FROM " + DATA_TABLE;
 
         Cursor cursor = db.rawQuery(getAllDataQuery, null);
@@ -385,7 +367,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
             Log.i("", "The data list is empty.");
         }
 
-        db.close();
         cursor.close();
 
         return dataList;
@@ -393,7 +374,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     public List<Data> getDataForCollector(Collector collector) {
         List<Data> dataList = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
         String getAllDataQuery = "SELECT * FROM " + DATA_TABLE + " WHERE " + COLUMN_COLLECTOR_ID + " = \"" + collector.getCollectorId() + "\";";
 
         Cursor cursor = db.rawQuery(getAllDataQuery, null);
@@ -416,7 +396,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
             Log.i("", "Cannot find data for the specified collector ID. Try another collector instead?");
         }
 
-        db.close();
         cursor.close();
 
         return dataList;
@@ -424,7 +403,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
 
     public Boolean addOneDatafield(Datafield dataField) {
-        SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
 
         cv.put(COLUMN_DATAFIELD_ID, dataField.getDataFieldId());
@@ -438,7 +416,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
         // catch exception of the insert operation
         try {
             long result = db.insert(DATAFIELD_TABLE, null, cv);
-            db.close();
             return result != -1;
         } catch (Exception e) {
             Log.i("database", "add one datafield error: " + e.getMessage());
@@ -448,7 +425,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
     }
 
     public void removeDatafieldById(String datafieldId) {
-        SQLiteDatabase db = this.getWritableDatabase();
         // the result equals to the number of entries being deleted
 
         int result = db.delete(DATAFIELD_TABLE, "datafieldId = " + datafieldId, null);
@@ -457,10 +433,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
         } else {
             Log.i("database", "remove datafield by id error, current datafields: " + getAllDatafields().toString());
         }
-        db.close();
     }
     public void removeDatafieldByCollectorId(String collectorId) {
-        SQLiteDatabase db = this.getWritableDatabase();
         // the result equals to the number of entries being deleted
 
         int result = db.delete(DATAFIELD_TABLE, "collectorId = " + collectorId, null);
@@ -469,12 +443,10 @@ public class DatabaseManager extends SQLiteOpenHelper {
         } else {
             Log.i("database", "remove datafield by collector id error, current datafields: " + getAllDatafields().toString());
         }
-        db.close();
     }
 
     public List<Datafield> getAllDatafields() {
         List<Datafield> dataList = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
         String getAllDataQuery = "SELECT * FROM " + DATAFIELD_TABLE;
 
         Cursor cursor = db.rawQuery(getAllDataQuery, null);
@@ -498,7 +470,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
             Log.i("", "The datafield list is empty.");
         }
 
-        db.close();
         cursor.close();
 
         return dataList;
@@ -506,7 +477,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     public List<Datafield> getAllDatafieldsForCollector(Collector collector) {
         List<Datafield> dataList = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
         String getAllDataQuery = "SELECT * FROM " + DATAFIELD_TABLE + " WHERE " + COLUMN_COLLECTOR_ID + " = \"" + collector.getCollectorId() + "\";";
 
         Cursor cursor = db.rawQuery(getAllDataQuery, null);
@@ -530,7 +500,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
             Log.i("", "Cannot find datafield for the specified collector ID. Try another collector instead?");
         }
 
-        db.close();
         cursor.close();
         return dataList;
     }
@@ -539,16 +508,14 @@ public class DatabaseManager extends SQLiteOpenHelper {
     // yeah this is not the most efficient, but there won't be that many collectors anyways
     public void updateCollectorStatus(Collector collector) {
         String updateStatement = "UPDATE " + COLLECTOR_TABLE + " SET " + COLUMN_COLLECTOR_STATUS + " =\'" + collector.getCollectorStatus() + "\' WHERE " + COLUMN_COLLECTOR_ID + "=\'" + collector.getCollectorId() + "\'";
-        Cursor c = getWritableDatabase().rawQuery(updateStatement, null);
+        Cursor c = db.rawQuery(updateStatement, null);
         c.moveToFirst();
-        c.close();
     }
 
 
     // a function that retrieve collectors that has active status
     public List<Collector> getActiveCollectors() {
         List<Collector> collectorList = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
         String getActiveCollectorsQuery = "SELECT * FROM " + COLLECTOR_TABLE + " WHERE " + COLUMN_COLLECTOR_STATUS + " = \"active\";";
 
         Cursor cursor = db.rawQuery(getActiveCollectorsQuery, null);
@@ -577,13 +544,11 @@ public class DatabaseManager extends SQLiteOpenHelper {
             Log.i("", "The collector list is empty.");
         }
         cursor.close();
-        db.close();
         return collectorList;
     }
 
     // query to get one collector by id
     public Collector getCollectorById(String collectorId) {
-        SQLiteDatabase db = this.getReadableDatabase();
         String getCollectorByIdQuery = "SELECT * FROM " + COLLECTOR_TABLE + " WHERE " + COLUMN_COLLECTOR_ID + " = \"" + collectorId + "\";";
 
         Cursor cursor = db.rawQuery(getCollectorByIdQuery, null);
@@ -602,7 +567,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
             String collectorStatus = cursor.getString(9);
             Collector receivedCollector = new Collector(collectorID, creatorUserID, appName, appPackage, name, mode, collectorStartTime, collectorEndTime, collectorStatus);
             cursor.close();
-            db.close();
             return receivedCollector;
         }
 
@@ -610,8 +574,13 @@ public class DatabaseManager extends SQLiteOpenHelper {
             // do nothing since it's empty
             Log.i("", "The collector list is empty.");
             cursor.close();
-            db.close();
             return null;
+        }
+    }
+
+    public void close() {
+        if (db != null) {
+            db.close();
         }
     }
 }

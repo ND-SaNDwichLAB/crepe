@@ -67,7 +67,7 @@ public class CreateCollectorFromURLDialogBuilder {
                     // Firebase
                     FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(c);
 
-                    DatabaseManager dbManager = new DatabaseManager(c);
+                    DatabaseManager dbManager = DatabaseManager.getInstance(c);
                     firebaseCommunicationManager.retrieveCollector(collectorIdEditText.getText().toString(), new FirebaseCallback<Collector>() {
                         public void onResponse(Collector result) {
                             dbManager.addOneCollector(result);

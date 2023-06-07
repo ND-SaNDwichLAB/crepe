@@ -39,7 +39,7 @@ public class HomeFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        dbManager = new DatabaseManager(this.getActivity());
+        dbManager = DatabaseManager.getInstance(this.getActivity().getApplicationContext());
 
         return inflater.inflate(R.layout.fragment_home, container, false);
     }

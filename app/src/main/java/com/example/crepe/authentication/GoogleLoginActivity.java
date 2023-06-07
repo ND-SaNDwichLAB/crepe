@@ -72,7 +72,7 @@ public class GoogleLoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         // initialize database managers
-        dbManager = new DatabaseManager(getApplicationContext());
+        dbManager = DatabaseManager.getInstance(getApplicationContext());
         fbManager = new FirebaseCommunicationManager(getApplicationContext());
 
         // Initialize Firebase Auth

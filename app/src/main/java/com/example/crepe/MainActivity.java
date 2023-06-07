@@ -96,17 +96,18 @@ public class MainActivity extends AppCompatActivity {
 
         final Boolean[] userExists = {false};
 
-        dbManager = new DatabaseManager(this);
+        Log.i("hi", "hi");
+        dbManager = DatabaseManager.getInstance(this.getApplicationContext());
         FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(this);
 
         mAuth = FirebaseAuth.getInstance();
 
         // TODO remove this line after testing
-        try {
-            dbManager.clearDatabase(this);
-        } catch (Exception e) {
-            Toast.makeText(MainActivity.this, "Error clearing database", Toast.LENGTH_SHORT).show();
-        }
+//        try {
+//            dbManager.clearDatabase(this);
+//        } catch (Exception e) {
+//            Toast.makeText(MainActivity.this, "Error clearing database", Toast.LENGTH_SHORT).show();
+//        }
 
 
         // load animations
@@ -312,6 +313,9 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        DatabaseManager.getInstance(this.getApplicationContext()).close();
+    }
 }

@@ -36,7 +36,7 @@ public class FirebaseCommunicationManager {
     public FirebaseCommunicationManager(Context c) {
         this.db = FirebaseDatabase.getInstance();
         this.context = c;
-        dbManager = new DatabaseManager(context);
+        dbManager = DatabaseManager.getInstance(context);
     }
 
     public Task<Void> putCollector(Collector collector){
