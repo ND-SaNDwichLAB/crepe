@@ -90,7 +90,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
         switch (currentScreenState) {
             case "buildDialogFromConfig":
 
-                collector.setCreatorUserId(MainActivity.firebaseInstallationId);
+                collector.setCreatorUserId(MainActivity.currentUser.getUserId());
 
                 dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_add_collector_from_config, null);
                 dialog.setContentView(dialogMainView);
@@ -269,8 +269,8 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         dbManager.updateCollectorStatus(collector);
 
                         // set the id of the collector
-                        // format: firebaseInstallationId%appName%timestamp. We will remove any space in the appName
-                        collector.setCollectorId(MainActivity.firebaseInstallationId + "%" + collector.getAppName().replaceAll(" ", "") + "%" + String.valueOf(System.currentTimeMillis()));
+                        // format: userId%appName%timestamp. We will remove any space in the appName
+                        collector.setCollectorId(MainActivity.currentUser.getUserId() + "%" + collector.getAppName().replaceAll(" ", "") + "%" + String.valueOf(System.currentTimeMillis()));
 
                         if (blankFlag == 0) {
                             // update currentScreen String value

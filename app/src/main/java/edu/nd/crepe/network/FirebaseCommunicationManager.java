@@ -258,10 +258,10 @@ public class FirebaseCommunicationManager {
                         String dataContent = String.valueOf(snapshot.child("dataContent").getValue());
                         long timestamp = (long) snapshot.child("timestamp").getValue();
                         Data data = new Data(dataId, dataFieldId, userId,  timestamp, dataContent);
-                        // if creator, add all data
-                        if (checkDataAccessRule(userId,dbManager.getAllUsers().get(0)).equals(PARTICIPANT)) {
-                            datas.add(data);
-                        }
+//                        // if creator, add all data
+//                        if (checkDataAccessRule(userId,dbManager.getAllUsers().get(0)).equals(PARTICIPANT)) {
+//                            datas.add(data);
+//                        }
                         // TODO: if creator, add all data when data.dataFieldId.creatorId == self.userId
 
                         datas.add(data);
@@ -277,7 +277,7 @@ public class FirebaseCommunicationManager {
         });
     }
 
-    /* check if the access rule matches with the following rule
+    /* description of firebase access rule (set on the web portal)
     User
     - creator: read & write access to only userId = self.userId
     - participant: read & write access to userId = self.userId
@@ -294,42 +294,6 @@ public class FirebaseCommunicationManager {
     - creator: read & write rows where collector.creatorId == self.userId
     - participant: read rows when they know the collectorId (ofc the collectorId has to exist in current table, status == active)
      */
-
-    private String checkCollectorAccessRule(Collector collector, User user) {
-        if (collector.getCreatorUserId().equals(user.getUserId())) { // creator
-            return CREATOR;
-        } else { // participant
-            if (collector.getCollectorStatus().equals("active")) {
-                return PARTICIPANT;
-            }
-            return NONE;
-        }
-    }
-
-    private String checkDatafieldAccessRule(Datafield datafield, User user) {
-        if (dbManager.getCollectorById(datafield.getCollectorId()).getCreatorUserId().equals(user.getUserId())) { // creator
-            return CREATOR;
-        } else { // participant
-            if (dbManager.getCollectorById(datafield.getCollectorId()).getCollectorStatus().equals("active")) {
-                return PARTICIPANT;
-            }
-            return NONE;
-        }
-    }
-
-    private String checkDataAccessRule(String userId, User user) {
-        if(userId.equals(user.getUserId())) { // creator
-            return CREATOR;
-        } else { // participant
-            return PARTICIPANT;
-        }
-    }
-
-
-
-
-
-
 
 
 }

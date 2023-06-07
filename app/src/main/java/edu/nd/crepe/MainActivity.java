@@ -85,11 +85,8 @@ public class MainActivity extends AppCompatActivity {
     private Fragment currentFragment;
 
     // the unique id extracted from the user's device, used as their user id
-    public static String firebaseUserId = null;
-    public static String firebaseInstallationId = null;
-
-    private static User currentUser = null;
-    private static Drawable userImage = null;
+    public static User currentUser = null;
+    public static Drawable userImage = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

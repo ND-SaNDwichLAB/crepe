@@ -720,23 +720,5 @@ public class DemonstrationUtil {
         return null;
     }
 
-    // store query data to local database
-    public static void  storeQueryToDatabase(Context context, List<Pair<OntologyQuery, Double>> defaultQueries){
-        // call databaseManager to store the query
-        DatabaseManager dbManager = DatabaseManager.getInstance(context);
-        FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(context);
-
-        Datafield datafield = new Datafield("752916f46f6bcd47+1","2", defaultQueries.get(0).first.toString(),"test", Boolean.TRUE);
-
-        // parse the query to data
-        Data data = new Data("752916f46f6bcd47+1","2", defaultQueries.get(0).first.toString(),0, "test");
-        // TODO：when first time to store the query, the collector hasn't been created yet. THerefore, we might need to pass it back
-        // store data to local database
-        dbManager.addOneDatafield(datafield);
-        dbManager.addData(data);
-
-    }
-
-
 
 }
