@@ -135,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
         navHeader = sidebarNavView.getHeaderView(0);
 
         TextView userNameTextView = navHeader.findViewById(R.id.userName);
-        ImageView userImageView = navHeader.findViewById(R.id.userImage);
+//        ImageView userImageView = navHeader.findViewById(R.id.userImage);
 
         if (currentUser == null) {
             // get the current stored user from the database, saved in the log in process with google authentication
@@ -143,32 +143,32 @@ public class MainActivity extends AppCompatActivity {
                 currentUser = dbManager.getAllUsers().get(0);
 
                 userNameTextView.setText(currentUser.getName());
-                Toast.makeText(this, "Welcome " + currentUser.getName().split(" ")[0] + "! 🥳🎉🎊", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Welcome, " + currentUser.getName() + "! 🥳🎉🎊", Toast.LENGTH_LONG).show();
             }
         }
 
-        if (userImage == null) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        final Drawable d = loadImageFromUrl(currentUser.getPhotoUrl());
-                        Log.i("Load Image", "Loaded user image successfully");
-
-                        // Update UI in main thread
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                userImageView.setImageDrawable(d);
-                            }
-                        });
-                    } catch (Exception e) {
-                        Log.e("Load Image", "Error loading user image", e);
-                    }
-                }
-            }).start();
-
-        }
+//        if (userImage == null) {
+//            new Thread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    try {
+//                        final Drawable d = loadImageFromUrl(currentUser.getPhotoUrl());
+//                        Log.i("Load Image", "Loaded user image successfully");
+//
+//                        // Update UI in main thread
+//                        runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                userImageView.setImageDrawable(d);
+//                            }
+//                        });
+//                    } catch (Exception e) {
+//                        Log.e("Load Image", "Error loading user image", e);
+//                    }
+//                }
+//            }).start();
+//
+//        }
 
 
 
@@ -177,9 +177,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 userNameTextView.setText(currentUser.getName());
-                if (userImage != null) {
-                    userImageView.setImageDrawable(userImage);
-                }
+//                if (userImage != null) {
+//                    userImageView.setImageDrawable(userImage);
+//                }
             }
         };
 

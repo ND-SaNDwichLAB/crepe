@@ -1,5 +1,7 @@
 package com.example.crepe.authentication;
 
+import static com.example.crepe.MainActivity.firebaseUserId;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -39,7 +41,12 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.installations.FirebaseInstallations;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Random;
 
 public class GoogleLoginActivity extends AppCompatActivity {
 
@@ -54,6 +61,8 @@ public class GoogleLoginActivity extends AppCompatActivity {
 
     private DatabaseManager dbManager;
     private FirebaseCommunicationManager fbManager;
+
+    private static String[] randomNameList = {"Dolphin", "Tiger", "Lion", "Leopard", "Cheetah", "Bear", "Polar bear", "Turtle", "Tortoise", "Rabbit", "Porcupine", "Hare"};
 
 
     public void onStart() {
@@ -134,12 +143,36 @@ public class GoogleLoginActivity extends AppCompatActivity {
                                           public void onSuccess(AuthResult authResult) {
                                               Log.d(TAG, "firebaseAuthWithGoogle: Sign In Successful");
                                               FirebaseUser user = mAuth.getCurrentUser();
-                                              createNewUser(user.getUid(), user.getDisplayName(), user.getPhotoUrl().toString());
+
+                                              // generate a random name for the user
+                                              Random rand = new Random();
+                                              String randomName = "Anonymous " + randomNameList[rand.nextInt(randomNameList.length)];
+
+                                              // generate a hash for the user id from firebase for anonymity
+                                              MessageDigest digest = null;
+                                              try {
+                                                  digest = MessageDigest.getInstance("SHA-256");
+                                                  byte[] encodedhash = digest.digest(user.getUid().getBytes(StandardCharsets.UTF_8));
+
+                                                  String hashedUserId = bytesToHex(encodedhash);
+                                                  Log.i(TAG, "Successfully hashed user id: " + hashedUserId);
+                                                  createNewUser(hashedUserId, randomName, "");
+
+                                              } catch (NoSuchAlgorithmException e) {
+                                                  // else, just use the original user id
+                                                  Log.e(TAG, "onSuccess: SHA-256 algorithm not found, using default user ID: " + user.getUid());
+                                                  createNewUser(user.getUid(), randomName, "");
+
+                                                  throw new RuntimeException(e);
+                                              }
+
                                               if (authResult.getAdditionalUserInfo().isNewUser()) {
                                                   Log.d(TAG, "onSuccess: New User");
                                               } else {
                                                   Log.d(TAG, "onSuccess: Existing User");
                                               }
+
+                                              // move to main activity
                                               Intent intent = new Intent(getApplicationContext(), MainActivity.class);
 //                                              intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                                               startActivity(intent);
@@ -167,6 +200,16 @@ public class GoogleLoginActivity extends AppCompatActivity {
             Log.e(TAG, "createNewUser: Error creating new user");
             e.printStackTrace();
         }
+    }
+
+    private static String bytesToHex(byte[] hash) {
+        StringBuilder hexString = new StringBuilder(2 * hash.length);
+        for (int i = 0; i < hash.length; i++) {
+            String hex = Integer.toHexString(0xff & hash[i]);
+            if(hex.length() == 1) hexString.append('0');
+            hexString.append(hex);
+        }
+        return hexString.toString();
     }
 
 }
