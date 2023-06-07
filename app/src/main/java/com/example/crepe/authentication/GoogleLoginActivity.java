@@ -89,7 +89,6 @@ public class GoogleLoginActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = mGoogleSignInClient.getSignInIntent();
                 signInLauncher.launch(intent);
-
             }
         });
 
@@ -135,14 +134,16 @@ public class GoogleLoginActivity extends AppCompatActivity {
                                           public void onSuccess(AuthResult authResult) {
                                               Log.d(TAG, "firebaseAuthWithGoogle: Sign In Successful");
                                               FirebaseUser user = mAuth.getCurrentUser();
-                                              createNewUser(user.getUid(), user.getDisplayName());
+                                              createNewUser(user.getUid(), user.getDisplayName(), user.getPhotoUrl().toString());
                                               if (authResult.getAdditionalUserInfo().isNewUser()) {
                                                   Log.d(TAG, "onSuccess: New User");
                                               } else {
                                                   Log.d(TAG, "onSuccess: Existing User");
                                               }
                                               Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                                              intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                                               startActivity(intent);
+                                              overridePendingTransition(0, 0); // To remove animation when current Activity is closed
                                               finish();
                                           }
                                       }
@@ -156,9 +157,9 @@ public class GoogleLoginActivity extends AppCompatActivity {
                 });
     }
 
-    private void createNewUser(String uid, String name) {
+    private void createNewUser(String uid, String name, String photoUrl) {
         long currentTime = Calendar.getInstance().getTimeInMillis();
-        User user = new User(uid, name, currentTime, currentTime);
+        User user = new User(uid, name, photoUrl, currentTime, currentTime);
 
         try {
             fbManager.putUser(user);

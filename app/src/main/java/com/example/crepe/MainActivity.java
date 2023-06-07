@@ -96,7 +96,6 @@ public class MainActivity extends AppCompatActivity {
 
         final Boolean[] userExists = {false};
 
-        Log.i("hi", "hi");
         dbManager = DatabaseManager.getInstance(this.getApplicationContext());
         FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(this);
 
@@ -141,6 +140,7 @@ public class MainActivity extends AppCompatActivity {
         Runnable mainActivityRefreshUsernameRunnable = new Runnable() {
             @Override
             public void run() {
+                // TODO CHANGE THIS
                 userNameTextView.setText(dbManager.getUsername(firebaseInstallationId));
             }
         };
@@ -153,11 +153,13 @@ public class MainActivity extends AppCompatActivity {
                 SetUsernameDialogBuilder nextPopup = new SetUsernameDialogBuilder(currentFragment.getActivity(), firebaseInstallationId, mainActivityRefreshUsernameRunnable);
                 Dialog newDialog = nextPopup.build();
                 newDialog.show();
+                // TODO CHANGE THIS
                 userNameTextView.setText(dbManager.getUsername(firebaseInstallationId));
             }
         });
 
         if (userExists[0]) {
+            // TODO CHANGE THIS
             String username = dbManager.getUsername(firebaseInstallationId);
             if (!username.isEmpty()) {
                 userNameTextView.setText(username);

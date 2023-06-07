@@ -281,10 +281,11 @@ public class DatabaseManager extends SQLiteOpenHelper {
             do {
                 String userId = cursor.getString(0);
                 String userName = cursor.getString(1);
-                long userTimeCreated = cursor.getLong(2);
-                long userTimelastEdited = cursor.getLong(3);
+                String PhotoUrl = cursor.getString(2);
+                long userTimeCreated = cursor.getLong(3);
+                long userTimelastEdited = cursor.getLong(4);
 
-                User receivedUser = new User(userId, userName, userTimeCreated, userTimelastEdited);
+                User receivedUser = new User(userId, userName, PhotoUrl, userTimeCreated, userTimelastEdited);
 
                 userList.add(receivedUser);
 

@@ -151,9 +151,10 @@ public class FirebaseCommunicationManager {
                         DataSnapshot dataSnapshot = task.getResult();
                         String userId = String.valueOf(dataSnapshot.child("userId").getValue());
                         String userName = String.valueOf(dataSnapshot.child("name").getValue());
+                        String photoUrl = String.valueOf(dataSnapshot.child("photoUrl").getValue());
                         long timeCreated = (long) dataSnapshot.child("timeCreated").getValue();
                         long timeLastEdited = (long) dataSnapshot.child("timeLastEdited").getValue();
-                        User user = new User(userId, userName, timeCreated, timeLastEdited);
+                        User user = new User(userId, userName, photoUrl, timeCreated, timeLastEdited);
                         // call firebase callback to update user
                         firebaseCallback.onResponse(user);
                     } else {
