@@ -8,9 +8,10 @@
     android:background="@color/ND_blue">
 
     <ImageView
-        android:id="@+id/userIcon"
+        android:id="@+id/userImage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -20,14 +21,13 @@
         android:id="@+id/userName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
         android:layout_marginBottom="24dp"
         android:text="Set Username"
         android:textColor="@color/white"
         android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="@id/userIcon"
-        app:layout_constraintTop_toBottomOf="@id/userIcon" />
+        app:layout_constraintStart_toStartOf="@id/userImage"
+        app:layout_constraintTop_toBottomOf="@id/userImage" />
 
 <!--    <ImageButton-->
 <!--        android:id="@+id/setUsernameImageButton"-->

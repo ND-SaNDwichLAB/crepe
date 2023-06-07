@@ -2,6 +2,14 @@ package com.example.crepe;
 
 import android.app.Dialog;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import com.example.crepe.database.Collector;
@@ -38,8 +46,12 @@ import android.view.MenuItem;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.InputStream;
+import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -78,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
     public static String firebaseInstallationId = null;
 
     private static User currentUser = null;
+    private static Drawable userImage = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,13 +135,41 @@ public class MainActivity extends AppCompatActivity {
         navHeader = sidebarNavView.getHeaderView(0);
 
         TextView userNameTextView = navHeader.findViewById(R.id.userName);
+        ImageView userImageView = navHeader.findViewById(R.id.userImage);
 
-        // get the current stored user from the database, saved in the log in process with google authentication
-        if (dbManager.getAllUsers().size() == 1) {
-            currentUser = dbManager.getAllUsers().get(0);
-            userNameTextView.setText(currentUser.getName());
-            Toast.makeText(this, "Welcome to Crepe, " + currentUser.getName() + "! 🥳🎉🎊", Toast.LENGTH_LONG).show();
+        if (currentUser == null) {
+            // get the current stored user from the database, saved in the log in process with google authentication
+            if (dbManager.getAllUsers().size() == 1) {
+                currentUser = dbManager.getAllUsers().get(0);
+
+                userNameTextView.setText(currentUser.getName());
+                Toast.makeText(this, "Welcome " + currentUser.getName().split(" ")[0] + "! 🥳🎉🎊", Toast.LENGTH_LONG).show();
+            }
         }
+
+        if (userImage == null) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        final Drawable d = loadImageFromUrl(currentUser.getPhotoUrl());
+                        Log.i("Load Image", "Loaded user image successfully");
+
+                        // Update UI in main thread
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                userImageView.setImageDrawable(d);
+                            }
+                        });
+                    } catch (Exception e) {
+                        Log.e("Load Image", "Error loading user image", e);
+                    }
+                }
+            }).start();
+
+        }
+
 
 
         // refresh name
@@ -136,7 +177,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 userNameTextView.setText(currentUser.getName());
-                // TODO add user image
+                if (userImage != null) {
+                    userImageView.setImageDrawable(userImage);
+                }
             }
         };
 
@@ -291,5 +334,46 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         DatabaseManager.getInstance(this.getApplicationContext()).close();
+    }
+
+    public Drawable loadImageFromUrl(String url) {
+        try {
+            InputStream is = (InputStream) new URL(url).getContent();
+            Drawable drawable = Drawable.createFromStream(is, "src name");
+
+            // resize to 108dp
+            // convert dp to pixels
+            float density = getApplicationContext().getResources().getDisplayMetrics().density;
+            int sizeInPixels = (int) (54 * density);
+            // get bitmap from drawable
+            Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
+            // resize bitmap
+            Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, sizeInPixels, sizeInPixels, true);
+            // crop to circle
+            Bitmap output = Bitmap.createBitmap(resizedBitmap.getWidth(), resizedBitmap.getHeight(), Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(output);
+
+            final int color = 0xff424242;
+            final Paint paint = new Paint();
+            final Rect rect = new Rect(0, 0, resizedBitmap.getWidth(), resizedBitmap.getHeight());
+
+            paint.setAntiAlias(true);
+            canvas.drawARGB(0, 0, 0, 0);
+            paint.setColor(color);
+
+            canvas.drawCircle(resizedBitmap.getWidth() / 2, resizedBitmap.getHeight() / 2, resizedBitmap.getWidth() / 2, paint);
+            paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+            canvas.drawBitmap(resizedBitmap, rect, rect, paint);
+
+            // convert back to drawable
+            Drawable outputDrawable = new BitmapDrawable(getApplicationContext().getResources(), output);
+
+
+            Log.i("MainActivity", "Loaded user image successfully");
+            return outputDrawable;
+        } catch (Exception e) {
+            Log.e("MainActivity", "Error loading user image", e);
+            return null;
+        }
     }
 }
