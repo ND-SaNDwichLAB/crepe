@@ -7,7 +7,7 @@ android {
     compileSdkVersion 32
 
     defaultConfig {
-        applicationId "com.example.crepe"
+        applicationId "edu.nd.crepe"
         minSdk 20
         targetSdk 31
         versionCode 1

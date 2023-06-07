@@ -1,20 +1,29 @@
 {
   "project_info": {
     "project_number": "584330047593",
+    "firebase_url": "https://crepe-bfdac-default-rtdb.firebaseio.com",
     "project_id": "crepe-bfdac",
     "storage_bucket": "crepe-bfdac.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:584330047593:android:0a4ac9e0447e9d62e532f8",
+        "mobilesdk_app_id": "1:584330047593:android:a00622ef8c49c280e532f8",
         "android_client_info": {
-          "package_name": "com.example.crepe"
+          "package_name": "edu.nd.crepe"
         }
       },
       "oauth_client": [
         {
-          "client_id": "584330047593-t2t9qupq0svmietejgkitvclcuqv75s2.apps.googleusercontent.com",
+          "client_id": "584330047593-fskurpa76ark7n2ntknhv2vgp4kuqdp6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "edu.nd.crepe",
+            "certificate_hash": "480689e76dd11af9fb4160f8d45e607972d57814"
+          }
+        },
+        {
+          "client_id": "584330047593-1gqh0nd3ekfa289on4i9jlavas2gk565.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
@@ -27,7 +36,7 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "584330047593-t2t9qupq0svmietejgkitvclcuqv75s2.apps.googleusercontent.com",
+              "client_id": "584330047593-1gqh0nd3ekfa289on4i9jlavas2gk565.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

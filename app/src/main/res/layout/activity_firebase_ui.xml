@@ -6,7 +6,7 @@
     android:gravity="center"
     android:orientation="horizontal"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".authentication.Login"
+    tools:context="edu.nd.crepe.authentication.Login"
     >
 
     <EditText
