@@ -257,9 +257,9 @@ public class MainActivity extends AppCompatActivity {
                 // Change this back
                 currentFragment = new HomeFragment();
                 break;
-            case R.id.nav_menu_data:
-                currentFragment = new DataFragment();
-                break;
+//            case R.id.nav_menu_data:
+//                currentFragment = new DataFragment();
+//                break;
             default:
                 Log.i("Menu Selection", "Menu Item Selection Error: no selection detected");
                 break;
