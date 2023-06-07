@@ -723,7 +723,7 @@ public class DemonstrationUtil {
     // store query data to local database
     public static void  storeQueryToDatabase(Context context, List<Pair<OntologyQuery, Double>> defaultQueries){
         // call databaseManager to store the query
-        DatabaseManager dbManager = new DatabaseManager(context);
+        DatabaseManager dbManager = DatabaseManager.getInstance(context);
         FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(context);
 
         Datafield datafield = new Datafield("752916f46f6bcd47+1","2", defaultQueries.get(0).first.toString(),"test", Boolean.TRUE);

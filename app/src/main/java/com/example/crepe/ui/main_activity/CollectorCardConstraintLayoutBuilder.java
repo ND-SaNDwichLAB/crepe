@@ -51,7 +51,7 @@ public class CollectorCardConstraintLayoutBuilder {
     public CollectorCardConstraintLayoutBuilder(Context c, Runnable refreshCollectorListRunnable, Map<String,Drawable> apps) {
         this.c = c;
         this.refreshCollectorListRunnable = refreshCollectorListRunnable;
-        this.dbManager = new DatabaseManager(c);
+        this.dbManager = DatabaseManager.getInstance(c);
         this.apps = apps;
     }
 

@@ -6,12 +6,14 @@ public class User {
 
     private String userId;
     private String name;
+    private String photoUrl;
     private long timeCreated;
     private long timeLastEdited;
 
-    public User(String userId, String name, long timeCreated, long timeLastEdited) {
+    public User(String userId, String name, String photoUrl, long timeCreated, long timeLastEdited) {
         this.userId = userId;
         this.name = name;
+        this.photoUrl = photoUrl;
         this.timeCreated = timeCreated;
         this.timeLastEdited = timeLastEdited;
     }
@@ -30,6 +32,14 @@ public class User {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getPhotoUrl() {
+        return photoUrl;
+    }
+
+    public void setPhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
     }
 
     public long getTimeCreated() {

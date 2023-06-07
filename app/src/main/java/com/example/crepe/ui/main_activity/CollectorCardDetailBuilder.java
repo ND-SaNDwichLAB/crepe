@@ -41,7 +41,7 @@ public class CollectorCardDetailBuilder {
         this.dialogBuilder = new AlertDialog.Builder(c);
         this.collector = collector;
         this.refreshCollectorListRunnable = refreshCollectorListRunnable;
-        this.dbManager = new DatabaseManager(c);
+        this.dbManager = DatabaseManager.getInstance(c);
     }
 
     public Dialog build() {

@@ -82,7 +82,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
         this.collector = collector;
         this.currentScreenState = "buildDialogFromConfig";
         this.refreshCollectorListRunnable = refreshCollectorListRunnable;
-        this.dbManager = new DatabaseManager(context);
+        this.dbManager = DatabaseManager.getInstance(context);
     }
 
     public void updateCurrentView() {
@@ -521,7 +521,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
                         // save the collector to database
                         // add a callback to refresh homepage every time
-                        DatabaseManager dbManager = new DatabaseManager(context);
+                        DatabaseManager dbManager = DatabaseManager.getInstance(context);
                         // store to firebase as well
                         FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(context);
 

@@ -40,7 +40,7 @@ public class CreateCollectorFromConfigDialogBuilder {
     public CollectorConfigurationDialogWrapper buildDialogWrapperWithNewCollector() {
         AlertDialog dialog = builder.create();
 
-        DatabaseManager dbManager = new DatabaseManager(c);
+        DatabaseManager dbManager = DatabaseManager.getInstance(c);
         Integer collectorQuantity = dbManager.getAllCollectors().size();
         String collectorId = String.valueOf(collectorQuantity + 1);
 

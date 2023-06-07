@@ -34,6 +34,8 @@ import androidx.fragment.app.FragmentTransaction;
 import com.example.crepe.databinding.ActivityMainBinding;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.installations.FirebaseInstallations;
 
 import android.view.Menu;
@@ -74,9 +76,12 @@ public class MainActivity extends AppCompatActivity {
     private CreateCollectorFromURLDialogBuilder createCollectorFromURLDialogBuilder;
     private CreateCollectorFromConfigDialogBuilder createCollectorFromConfigDialogBuilder;
 
+    private FirebaseAuth mAuth;
+
     private Fragment currentFragment;
 
     // the unique id extracted from the user's device, used as their user id
+    public static String firebaseUserId = null;
     public static String firebaseInstallationId = null;
 
     @Override
@@ -87,49 +92,17 @@ public class MainActivity extends AppCompatActivity {
 
         final Boolean[] userExists = {false};
 
-        dbManager = new DatabaseManager(this);
+        dbManager = DatabaseManager.getInstance(this.getApplicationContext());
         FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(this);
 
+        mAuth = FirebaseAuth.getInstance();
 
         // TODO remove this line after testing
-        try {
-            dbManager.clearDatabase(this);
-        } catch (Exception e) {
-            Toast.makeText(MainActivity.this, "Error clearing database", Toast.LENGTH_SHORT).show();
-        }
-
-        // Check for the unique Firebase Installation ID, see if it's already in the database
-        // If not, add the new user to database
-        FirebaseInstallations.getInstance().getId().addOnCompleteListener(new OnCompleteListener<String>() {
-            @Override
-            public void onComplete(@NonNull Task<String> task) {
-                if (task.isSuccessful()) {
-                    firebaseInstallationId = task.getResult();
-                    Log.i("MainActivity", "Firebase Installation ID: " + firebaseInstallationId);
-
-                    userExists[0] = dbManager.checkIfUserExists(firebaseInstallationId);
-                    if (!userExists[0]) {
-                        long currentTime = Calendar.getInstance().getTimeInMillis();
-
-                        // Create a new user object, with name being an empty string
-                        User user = new User(firebaseInstallationId, "", currentTime, currentTime);
-                        dbManager.addOneUser(user);
-
-                        try {
-                            firebaseCommunicationManager.putUser(user);
-                            // if successfully added to Firebase, log the success and update the userExists variable
-                            Log.i("Firebase", "Successfully added user to Firebase");
-                            userExists[0] = true;
-                        } catch (Exception e) {
-                            Log.e("Firebase", "Error putting user to Firebase", e);
-                        }
-
-                    }
-                } else {
-                    Log.e("MainActivity", "Error getting Firebase Installation ID.", task.getException());
-                }
-            }
-        });
+//        try {
+//            dbManager.clearDatabase(this);
+//        } catch (Exception e) {
+//            Toast.makeText(MainActivity.this, "Error clearing database", Toast.LENGTH_SHORT).show();
+//        }
 
 
         // load animations
@@ -163,6 +136,7 @@ public class MainActivity extends AppCompatActivity {
         Runnable mainActivityRefreshUsernameRunnable = new Runnable() {
             @Override
             public void run() {
+                // TODO CHANGE THIS
                 userNameTextView.setText(dbManager.getUsername(firebaseInstallationId));
             }
         };
@@ -175,11 +149,13 @@ public class MainActivity extends AppCompatActivity {
                 SetUsernameDialogBuilder nextPopup = new SetUsernameDialogBuilder(currentFragment.getActivity(), firebaseInstallationId, mainActivityRefreshUsernameRunnable);
                 Dialog newDialog = nextPopup.build();
                 newDialog.show();
+                // TODO CHANGE THIS
                 userNameTextView.setText(dbManager.getUsername(firebaseInstallationId));
             }
         });
 
         if (userExists[0]) {
+            // TODO CHANGE THIS
             String username = dbManager.getUsername(firebaseInstallationId);
             if (!username.isEmpty()) {
                 userNameTextView.setText(username);
@@ -335,6 +311,9 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        DatabaseManager.getInstance(this.getApplicationContext()).close();
+    }
 }

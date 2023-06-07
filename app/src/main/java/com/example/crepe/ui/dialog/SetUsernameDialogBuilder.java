@@ -54,7 +54,7 @@ public class SetUsernameDialogBuilder {
                 if (userName.length() > 18){
                     Toast.makeText(c, "Username max length: 18 characters.", Toast.LENGTH_SHORT).show();
                 } else {
-                    DatabaseManager dbManager = new DatabaseManager(c);
+                    DatabaseManager dbManager = DatabaseManager.getInstance(c);
                     dbManager.updateUserName(androidId,userName);
                     List<User> users = dbManager.getAllUsers();
                     User user = users.get(0);
