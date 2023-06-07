@@ -30,7 +30,7 @@ public class FirebaseCommunicationManager {
     private static final String PARTICIPANT = "participant";
     private static final String NONE = "none";
 
-    private DatabaseManager dbManager;
+    private DatabaseManager dbManager;  // TODO Do we need this?
 
 
     public FirebaseCommunicationManager(Context c) {
