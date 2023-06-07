@@ -44,15 +44,17 @@ import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 
 public class CrepeAccessibilityService extends AccessibilityService {
 
-    private static final String TAG = "crepeAccessibilityService: ";
+    private static final String TAG = "crepeAccessibilityService";
 
     private static CrepeAccessibilityService sSharedInstance;
 
@@ -64,18 +66,16 @@ public class CrepeAccessibilityService extends AccessibilityService {
     private FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(this);
 
     // maintain a thread pool inside of the accessibility for running graph queries
-     private ExecutorService threadPool = Executors.newFixedThreadPool(10);
+     private ThreadPoolExecutor threadPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
 
     private WindowManager windowManager;
     private String currentAppActivityName;
     private String currentPackageName;
-    private UISnapshot prevUiSnapshot;  // used to check if the retrieved data exists in the previous frame
+    private Set<SugiliteEntity> prevResults = new HashSet<>(); // used to check if the retrieved data exists in the previous frame
     private UISnapshot uiSnapshot;
     private List<Collector> collectors;
     private List<Datafield> datafields;
     private List<AccessibilityNodeInfo> allNodeList;
-
-    private Boolean savedOnCurrentSnapshot = false;
 
     public UISnapshot getCurrentUiSnapshot() {
         return uiSnapshot;
@@ -116,13 +116,11 @@ public class CrepeAccessibilityService extends AccessibilityService {
                 TYPE_WINDOW_CONTENT_CHANGED,
                 TYPE_VIEW_SCROLLED,
                 TYPE_VIEW_TEXT_SELECTION_CHANGED,
-                TYPE_ANNOUNCEMENT,
-                TYPE_WINDOWS_CHANGED);
+                TYPE_ANNOUNCEMENT);
 
         if (!targetEventTypes.contains(accessibilityEvent.getEventType())) {
             Log.i("accessibilityEvent", accessibilityEvent.getEventType() + " not in the target event list");
         } else {
-            savedOnCurrentSnapshot = false; // because the window content refreshed
 
             // update the list of apps we need to monitor
             List<String> monitoredApps = new ArrayList<>();
@@ -130,60 +128,56 @@ public class CrepeAccessibilityService extends AccessibilityService {
                 monitoredApps.add(collector.getAppPackage());
             }
 
-            // get the current package
-            currentPackageName = accessibilityEvent.getPackageName().toString();
-
+            try {
+                // get the current package
+                currentPackageName = accessibilityEvent.getPackageName().toString();
+            } catch (NullPointerException e) {
+                Log.e(TAG, "Null pointer exception when getting package name");
+                return;
+            }
 
             // update a UISnapshot and all nodes on screen
-            prevUiSnapshot = uiSnapshot;
             uiSnapshot = generateUISnapshot(accessibilityEvent);
             allNodeList = getAllNodesOnScreen();
 
-            if (collectors.size() > 0 && !savedOnCurrentSnapshot) {
-                Log.i("accessibilityEvent", "Accessibility Event Type: " + accessibilityEvent.getEventType() + ", opening a new thread, current count: " + Thread.activeCount());
+            if (collectors.size() > 0) {
+                Log.i("accessibilityEvent", "Accessibility Event Type: " + accessibilityEvent.getEventType() + ", opening a new thread, current count: " + threadPool.getActiveCount());
 
                 // Submit a task to the thread pool
                 threadPool.submit(new Runnable() {
                     @Override
                     public void run() {
-                        Log.i("ThreadPool", "Runnable started");
                         ArrayList<String> collectorIdsToStart = new ArrayList<>();
                         ArrayList<Datafield> datafieldsToStart = new ArrayList<>();
-                        if (collectors != null && datafields != null) {
-                            for (Collector collector : collectors) {
-                                collectorIdsToStart.add(collector.getCollectorId());
-                                // also add the datafields that are associated with this collector
-                                for (Datafield datafield : datafields) {
-                                    if (datafield.getCollectorId().equals(collector.getCollectorId())) {
-                                        datafieldsToStart.add(datafield);
-                                    }
+                        for (Collector collector : collectors) {
+                            collectorIdsToStart.add(collector.getCollectorId());
+                            // also add the datafields that are associated with this collector
+                            for (Datafield datafield : datafields) {
+                                if (datafield.getCollectorId().equals(collector.getCollectorId())) {
+                                    datafieldsToStart.add(datafield);
                                 }
                             }
                         }
 
-                        Log.i("threadpool", "size of datafields to start: " + datafieldsToStart.size());
+                        Log.i("query execution", "collectorIdsToStart: " + collectorIdsToStart.toString());
+                        Log.i("query execution", "datafieldsToStart: " + datafieldsToStart.toString());
 
                         // for each datafield, run the graph query on the uiSnapshot
-                        if (datafieldsToStart.size() > 0) {
-                            for (Datafield datafield : datafieldsToStart) {
-                                Log.i("threadpool", "starting for datafield: " + datafield.getDataFieldId());
-                                // Start a new graph query thread and execute the graph query
-                                // 1. convert the graph query string to a graph query object
-                                OntologyQuery currentQuery = OntologyQuery.deserialize(datafield.getGraphQuery());
-                                Log.i("threadpool", "current query: " + currentQuery);
-                                // 2. run the graph query on the uiSnapshot
-                                Set<SugiliteEntity> prevResults = currentQuery.executeOn(prevUiSnapshot);
-                                Log.i("threadpool", "prev results: " + prevResults);
-                                Set<SugiliteEntity> currentResults = currentQuery.executeOn(uiSnapshot);
-                                Log.i("threadpool", "current results: " + currentResults);
+                        for (Datafield datafield : datafieldsToStart) {
+                            Log.i("query execution", "starting datafield: " + datafield.toString());
+                            // Start a new graph query thread and execute the graph query
+                            // 1. convert the graph query string to a graph query object
+                            OntologyQuery currentQuery = OntologyQuery.deserialize(datafield.getGraphQuery());
+                            // 2. run the graph query on the uiSnapshot
+                            Set<SugiliteEntity> currentResults = currentQuery.executeOn(uiSnapshot);
+                            Log.i("query execution", "currentResults: " + currentResults);
 
-                                Log.i("threadpool", "prev results: " + prevResults);
-                                Log.i("threadpool", "current results: " + currentResults);
-
-                                // 3. store the new results in the database
-                                for (SugiliteEntity result : currentResults) {
-//                                    if (!prevResults.contains(result)) {
-                                    if (!savedOnCurrentSnapshot) {
+                            // 3. store the new results in the database
+                            for (SugiliteEntity result : currentResults) {
+                                Log.i("query execution", "result: " + result);
+                                Log.i("query execution", "prevResults: " + prevResults);
+                                Log.i("query execution", "prevResults.contains(result): " + prevResults.contains(result));
+                                    if (!prevResults.contains(result)) {
                                         // if the result is not in the previous results, add it to the database
                                         long timestamp = System.currentTimeMillis();
                                         // the data id is the collector id + "%" + timestamp
@@ -191,14 +185,13 @@ public class CrepeAccessibilityService extends AccessibilityService {
                                         Boolean addDataResult = false;
                                         try {
                                             addDataResult = dbManager.addData(resultData);
-                                            savedOnCurrentSnapshot = true;
                                             Log.i("database", "added data: " + resultData);
 
                                             // send the data to firebase
-                                            firebaseCommunicationManager.putData(resultData).addOnSuccessListener(suc->{
-                                                Log.i("Firebase","Successfully added collector " + resultData.getDataContent() + " to firebase.");
-                                            }).addOnFailureListener(er->{
-                                                Log.e("Firebase","Failed to add collector " + resultData.getDataContent() + " to firebase.");
+                                            firebaseCommunicationManager.putData(resultData).addOnSuccessListener(suc -> {
+                                                Log.i("Firebase", "Successfully added collector " + resultData.getDataContent() + " to firebase.");
+                                            }).addOnFailureListener(er -> {
+                                                Log.e("Firebase", "Failed to add collector " + resultData.getDataContent() + " to firebase.");
                                             });
 
                                         } catch (Exception e) {
@@ -206,12 +199,11 @@ public class CrepeAccessibilityService extends AccessibilityService {
                                             e.printStackTrace();
                                         }
                                     }
-                                }
-
                             }
+                            prevResults = currentResults;
 
                         }
-                        Log.i("ThreadPool", "Runnable finished");
+
                     }
 
                 });
@@ -239,7 +231,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
                 currentPackageName = activityInfo.packageName;
             } catch (PackageManager.NameNotFoundException e) {
                 //e.printStackTrace();
-                Log.e(this.getClass().getName(), "Failed to get the activity name for: " + componentName);
+                Log.e(TAG, "Failed to get the activity name for: " + componentName);
             }
         }
 

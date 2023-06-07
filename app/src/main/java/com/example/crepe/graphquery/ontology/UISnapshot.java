@@ -89,26 +89,6 @@ public class UISnapshot {
         this.entityIdCounter = 0;
     }
 
-    //construct a UISnapshot for a list of windows
-    public UISnapshot(Display display, List<AccessibilityWindowInfo> windows, boolean toConstructNodeAccessibilityNodeInfoMap, String activePackageName, String activeActivityName) {
-        this(display);
-        this.packageName = activePackageName;
-        this.activityName = activeActivityName;
-
-        List<Node> allNodes = new ArrayList<>();
-        for(AccessibilityWindowInfo window : windows){
-            AccessibilityNodeInfo rootNode = window.getRoot();
-            if(rootNode != null) {
-                allNodes.addAll(preOrderNodeTraverseWithZIndex(rootNode, toConstructNodeAccessibilityNodeInfoMap, window.getLayer(), new ArrayList<>(), activePackageName, activeActivityName));
-            }
-        }
-
-        long startTime = System.currentTimeMillis();
-        constructFromListOfNodes(allNodes);
-        long stopTime = System.currentTimeMillis();
-        Log.v(TAG, String.format("Constructed from List of %d Nodes! -- Takes %s ms", allNodes.size(), String.valueOf(stopTime - startTime)));
-    }
-
     //construct a UISnapshot from a rootNode
     public UISnapshot(Display display, AccessibilityNodeInfo rootNode, boolean toConstructNodeAccessibilityNodeInfoMap, String activePackageName, String activeActivityName) {
         this(display);
@@ -117,17 +97,15 @@ public class UISnapshot {
 
         List<AccessibilityNodeInfo> allOldNodes = DemonstrationUtil.preOrderTraverse(rootNode);
         List<Node> allNodes = new ArrayList<>();
-        if(allOldNodes != null) {
+        if(allOldNodes != null && activePackageName != null) {
             for (AccessibilityNodeInfo oldNode : allOldNodes) {
-                if (activePackageName != null) {
-                    Node node = new Node(oldNode, activePackageName.equals(oldNode.getPackageName()) ? activeActivityName : null);
-                    if (node.getPackageName() != null && (node.getPackageName().contains("com.android.systemui") || node.getPackageName().contains("crepe"))) {
-                        continue;
-                    }
-                    allNodes.add(node);
-                    if (toConstructNodeAccessibilityNodeInfoMap) {
-                        nodeAccessibilityNodeInfoMap.put(node, oldNode);
-                    }
+                Node node = new Node(oldNode, activePackageName.equals(oldNode.getPackageName()) ? activeActivityName : null);
+                if (node.getPackageName() != null && (node.getPackageName().contains("com.android.systemui") || node.getPackageName().contains("crepe"))) {
+                    continue;
+                }
+                allNodes.add(node);
+                if (toConstructNodeAccessibilityNodeInfoMap) {
+                    nodeAccessibilityNodeInfoMap.put(node, oldNode);
                 }
             }
         }

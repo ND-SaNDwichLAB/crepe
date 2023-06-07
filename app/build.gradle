@@ -75,14 +75,14 @@ dependencies {
         exclude group: 'javax.xml.bind', module: 'jaxb-api'
         exclude group: 'com.sun.xml.bind', module: 'jaxb-impl'
     }
-    implementation platform('com.google.firebase:firebase-bom:30.3.1')
+
+    implementation platform('com.google.firebase:firebase-bom:32.1.0')
     implementation 'com.google.firebase:firebase-analytics'
+    implementation 'com.google.firebase:firebase-database'
     // Add the dependencies for any other desired Firebase products
     // https://firebase.google.com/docs/android/setup#available-libraries
     implementation 'com.firebaseui:firebase-ui-auth:7.2.0'
-    implementation platform('com.google.firebase:firebase-bom:32.1.0')
     implementation 'com.google.firebase:firebase-auth'
     implementation 'com.google.android.gms:play-services-auth:20.5.0'
-
 
 }

@@ -2,7 +2,6 @@ package com.example.crepe;
 
 import android.app.Dialog;
 import android.content.pm.PackageManager;
-import android.provider.Settings;
 import android.os.Bundle;
 
 import com.example.crepe.database.Collector;
@@ -25,7 +24,6 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.util.Log;
-import android.util.Pair;
 import android.view.View;
 
 import androidx.core.view.GravityCompat;
@@ -48,9 +46,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -200,8 +196,8 @@ public class MainActivity extends AppCompatActivity {
 
         // get the fab icons
         fabBtn = findViewById(R.id.fab);
-        addUrlBtn = findViewById(R.id.fab_list);
-        createNewBtn = findViewById(R.id.fab_draw_frame);
+        addUrlBtn = findViewById(R.id.fab_add_from_url);
+        createNewBtn = findViewById(R.id.fab_create_new);
 
 
         addUrlBtn.setOnClickListener(new View.OnClickListener() {

@@ -100,7 +100,6 @@ public class CreateCollectorFromURLDialogBuilder {
                     });
 
 
-                    // next popup
                     dialog.dismiss();
 //                    CreateCollectorFromURLDialogSuccessMessage nextPopup = new CreateCollectorFromURLDialogSuccessMessage(c);
 //                    nextPopup.build();
