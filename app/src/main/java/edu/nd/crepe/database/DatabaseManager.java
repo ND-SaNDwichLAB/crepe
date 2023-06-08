@@ -24,7 +24,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     public static final String COLUMN_CREATOR_USER_ID = "creatorUserId";
     public static final String COLUMN_APP_NAME = "appName";
     public static final String COLUMN_APP_PACKAGE = "appPackage";
-    public static final String COLUMN_NAME = "name";
+    public static final String COLUMN_DESCRIPTION = "description";
     public static final String COLUMN_COLLECTOR_START_TIME = "collectorStartTime";
     public static final String COLUMN_COLLECTOR_END_TIME = "collectorEndTime";
     public static final String COLUMN_MODE = "mode";
@@ -59,7 +59,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             "            " + COLUMN_CREATOR_USER_ID + " VARCHAR, " +
             "            " + COLUMN_APP_NAME + " VARCHAR, " +
             "            " + COLUMN_APP_PACKAGE + " VARCHAR, " +
-            "            " + COLUMN_NAME + " VARCHAR, " +
+            "            " + COLUMN_DESCRIPTION + " VARCHAR, " +
             "            " + COLUMN_MODE + " VARCHAR, " +
             "            " + COLUMN_TARGET_SERVER_IP + " VARCHAR, " +
             "            " + COLUMN_COLLECTOR_START_TIME + " BIGINT, " +
@@ -121,20 +121,12 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return instance;
     }
 
-    // clear all 4 tables in the database
-    public void clearDatabase(Context c) {
-
-        for(String tableName: tableList) {
-            db.delete(tableName, "1", null);
-        }
-        Toast.makeText(c, "Clear database success!", Toast.LENGTH_SHORT).show();
-    }
 
     public Boolean addOneCollector(Collector collector) {
         ContentValues cv = new ContentValues();
         cv.put(COLUMN_COLLECTOR_ID, collector.getCollectorId());
         cv.put(COLUMN_CREATOR_USER_ID, collector.getCreatorUserId());
-        cv.put(COLUMN_NAME, collector.getDescription());
+        cv.put(COLUMN_DESCRIPTION, collector.getDescription());
         cv.put(COLUMN_APP_NAME, collector.getAppName());
         cv.put(COLUMN_APP_PACKAGE, collector.getAppPackage());
         cv.put(COLUMN_MODE, collector.getMode());
@@ -176,13 +168,13 @@ public class DatabaseManager extends SQLiteOpenHelper {
                 String creatorUserID = cursor.getString(1);
                 String appName = cursor.getString(2);
                 String appPackage = cursor.getString(3);
-                String name = cursor.getString(4);
+                String description = cursor.getString(4);
                 String mode = cursor.getString(5);
                 String targetServerIP = cursor.getString(6);
                 long collectorStartTime = cursor.getLong(7);
                 long collectorEndTime = cursor.getLong(8);
                 String collectorStatus = cursor.getString(9);
-                Collector receivedCollector = new Collector(collectorID, creatorUserID, appName, appPackage, name, mode, collectorStartTime, collectorEndTime, collectorStatus);
+                Collector receivedCollector = new Collector(collectorID, creatorUserID, appName, appPackage, description, mode, collectorStartTime, collectorEndTime, collectorStatus);
                 collectorList.add(receivedCollector);
 
             } while(cursor.moveToNext());
@@ -509,7 +501,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     }
 
     // update statuses for all collectors to database;
-    // yeah this is not the most efficient, but there won't be that many collectors anyways
+    // this is not the most efficient, but there won't be that many collectors anyways
     public void updateCollectorStatus(Collector collector) {
         String updateStatement = "UPDATE " + COLLECTOR_TABLE + " SET " + COLUMN_COLLECTOR_STATUS + " =\'" + collector.getCollectorStatus() + "\' WHERE " + COLUMN_COLLECTOR_ID + "=\'" + collector.getCollectorId() + "\'";
         Cursor c = db.rawQuery(updateStatement, null);
@@ -517,7 +509,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
     }
 
 
-    // a function that retrieve collectors that has active status
     public List<Collector> getActiveCollectors() {
         List<Collector> collectorList = new ArrayList<>();
         String getActiveCollectorsQuery = "SELECT * FROM " + COLLECTOR_TABLE + " WHERE " + COLUMN_COLLECTOR_STATUS + " = \"active\";";
@@ -531,13 +522,13 @@ public class DatabaseManager extends SQLiteOpenHelper {
                 String creatorUserID = cursor.getString(1);
                 String appName = cursor.getString(2);
                 String appPackage = cursor.getString(3);
-                String name = cursor.getString(4);
+                String description = cursor.getString(4);
                 String mode = cursor.getString(5);
                 String targetServerIP = cursor.getString(6);
                 long collectorStartTime = cursor.getLong(7);
                 long collectorEndTime = cursor.getLong(8);
                 String collectorStatus = cursor.getString(9);
-                Collector receivedCollector = new Collector(collectorID, creatorUserID, appName, appPackage, name, mode, collectorStartTime, collectorEndTime, collectorStatus);
+                Collector receivedCollector = new Collector(collectorID, creatorUserID, appName, appPackage, description, mode, collectorStartTime, collectorEndTime, collectorStatus);
                 collectorList.add(receivedCollector);
 
             } while(cursor.moveToNext());
@@ -563,13 +554,13 @@ public class DatabaseManager extends SQLiteOpenHelper {
             String creatorUserID = cursor.getString(1);
             String appName = cursor.getString(2);
             String appPackage = cursor.getString(3);
-            String name = cursor.getString(4);
+            String description = cursor.getString(4);
             String mode = cursor.getString(5);
             String targetServerIP = cursor.getString(6);
             long collectorStartTime = cursor.getLong(7);
             long collectorEndTime = cursor.getLong(8);
             String collectorStatus = cursor.getString(9);
-            Collector receivedCollector = new Collector(collectorID, creatorUserID, appName, appPackage, name, mode, collectorStartTime, collectorEndTime, collectorStatus);
+            Collector receivedCollector = new Collector(collectorID, creatorUserID, appName, appPackage, description, mode, collectorStartTime, collectorEndTime, collectorStatus);
             cursor.close();
             return receivedCollector;
         }

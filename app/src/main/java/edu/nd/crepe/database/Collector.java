@@ -13,7 +13,7 @@ public class Collector {
     private String creatorUserId;
     private String appName;
     private String appPackage;
-    private String description; // description of the collector, the field in the database is actually called name *facepalm*
+    private String description;
     private String mode;
     private String targetServerIp;
     private long collectorStartTime;
@@ -72,6 +72,8 @@ public class Collector {
     public Collector(String collectorId) {
         this.collectorId = collectorId;
     }
+
+    public Collector() {}
 
     @Override
     public String toString() {

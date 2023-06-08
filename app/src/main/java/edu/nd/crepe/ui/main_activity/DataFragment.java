@@ -36,7 +36,7 @@ public class DataFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         dbManager = DatabaseManager.getInstance(this.getActivity().getApplicationContext());
-        collectorList = dbManager.getAllCollectors();
+        collectorList = dbManager.getActiveCollectors();
         return inflater.inflate(R.layout.fragment_data, container, false);
     }
 

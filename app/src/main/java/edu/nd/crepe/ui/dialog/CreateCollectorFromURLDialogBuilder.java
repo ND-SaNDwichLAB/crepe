@@ -58,8 +58,6 @@ public class CreateCollectorFromURLDialogBuilder {
         popupNextBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // download collector from URL
-                Gson gson = new Gson();
                 // show the keyboard when edittext is clicked
                 InputMethodManager imm = (InputMethodManager) c.getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);

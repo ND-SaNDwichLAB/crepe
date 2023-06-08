@@ -98,13 +98,6 @@ public class MainActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
-        // TODO remove this line after testing
-//        try {
-//            dbManager.clearDatabase(this);
-//        } catch (Exception e) {
-//            Toast.makeText(MainActivity.this, "Error clearing database", Toast.LENGTH_SHORT).show();
-//        }
-
 
         // load animations
         top_appear_anim = AnimationUtils.loadAnimation( this, R.anim.top_appear);

@@ -23,11 +23,7 @@ public class CreateCollectorFromConfigDialogBuilder {
     public CollectorConfigurationDialogWrapper buildDialogWrapperWithNewCollector() {
         AlertDialog dialog = builder.create();
 
-        DatabaseManager dbManager = DatabaseManager.getInstance(c);
-        Integer collectorQuantity = dbManager.getAllCollectors().size();
-        String collectorId = String.valueOf(collectorQuantity + 1);
-
-        collectorConfigurationDialogWrapper = new CollectorConfigurationDialogWrapper(c, dialog,  new Collector(collectorId), refreshCollectorListRunnable);
+        collectorConfigurationDialogWrapper = new CollectorConfigurationDialogWrapper(c, dialog,  new Collector(), refreshCollectorListRunnable);
         return collectorConfigurationDialogWrapper;
     }
 

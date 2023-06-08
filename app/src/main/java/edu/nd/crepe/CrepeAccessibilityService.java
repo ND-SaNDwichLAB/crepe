@@ -81,7 +81,6 @@ public class CrepeAccessibilityService extends AccessibilityService {
         refreshCollector();
     }
 
-    // TODO Yuwen Do we really need this?
     public void refreshCollector() {
         // retrieve all stored collectors and datafields
         collectors = dbManager.getActiveCollectors();
@@ -175,9 +174,8 @@ public class CrepeAccessibilityService extends AccessibilityService {
                                         long timestamp = System.currentTimeMillis();
                                         // the data id is the collector id + "%" + timestamp
                                         Data resultData = new Data(datafield.getCollectorId() + "%" + timestamp, datafield.getDataFieldId(), MainActivity.currentUser.getUserId(), result.saveToDatabaseAsString());
-                                        Boolean addDataResult = false;
                                         try {
-                                            addDataResult = dbManager.addData(resultData);
+                                            dbManager.addData(resultData);
                                             Log.i("database", "added data: " + resultData);
 
                                             // send the data to firebase

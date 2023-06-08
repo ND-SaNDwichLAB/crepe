@@ -30,13 +30,9 @@ public class FirebaseCommunicationManager {
     private static final String PARTICIPANT = "participant";
     private static final String NONE = "none";
 
-    private DatabaseManager dbManager;  // TODO Do we need this?
-
-
     public FirebaseCommunicationManager(Context c) {
         this.db = FirebaseDatabase.getInstance();
         this.context = c;
-        dbManager = DatabaseManager.getInstance(context);
     }
 
     public Task<Void> putCollector(Collector collector){
