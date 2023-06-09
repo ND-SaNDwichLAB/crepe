@@ -138,24 +138,8 @@ public class GoogleLoginActivity extends AppCompatActivity {
                                               // generate a random name for the user
                                               Random rand = new Random();
                                               String randomName = "Anonymous " + randomNameList[rand.nextInt(randomNameList.length)];
-
-                                              // generate a hash for the user id from firebase for anonymity
-                                              MessageDigest digest = null;
-                                              try {
-                                                  digest = MessageDigest.getInstance("SHA-256");
-                                                  byte[] encodedhash = digest.digest(user.getUid().getBytes(StandardCharsets.UTF_8));
-
-                                                  String hashedUserId = bytesToHex(encodedhash);
-                                                  Log.i(TAG, "Successfully hashed user id: " + hashedUserId);
-                                                  createNewUser(hashedUserId, randomName, "");
-
-                                              } catch (NoSuchAlgorithmException e) {
-                                                  // else, just use the original user id
-                                                  Log.e(TAG, "onSuccess: SHA-256 algorithm not found, using default user ID: " + user.getUid());
-                                                  createNewUser(user.getUid(), randomName, "");
-
-                                                  throw new RuntimeException(e);
-                                              }
+                                              // only the admin of this application can retrieve user profile from the uid, so users' privacy is protected
+                                              createNewUser(user.getUid(), randomName, "");
 
                                               if (authResult.getAdditionalUserInfo().isNewUser()) {
                                                   Log.d(TAG, "onSuccess: New User");
