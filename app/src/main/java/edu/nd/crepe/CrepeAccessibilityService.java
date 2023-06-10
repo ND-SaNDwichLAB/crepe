@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.atomic.AtomicLong;
 
 
 public class CrepeAccessibilityService extends AccessibilityService {
@@ -135,6 +136,9 @@ public class CrepeAccessibilityService extends AccessibilityService {
             if (collectors.size() > 0) {
                 Log.i("accessibilityEvent", "Accessibility Event Type: " + accessibilityEvent.getEventType() + ", opening a new thread, current count: " + threadPool.getActiveCount());
 
+                // use this as a time window to determine if we should save the result
+                AtomicLong lastSavedResultTimestamp = new AtomicLong(0);
+
                 // Submit a task to the thread pool
                 threadPool.submit(new Runnable() {
                     @Override
@@ -169,11 +173,12 @@ public class CrepeAccessibilityService extends AccessibilityService {
                                 Log.i("query execution", "result: " + result);
                                 Log.i("query execution", "prevResults: " + prevResults);
                                 Log.i("query execution", "prevResults.contains(result): " + prevResults.contains(result));
-                                    if (!prevResults.contains(result)) {
+                                    if (!prevResults.contains(result) && System.currentTimeMillis() - lastSavedResultTimestamp.get() > 1000) {
                                         // if the result is not in the previous results, add it to the database
                                         long timestamp = System.currentTimeMillis();
                                         // the data id is the collector id + "%" + timestamp
                                         Data resultData = new Data(datafield.getCollectorId() + "%" + timestamp, datafield.getDataFieldId(), MainActivity.currentUser.getUserId(), result.saveToDatabaseAsString());
+
                                         try {
                                             dbManager.addData(resultData);
                                             Log.i("database", "added data: " + resultData);
@@ -184,6 +189,9 @@ public class CrepeAccessibilityService extends AccessibilityService {
                                             }).addOnFailureListener(er -> {
                                                 Log.e("Firebase", "Failed to add collector " + resultData.getDataContent() + " to firebase.");
                                             });
+
+                                            // update the last saved result timestamp
+                                            lastSavedResultTimestamp.set(System.currentTimeMillis());
 
                                         } catch (Exception e) {
                                             Log.i("database", "failed to add data: " + resultData.toString());
