@@ -119,7 +119,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                 // When coming back from later popups using back button, if there's previously a selection made
                 if (collector.getAppName() != null) {
                     for (int i = 0; i < appItems.length; i++) {
-                        if (collector.getAppName() == appItems[i])
+                        if (collector.getAppName().equals(appItems[i]))
                             appDropDown.setSelection(i);
                     }
 
@@ -360,7 +360,6 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                             }
 
                             // launch the app
-                            String currPackageName = context.getPackageName();
                             Intent launchIntent = context.getPackageManager().getLaunchIntentForPackage(packageName);
                             if (launchIntent != null) {
                                 context.startActivity(launchIntent);
@@ -607,6 +606,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         ClipData clip = ClipData.newPlainText("share URL", collector.getCollectorId());
                         clipboard.setPrimaryClip(clip);
                         Toast.makeText(context,"collector ID copied to clipboard " + collector.getCollectorId(), Toast.LENGTH_LONG).show();
+                        currentScreenState = "dismissed";
                     }
                 });
 
@@ -616,14 +616,16 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                     public void onClick(View view) {
 
                         // update currentScreen String value
-                        currentScreenState = "buildDialogFromConfigSuccessMessage";
-                        // recursively call itself with new currentScreen String value
+                        currentScreenState = "dismissed";
                         dialog.dismiss();
 
                     }
                 });
                 break;
 
+            case "dismissed":
+                // do nothing
+                break;
 
             default:
                 throw new IllegalStateException("Unexpected value: " + currentScreenState);
@@ -746,5 +748,17 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                 Log.e("Dialog", "datafieldContainerLinearLayout is null");
             }
         }
+    }
+
+    public String getCurrentScreenState() {
+        return dialog.isShowing() ? currentScreenState : null;
+    }
+
+    public void setCurrentScreenState(String currentScreenState) {
+        this.currentScreenState = currentScreenState;
+    }
+
+    public Collector getCurrentCollector() {
+        return collector;
     }
 }

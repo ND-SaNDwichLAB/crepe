@@ -1,6 +1,7 @@
 package edu.nd.crepe;
 
 import android.app.Dialog;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -41,6 +42,7 @@ import edu.nd.crepe.databinding.ActivityMainBinding;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.gson.Gson;
 
 import android.view.Menu;
 import android.view.MenuItem;
@@ -87,6 +89,8 @@ public class MainActivity extends AppCompatActivity {
     // the unique id extracted from the user's device, used as their user id
     public static User currentUser = null;
     public static Drawable userImage = null;
+
+    private CollectorConfigurationDialogWrapper wrapper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -207,6 +211,15 @@ public class MainActivity extends AppCompatActivity {
         addUrlBtn = findViewById(R.id.fab_add_from_url);
         createNewBtn = findViewById(R.id.fab_create_new);
 
+        fabBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                clicked = !clicked;
+                Log.i(null, "clicked value: " + clicked);
+                setAnimation(clicked);
+            }
+        });
+
 
         addUrlBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -228,13 +241,26 @@ public class MainActivity extends AppCompatActivity {
                 clicked = !clicked;
                 setAnimation(clicked);
 
-                CollectorConfigurationDialogWrapper wrapper = createCollectorFromConfigDialogBuilder.buildDialogWrapperWithNewCollector();
+                wrapper = createCollectorFromConfigDialogBuilder.buildDialogWrapperWithNewCollector();
                 wrapper.show();
             }
         });
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
 
+        SharedPreferences sharedPreferences = getSharedPreferences("prefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        if (wrapper != null) {
+            editor.putString("screen_state", wrapper.getCurrentScreenState());
+            editor.putString("collector", new Gson().toJson(wrapper.getCurrentCollector()));
+        }
+
+        editor.apply();
+    }
 
     // a function to switch between fragments using the navDrawer
     private void displaySelectedScreen(int itemId) {
@@ -268,15 +294,19 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        fabBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                clicked = !clicked;
-                Log.i(null, "clicked value: " + clicked);
-                setAnimation(clicked);
-            }
-        });
+        SharedPreferences sharedPreferences = getSharedPreferences("prefs", MODE_PRIVATE);
+
+        String screenState = sharedPreferences.getString("screen_state", null);
+        String collectorJson = sharedPreferences.getString("collector", null);
+
+        if (screenState != null && !screenState.equals("dismissed") && collectorJson != null) {
+            Collector prevCollector = new Gson().fromJson(collectorJson, Collector.class);
+            wrapper = createCollectorFromConfigDialogBuilder.buildDialogWrapperWithExistingCollector(prevCollector);
+            wrapper.setCurrentScreenState(screenState);
+            wrapper.show();
+        }
     }
+
 
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {

@@ -2,13 +2,14 @@ package edu.nd.crepe.database;
 
 import android.util.Log;
 
+import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import java.util.TimeZone;
 
-public class Collector {
+public class Collector implements Serializable {
     private String collectorId;
     private String creatorUserId;
     private String appName;
