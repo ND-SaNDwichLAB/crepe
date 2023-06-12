@@ -21,7 +21,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="48dp"
-        android:layout_marginTop="36dp"
+        android:layout_marginTop="32dp"
         android:text="Data Fields"
         android:textSize="20sp"
         app:layout_constraintStart_toStartOf="parent"
@@ -57,48 +57,55 @@
 <!--        app:layout_constraintStart_toStartOf="@+id/collectorResearcherContactTitle"-->
 <!--        app:layout_constraintTop_toBottomOf="@+id/collectorResearcherContactTitle" />-->
 
-    <Button
-        android:id="@+id/collectorDeleteButton"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="24dp"
-        android:background="@android:color/transparent"
-        android:text="DELETE"
-        android:textColor="@color/gray"
-        android:textColorHint="@color/gray"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="48dp"
+        android:padding="24dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/collectorShareButton"
-        app:layout_constraintTop_toBottomOf="@+id/collectorDetailDataField"
-        app:layout_constraintVertical_bias="0.501" />
-
-    <Button
-        android:id="@+id/collectorShareButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:background="@android:color/transparent"
-        android:text="SHARE"
-        android:textColor="@color/ND_blue"
-        android:textColorHint="@color/ND_blue"
-        app:layout_constraintBottom_toBottomOf="@+id/collectorDeleteButton"
-        app:layout_constraintEnd_toStartOf="@+id/collectorCloseButton"
-        app:layout_constraintTop_toTopOf="@+id/collectorDeleteButton"
-        app:layout_constraintVertical_bias="0.501" />
-
-    <Button
-        android:id="@+id/collectorCloseButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="24dp"
-        android:background="@android:color/transparent"
-        android:text="DONE"
-        android:textColor="@color/ND_gold"
-        android:textColorHint="@color/ND_gold"
-        app:layout_constraintBottom_toBottomOf="@+id/collectorShareButton"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/collectorShareButton" />
+        app:layout_constraintStart_toStartOf="@+id/collectorDetailDataField"
+        app:layout_constraintTop_toBottomOf="@id/collectorDetailDataField">
+
+        <Button
+            android:id="@+id/collectorDeleteButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:text="DELETE"
+            android:textColor="@color/gray"
+            android:textColorHint="@color/gray"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/collectorShareButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:text="SHARE"
+            android:textColor="@color/ND_blue"
+            android:textColorHint="@color/ND_blue"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/collectorCloseButton"
+            app:layout_constraintStart_toEndOf="@+id/collectorDeleteButton"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/collectorCloseButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:text="DONE"
+            android:textColor="@color/ND_gold"
+            android:textColorHint="@color/ND_gold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 <!--    <Switch-->
 <!--        android:id="@+id/collectorStatusSwitch"-->
