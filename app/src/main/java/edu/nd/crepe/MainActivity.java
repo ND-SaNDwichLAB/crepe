@@ -26,6 +26,7 @@ import edu.nd.crepe.network.FirebaseCommunicationManager;
 import edu.nd.crepe.ui.dialog.CollectorConfigurationDialogWrapper;
 import edu.nd.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilder;
 import edu.nd.crepe.ui.dialog.CreateCollectorFromURLDialogBuilder;
+import edu.nd.crepe.ui.main_activity.FabModalBottomSheet;
 import edu.nd.crepe.ui.main_activity.HomeFragment;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -46,6 +47,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import edu.nd.crepe.databinding.ActivityMainBinding;
+
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
@@ -221,9 +223,13 @@ public class MainActivity extends AppCompatActivity {
         fabBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                clicked = !clicked;
-                Log.i(null, "clicked value: " + clicked);
-                setAnimation(clicked);
+//                clicked = !clicked;
+//                Log.i(null, "clicked value: " + clicked);
+//                setAnimation(clicked);
+
+                FabModalBottomSheet modalBottomSheet = new FabModalBottomSheet();
+                modalBottomSheet.show(getSupportFragmentManager(), FabModalBottomSheet.TAG);
+
             }
         });
 

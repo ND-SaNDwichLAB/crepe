@@ -22,4 +22,9 @@
     <string name="invalid_username">Not a valid username</string>
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
+    <string name="button_for_add_new_collector">button for add new collector</string>
+    <string name="add_new_collector_icon">add new collector icon</string>
+    <string name="fab_button_create_new_collector">Initiate a new collector for your experiment</string>
+    <string name="fab_button_new_collector_title">Create New</string>
+    <string name="add_existing_collector_icon">add existing collector icon</string>
 </resources>
