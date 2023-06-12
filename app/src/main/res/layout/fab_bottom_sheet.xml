@@ -5,42 +5,44 @@
 
     <FrameLayout
         android:id="@+id/standard_bottom_sheet"
-        style="@style/Widget.Material3.BottomSheet"
         app:behavior_hideable="true"
-        android:layout_height="match_parent"
+        app:behavior_peekHeight="260dp"
+        android:layout_height="260dp"
         android:layout_width="match_parent"
+        android:background="@drawable/rounded_corner_top_transparent"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
 
-
-        <!-- Drag handle for accessibility -->
-        <com.google.android.material.bottomsheet.BottomSheetDragHandleView
-            android:id="@+id/drag_handle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="5dp"
+            android:background="@drawable/drag_handle_background"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="16dp"/>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/bottom_sheet_content"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/white">
-
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="32dp"
+            android:background="@android:color/transparent">
 
 
             <LinearLayout
                 android:id="@+id/create_new_collector"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="8dp"
                 android:background="@drawable/ripple_drawable"
                 android:clickable="true"
                 android:elevation="4dp"
                 android:focusable="true"
                 android:gravity="center_horizontal"
                 android:orientation="vertical"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp"
-                app:layout_constraintBottom_toBottomOf="@id/vertical_guideline"
+                android:padding="8dp"
                 app:layout_constraintEnd_toStartOf="@+id/add_existing_collector"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
@@ -49,7 +51,7 @@
                     android:id="@+id/create_new_collector_icon"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:layout_marginBottom="20dp"
+                    android:layout_marginBottom="24dp"
                     android:contentDescription="@string/add_new_collector_icon"
                     app:srcCompat="@drawable/ic_edit_dark" />
 
@@ -57,7 +59,7 @@
                     android:id="@+id/create_new_collector_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="10dp"
+                    android:layout_marginBottom="16dp"
                     android:text="@string/fab_button_new_collector_title"
                     android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 
@@ -65,34 +67,28 @@
                     android:id="@+id/create_new_collector_description"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="10dp"
+                    android:layout_marginBottom="16dp"
                     android:gravity="center_horizontal"
                     android:text="@string/fab_button_create_new_collector"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small" />
             </LinearLayout>
 
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/vertical_guideline"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.48" />
 
 
             <LinearLayout
                 android:id="@+id/add_existing_collector"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="16dp"
                 android:background="@drawable/ripple_drawable"
                 android:clickable="true"
                 android:elevation="4dp"
                 android:focusable="true"
                 android:gravity="center_horizontal"
                 android:orientation="vertical"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp"
-                app:layout_constraintBottom_toBottomOf="@id/vertical_guideline"
+                android:padding="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/create_new_collector"
                 app:layout_constraintTop_toTopOf="parent">
@@ -101,7 +97,7 @@
                     android:id="@+id/add_existing_collector_icon"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:layout_marginBottom="20dp"
+                    android:layout_marginBottom="24dp"
                     android:contentDescription="@string/add_existing_collector_icon"
                     app:srcCompat="@drawable/ic_link_dark" />
 
@@ -109,7 +105,7 @@
                     android:id="@+id/add_existing_collector_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="10dp"
+                    android:layout_marginBottom="16dp"
                     android:text="Add Existing"
                     android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 
@@ -117,7 +113,7 @@
                     android:id="@+id/add_existing_collector_description"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="10dp"
+                    android:layout_marginBottom="16dp"
                     android:gravity="center_horizontal"
                     android:text="Join experiment with a provided ID"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small" />

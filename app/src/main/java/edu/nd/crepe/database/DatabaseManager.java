@@ -573,7 +573,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         }
     }
 
-    public void close() {
+    public void closeDatabase() {
         if (db != null) {
             db.close();
         }

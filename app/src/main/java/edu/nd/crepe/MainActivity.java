@@ -381,7 +381,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        DatabaseManager.getInstance(this.getApplicationContext()).close();
+        DatabaseManager.getInstance(this.getApplicationContext()).closeDatabase();
     }
 
     public Drawable loadImageFromUrl(String url) {
