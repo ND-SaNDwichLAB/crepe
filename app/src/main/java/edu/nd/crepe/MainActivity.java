@@ -1,6 +1,8 @@
 package edu.nd.crepe;
 
 import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -11,6 +13,7 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 
 import edu.nd.crepe.R;
@@ -18,11 +21,14 @@ import edu.nd.crepe.R;
 import edu.nd.crepe.database.Collector;
 import edu.nd.crepe.database.DatabaseManager;
 import edu.nd.crepe.database.User;
+import edu.nd.crepe.graphquery.Const;
 import edu.nd.crepe.network.FirebaseCommunicationManager;
 import edu.nd.crepe.ui.dialog.CollectorConfigurationDialogWrapper;
 import edu.nd.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilder;
 import edu.nd.crepe.ui.dialog.CreateCollectorFromURLDialogBuilder;
 import edu.nd.crepe.ui.main_activity.HomeFragment;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.annotation.NonNull;
@@ -30,6 +36,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 
@@ -242,7 +249,23 @@ public class MainActivity extends AppCompatActivity {
                 setAnimation(clicked);
 
                 wrapper = createCollectorFromConfigDialogBuilder.buildDialogWrapperWithNewCollector();
-                wrapper.show();
+                if (!Settings.canDrawOverlays(MainActivity.this)){
+
+                    MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(MainActivity.this);
+                    builder.setTitle("Service Permission Required")
+                            .setMessage(Const.appName + " needs the permission to display over other app for proper function. Please enable the service in the phone settings.")
+                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + MainActivity.this.getPackageName()));
+                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    MainActivity.this.startActivity(intent);
+                                }
+                            }).show();
+                }
+                else {
+                    wrapper.show();
+                }
             }
         });
     }

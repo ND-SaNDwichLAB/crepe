@@ -316,7 +316,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         if (!accessibilityServiceEnabled) {
                             MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context);
                             builder.setTitle("Service Permission Required")
-                                    .setMessage("The accessibility service is not enabled for " + Const.appNameUpperCase + ". Please enable the service in the phone settings before recording.")
+                                    .setMessage("The accessibility service is not enabled for " + Const.appName + ". Please enable the service in the phone settings before recording.")
                                     .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
@@ -369,7 +369,18 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
                             // launch the float widget
                             if (!Settings.canDrawOverlays(context)){
-                                getPermission();
+
+                                MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context);
+                                builder.setTitle("Service Permission Required")
+                                        .setMessage(Const.appName + " needs the permission to display over other app for proper function. Please enable the service in the phone settings.")
+                                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + context.getPackageName()));
+                                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                context.startActivity(intent);
+                                            }
+                                        }).show();
                             } else {
                                 WidgetService widgetService = new WidgetService();
                                 Intent intent = new Intent(context, widgetService.getClass());
@@ -668,26 +679,6 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
         }
 //        Toast.makeText(context, ril.size() + " apps are installed on this phone", Toast.LENGTH_LONG).show();
         return appDict;
-    }
-
-    public void getPermission() {
-//         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(context)){
-//            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:"+context.getPackageName()));
-//            context.startActivity(intent);
-//        check if we already have permission to draw over other apps
-//    }
-        int currentApiVersion = android.os.Build.VERSION.SDK_INT;
-        if(currentApiVersion >= 23) {
-            if (!Settings.canDrawOverlays(context)) {
-                // if not construct intent to request permission
-                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                        Uri.parse("package:" + context.getPackageName()));
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                // request permission via start activity for result
-                context.startActivity(intent);
-
-            }
-        }
     }
 
     public void show() {

@@ -121,7 +121,7 @@ public class CreateCollectorFromURLDialogBuilder {
                     if (!accessibilityServiceRunning) {
                         AlertDialog.Builder builder1 = new AlertDialog.Builder(c);
                         builder1.setTitle("Service Permission Required")
-                                .setMessage("The accessibility service is not enabled for " + Const.appNameUpperCase + ". Please enable the service in the phone settings before recording.")
+                                .setMessage("The accessibility service is not enabled for " + Const.appName + ". Please enable the service in the phone settings before recording.")
                                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
