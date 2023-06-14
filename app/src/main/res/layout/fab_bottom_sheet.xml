@@ -6,8 +6,8 @@
     <FrameLayout
         android:id="@+id/standard_bottom_sheet"
         app:behavior_hideable="true"
-        app:behavior_peekHeight="260dp"
-        android:layout_height="260dp"
+        app:behavior_peekHeight="280dp"
+        android:layout_height="280dp"
         android:layout_width="match_parent"
         android:background="@drawable/rounded_corner_top_transparent"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
@@ -30,7 +30,7 @@
 
 
             <LinearLayout
-                android:id="@+id/create_new_collector"
+                android:id="@+id/create_new_collector_btn"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
@@ -43,7 +43,7 @@
                 android:gravity="center_horizontal"
                 android:orientation="vertical"
                 android:padding="8dp"
-                app:layout_constraintEnd_toStartOf="@+id/add_existing_collector"
+                app:layout_constraintEnd_toStartOf="@+id/add_existing_collector_btn"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
@@ -51,6 +51,7 @@
                     android:id="@+id/create_new_collector_icon"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
+                    android:layout_marginTop="16dp"
                     android:layout_marginBottom="24dp"
                     android:contentDescription="@string/add_new_collector_icon"
                     app:srcCompat="@drawable/ic_edit_dark" />
@@ -61,7 +62,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
                     android:text="@string/fab_button_new_collector_title"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+                    android:textColor="@color/black"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
                 <TextView
                     android:id="@+id/create_new_collector_description"
@@ -76,7 +78,7 @@
 
 
             <LinearLayout
-                android:id="@+id/add_existing_collector"
+                android:id="@+id/add_existing_collector_btn"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
@@ -90,13 +92,14 @@
                 android:orientation="vertical"
                 android:padding="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/create_new_collector"
+                app:layout_constraintStart_toEndOf="@+id/create_new_collector_btn"
                 app:layout_constraintTop_toTopOf="parent">
 
                 <ImageView
                     android:id="@+id/add_existing_collector_icon"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
+                    android:layout_marginTop="16dp"
                     android:layout_marginBottom="24dp"
                     android:contentDescription="@string/add_existing_collector_icon"
                     app:srcCompat="@drawable/ic_link_dark" />
@@ -107,7 +110,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
                     android:text="Add Existing"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+                    android:textColor="@color/black"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
                 <TextView
                     android:id="@+id/add_existing_collector_description"

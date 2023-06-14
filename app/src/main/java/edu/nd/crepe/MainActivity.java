@@ -16,8 +16,6 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 
-import edu.nd.crepe.R;
-
 import edu.nd.crepe.database.Collector;
 import edu.nd.crepe.database.DatabaseManager;
 import edu.nd.crepe.database.User;
@@ -57,6 +55,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -67,8 +66,8 @@ public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
     private FloatingActionButton fabBtn;
-    private FloatingActionButton addUrlBtn;
-    private FloatingActionButton createNewBtn;
+    private LinearLayout addExistingBtn;
+    private LinearLayout createNewBtn;
 
     private ActionBarDrawerToggle sidemenuToggle;
     private DrawerLayout drawerLayout;
@@ -76,19 +75,9 @@ public class MainActivity extends AppCompatActivity {
     private View navHeader;
 
 
-    private Animation top_appear_anim;
-    private Animation top_disappear_anim;
-    private Animation left_appear_anim;
-    private Animation left_disappear_anim;
 
-    // clicked toggle variable for fab icons
-    private Boolean clicked = false;
-
-    private Collector testCollector;
-    private Collector testCollector2;
     private DatabaseManager dbManager;
 
-    private CreateCollectorFromURLDialogBuilder createCollectorFromURLDialogBuilder;
     private CreateCollectorFromConfigDialogBuilder createCollectorFromConfigDialogBuilder;
 
     private FirebaseAuth mAuth;
@@ -111,12 +100,6 @@ public class MainActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
-
-        // load animations
-        top_appear_anim = AnimationUtils.loadAnimation( this, R.anim.top_appear);
-        top_disappear_anim = AnimationUtils.loadAnimation( this, R.anim.top_disappear);
-        left_appear_anim = AnimationUtils.loadAnimation( this, R.anim.left_appear);
-        left_disappear_anim = AnimationUtils.loadAnimation( this, R.anim.left_disappear);
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -200,32 +183,14 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        Runnable refreshCollectorListRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (currentFragment instanceof HomeFragment) {
-                    try {
-                        ((HomeFragment) currentFragment).initCollectorList();
-                    } catch (PackageManager.NameNotFoundException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        };
-        this.createCollectorFromURLDialogBuilder = new CreateCollectorFromURLDialogBuilder(this, refreshCollectorListRunnable);
         this.createCollectorFromConfigDialogBuilder = new CreateCollectorFromConfigDialogBuilder(this, refreshCollectorListRunnable);
 
-        // get the fab icons
+        // get the fab icon
         fabBtn = findViewById(R.id.fab);
-        addUrlBtn = findViewById(R.id.fab_add_from_url);
-        createNewBtn = findViewById(R.id.fab_create_new);
 
         fabBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                clicked = !clicked;
-//                Log.i(null, "clicked value: " + clicked);
-//                setAnimation(clicked);
 
                 FabModalBottomSheet modalBottomSheet = new FabModalBottomSheet();
                 modalBottomSheet.show(getSupportFragmentManager(), FabModalBottomSheet.TAG);
@@ -233,47 +198,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
-        addUrlBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // collapse the fab icon
-                clicked = !clicked;
-                setAnimation(clicked);
-
-                Dialog dialog = createCollectorFromURLDialogBuilder.build();
-                dialog.show();
-                displaySelectedScreen(R.id.nav_menu_home);
-            }
-        });
-
-        createNewBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // collapse the fab icon
-                clicked = !clicked;
-                setAnimation(clicked);
-
-                wrapper = createCollectorFromConfigDialogBuilder.buildDialogWrapperWithNewCollector();
-                if (!Settings.canDrawOverlays(MainActivity.this)){
-
-                    MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(MainActivity.this);
-                    builder.setTitle("Service Permission Required")
-                            .setMessage(Const.appName + " needs the permission to display over other app for proper function. Please enable the service in the phone settings.")
-                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + MainActivity.this.getPackageName()));
-                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                    MainActivity.this.startActivity(intent);
-                                }
-                            }).show();
-                }
-                else {
-                    wrapper.show();
-                }
-            }
-        });
     }
 
     @Override
@@ -344,18 +268,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void setAnimation(Boolean clicked) {
-        if(clicked) {
-            addUrlBtn.startAnimation(left_appear_anim);
-            createNewBtn.startAnimation(top_appear_anim);
-        } else {
-            addUrlBtn.startAnimation(left_disappear_anim);
-            createNewBtn.startAnimation(top_disappear_anim);
-        }
-
-    }
-
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -424,4 +336,18 @@ public class MainActivity extends AppCompatActivity {
             return null;
         }
     }
+
+    Runnable refreshCollectorListRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (currentFragment instanceof HomeFragment) {
+                try {
+                    ((HomeFragment) currentFragment).initCollectorList();
+                } catch (PackageManager.NameNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    };
+
 }
