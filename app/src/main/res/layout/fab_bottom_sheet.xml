@@ -6,8 +6,8 @@
     <FrameLayout
         android:id="@+id/standard_bottom_sheet"
         app:behavior_hideable="true"
-        app:behavior_peekHeight="280dp"
-        android:layout_height="280dp"
+        app:behavior_peekHeight="320dp"
+        android:layout_height="320dp"
         android:layout_width="match_parent"
         android:background="@drawable/rounded_corner_top_transparent"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
@@ -40,9 +40,9 @@
                 android:clickable="true"
                 android:elevation="4dp"
                 android:focusable="true"
-                android:gravity="center_horizontal"
+                android:gravity="left"
                 android:orientation="vertical"
-                android:padding="8dp"
+                android:padding="16dp"
                 app:layout_constraintEnd_toStartOf="@+id/add_existing_collector_btn"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
@@ -51,8 +51,8 @@
                     android:id="@+id/create_new_collector_icon"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginBottom="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="40dp"
                     android:contentDescription="@string/add_new_collector_icon"
                     app:srcCompat="@drawable/ic_edit_dark" />
 
@@ -60,7 +60,7 @@
                     android:id="@+id/create_new_collector_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
+                    android:layout_marginBottom="8dp"
                     android:text="@string/fab_button_new_collector_title"
                     android:textColor="@color/black"
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
@@ -70,7 +70,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    android:gravity="center_horizontal"
+                    android:gravity="left"
                     android:text="@string/fab_button_create_new_collector"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small" />
             </LinearLayout>
@@ -88,9 +88,9 @@
                 android:clickable="true"
                 android:elevation="4dp"
                 android:focusable="true"
-                android:gravity="center_horizontal"
+                android:gravity="left"
                 android:orientation="vertical"
-                android:padding="8dp"
+                android:padding="16dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/create_new_collector_btn"
                 app:layout_constraintTop_toTopOf="parent">
@@ -99,8 +99,8 @@
                     android:id="@+id/add_existing_collector_icon"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginBottom="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="40dp"
                     android:contentDescription="@string/add_existing_collector_icon"
                     app:srcCompat="@drawable/ic_link_dark" />
 
@@ -108,7 +108,7 @@
                     android:id="@+id/add_existing_collector_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
+                    android:layout_marginBottom="8dp"
                     android:text="Add Existing"
                     android:textColor="@color/black"
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
@@ -118,7 +118,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    android:gravity="center_horizontal"
+                    android:gravity="left"
                     android:text="Join experiment with a provided ID"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small" />
             </LinearLayout>
