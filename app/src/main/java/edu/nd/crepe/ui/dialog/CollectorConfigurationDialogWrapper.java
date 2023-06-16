@@ -570,7 +570,10 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         dbManager.addCollectorForUser(collector, currentUser);
                         // update user in firebase
                         HashMap<String, Object> userUpdates = new HashMap<>();
-                        userUpdates.put("userCollectors", currentUser.getCollectorsForCurrentUser().add(collector.getCollectorId()));
+
+                        ArrayList<String> updatedUserCollectors = currentUser.getCollectorsForCurrentUser();
+                        updatedUserCollectors.add(collector.getCollectorId());
+                        userUpdates.put("userCollectors", updatedUserCollectors);
                         firebaseCommunicationManager.updateUser(currentUser.getUserId(), userUpdates);
 
 

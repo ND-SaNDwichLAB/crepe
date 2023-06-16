@@ -19,6 +19,7 @@ import edu.nd.crepe.database.Collector;
 import edu.nd.crepe.database.DatabaseManager;
 import edu.nd.crepe.database.Datafield;
 import edu.nd.crepe.database.User;
+import edu.nd.crepe.network.DataLoadingEvent;
 import edu.nd.crepe.network.FirebaseCallback;
 import edu.nd.crepe.network.FirebaseCommunicationManager;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -36,12 +37,15 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class GoogleLoginActivity extends AppCompatActivity {
 
@@ -143,15 +147,14 @@ public class GoogleLoginActivity extends AppCompatActivity {
                                               Random rand = new Random();
                                               String randomName = "Anonymous " + randomNameList[rand.nextInt(randomNameList.length)];
 
-                                              // TODO Put this back
-//                                              if (authResult.getAdditionalUserInfo().isNewUser()) {
+                                              if (authResult.getAdditionalUserInfo().isNewUser()) {
                                                   Log.d(TAG, "onSuccess: New User");
                                                   // only the admin of this application can retrieve user profile from the uid, so users' privacy is protected
                                                   createNewUser(user.getUid(), randomName, "");
-//                                              } else {
-//                                                  Log.d(TAG, "onSuccess: Existing User");
-//                                                  addExistingUserInfo(user.getUid());
-//                                              }
+                                              } else {
+                                                  Log.d(TAG, "onSuccess: Existing User");
+                                                  addExistingUserInfo(user.getUid());
+                                              }
 
                                               // move to main activity
                                               Intent intent = new Intent(getApplicationContext(), MainActivity.class);
@@ -217,6 +220,8 @@ public class GoogleLoginActivity extends AppCompatActivity {
     }
 
     private void addAssociatedCollectors(ArrayList<String> collectorIds) {
+        AtomicInteger collectorCounter = new AtomicInteger(0);
+        int totalCollectorCount = collectorIds.size();
 
         // retrieve all collectors associated with this user from firebase and save to local
         for (String collectorId : collectorIds) {
@@ -224,6 +229,11 @@ public class GoogleLoginActivity extends AppCompatActivity {
                 public void onResponse(Collector collector) {
                     dbManager.addOneCollector(collector);
                     addDatafieldForCollector(collector);
+
+                    if (collectorCounter.incrementAndGet() == totalCollectorCount) {
+                        // After fetching all data, post this event and HomeFragment will update the collector list on home page
+                        EventBus.getDefault().post(new DataLoadingEvent(true));
+                    }
                 }
                 public void onErrorResponse(Exception e) {
                     try {

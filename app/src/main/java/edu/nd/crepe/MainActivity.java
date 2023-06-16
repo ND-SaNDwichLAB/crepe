@@ -20,6 +20,7 @@ import edu.nd.crepe.database.Collector;
 import edu.nd.crepe.database.DatabaseManager;
 import edu.nd.crepe.database.User;
 import edu.nd.crepe.graphquery.Const;
+import edu.nd.crepe.network.DataLoadingEvent;
 import edu.nd.crepe.network.FirebaseCommunicationManager;
 import edu.nd.crepe.ui.dialog.CollectorConfigurationDialogWrapper;
 import edu.nd.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilder;
@@ -59,6 +60,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.io.InputStream;
 import java.net.URL;
 
@@ -84,6 +89,8 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
 
     private Fragment currentFragment;
+
+    private TextView userNameTextView;
 
     // the unique id extracted from the user's device, used as their user id
     public static User currentUser = null;
@@ -119,20 +126,25 @@ public class MainActivity extends AppCompatActivity {
         sidebarNavView = findViewById(R.id.sidebarNavView);
         navHeader = sidebarNavView.getHeaderView(0);
 
-        TextView userNameTextView = navHeader.findViewById(R.id.userName);
+        userNameTextView = navHeader.findViewById(R.id.userName);
 //        ImageView userImageView = navHeader.findViewById(R.id.userImage);
+
 
         if (currentUser == null) {
             // get the current stored user from the database, saved in the log in process with google authentication
             if (dbManager.getAllUsers().size() == 1) {
                 currentUser = dbManager.getAllUsers().get(0);
-
                 userNameTextView.setText(currentUser.getName());
                 Toast.makeText(this, "Welcome, " + currentUser.getName() + "! 🥳🎉🎊", Toast.LENGTH_SHORT).show();
-            } else {
+            } else if (dbManager.getAllUsers().size() > 1) {
                 Log.e("Main Activity", "Error: more than 1 user found in database.");
+            } else {
+                Log.i("Main Activity", "no user found in database.");
             }
         }
+
+        // if it is existing user and the profile is not pulled from firebase yet, register for the event and update when it is ready
+        EventBus.getDefault().register(this);
 
 //        if (userImage == null) {
 //            new Thread(new Runnable() {
@@ -158,17 +170,6 @@ public class MainActivity extends AppCompatActivity {
 //        }
 
 
-
-        // refresh name
-        Runnable mainActivityRefreshUsernameRunnable = new Runnable() {
-            @Override
-            public void run() {
-                userNameTextView.setText(currentUser.getName());
-//                if (userImage != null) {
-//                    userImageView.setImageDrawable(userImage);
-//                }
-            }
-        };
 
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -200,9 +201,12 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+    }
 
-        refreshCollectorListRunnable.run();
-
+    @Override
+    protected void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
     }
 
     @Override
@@ -356,4 +360,14 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onDataLoadingEvent(DataLoadingEvent event){
+        if(event.isCompleted()){
+            if (dbManager.getAllUsers().size() == 1) {
+                currentUser = dbManager.getAllUsers().get(0);
+                userNameTextView.setText(currentUser.getName());
+                Toast.makeText(this, "Welcome, " + currentUser.getName() + "! 🥳🎉🎊", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
 }

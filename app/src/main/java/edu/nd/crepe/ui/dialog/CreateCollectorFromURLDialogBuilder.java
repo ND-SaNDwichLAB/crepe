@@ -27,6 +27,7 @@ import edu.nd.crepe.network.FirebaseCallback;
 import edu.nd.crepe.network.FirebaseCommunicationManager;
 import com.google.gson.Gson;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -77,7 +78,9 @@ public class CreateCollectorFromURLDialogBuilder {
                             dbManager.addCollectorForUser(result, currentUser);
 
                             HashMap<String, Object> userUpdates = new HashMap<>();
-                            userUpdates.put("userCollectors", currentUser.getCollectorsForCurrentUser().add(result.getCollectorId()));
+                            ArrayList<String> updatedUserCollectors = currentUser.getCollectorsForCurrentUser();
+                            updatedUserCollectors.add(result.getCollectorId());
+                            userUpdates.put("userCollectors", updatedUserCollectors);
                             firebaseCommunicationManager.updateUser(currentUser.getUserId(), userUpdates);
 
                             refreshCollectorListRunnable.run();

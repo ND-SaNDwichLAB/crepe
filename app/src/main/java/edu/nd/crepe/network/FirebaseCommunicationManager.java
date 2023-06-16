@@ -143,7 +143,7 @@ public class FirebaseCommunicationManager {
         databaseReference.child(key).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DataSnapshot> task) {
-                if (!task.isSuccessful()) {
+                if (task.isSuccessful()) {
                     if (task.getResult().exists()) {
                         DataSnapshot dataSnapshot = task.getResult();
                         String userId = String.valueOf(dataSnapshot.child("userId").getValue());
@@ -160,18 +160,17 @@ public class FirebaseCommunicationManager {
                         // call firebase callback to update user
                         firebaseCallback.onResponse(user);
                     } else {
-                        Log.e("Firebase", "Failed to find the user firebase.");
-                        Toast.makeText(context, "Failed to find the user firebase.", Toast.LENGTH_LONG).show();
+                        Log.e("Firebase", "retrieve user: Failed to find the user firebase.");
+                        Toast.makeText(context, "retrieve user: Failed to find the user firebase.", Toast.LENGTH_LONG).show();
                     }
-            }   else{
-                    Log.e("Firebase", "Failed to launch connection to firebase.");
-                    Toast.makeText(context, "Failed to launch connection to firebase.", Toast.LENGTH_LONG).show();
+            } else {
+                    Log.e("Firebase", "retrieve user: Failed to launch connection to firebase.");
+                    Toast.makeText(context, "retrieve user: Failed to launch connection to firebase.", Toast.LENGTH_LONG).show();
                 }
             }
         });
     }
 
-    // retrieve a specific collector
     public void retrieveCollector(String collectorId, FirebaseCallback firebaseCallback) {
         DatabaseReference databaseReference = db.getReference(Collector.class.getSimpleName());
         databaseReference.child(collectorId).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
@@ -197,12 +196,12 @@ public class FirebaseCommunicationManager {
                         firebaseCallback.onResponse(collector);
 
                     } else {
-                        Log.e("Firebase", "Failed to find the collector in firebase.");
-                        Toast.makeText(context, "Failed to find the collector in firebase.", Toast.LENGTH_LONG).show();
+                        Log.e("Firebase", "retrieve collector: Failed to find the collector in firebase.");
+                        Toast.makeText(context, "retrieve collector: Failed to find the collector in firebase.", Toast.LENGTH_LONG).show();
                     }
                 } else {
-                    Log.e("Firebase", "Failed to launch connection to firebase.");
-                    Toast.makeText(context, "Failed to launch connection to firebase.", Toast.LENGTH_LONG).show();
+                    Log.e("Firebase", "retrieve collector: Failed to launch connection to firebase.");
+                    Toast.makeText(context, "retrieve collector: Failed to launch connection to firebase.", Toast.LENGTH_LONG).show();
                     firebaseCallback.onErrorResponse(task.getException());
                 }
             }
@@ -235,7 +234,7 @@ public class FirebaseCommunicationManager {
                     // Call firebase callback to update datafields
                     firebaseCallback.onResponse(datafields);
                 } else {
-                    Log.e("Firebase", "Failed to launch connection to firebase.");
+                    Log.e("Firebase", "retrieve datafield with collector id: Failed to launch connection to firebase.");
                     firebaseCallback.onErrorResponse(task.getException());
                 }
             }
@@ -271,7 +270,7 @@ public class FirebaseCommunicationManager {
                     // Call firebase callback to update datas
                     firebaseCallback.onResponse(datas);
                 } else {
-                    Log.e("Firebase", "Failed to launch connection to firebase.");
+                    Log.e("Firebase", "retrieve data with datafield id: Failed to launch connection to firebase.");
                     firebaseCallback.onErrorResponse(task.getException());
                 }
             }
