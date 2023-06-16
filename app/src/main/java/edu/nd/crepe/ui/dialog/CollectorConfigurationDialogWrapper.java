@@ -64,6 +64,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
     private static List<Datafield> datafields = new ArrayList<>();
 
+    private static CollectorConfigurationDialogWrapper singletonInstance = null;
 
     public static class GraphQueryCallback implements Callback, Serializable {
         @Override
@@ -84,6 +85,25 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
         this.refreshCollectorListRunnable = refreshCollectorListRunnable;
         this.dbManager = DatabaseManager.getInstance(context);
     }
+
+    public static Boolean isNull() {
+        return singletonInstance == null;
+    }
+
+    public static CollectorConfigurationDialogWrapper getInstance() {
+        if (singletonInstance == null) {
+            throw new IllegalStateException("DialogWrapper is not initialized, call initializeInstance(..) method first.");
+        }
+        return singletonInstance;
+    }
+
+    public static void initializeInstance(Context context, AlertDialog dialog, Collector collector, Runnable refreshCollectorListRunnable) {
+        if (singletonInstance != null) {
+            Log.i("CollectorConfigDialog", "Overriding existing singleton instance...");
+        }
+        singletonInstance = new CollectorConfigurationDialogWrapper(context, dialog, collector, refreshCollectorListRunnable);
+    }
+
 
     public void updateCurrentView() {
 

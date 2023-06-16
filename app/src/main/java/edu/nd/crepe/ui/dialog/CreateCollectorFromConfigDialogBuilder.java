@@ -23,13 +23,16 @@ public class CreateCollectorFromConfigDialogBuilder {
     public CollectorConfigurationDialogWrapper buildDialogWrapperWithNewCollector() {
         AlertDialog dialog = builder.create();
 
-        collectorConfigurationDialogWrapper = new CollectorConfigurationDialogWrapper(c, dialog,  new Collector(), refreshCollectorListRunnable);
+        CollectorConfigurationDialogWrapper.initializeInstance(c, dialog,  new Collector(), refreshCollectorListRunnable);
+        collectorConfigurationDialogWrapper = CollectorConfigurationDialogWrapper.getInstance();
         return collectorConfigurationDialogWrapper;
     }
 
     public CollectorConfigurationDialogWrapper buildDialogWrapperWithExistingCollector(Collector collector) {
         AlertDialog dialog = builder.create();
-        collectorConfigurationDialogWrapper = new CollectorConfigurationDialogWrapper(c, dialog, collector, refreshCollectorListRunnable);
+
+        CollectorConfigurationDialogWrapper.initializeInstance(c, dialog, collector, refreshCollectorListRunnable);
+        collectorConfigurationDialogWrapper = CollectorConfigurationDialogWrapper.getInstance();
         return collectorConfigurationDialogWrapper;
     }
 

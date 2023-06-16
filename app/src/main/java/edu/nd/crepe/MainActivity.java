@@ -209,12 +209,13 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = getSharedPreferences("prefs", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
-        if (wrapper != null) {
+        if (!CollectorConfigurationDialogWrapper.isNull()) {
+            wrapper = CollectorConfigurationDialogWrapper.getInstance();
             editor.putString("screen_state", wrapper.getCurrentScreenState());
             editor.putString("collector", new Gson().toJson(wrapper.getCurrentCollector()));
-        }
 
-        editor.apply();
+            editor.apply();
+        }
     }
 
     // a function to switch between fragments using the navDrawer
