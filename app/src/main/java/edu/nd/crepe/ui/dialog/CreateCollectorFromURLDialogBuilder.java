@@ -1,5 +1,7 @@
 package edu.nd.crepe.ui.dialog;
 
+import static edu.nd.crepe.MainActivity.currentUser;
+
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -25,6 +27,7 @@ import edu.nd.crepe.network.FirebaseCallback;
 import edu.nd.crepe.network.FirebaseCommunicationManager;
 import com.google.gson.Gson;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class CreateCollectorFromURLDialogBuilder {
@@ -69,6 +72,14 @@ public class CreateCollectorFromURLDialogBuilder {
                     firebaseCommunicationManager.retrieveCollector(collectorIdEditText.getText().toString(), new FirebaseCallback<Collector>() {
                         public void onResponse(Collector result) {
                             dbManager.addOneCollector(result);
+
+                            // update user by adding the collector info to the user
+                            dbManager.addCollectorForUser(result, currentUser);
+
+                            HashMap<String, Object> userUpdates = new HashMap<>();
+                            userUpdates.put("userCollectors", currentUser.getCollectorsForCurrentUser().add(result.getCollectorId()));
+                            firebaseCommunicationManager.updateUser(currentUser.getUserId(), userUpdates);
+
                             refreshCollectorListRunnable.run();
                         }
                         public void onErrorResponse(Exception e) {

@@ -101,7 +101,6 @@ public class MainActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
-
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
@@ -129,7 +128,9 @@ public class MainActivity extends AppCompatActivity {
                 currentUser = dbManager.getAllUsers().get(0);
 
                 userNameTextView.setText(currentUser.getName());
-                Toast.makeText(this, "Welcome, " + currentUser.getName() + "! 🥳🎉🎊", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Welcome, " + currentUser.getName() + "! 🥳🎉🎊", Toast.LENGTH_SHORT).show();
+            } else {
+                Log.e("Main Activity", "Error: more than 1 user found in database.");
             }
         }
 
@@ -199,6 +200,8 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+        refreshCollectorListRunnable.run();
 
     }
 

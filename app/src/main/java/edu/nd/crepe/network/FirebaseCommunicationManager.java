@@ -16,6 +16,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.Query;
 
 import java.util.ArrayList;
@@ -137,7 +138,7 @@ public class FirebaseCommunicationManager {
 
  */
 
-    public void retrieveUser(String key, FirebaseCallback firebaseCallback) {   // TODO Meng key is userId
+    public void retrieveUser(String key, FirebaseCallback firebaseCallback) {
         DatabaseReference databaseReference = db.getReference(User.class.getSimpleName());
         databaseReference.child(key).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
             @Override
@@ -150,7 +151,12 @@ public class FirebaseCommunicationManager {
                         String photoUrl = String.valueOf(dataSnapshot.child("photoUrl").getValue());
                         long timeCreated = (long) dataSnapshot.child("timeCreated").getValue();
                         long timeLastEdited = (long) dataSnapshot.child("timeLastEdited").getValue();
-                        User user = new User(userId, userName, photoUrl, timeCreated, timeLastEdited);
+
+                        GenericTypeIndicator<List<String>> genericTypeIndicator = new GenericTypeIndicator<List<String>>() {};
+                        List<String> userCollectorsList = dataSnapshot.child("userCollectors").getValue(genericTypeIndicator);
+                        ArrayList<String> userCollectors = new ArrayList<>(userCollectorsList);
+
+                        User user = new User(userId, userName, photoUrl, timeCreated, timeLastEdited, userCollectors);
                         // call firebase callback to update user
                         firebaseCallback.onResponse(user);
                     } else {
@@ -193,7 +199,6 @@ public class FirebaseCommunicationManager {
                     } else {
                         Log.e("Firebase", "Failed to find the collector in firebase.");
                         Toast.makeText(context, "Failed to find the collector in firebase.", Toast.LENGTH_LONG).show();
-                        firebaseCallback.onErrorResponse(task.getException());
                     }
                 } else {
                     Log.e("Firebase", "Failed to launch connection to firebase.");

@@ -99,6 +99,12 @@ public class CrepeAccessibilityService extends AccessibilityService {
         // retrieve all stored collectors and datafields
         collectors = dbManager.getActiveCollectors();
         datafields = dbManager.getAllDatafields();
+
+        // refresh collector status based on current time
+        for (Collector collector : collectors) {
+            collector.autoSetCollectorStatus();
+            dbManager.updateCollectorStatus(collector);
+        }
     }
 
     /**

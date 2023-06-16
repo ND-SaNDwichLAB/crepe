@@ -1,5 +1,7 @@
 package edu.nd.crepe.database;
 
+import java.util.ArrayList;
+
 public class User {
 
     private String userId;
@@ -8,12 +10,24 @@ public class User {
     private long timeCreated;
     private long timeLastEdited;
 
+    private ArrayList<String> userCollectors = new ArrayList<>();   // store collectorId for the user
+
     public User(String userId, String name, String photoUrl, long timeCreated, long timeLastEdited) {
         this.userId = userId;
         this.name = name;
         this.photoUrl = photoUrl;
         this.timeCreated = timeCreated;
         this.timeLastEdited = timeLastEdited;
+        this.userCollectors = new ArrayList<>();
+    }
+
+    public User(String userId, String name, String photoUrl, long timeCreated, long timeLastEdited, ArrayList<String> userCollectors) {
+        this.userId = userId;
+        this.name = name;
+        this.photoUrl = photoUrl;
+        this.timeCreated = timeCreated;
+        this.timeLastEdited = timeLastEdited;
+        this.userCollectors.addAll(userCollectors);
     }
 
     public String getUserId() {
@@ -53,4 +67,25 @@ public class User {
     public void setTimeLastEdited(long timeLastEdited) {
         this.timeLastEdited = timeLastEdited;
     }
+
+    public ArrayList<String> getCollectorsForCurrentUser() {
+        return userCollectors;
+    }
+
+    public void overrideCollectorsForCurrentUser(ArrayList<String> collectorIds) {
+        this.userCollectors = collectorIds;
+    }
+
+    public void addCollectorForCurrentUser(String collectorId) {
+        this.userCollectors.add(collectorId);
+    }
+
+    public void removeCollectorForCurrentUser(Collector collectorId) {
+        this.userCollectors.remove(collectorId);
+    }
+
+    public void removeAllCollectorsForCurrentUser() {
+        this.userCollectors.clear();
+    }
+
 }

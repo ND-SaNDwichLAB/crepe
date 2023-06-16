@@ -1,6 +1,7 @@
 package edu.nd.crepe.ui.dialog;
 
 import static edu.nd.crepe.CrepeAccessibilityService.isAccessibilityServiceEnabled;
+import static edu.nd.crepe.MainActivity.currentUser;
 
 import android.app.AlertDialog;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -34,6 +35,7 @@ import edu.nd.crepe.R;
 import edu.nd.crepe.database.Collector;
 import edu.nd.crepe.database.DatabaseManager;
 import edu.nd.crepe.database.Datafield;
+import edu.nd.crepe.database.User;
 import edu.nd.crepe.demonstration.WidgetService;
 import edu.nd.crepe.graphquery.Const;
 import edu.nd.crepe.network.FirebaseCommunicationManager;
@@ -48,6 +50,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -110,7 +113,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
         switch (currentScreenState) {
             case "buildDialogFromConfig":
 
-                collector.setCreatorUserId(MainActivity.currentUser.getUserId());
+                collector.setCreatorUserId(currentUser.getUserId());
 
                 dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_add_collector_from_config, null);
                 dialog.setContentView(dialogMainView);
@@ -290,7 +293,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
                         // set the id of the collector
                         // format: userId%appName%timestamp. We will remove any space in the appName
-                        collector.setCollectorId(MainActivity.currentUser.getUserId() + "%" + collector.getAppName().replaceAll(" ", "") + "%" + String.valueOf(System.currentTimeMillis()));
+                        collector.setCollectorId(currentUser.getUserId() + "%" + collector.getAppName().replaceAll(" ", "") + "%" + String.valueOf(System.currentTimeMillis()));
 
                         if (blankFlag == 0) {
                             // update currentScreen String value
@@ -549,6 +552,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
                         dbManager.addOneCollector(collector);
 
+
                         // save to Firebase
                         firebaseCommunicationManager.putCollector(collector).addOnSuccessListener(suc->{
                             Log.i("Firebase","Successfully added collector " + collector.getCollectorId() + " to firebase.");
@@ -556,12 +560,18 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                             Log.e("Firebase","Failed to add collector " + collector.getCollectorId() + " to firebase.");
                         });
 
-
                         // store the data fields into database
                         for (Datafield datafield : datafields) {
                             dbManager.addOneDatafield(datafield);
                             firebaseCommunicationManager.putDatafield(datafield);
                         }
+
+                        // update user by add the collector info to user
+                        dbManager.addCollectorForUser(collector, currentUser);
+                        // update user in firebase
+                        HashMap<String, Object> userUpdates = new HashMap<>();
+                        userUpdates.put("userCollectors", currentUser.getCollectorsForCurrentUser().add(collector.getCollectorId()));
+                        firebaseCommunicationManager.updateUser(currentUser.getUserId(), userUpdates);
 
 
                         clearDatafields();

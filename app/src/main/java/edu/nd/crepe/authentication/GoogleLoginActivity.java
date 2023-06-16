@@ -15,8 +15,11 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import edu.nd.crepe.MainActivity;
 import edu.nd.crepe.R;
+import edu.nd.crepe.database.Collector;
 import edu.nd.crepe.database.DatabaseManager;
+import edu.nd.crepe.database.Datafield;
 import edu.nd.crepe.database.User;
+import edu.nd.crepe.network.FirebaseCallback;
 import edu.nd.crepe.network.FirebaseCommunicationManager;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -36,6 +39,7 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Random;
 
@@ -138,14 +142,16 @@ public class GoogleLoginActivity extends AppCompatActivity {
                                               // generate a random name for the user
                                               Random rand = new Random();
                                               String randomName = "Anonymous " + randomNameList[rand.nextInt(randomNameList.length)];
-                                              // only the admin of this application can retrieve user profile from the uid, so users' privacy is protected
-                                              createNewUser(user.getUid(), randomName, "");
 
-                                              if (authResult.getAdditionalUserInfo().isNewUser()) {
+                                              // TODO Put this back
+//                                              if (authResult.getAdditionalUserInfo().isNewUser()) {
                                                   Log.d(TAG, "onSuccess: New User");
-                                              } else {
-                                                  Log.d(TAG, "onSuccess: Existing User");
-                                              }
+                                                  // only the admin of this application can retrieve user profile from the uid, so users' privacy is protected
+                                                  createNewUser(user.getUid(), randomName, "");
+//                                              } else {
+//                                                  Log.d(TAG, "onSuccess: Existing User");
+//                                                  addExistingUserInfo(user.getUid());
+//                                              }
 
                                               // move to main activity
                                               Intent intent = new Intent(getApplicationContext(), MainActivity.class);
@@ -169,12 +175,35 @@ public class GoogleLoginActivity extends AppCompatActivity {
         User user = new User(uid, name, photoUrl, currentTime, currentTime);
 
         try {
-            fbManager.putUser(user);
             dbManager.addOneUser(user);
+            fbManager.putUser(user);
         } catch (Exception e) {
             Log.e(TAG, "createNewUser: Error creating new user");
             e.printStackTrace();
         }
+    }
+
+    private void addExistingUserInfo(String uid) {
+        fbManager.retrieveUser(uid, new FirebaseCallback<User>() {
+            public void onResponse(User user) {
+
+                // save this user to local database
+                dbManager.addOneUser(user);
+
+                ArrayList<String> collectorIds = user.getCollectorsForCurrentUser();
+
+                addAssociatedCollectors(collectorIds);
+
+            }
+            public void onErrorResponse(Exception e) {
+                try {
+                    Log.e("Firebase collector", e.getMessage());
+                } catch (NullPointerException ex) {
+                    Log.e("Firebase collector", "An unknown error occurred.");
+                }
+            }
+
+        });
     }
 
     private static String bytesToHex(byte[] hash) {
@@ -185,6 +214,43 @@ public class GoogleLoginActivity extends AppCompatActivity {
             hexString.append(hex);
         }
         return hexString.toString();
+    }
+
+    private void addAssociatedCollectors(ArrayList<String> collectorIds) {
+
+        // retrieve all collectors associated with this user from firebase and save to local
+        for (String collectorId : collectorIds) {
+            fbManager.retrieveCollector(collectorId, new FirebaseCallback<Collector>() {
+                public void onResponse(Collector collector) {
+                    dbManager.addOneCollector(collector);
+                    addDatafieldForCollector(collector);
+                }
+                public void onErrorResponse(Exception e) {
+                    try {
+                        Log.e("Firebase collector", e.getMessage());
+                    } catch (NullPointerException ex) {
+                        Log.e("Firebase collector", "An unknown error occurred.");
+                    }
+                }
+            });
+        }
+    }
+
+    private void addDatafieldForCollector(Collector collector) {
+        fbManager.retrieveDatafieldswithCollectorId(collector.getCollectorId(), new FirebaseCallback<ArrayList<Datafield>>() {
+            public void onResponse(ArrayList<Datafield> datafields) {
+                for (Datafield datafield : datafields) {
+                    dbManager.addOneDatafield(datafield);
+                }
+            }
+            public void onErrorResponse(Exception e) {
+                try {
+                    Log.e("Firebase datafield", e.getMessage());
+                } catch (NullPointerException ex) {
+                    Log.e("Firebase datafield", "An unknown error occurred.");
+                }
+            }
+        });
     }
 
 }

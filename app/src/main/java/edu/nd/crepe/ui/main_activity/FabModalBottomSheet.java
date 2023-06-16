@@ -1,6 +1,7 @@
 package edu.nd.crepe.ui.main_activity;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -39,6 +40,8 @@ public class FabModalBottomSheet extends BottomSheetDialogFragment {
     private CreateCollectorFromConfigDialogBuilder createCollectorFromConfigDialogBuilder;
     private CollectorConfigurationDialogWrapper wrapper;
 
+    private Context context;
+
     public FabModalBottomSheet(CreateCollectorFromURLDialogBuilder createCollectorFromURLDialogBuilder, CreateCollectorFromConfigDialogBuilder createCollectorFromConfigDialogBuilder) {
         this.createCollectorFromURLDialogBuilder = createCollectorFromURLDialogBuilder;
         this.createCollectorFromConfigDialogBuilder = createCollectorFromConfigDialogBuilder;
@@ -53,6 +56,7 @@ public class FabModalBottomSheet extends BottomSheetDialogFragment {
         LinearLayout addExistingBtn = view.findViewById(R.id.add_existing_collector_btn);
         LinearLayout createNewBtn = view.findViewById(R.id.create_new_collector_btn);
 
+        this.context = getContext();
 
         addExistingBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -73,17 +77,17 @@ public class FabModalBottomSheet extends BottomSheetDialogFragment {
                 dismiss();
 
                 wrapper = createCollectorFromConfigDialogBuilder.buildDialogWrapperWithNewCollector();
-                if (!Settings.canDrawOverlays(getContext())){
+                if (!Settings.canDrawOverlays(context)){
 
-                    MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
+                    MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context);
                     builder.setTitle("Service Permission Required")
                             .setMessage("Please enable the permission to display over other app for proper function.")
                             .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getContext().getPackageName()));
+                                    Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + context.getPackageName()));
                                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                    getContext().startActivity(intent);
+                                    context.startActivity(intent);
                                 }
                             }).show();
                 }

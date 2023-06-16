@@ -9,6 +9,10 @@ import android.util.Log;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -42,6 +46,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     public static final String COLUMN_DATA_CONTENT = "dataContent";
     private static final String COLUMN_USER_TIME_CREATED = "userTimeCreated";
     private static final String COLUMN_USER_LAST_TIME_EDITED = "userTimeLastEdited";
+    private static final String COLUMN_USER_COLLECTORS = "userCollectors";
 
     private static final String DATAFIELD_TABLE = "datafield";
     private static final String COLUMN_DATAFIELD_ID = "datafieldId";
@@ -70,7 +75,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
             "            " + COLUMN_USER_NAME + " VARCHAR, " +
             "            " + COLUMN_USER_PHOTO_URL + " VARCHAR, " +
             "            " + COLUMN_USER_TIME_CREATED + " BIGINT, " +
-            "            " + COLUMN_USER_LAST_TIME_EDITED + " BIGINT);";
+            "            " + COLUMN_USER_LAST_TIME_EDITED + " BIGINT, " +
+            "            " + COLUMN_USER_COLLECTORS + " VARCHAR)";
 
     private final String createDataFieldTableStatement = "CREATE TABLE IF NOT EXISTS " + DATAFIELD_TABLE + " (" + COLUMN_DATAFIELD_ID + " VARCHAR PRIMARY KEY, " +
             "            " + COLUMN_COLLECTOR_ID + " VARCHAR, " +
@@ -197,9 +203,47 @@ public class DatabaseManager extends SQLiteOpenHelper {
         cv.put(COLUMN_USER_TIME_CREATED, user.getTimeCreated());
         cv.put(COLUMN_USER_LAST_TIME_EDITED, user.getTimeLastEdited());
 
+        // convert the collectors list to json string
+        Gson gson = new Gson();
+        String collectorsJson = gson.toJson(user.getCollectorsForCurrentUser());
+        cv.put(COLUMN_USER_COLLECTORS, collectorsJson);
+
         long insert = db.insert(USER_TABLE, null, cv);
         return insert != -1;
     }
+
+    public Boolean addCollectorForUser(Collector collector, User user) {
+        Gson gson = new Gson();
+
+        // First, you retrieve the current list of collectors for the user from the database.
+        Cursor cursor = db.query(USER_TABLE, new String[]{COLUMN_USER_COLLECTORS}, "userId = ?",
+                new String[]{user.getUserId()}, null, null, null);
+
+        if (cursor != null && cursor.moveToFirst()) {
+            String collectorsJson = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USER_COLLECTORS));
+            ArrayList<String> collectors = gson.fromJson(collectorsJson, new TypeToken<ArrayList<String>>() {}.getType());
+
+            // Add the new collector's ID to the user's list of collectors.
+            collectors.add(collector.getCollectorId());
+
+            // Convert the updated list back to a JSON string.
+            collectorsJson = gson.toJson(collectors);
+
+            // Create the new ContentValues object for the update.
+            ContentValues cv = new ContentValues();
+            cv.put(COLUMN_USER_COLLECTORS, collectorsJson);
+
+            // Perform the update.
+            int rows = db.update(USER_TABLE, cv, "userId = ?", new String[]{user.getUserId()});
+
+            cursor.close();
+
+            return (rows > 0);
+        }
+
+        return false;
+    }
+
 
     public Boolean checkIfUserExists(String userId) {
 
@@ -228,6 +272,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         cv.put(COLUMN_USER_TIME_CREATED, timeCreated);
         // use the current time for last edited
         cv.put(COLUMN_USER_LAST_TIME_EDITED, timeCreated);
+        cv.put(COLUMN_USER_COLLECTORS, "");
 
         long insert = db.insert(USER_TABLE, null, cv);
         return insert != -1;
@@ -279,8 +324,14 @@ public class DatabaseManager extends SQLiteOpenHelper {
                 String PhotoUrl = cursor.getString(2);
                 long userTimeCreated = cursor.getLong(3);
                 long userTimeLastEdited = cursor.getLong(4);
+                String userCollectorsJson = cursor.getString(5);
 
-                User receivedUser = new User(userId, userName, PhotoUrl, userTimeCreated, userTimeLastEdited);
+                // convert the json string to collectors list
+                Gson gson = new Gson();
+                Type type = new TypeToken<ArrayList<String>>(){}.getType();
+                ArrayList<String> userCollectors = gson.fromJson(userCollectorsJson, type);
+
+                User receivedUser = new User(userId, userName, PhotoUrl, userTimeCreated, userTimeLastEdited, userCollectors);
 
                 userList.add(receivedUser);
 
