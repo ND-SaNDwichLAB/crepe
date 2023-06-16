@@ -455,6 +455,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         dialog.dismiss();
+                        clearDatafields();
                     }
                 });
                 break;
@@ -579,6 +580,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         dialog.dismiss();
+                        clearDatafields();
                     }
                 });
 
