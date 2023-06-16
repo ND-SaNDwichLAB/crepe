@@ -39,16 +39,16 @@ public class FabModalBottomSheet extends BottomSheetDialogFragment {
     private CreateCollectorFromConfigDialogBuilder createCollectorFromConfigDialogBuilder;
     private CollectorConfigurationDialogWrapper wrapper;
 
+    public FabModalBottomSheet(CreateCollectorFromURLDialogBuilder createCollectorFromURLDialogBuilder, CreateCollectorFromConfigDialogBuilder createCollectorFromConfigDialogBuilder) {
+        this.createCollectorFromURLDialogBuilder = createCollectorFromURLDialogBuilder;
+        this.createCollectorFromConfigDialogBuilder = createCollectorFromConfigDialogBuilder;
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fab_bottom_sheet, container, false);
-
-        currentFragment = (HomeFragment) getParentFragment();
-        createCollectorFromURLDialogBuilder = new CreateCollectorFromURLDialogBuilder(getContext(), refreshCollectorListRunnable);
-        createCollectorFromConfigDialogBuilder = new CreateCollectorFromConfigDialogBuilder(getContext(), refreshCollectorListRunnable);
-
 
         LinearLayout addExistingBtn = view.findViewById(R.id.add_existing_collector_btn);
         LinearLayout createNewBtn = view.findViewById(R.id.create_new_collector_btn);
@@ -118,18 +118,5 @@ public class FabModalBottomSheet extends BottomSheetDialogFragment {
         behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
     }
 
-
-    Runnable refreshCollectorListRunnable = new Runnable() {
-        @Override
-        public void run() {
-            if (currentFragment instanceof HomeFragment) {
-                try {
-                    ((HomeFragment) currentFragment).initCollectorList();
-                } catch (PackageManager.NameNotFoundException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    };
 
 }

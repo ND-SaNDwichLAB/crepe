@@ -78,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
 
     private DatabaseManager dbManager;
 
+    private CreateCollectorFromURLDialogBuilder createCollectorFromURLDialogBuilder;
     private CreateCollectorFromConfigDialogBuilder createCollectorFromConfigDialogBuilder;
 
     private FirebaseAuth mAuth;
@@ -183,6 +184,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+        this.createCollectorFromURLDialogBuilder = new CreateCollectorFromURLDialogBuilder(this, refreshCollectorListRunnable);
         this.createCollectorFromConfigDialogBuilder = new CreateCollectorFromConfigDialogBuilder(this, refreshCollectorListRunnable);
 
         // get the fab icon
@@ -192,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                FabModalBottomSheet modalBottomSheet = new FabModalBottomSheet();
+                FabModalBottomSheet modalBottomSheet = new FabModalBottomSheet(createCollectorFromURLDialogBuilder, createCollectorFromConfigDialogBuilder);
                 modalBottomSheet.show(getSupportFragmentManager(), FabModalBottomSheet.TAG);
 
             }

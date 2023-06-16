@@ -331,7 +331,7 @@ public class FullScreenOverlayManager {
                             if(selectionOverlay != null) {
                                 windowManager.removeView(selectionOverlay);
                             }
-                            Toast.makeText(context, "Please click on the data to collect again", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, "Please tap on the data to collect again", Toast.LENGTH_SHORT).show();
                         }
                     });
                     return true;

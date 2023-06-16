@@ -98,7 +98,7 @@ public class WidgetService extends Service {
             @Override
             public void onClick(View view) {
                 initiateDemonstration(c, fullScreenOverlayManager, widgetDisplay);
-                Toast.makeText(c, "Please click on the data to collect", Toast.LENGTH_LONG).show();
+                Toast.makeText(c, "Please tap on the data to collect", Toast.LENGTH_LONG).show();
             }
         });
 

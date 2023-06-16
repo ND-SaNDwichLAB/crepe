@@ -94,7 +94,7 @@ public class DemonstrationUtil {
      * @return
      */
     public static List<AccessibilityNodeInfo> findMatchingNodeFromClick(List<AccessibilityNodeInfo> allNodeList, float clickX, float clickY){
-        if(allNodeList.size() == 0){
+        if(allNodeList != null && allNodeList.size() == 0){
             return null;
         }
 

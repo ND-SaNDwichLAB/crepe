@@ -549,8 +549,8 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         // update currentScreen String value
                         currentScreenState = "buildDialogFromConfigSuccessMessage";
                         // recursively call itself with new currentScreen String value
-                        refreshCollectorListRunnable.run();
                         CrepeAccessibilityService.getsSharedInstance().refreshCollector();
+                        refreshCollectorListRunnable.run();
                         updateCurrentView();
                     }
                 });
@@ -573,18 +573,9 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                 TextView successMessageTextView = (TextView) dialogMainView.findViewById(R.id.shareText);
                 successMessageTextView.setText("Your collector for " + collector.getAppName() + " is created. Share with your participants");
 
-
-                // connect to crepe server
-//                ServerCollectorCommunicationManager sccManager = new ServerCollectorCommunicationManager(context);
-//                try {
-//                    sccManager.uploadJsonToServer(collector);
-//                } catch (JSONException e) {
-//                    e.printStackTrace();
-//                }
-
-
                 Button closeSuccessMessage = (Button) dialogMainView.findViewById(R.id.closeSuccessMessagePopupButton);
                 ImageButton shareUrlLinkButton = (ImageButton) dialogMainView.findViewById(R.id.shareUrlImageButton);
+
 //                ImageButton shareEmailLinkButton = (ImageButton) dialogMainView.findViewById(R.id.shareEmailImageButton);
 
 //                shareEmailLinkButton.setOnClickListener(new View.OnClickListener() {
@@ -635,7 +626,6 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                 break;
 
             case "dismissed":
-                // do nothing
                 break;
 
             default:
