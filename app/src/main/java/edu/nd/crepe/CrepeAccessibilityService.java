@@ -39,13 +39,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 
 public class CrepeAccessibilityService extends AccessibilityService {
 
     private static final String TAG = "crepeAccessibilityService";
+    private static final long REFRESH_INTERVAL = 60;
 
     private static CrepeAccessibilityService sSharedInstance;
 
@@ -71,6 +74,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
     public UISnapshot getCurrentUiSnapshot() {
         return uiSnapshot;
     }
+    private ScheduledExecutorService scheduler;
 
     @Override
     public void onCreate() {
@@ -78,6 +82,15 @@ public class CrepeAccessibilityService extends AccessibilityService {
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         dbManager = DatabaseManager.getInstance(this.getApplicationContext());
         firebaseCommunicationManager = new FirebaseCommunicationManager(this);
+
+        scheduler = Executors.newScheduledThreadPool(1);
+        scheduler.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                refreshCollector();
+            }
+        }, 0, REFRESH_INTERVAL, TimeUnit.MINUTES);
+
 
         refreshCollector();
     }
@@ -302,6 +315,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
     @Override
     public boolean onUnbind(Intent intent) {
         sSharedInstance = null;
+        scheduler.shutdown();
         return true;
     }
 

@@ -77,7 +77,7 @@ public class FabModalBottomSheet extends BottomSheetDialogFragment {
 
                     MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
                     builder.setTitle("Service Permission Required")
-                            .setMessage(Const.appName + " needs the permission to display over other app for proper function. Please enable the service in the phone settings.")
+                            .setMessage("Please enable the permission to display over other app for proper function.")
                             .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {

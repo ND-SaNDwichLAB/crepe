@@ -425,7 +425,9 @@ public class FullScreenOverlayManager {
             Collections.sort(correctQueries, new Comparator<Pair<OntologyQuery, Double>>() {
                 @Override
                 public int compare(Pair<OntologyQuery, Double> o1, Pair<OntologyQuery, Double> o2) {
-                    return o2.second.compareTo(o1.second);
+                    if(o1.second > o2.second) return 1;
+                    else if (o1.second.equals(o2.second)) return 0;
+                    else return -1;
                 }
             });
             // select the query that can retrieve the least unrelated data

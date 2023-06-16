@@ -1,5 +1,7 @@
 package edu.nd.crepe.database;
 
+import androidx.annotation.NonNull;
+
 import java.util.Calendar;
 
 public class Datafield {
@@ -83,5 +85,11 @@ public class Datafield {
 
     public void setDemonstrated(Boolean demonstrated) {
         isDemonstrated = demonstrated;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return this.collectorId + " " + this.dataFieldId + " " + this.name + " " + this.graphQuery;
     }
 }
