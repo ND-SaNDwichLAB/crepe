@@ -208,6 +208,57 @@ public class FirebaseCommunicationManager {
         });
     }
 
+    public void updateAllCollectors() {
+        DatabaseReference databaseReference = db.getReference(Collector.class.getSimpleName());
+
+        databaseReference.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+
+                // get current time
+                long currentTime = System.currentTimeMillis();
+
+                if (task.isSuccessful()) {
+                    if (task.getResult().exists()) {
+                        DataSnapshot dataSnapshot = task.getResult();
+                        List<Collector> collectorList = new ArrayList<>();
+                        for (DataSnapshot collectorSnapshot : dataSnapshot.getChildren()) {
+
+                            // retrieve relevant attributes
+                            String collectorId = String.valueOf(collectorSnapshot.child("collectorId").getValue());
+                            String collectorStatus = String.valueOf(collectorSnapshot.child("collectorStatus").getValue());
+                            long collectorStartTime = (long) collectorSnapshot.child("collectorStartTime").getValue();
+                            long collectorEndTime = (long) collectorSnapshot.child("collectorEndTime").getValue();
+
+                            // check if the collector time frame contains the current time
+                            if (collectorStatus != Collector.DELETED) {
+                                String currentStatus = "";
+                                if (currentTime >= collectorStartTime && currentTime <= collectorEndTime) {
+                                    currentStatus = Collector.ACTIVE;
+                                } else if (currentTime < collectorStartTime) {
+                                    currentStatus = Collector.NOTYETSTARTED;
+                                } else if (currentTime > collectorEndTime) {
+                                    currentStatus = Collector.EXPIRED;
+                                }
+
+                                if (!currentStatus.equals(collectorStatus)) {
+                                    // update collector status
+                                    databaseReference.child(collectorId).child("collectorStatus").setValue(currentStatus);
+                                }
+                            }
+                        }
+                    } else {
+                        Log.e("Firebase", "retrieve collector: Failed to find any collectors in firebase.");
+                        Toast.makeText(context, "retrieve collector: Failed to find any collectors in firebase.", Toast.LENGTH_LONG).show();
+                    }
+                } else {
+                    Log.e("Firebase", "retrieve collector: Failed to launch connection to firebase.");
+                    Toast.makeText(context, "retrieve collector: Failed to launch connection to firebase.", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+    }
+
 
 
     public void retrieveDatafieldswithCollectorId(String collectorId, FirebaseCallback firebaseCallback) {
