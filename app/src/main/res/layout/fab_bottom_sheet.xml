@@ -1,0 +1,129 @@
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <FrameLayout
+        android:id="@+id/standard_bottom_sheet"
+        app:behavior_hideable="true"
+        app:behavior_peekHeight="296dp"
+        android:layout_height="296dp"
+        android:layout_width="match_parent"
+        android:background="@drawable/rounded_corner_top_transparent"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="5dp"
+            android:background="@drawable/drag_handle_background"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="16dp"/>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/bottom_sheet_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="32dp"
+            android:background="@android:color/transparent">
+
+
+            <LinearLayout
+                android:id="@+id/create_new_collector_btn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/ripple_drawable"
+                android:clickable="true"
+                android:elevation="4dp"
+                android:focusable="true"
+                android:gravity="left"
+                android:orientation="vertical"
+                android:padding="16dp"
+                app:layout_constraintEnd_toStartOf="@+id/add_existing_collector_btn"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:id="@+id/create_new_collector_icon"
+                    android:layout_width="32dp"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="40dp"
+                    android:contentDescription="@string/add_new_collector_icon"
+                    app:srcCompat="@drawable/ic_edit_dark" />
+
+                <TextView
+                    android:id="@+id/create_new_collector_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="@string/fab_button_new_collector_title"
+                    android:textColor="@color/black"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+
+                <TextView
+                    android:id="@+id/create_new_collector_description"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:gravity="left"
+                    android:text="@string/fab_button_create_new_collector"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+            </LinearLayout>
+
+
+
+            <LinearLayout
+                android:id="@+id/add_existing_collector_btn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="16dp"
+                android:background="@drawable/ripple_drawable"
+                android:clickable="true"
+                android:elevation="4dp"
+                android:focusable="true"
+                android:gravity="left"
+                android:orientation="vertical"
+                android:padding="16dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/create_new_collector_btn"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:id="@+id/add_existing_collector_icon"
+                    android:layout_width="32dp"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="40dp"
+                    android:contentDescription="@string/add_existing_collector_icon"
+                    app:srcCompat="@drawable/ic_link_dark" />
+
+                <TextView
+                    android:id="@+id/add_existing_collector_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="Add Existing"
+                    android:textColor="@color/black"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+
+                <TextView
+                    android:id="@+id/add_existing_collector_description"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:gravity="left"
+                    android:text="Join experiment with a provided ID"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </FrameLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

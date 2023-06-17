@@ -12,4 +12,20 @@
     <string name="back">Back</string>
     <string name="positive">Yes</string>
     <string name="negative">No</string>
+<!--    <string name="default_web_client_id">898052898988-v81oceajvc9ufo1799ju4v1ras9crhtm.apps.googleusercontent.com</string>-->
+    <string name="title_activity_google_login">GoogleLoginActivity</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="welcome">"Welcome !"</string>
+    <string name="invalid_username">Not a valid username</string>
+    <string name="invalid_password">Password must be >5 characters</string>
+    <string name="login_failed">"Login failed"</string>
+    <string name="button_for_add_new_collector">button for add new collector</string>
+    <string name="add_new_collector_icon">add new collector icon</string>
+    <string name="fab_button_create_new_collector">Initiate collector for new experiment</string>
+    <string name="fab_button_new_collector_title">Create New</string>
+    <string name="add_existing_collector_icon">add existing collector icon</string>
+    <string name="floating_action_button_for_adding_new_collectors">floating action button for adding new collectors</string>
 </resources>

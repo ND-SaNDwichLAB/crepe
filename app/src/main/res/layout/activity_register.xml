@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="edu.nd.crepe.authentication.Register">
+
+    <EditText
+        android:id="@+id/accountIdEditTextRegister"
+        android:layout_width="match_parent"
+        android:layout_height="54dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="24dp"
+        android:background="@drawable/custom_input"
+        android:hint="aaa@bbb.com"
+        android:lineSpacingExtra="5dp"
+        android:paddingStart="16dp"
+        android:singleLine="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/passwordEditTextRegister"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:background="@drawable/custom_input"
+        android:hint="123456"
+        android:lineSpacingExtra="5dp"
+        android:paddingStart="16dp"
+        android:singleLine="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/accountIdEditTextRegister"
+        app:layout_constraintTop_toBottomOf="@+id/accountIdEditTextRegister" />
+
+    <TextView
+        android:id="@+id/accountIdTextRegister"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="36dp"
+        android:layout_marginTop="16dp"
+        android:background="@color/white"
+        android:paddingStart="2dp"
+        android:paddingEnd="2dp"
+        android:text="Your email address"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/RegisterButtonRegister"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Register Now"
+        app:layout_constraintStart_toStartOf="@+id/passwordEditTextRegister"
+        app:layout_constraintTop_toBottomOf="@+id/passwordEditTextRegister" />
+
+    <Button
+        android:id="@+id/LoginButtonRegisterUI"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Go to Login"
+        android:background="@android:color/transparent"
+        android:textColor="@color/ND_blue"
+        android:layout_marginStart="24dp"
+        app:layout_constraintStart_toEndOf="@+id/RegisterButtonRegister"
+        app:layout_constraintTop_toBottomOf="@+id/passwordEditTextRegister" />
+
+    <TextView
+        android:id="@+id/passwordTextRegister"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="36dp"
+        android:layout_marginTop="16dp"
+        android:background="@color/white"
+        android:paddingStart="2dp"
+        android:paddingEnd="2dp"
+        android:text="Set Your Password"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/accountIdEditTextRegister" />
+
+    <ProgressBar
+        android:id="@+id/progressBarRegister"
+        android:visibility="gone"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_gravity="center"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -14,7 +14,7 @@
         android:layout_marginEnd="24dp"
         android:layout_marginBottom="24dp"
         android:textColor="@color/gray"
-        android:text="No active collectors \n\n Use the the bottom left button \n to create or import your collector"
+        android:text="No active collectors"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -26,7 +26,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="16dp"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:contentDescription="Container for a list of collectors">
 
         <LinearLayout
             android:id="@+id/fragment_home_inner_linear_layout"
