@@ -27,4 +27,5 @@
     <string name="fab_button_create_new_collector">Initiate collector for new experiment</string>
     <string name="fab_button_new_collector_title">Create New</string>
     <string name="add_existing_collector_icon">add existing collector icon</string>
+    <string name="floating_action_button_for_adding_new_collectors">floating action button for adding new collectors</string>
 </resources>
