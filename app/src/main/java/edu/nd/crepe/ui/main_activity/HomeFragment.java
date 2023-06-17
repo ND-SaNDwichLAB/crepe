@@ -1,11 +1,16 @@
 package edu.nd.crepe.ui.main_activity;
 
+import android.app.ActivityManager;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,9 +26,11 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import edu.nd.crepe.CrepeAccessibilityService;
 import edu.nd.crepe.R;
 import edu.nd.crepe.database.Collector;
 import edu.nd.crepe.database.DatabaseManager;
+import edu.nd.crepe.graphquery.Const;
 import edu.nd.crepe.network.DataLoadingEvent;
 
 import java.util.HashMap;
@@ -102,6 +109,36 @@ public class HomeFragment extends Fragment {
                         // Toast.makeText(this.getActivity(), fragmentInnerConstraintLayout.toString(), Toast.LENGTH_LONG).show();
                         fragmentInnerLinearLayout.addView(collectorCardView);
                     }
+                }
+
+
+                // enable accessibility service
+                // check if the accessibility service is running
+                Boolean accessibilityServiceRunning = false;
+                ActivityManager manager = (ActivityManager) getContext().getSystemService(Context.ACTIVITY_SERVICE);
+                Class clazz = CrepeAccessibilityService.class;
+
+                if (manager != null) {
+                    for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+                        if (clazz.getName().equals(service.service.getClassName())) {
+                            accessibilityServiceRunning = true;
+                        }
+                    }
+                }
+
+                // if accessibility service is not on
+                if (!accessibilityServiceRunning) {
+                    AlertDialog.Builder builder1 = new AlertDialog.Builder(getContext());
+                    builder1.setTitle("Service Permission Required")
+                            .setMessage("The accessibility service is not enabled for " + Const.appName + ". Please enable the service in the phone settings before recording.")
+                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+                                    getContext().startActivity(intent);
+                                    //do nothing
+                                }
+                            }).show();
                 }
 
             } else {
