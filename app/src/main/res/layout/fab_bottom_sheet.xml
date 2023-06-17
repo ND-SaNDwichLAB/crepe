@@ -6,8 +6,8 @@
     <FrameLayout
         android:id="@+id/standard_bottom_sheet"
         app:behavior_hideable="true"
-        app:behavior_peekHeight="320dp"
-        android:layout_height="320dp"
+        app:behavior_peekHeight="296dp"
+        android:layout_height="296dp"
         android:layout_width="match_parent"
         android:background="@drawable/rounded_corner_top_transparent"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
@@ -49,7 +49,7 @@
 
                 <ImageView
                     android:id="@+id/create_new_collector_icon"
-                    android:layout_width="40dp"
+                    android:layout_width="32dp"
                     android:layout_height="40dp"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="40dp"
@@ -97,7 +97,7 @@
 
                 <ImageView
                     android:id="@+id/add_existing_collector_icon"
-                    android:layout_width="40dp"
+                    android:layout_width="32dp"
                     android:layout_height="40dp"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="40dp"
