@@ -2,8 +2,11 @@ package edu.nd.crepe.demonstration;
 
 import static android.content.Context.WINDOW_SERVICE;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.net.Uri;
@@ -199,15 +202,15 @@ public class FullScreenOverlayManager {
                     float adjustedY = rawY - navHeight;
 
                     // show the matched item on screen
-                    windowManager = (WindowManager) context.getSystemService(WINDOW_SERVICE);
-                    WindowManager.LayoutParams selectionLayoutParams = updateLayoutParams(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
-                    Rect clickedItemBounds = DemonstrationUtil.getBoundingBoxOfClickedItem(rawX, rawY);
-                    // move the clickedItemBounds up by the navHeight
-                    if (clickedItemBounds != null) {
-                        clickedItemBounds.offset(0, -1 * (int) navHeight);
-                        this.selectionOverlay = selectionOverlayViewManager.getRectOverlay(clickedItemBounds);
-                        windowManager.addView(this.selectionOverlay, selectionLayoutParams);
-                    }
+//                    windowManager = (WindowManager) context.getSystemService(WINDOW_SERVICE);
+//                    WindowManager.LayoutParams selectionLayoutParams = updateLayoutParams(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
+//                    Rect clickedItemBounds = DemonstrationUtil.getBoundingBoxOfClickedItem(rawX, rawY);
+//                    // move the clickedItemBounds up by the navHeight
+//                    if (clickedItemBounds != null) {
+//                        clickedItemBounds.offset(0, -1 * (int) navHeight);
+//                        this.selectionOverlay = selectionOverlayViewManager.getRectOverlay(clickedItemBounds);
+//                        windowManager.addView(this.selectionOverlay, selectionLayoutParams);
+//                    }
 
                     List<Pair<OntologyQuery, Double>> defaultQueries = DemonstrationUtil.processOverlayClick(rawX, rawY);
 
@@ -262,20 +265,31 @@ public class FullScreenOverlayManager {
                             WindowManager.LayoutParams.WRAP_CONTENT,
                             Const.OVERLAY_TYPE,
                             WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_INSET_DECOR,
-                            PixelFormat.TRANSLUCENT);
+                            PixelFormat.OPAQUE);
                     LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                     View confirmationView = layoutInflater.inflate(R.layout.demonstration_confirmation, null);
 
-                    // Set the elevation of the view
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        confirmationView.setElevation(10.0f); // Set the elevation to 10dp
-                    }
                     TextView queryTextView = confirmationView.findViewById(R.id.confirmationInfo);
                     // set the text of the dialog window
                     String displayText = "";
 
                     displayText = "You clicked on \"" + targetEntity.getEntityValue().getText() + "\". Do you want to collect this data?";
                     queryTextView.setText(displayText);
+
+                    // Create a full-screen black view with a certain transparency
+                    View dimView = new View(context);
+                    dimView.setBackgroundColor(Color.parseColor("#99000000")); // change the alpha value to adjust transparency
+
+                    WindowManager.LayoutParams dimParams = new WindowManager.LayoutParams(
+                            WindowManager.LayoutParams.MATCH_PARENT,
+                            WindowManager.LayoutParams.MATCH_PARENT,
+                            Const.OVERLAY_TYPE,
+                            WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_INSET_DECOR | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                            PixelFormat.TRANSLUCENT);
+
+                    // Add the dim view to the window
+                    windowManager.addView(dimView, dimParams);
+                    // Then add the confirmation dialog to the window
                     windowManager.addView(confirmationView, dialogParams);
 
 
@@ -299,6 +313,10 @@ public class FullScreenOverlayManager {
                             // remove the selection overlay
                             if (selectionOverlay != null) {
                                 windowManager.removeView(selectionOverlay);
+                            }
+                            // remove the dim view
+                            if (dimView != null) {
+                                windowManager.removeView(dimView);
                             }
 
                             // set the data to the main activity
@@ -324,13 +342,18 @@ public class FullScreenOverlayManager {
                         @Override
                         public void onClick(View v) {
                             // remove the confirmation dialog
-                            if(confirmationView != null) {
+                            if (confirmationView != null) {
                                 windowManager.removeView(confirmationView);
                             }
                             // remove the selection overlay
-                            if(selectionOverlay != null) {
+                            if (selectionOverlay != null) {
                                 windowManager.removeView(selectionOverlay);
                             }
+                            // remove the dim view
+                            if (dimView != null) {
+                                windowManager.removeView(dimView);
+                            }
+
                             Toast.makeText(context, "Please tap on the data to collect again", Toast.LENGTH_SHORT).show();
                         }
                     });
