@@ -106,6 +106,12 @@ public class MainActivity extends AppCompatActivity {
         dbManager = DatabaseManager.getInstance(this.getApplicationContext());
         FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(this);
 
+        // Clear the shared preferences
+        SharedPreferences sharedPreferences = getSharedPreferences("prefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.clear();
+        editor.apply();
+
         mAuth = FirebaseAuth.getInstance();
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
@@ -128,7 +134,6 @@ public class MainActivity extends AppCompatActivity {
 
         userNameTextView = navHeader.findViewById(R.id.userName);
 //        ImageView userImageView = navHeader.findViewById(R.id.userImage);
-
 
         if (currentUser == null) {
             // get the current stored user from the database, saved in the log in process with google authentication
