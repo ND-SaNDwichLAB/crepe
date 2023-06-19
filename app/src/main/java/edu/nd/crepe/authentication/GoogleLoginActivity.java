@@ -151,16 +151,17 @@ public class GoogleLoginActivity extends AppCompatActivity {
                                                   Log.d(TAG, "onSuccess: New User");
                                                   // only the admin of this application can retrieve user profile from the uid, so users' privacy is protected
                                                   createNewUser(user.getUid(), randomName, "");
+
+                                                  // move to main activity
+                                                  Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                                                  startActivity(intent);
+                                                  finish();
+
                                               } else {
                                                   Log.d(TAG, "onSuccess: Existing User");
                                                   addExistingUserInfo(user.getUid());
                                               }
 
-                                              // move to main activity
-                                              Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-//                                              intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                                              startActivity(intent);
-                                              finish();
                                           }
                                       }
                 )
@@ -192,6 +193,12 @@ public class GoogleLoginActivity extends AppCompatActivity {
 
                 // save this user to local database
                 dbManager.addOneUser(user);
+
+
+                // move to main activity
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                startActivity(intent);
+                finish();
 
                 ArrayList<String> collectorIds = user.getCollectorsForCurrentUser();
 

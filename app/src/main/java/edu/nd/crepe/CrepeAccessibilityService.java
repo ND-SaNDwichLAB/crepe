@@ -106,7 +106,10 @@ public class CrepeAccessibilityService extends AccessibilityService {
             dbManager.updateCollectorStatus(collector);
         }
 
-        firebaseCommunicationManager.updateAllCollectors();
+        if (collectors != null && !collectors.isEmpty()) {
+            firebaseCommunicationManager.updateAllCollectors();
+        }
+
     }
 
     /**

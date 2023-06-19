@@ -93,8 +93,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView userNameTextView;
 
     // the unique id extracted from the user's device, used as their user id
-    public static User currentUser = null;
-    public static Drawable userImage = null;
+    public static User currentUser;
+    public static Drawable userImage;
 
     private CollectorConfigurationDialogWrapper wrapper;
 
@@ -147,9 +147,6 @@ public class MainActivity extends AppCompatActivity {
                 Log.i("Main Activity", "no user found in database.");
             }
         }
-
-        // if it is existing user and the profile is not pulled from firebase yet, register for the event and update when it is ready
-        EventBus.getDefault().register(this);
 
 //        if (userImage == null) {
 //            new Thread(new Runnable() {
@@ -365,14 +362,4 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onDataLoadingEvent(DataLoadingEvent event){
-        if(event.isCompleted()){
-            if (dbManager.getAllUsers().size() == 1) {
-                currentUser = dbManager.getAllUsers().get(0);
-                userNameTextView.setText(currentUser.getName());
-                Toast.makeText(this, "Welcome, " + currentUser.getName() + "! 🥳🎉🎊", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
 }

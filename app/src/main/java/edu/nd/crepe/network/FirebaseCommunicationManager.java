@@ -154,7 +154,12 @@ public class FirebaseCommunicationManager {
 
                         GenericTypeIndicator<List<String>> genericTypeIndicator = new GenericTypeIndicator<List<String>>() {};
                         List<String> userCollectorsList = dataSnapshot.child("userCollectors").getValue(genericTypeIndicator);
-                        ArrayList<String> userCollectors = new ArrayList<>(userCollectorsList);
+                        ArrayList<String> userCollectors;
+                        if (userCollectorsList == null) {
+                            userCollectors = new ArrayList<>();
+                        } else {
+                            userCollectors = new ArrayList<>(userCollectorsList);
+                        }
 
                         User user = new User(userId, userName, photoUrl, timeCreated, timeLastEdited, userCollectors);
                         // call firebase callback to update user
@@ -248,8 +253,7 @@ public class FirebaseCommunicationManager {
                             }
                         }
                     } else {
-                        Log.e("Firebase", "retrieve collector: Failed to find any collectors in firebase.");
-                        Toast.makeText(context, "retrieve collector: Failed to find any collectors in firebase.", Toast.LENGTH_LONG).show();
+                        Log.i("Firebase", "Collector list is empty");
                     }
                 } else {
                     Log.e("Firebase", "retrieve collector: Failed to launch connection to firebase.");
