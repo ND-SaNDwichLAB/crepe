@@ -83,6 +83,9 @@ public class GoogleLoginActivity extends AppCompatActivity {
         dbManager = DatabaseManager.getInstance(getApplicationContext());
         fbManager = new FirebaseCommunicationManager(getApplicationContext());
 
+        // TODO REMOVE THIS
+        dbManager.clearDatabase();
+
         // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
         // Configure Google Sign In

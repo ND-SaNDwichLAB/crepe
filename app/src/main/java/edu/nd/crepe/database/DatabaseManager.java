@@ -6,7 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
-import android.widget.Toast;
+
 import androidx.annotation.Nullable;
 
 import com.google.gson.Gson;
@@ -78,7 +78,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             "            " + COLUMN_USER_LAST_TIME_EDITED + " BIGINT, " +
             "            " + COLUMN_USER_COLLECTORS + " VARCHAR)";
 
-    private final String createDataFieldTableStatement = "CREATE TABLE IF NOT EXISTS " + DATAFIELD_TABLE + " (" + COLUMN_DATAFIELD_ID + " VARCHAR PRIMARY KEY, " +
+    private final String createDatafieldTableStatement = "CREATE TABLE IF NOT EXISTS " + DATAFIELD_TABLE + " (" + COLUMN_DATAFIELD_ID + " VARCHAR PRIMARY KEY, " +
             "            " + COLUMN_COLLECTOR_ID + " VARCHAR, " +
             "            " + COLUMN_GRAPH_QUERY + " VARCHAR, " +
             "            " + COLUMN_DATAFIELD_NAME + " VARCHAR, " +
@@ -108,7 +108,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         // generate new tables
         sqLiteDatabase.execSQL(createCollectorTableStatement);
         sqLiteDatabase.execSQL(createUserTableStatement);
-        sqLiteDatabase.execSQL(createDataFieldTableStatement);
+        sqLiteDatabase.execSQL(createDatafieldTableStatement);
         sqLiteDatabase.execSQL(createDataTableStatement);
         System.out.println("create table success");
     }
@@ -348,7 +348,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         ContentValues cv = new ContentValues();
 
         cv.put(COLUMN_DATA_ID, data.getDataId());
-        cv.put(COLUMN_DATAFIELD_ID, data.getDataFieldId());
+        cv.put(COLUMN_DATAFIELD_ID, data.getDatafieldId());
         cv.put(COLUMN_USER_ID, data.getUserId());
         cv.put(COLUMN_TIMESTAMP, data.getTimestamp());
         cv.put(COLUMN_DATA_CONTENT, data.getDataContent());
@@ -400,12 +400,12 @@ public class DatabaseManager extends SQLiteOpenHelper {
             do {
 
                 String dataId = cursor.getString(0);
-                String dataFieldId = cursor.getString(1);
+                String datafieldId = cursor.getString(1);
                 String userId = cursor.getString(2);
                 Long timestamp = cursor.getLong(3);
                 String dataContent = cursor.getString(4);
 
-                Data receivedData = new Data(dataId, dataFieldId, userId, timestamp, dataContent);
+                Data receivedData = new Data(dataId, datafieldId, userId, timestamp, dataContent);
 
                 dataList.add(receivedData);
 
@@ -429,12 +429,12 @@ public class DatabaseManager extends SQLiteOpenHelper {
             do {
 
                 String dataId = cursor.getString(0);
-                String dataFieldId = cursor.getString(1);
+                String datafieldId = cursor.getString(1);
                 String userId = cursor.getString(2);
                 Long timestamp = cursor.getLong(3);
                 String dataContent = cursor.getString(4);
 
-                Data receivedData = new Data(dataId, dataFieldId, userId, timestamp, dataContent);
+                Data receivedData = new Data(dataId, datafieldId, userId, timestamp, dataContent);
 
                 dataList.add(receivedData);
 
@@ -449,16 +449,16 @@ public class DatabaseManager extends SQLiteOpenHelper {
     }
 
 
-    public Boolean addOneDatafield(Datafield dataField) {
+    public Boolean addOneDatafield(Datafield datafield) {
         ContentValues cv = new ContentValues();
 
-        cv.put(COLUMN_DATAFIELD_ID, dataField.getDataFieldId());
-        cv.put(COLUMN_COLLECTOR_ID, dataField.getCollectorId());
-        cv.put(COLUMN_GRAPH_QUERY, dataField.getGraphQuery());
-        cv.put(COLUMN_DATAFIELD_NAME, dataField.getName());
-        cv.put(COLUMN_DATAFIELD_TIME_CREATED, dataField.getTimeCreated());
-        cv.put(COLUMN_DATAFIELD_TIME_LAST_EDITED, dataField.getTimelastEdited());
-        cv.put(COLUMN_DATAFIELD_IS_DEMONSTRATED, dataField.getDemonstrated());
+        cv.put(COLUMN_DATAFIELD_ID, datafield.getDatafieldId());
+        cv.put(COLUMN_COLLECTOR_ID, datafield.getCollectorId());
+        cv.put(COLUMN_GRAPH_QUERY, datafield.getGraphQuery());
+        cv.put(COLUMN_DATAFIELD_NAME, datafield.getName());
+        cv.put(COLUMN_DATAFIELD_TIME_CREATED, datafield.getTimeCreated());
+        cv.put(COLUMN_DATAFIELD_TIME_LAST_EDITED, datafield.getTimelastEdited());
+        cv.put(COLUMN_DATAFIELD_IS_DEMONSTRATED, datafield.getDemonstrated());
 
         // catch exception of the insert operation
         try {
@@ -501,14 +501,14 @@ public class DatabaseManager extends SQLiteOpenHelper {
         if(cursor.moveToFirst()) {
             do {
 
-                String dataFieldId = cursor.getString(0);
+                String datafieldId = cursor.getString(0);
                 String collectorId = cursor.getString(1);
                 String graphQuery = cursor.getString(2);
                 String name = cursor.getString(3);
                 Long timeCreated = cursor.getLong(4);
                 Long timeLastEdited = cursor.getLong(5);
                 Boolean isDemonstrated = cursor.getInt(6) != 0;
-                Datafield receivedDatafield = new Datafield(dataFieldId, collectorId, graphQuery, name, timeCreated, timeLastEdited, isDemonstrated);
+                Datafield receivedDatafield = new Datafield(datafieldId, collectorId, graphQuery, name, timeCreated, timeLastEdited, isDemonstrated);
 
                 dataList.add(receivedDatafield);
 
@@ -531,14 +531,14 @@ public class DatabaseManager extends SQLiteOpenHelper {
         if(cursor.moveToFirst()) {
             do {
 
-                String dataFieldId = cursor.getString(0);
+                String datafieldId = cursor.getString(0);
                 String collectorId = cursor.getString(1);
                 String graphQuery = cursor.getString(2);
                 String name = cursor.getString(3);
                 Long timeCreated = cursor.getLong(4);
                 Long timeLastEdited = cursor.getLong(5);
                 Boolean isDemonstrated = cursor.getInt(6) != 0;
-                Datafield receivedDatafield = new Datafield(dataFieldId, collectorId, graphQuery, name, timeCreated, timeLastEdited, isDemonstrated);
+                Datafield receivedDatafield = new Datafield(datafieldId, collectorId, graphQuery, name, timeCreated, timeLastEdited, isDemonstrated);
 
                 dataList.add(receivedDatafield);
 
@@ -628,6 +628,14 @@ public class DatabaseManager extends SQLiteOpenHelper {
         if (db != null) {
             db.close();
         }
+    }
+
+    public void clearDatabase() {
+        db.execSQL("DROP TABLE IF EXISTS " + COLLECTOR_TABLE);
+        db.execSQL("DROP TABLE IF EXISTS " + DATAFIELD_TABLE);
+        db.execSQL("DROP TABLE IF EXISTS " + DATA_TABLE);
+        db.execSQL("DROP TABLE IF EXISTS " + USER_TABLE);
+        onCreate(db);
     }
 }
 

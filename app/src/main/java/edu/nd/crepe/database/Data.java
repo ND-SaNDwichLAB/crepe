@@ -5,22 +5,22 @@ import java.util.Calendar;
 public class Data {
 
     private String dataId;
-    private String dataFieldId;
+    private String datafieldId;
     private String userId;
     private long timestamp;
     private String dataContent;
 
-    public Data(String dataId, String dataFieldId, String userId, String dataContent) {
+    public Data(String dataId, String datafieldId, String userId, String dataContent) {
         this.dataId = dataId;
-        this.dataFieldId = dataFieldId;
+        this.datafieldId = datafieldId;
         this.userId = userId;
         this.timestamp = Calendar.getInstance().getTimeInMillis();
         this.dataContent = dataContent;
     }
 
-    public Data(String dataId, String dataFieldId, String userId, long timeStamp, String dataContent) {
+    public Data(String dataId, String datafieldId, String userId, long timeStamp, String dataContent) {
         this.dataId = dataId;
-        this.dataFieldId = dataFieldId;
+        this.datafieldId = datafieldId;
         this.userId = userId;
         this.timestamp = timeStamp;
         this.dataContent = dataContent;
@@ -34,12 +34,12 @@ public class Data {
         this.dataId = dataId;
     }
 
-    public String getDataFieldId() {
-        return dataFieldId;
+    public String getDatafieldId() {
+        return datafieldId;
     }
 
-    public void setDataFieldId(String dataFieldId) {
-        this.dataFieldId = dataFieldId;
+    public void setDatafieldId(String datafieldId) {
+        this.datafieldId = datafieldId;
     }
 
     public String getUserId() {

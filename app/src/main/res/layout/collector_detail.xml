@@ -17,7 +17,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/collectorDataFieldTitle"
+        android:id="@+id/collectorDatafieldTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="48dp"
@@ -34,19 +34,19 @@
 <!--        android:layout_marginTop="24dp"-->
 <!--        android:text="Rider Contact"-->
 <!--        android:textSize="20sp"-->
-<!--        app:layout_constraintStart_toStartOf="@+id/collectorDetailDataField"-->
-<!--        app:layout_constraintTop_toBottomOf="@+id/collectorDetailDataField" />-->
+<!--        app:layout_constraintStart_toStartOf="@+id/collectorDetailDatafield"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/collectorDetailDatafield" />-->
 
     <TextView
-        android:id="@+id/collectorDetailDataField"
+        android:id="@+id/collectorDetailDatafield"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="48dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="48dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/collectorDataFieldTitle"
-        app:layout_constraintTop_toBottomOf="@+id/collectorDataFieldTitle" />
+        app:layout_constraintStart_toStartOf="@+id/collectorDatafieldTitle"
+        app:layout_constraintTop_toBottomOf="@+id/collectorDatafieldTitle" />
 
 <!--    <TextView-->
 <!--        android:id="@+id/collectorResearcherContact"-->
@@ -65,8 +65,8 @@
         android:padding="24dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/collectorDetailDataField"
-        app:layout_constraintTop_toBottomOf="@id/collectorDetailDataField">
+        app:layout_constraintStart_toStartOf="@+id/collectorDetailDatafield"
+        app:layout_constraintTop_toBottomOf="@id/collectorDetailDatafield">
 
         <Button
             android:id="@+id/collectorDeleteButton"

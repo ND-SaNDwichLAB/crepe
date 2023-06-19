@@ -6,7 +6,7 @@ import java.util.Calendar;
 
 public class Datafield {
 
-    private String dataFieldId;
+    private String datafieldId;
     private String collectorId; // foreign key
     private String graphQuery;
     private String name;
@@ -15,8 +15,8 @@ public class Datafield {
 
     private Boolean isDemonstrated;
 
-    public Datafield(String dataFieldId, String collectorId, String graphQuery, String name, Boolean isDemonstrated) {
-        this.dataFieldId = dataFieldId;
+    public Datafield(String datafieldId, String collectorId, String graphQuery, String name, Boolean isDemonstrated) {
+        this.datafieldId = datafieldId;
         this.collectorId = collectorId;
         this.graphQuery = graphQuery;
         this.name = name;
@@ -25,8 +25,8 @@ public class Datafield {
         this.isDemonstrated = isDemonstrated;
     }
 
-    public Datafield(String dataFieldId, String collectorId, String graphQuery, String name, long timeCreated, long timelastEdited, Boolean isDemonstrated) {
-        this.dataFieldId = dataFieldId;
+    public Datafield(String datafieldId, String collectorId, String graphQuery, String name, long timeCreated, long timelastEdited, Boolean isDemonstrated) {
+        this.datafieldId = datafieldId;
         this.collectorId = collectorId;
         this.graphQuery = graphQuery;
         this.name = name;
@@ -35,12 +35,12 @@ public class Datafield {
         this.isDemonstrated = isDemonstrated;
     }
 
-    public String getDataFieldId() {
-        return dataFieldId;
+    public String getDatafieldId() {
+        return datafieldId;
     }
 
-    public void setDataFieldId(String dataFieldId) {
-        this.dataFieldId = dataFieldId;
+    public void setDatafieldId(String datafieldId) {
+        this.datafieldId = datafieldId;
     }
 
     public String getCollectorId() {
@@ -90,6 +90,6 @@ public class Datafield {
     @NonNull
     @Override
     public String toString() {
-        return this.collectorId + " " + this.dataFieldId + " " + this.name + " " + this.graphQuery;
+        return this.collectorId + " " + this.datafieldId + " " + this.name + " " + this.graphQuery;
     }
 }

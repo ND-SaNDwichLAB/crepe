@@ -6,7 +6,7 @@
     android:layout_height="wrap_content">
 
     <TextView
-        android:id="@+id/dataFieldPopupTitle"
+        android:id="@+id/datafieldPopupTitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
@@ -19,7 +19,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/dataFieldNextButton"
+        android:id="@+id/datafieldNextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -31,10 +31,10 @@
         android:textColorHint="@color/ND_gold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/commentOnDataField" />
+        app:layout_constraintTop_toBottomOf="@+id/commentOnDatafield" />
 
     <Button
-        android:id="@+id/dataFieldBackButton"
+        android:id="@+id/datafieldBackButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -42,11 +42,11 @@
         android:text="BACK"
         android:textColor="@color/ND_blue"
         android:textColorHint="@color/ND_blue"
-        app:layout_constraintEnd_toStartOf="@+id/dataFieldNextButton"
-        app:layout_constraintTop_toBottomOf="@+id/commentOnDataField" />
+        app:layout_constraintEnd_toStartOf="@+id/datafieldNextButton"
+        app:layout_constraintTop_toBottomOf="@+id/commentOnDatafield" />
 
     <TextView
-        android:id="@+id/hintEnterDataField"
+        android:id="@+id/hintEnterDatafield"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="36dp"
@@ -56,10 +56,10 @@
         android:paddingEnd="2dp"
         android:text="Data Field(s)"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/dataFieldPopupTitle" />
+        app:layout_constraintTop_toBottomOf="@+id/datafieldPopupTitle" />
 
     <TextView
-        android:id="@+id/commentOnDataField"
+        android:id="@+id/commentOnDatafield"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="36dp"
@@ -68,7 +68,7 @@
         app:layout_constraintTop_toBottomOf="@+id/datafieldLinearLayout" />
 
     <ImageButton
-        android:id="@+id/closeDataFieldImageButton"
+        android:id="@+id/closeDatafieldImageButton"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_marginTop="14dp"
@@ -86,9 +86,9 @@
         android:layout_marginTop="4dp"
         android:layout_marginEnd="0dp"
         android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="@id/dataFieldNextButton"
-        app:layout_constraintStart_toStartOf="@+id/hintEnterDataField"
-        app:layout_constraintTop_toBottomOf="@+id/hintEnterDataField"></LinearLayout>
+        app:layout_constraintEnd_toEndOf="@id/datafieldNextButton"
+        app:layout_constraintStart_toStartOf="@+id/hintEnterDatafield"
+        app:layout_constraintTop_toBottomOf="@+id/hintEnterDatafield"></LinearLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

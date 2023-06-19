@@ -8,7 +8,6 @@ import androidx.annotation.NonNull;
 
 import edu.nd.crepe.database.Collector;
 import edu.nd.crepe.database.Data;
-import edu.nd.crepe.database.DatabaseManager;
 import edu.nd.crepe.database.Datafield;
 import edu.nd.crepe.database.User;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -54,7 +53,7 @@ public class FirebaseCommunicationManager {
 
     public Task<Void> putDatafield(Datafield datafield) {
         DatabaseReference databaseReference = db.getReference(Datafield.class.getSimpleName());
-        return databaseReference.child(datafield.getDataFieldId()).setValue(datafield);
+        return databaseReference.child(datafield.getDatafieldId()).setValue(datafield);
     }
 
     public Task<Void> updateCollector(String key, HashMap<String, Object> hashMap){
@@ -205,7 +204,7 @@ public class FirebaseCommunicationManager {
                         Toast.makeText(context, "retrieve collector: Failed to find the collector in firebase.", Toast.LENGTH_LONG).show();
                     }
                 } else {
-                    Log.e("Firebase", "retrieve collector: Failed to launch connection to firebase.");
+                    Log.e("Firebase", "retrieve collector: Failed to launch connection to firebase. Error: ", task.getException());
                     Toast.makeText(context, "retrieve collector: Failed to launch connection to firebase.", Toast.LENGTH_LONG).show();
                     firebaseCallback.onErrorResponse(task.getException());
                 }
@@ -257,7 +256,6 @@ public class FirebaseCommunicationManager {
                     }
                 } else {
                     Log.e("Firebase", "retrieve collector: Failed to launch connection to firebase.");
-                    Toast.makeText(context, "retrieve collector: Failed to launch connection to firebase.", Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -275,14 +273,14 @@ public class FirebaseCommunicationManager {
                 if (task.isSuccessful()) {
                     List<Datafield> datafields = new ArrayList<>();
                     for (DataSnapshot snapshot : task.getResult().getChildren()) {
-                        String dataFieldId = String.valueOf(snapshot.child("dataFieldId").getValue());
+                        String datafieldId = String.valueOf(snapshot.child("datafieldId").getValue());
                         String name = String.valueOf(snapshot.child("name").getValue());
                         String graphQuery = String.valueOf(snapshot.child("graphQuery").getValue());
                         boolean demonstrated = (boolean) snapshot.child("demonstrated").getValue();
                         long timeCreated = (long) snapshot.child("timeCreated").getValue();
                         long timelastEdited = (long) snapshot.child("timelastEdited").getValue();
 
-                        Datafield datafield = new Datafield(dataFieldId, collectorId, graphQuery, name, timeCreated, timelastEdited, demonstrated);
+                        Datafield datafield = new Datafield(datafieldId, collectorId, graphQuery, name, timeCreated, timelastEdited, demonstrated);
                         datafields.add(datafield);
                     }
 
@@ -309,15 +307,15 @@ public class FirebaseCommunicationManager {
                     for (DataSnapshot snapshot : task.getResult().getChildren()) {
                         String dataId = String.valueOf(snapshot.child("dataId").getValue());
                         String userId = String.valueOf(snapshot.child("userId").getValue());
-                        String dataFieldId = String.valueOf(snapshot.child("dataFieldId").getValue());
+                        String datafieldId = String.valueOf(snapshot.child("datafieldId").getValue());
                         String dataContent = String.valueOf(snapshot.child("dataContent").getValue());
                         long timestamp = (long) snapshot.child("timestamp").getValue();
-                        Data data = new Data(dataId, dataFieldId, userId,  timestamp, dataContent);
+                        Data data = new Data(dataId, datafieldId, userId,  timestamp, dataContent);
 //                        // if creator, add all data
 //                        if (checkDataAccessRule(userId,dbManager.getAllUsers().get(0)).equals(PARTICIPANT)) {
 //                            datas.add(data);
 //                        }
-                        // TODO: if creator, add all data when data.dataFieldId.creatorId == self.userId
+                        // TODO: if creator, add all data when data.datafieldId.creatorId == self.userId
 
                         datas.add(data);
                     }

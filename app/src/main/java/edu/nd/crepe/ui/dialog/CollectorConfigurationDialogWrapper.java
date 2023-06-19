@@ -35,9 +35,9 @@ import edu.nd.crepe.R;
 import edu.nd.crepe.database.Collector;
 import edu.nd.crepe.database.DatabaseManager;
 import edu.nd.crepe.database.Datafield;
-import edu.nd.crepe.database.User;
 import edu.nd.crepe.demonstration.WidgetService;
 import edu.nd.crepe.graphquery.Const;
+import edu.nd.crepe.network.FirebaseCallback;
 import edu.nd.crepe.network.FirebaseCommunicationManager;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
@@ -75,7 +75,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
             // datafield id format: collectorId%[index]
             String datafieldId = collector.getCollectorId() + "%" + String.valueOf(datafields.size());
             datafields.add(new Datafield(datafieldId, collector.getCollectorId(),query,targetText,true));
-            updateDisplayedDataFieldsFromDemonstration(dialogMainView);
+            updateDisplayedDatafieldsFromDemonstration(dialogMainView);
         }
     }
     private GraphQueryCallback graphQueryCallback = new GraphQueryCallback();
@@ -324,7 +324,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                 commentOnOpenAppButton.setText("Demonstrate in the " + appName +" app");
 
                 // modify content of the popup box based on current state
-                updateDisplayedDataFieldsFromDemonstration(dialogMainView);
+                updateDisplayedDatafieldsFromDemonstration(dialogMainView);
 
                 // Open App button
                 openAppButton.setOnClickListener(new View.OnClickListener() {
@@ -464,23 +464,23 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                 break;
 
 
-//            case "buildDialogFromConfigDataField":
+//            case "buildDialogFromConfigDatafield":
 //                dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_add_collector_from_config_data_field, null);
 //                dialog.setContentView(dialogMainView);
 //
-//                Button dataFieldNxtBtn = (Button) dialogMainView.findViewById(R.id.dataFieldNextButton);
-//                Button dataFieldBckBtn = (Button) dialogMainView.findViewById(R.id.dataFieldBackButton);
-//                ImageButton dataFieldCloseImg = (ImageButton) dialogMainView.findViewById(R.id.closeDataFieldImageButton);
-//                LinearLayout dataFieldLinearLayout = (LinearLayout) dialogMainView.findViewById(R.id.dataFiledLinearLayout);
+//                Button datafieldNxtBtn = (Button) dialogMainView.findViewById(R.id.datafieldNextButton);
+//                Button datafieldBckBtn = (Button) dialogMainView.findViewById(R.id.datafieldBackButton);
+//                ImageButton datafieldCloseImg = (ImageButton) dialogMainView.findViewById(R.id.closeDatafieldImageButton);
+//                LinearLayout datafieldLinearLayout = (LinearLayout) dialogMainView.findViewById(R.id.dataFiledLinearLayout);
 //
 //
 //                // get size of ril and create a list
-//                DataFieldConstraintLayoutBuilder builder = new DataFieldConstraintLayoutBuilder(context);
-//                updateDataField(collector,dataFieldLinearLayout, builder);
+//                DatafieldConstraintLayoutBuilder builder = new DatafieldConstraintLayoutBuilder(context);
+//                updateDatafield(collector,datafieldLinearLayout, builder);
 //
 //
 //
-//                dataFieldBckBtn.setOnClickListener(new View.OnClickListener() {
+//                datafieldBckBtn.setOnClickListener(new View.OnClickListener() {
 //                    @Override
 //                    public void onClick(View view) {
 //                        // update currentScreen String value
@@ -490,12 +490,12 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 //                    }
 //                });
 //
-//                dataFieldNxtBtn.setOnClickListener(new View.OnClickListener() {
+//                datafieldNxtBtn.setOnClickListener(new View.OnClickListener() {
 //                    @Override
 //                    public void onClick(View view) {
 //                        // write data field into collector
-//                        //String dataFieldContent = dataFieldEditText.getText().toString();
-//                        //collector.setCollectorAppDataFields(dataFieldContent);
+//                        //String datafieldContent = datafieldEditText.getText().toString();
+//                        //collector.setCollectorAppDatafields(datafieldContent);
 //                        // update currentScreen String value
 //                        currentScreenState = "buildDialogFromConfigDescription";
 //
@@ -504,7 +504,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 //                    }
 //                });
 //
-//                dataFieldCloseImg.setOnClickListener(new View.OnClickListener() {
+//                datafieldCloseImg.setOnClickListener(new View.OnClickListener() {
 //                    @Override
 //                    public void onClick(View view) {
 //                        dialog.dismiss();
@@ -563,7 +563,11 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         // store the data fields into database
                         for (Datafield datafield : datafields) {
                             dbManager.addOneDatafield(datafield);
-                            firebaseCommunicationManager.putDatafield(datafield);
+                            firebaseCommunicationManager.putDatafield(datafield).addOnCompleteListener(task -> {
+                                Log.i("Firebase","Successfully added datafield " + datafield.getDatafieldId() + " to firebase.");
+                            }).addOnFailureListener(er->{
+                                Log.e("Firebase","Failed to add datafield " + datafield.getDatafieldId() + " to firebase. Error: " + er.getMessage());
+                            });
                         }
 
                         // update user by add the collector info to user
@@ -711,7 +715,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
         updateCurrentView();
     }
 
-    private static void updateDisplayedDataFieldsFromDemonstration(View dialogMainView) {
+    private static void updateDisplayedDatafieldsFromDemonstration(View dialogMainView) {
         // we only update if the current screen is the demonstration screen
         if (currentScreenState == "buildDialogFromConfigGraphQuery") {
 
@@ -726,7 +730,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
             }
         } else {
-            Log.e("Dialog", "updateDisplayedDataFieldsFromDemonstration() called when currentScreenState is not buildDialogFromConfigGraphQuery");
+            Log.e("Dialog", "updateDisplayedDatafieldsFromDemonstration() called when currentScreenState is not buildDialogFromConfigGraphQuery");
         }
     }
 
@@ -744,7 +748,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
             datafieldName.setText(datafields.get(i).getName());
 
             // set onclicklistener for datafield remove
-            ImageButton deleteDatafieldButton = (ImageButton) datafieldView.findViewById(R.id.removeDataFieldButton);
+            ImageButton deleteDatafieldButton = (ImageButton) datafieldView.findViewById(R.id.removeDatafieldButton);
             int finalI = i;
             deleteDatafieldButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -752,7 +756,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                     // remove datafield from datafields list
                     datafields.remove(finalI);
                     // update dialog
-                    updateDisplayedDataFieldsFromDemonstration(dialogMainView);
+                    updateDisplayedDatafieldsFromDemonstration(dialogMainView);
                 }
             });
 

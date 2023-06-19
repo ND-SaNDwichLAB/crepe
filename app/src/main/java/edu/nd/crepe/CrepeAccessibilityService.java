@@ -201,7 +201,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
                                         // if the result is not in the previous results, add it to the database
                                         long timestamp = System.currentTimeMillis();
                                         // the data id is the collector id + "%" + timestamp
-                                        Data resultData = new Data(datafield.getCollectorId() + "%" + timestamp, datafield.getDataFieldId(), MainActivity.currentUser.getUserId(), result.saveToDatabaseAsString());
+                                        Data resultData = new Data(datafield.getCollectorId() + "%" + timestamp, datafield.getDatafieldId(), MainActivity.currentUser.getUserId(), result.saveToDatabaseAsString());
 
                                         try {
                                             dbManager.addData(resultData);

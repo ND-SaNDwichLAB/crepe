@@ -40,13 +40,13 @@ public class CollectorCardDetailBuilder {
 
         List<Datafield> datafieldsForCollector = dbManager.getAllDatafieldsForCollector(collector);
 
-        TextView collectorDataField = (TextView) popupView.findViewById(R.id.collectorDetailDataField);
+        TextView collectorDatafield = (TextView) popupView.findViewById(R.id.collectorDetailDatafield);
         if (datafieldsForCollector.size() > 0) {
             for (Datafield datafield : datafieldsForCollector) {
-                collectorDataField.append("\"" + datafield.getName() + "\"\n\n");
+                collectorDatafield.append("\"" + datafield.getName() + "\"\n\n");
             }
         } else {
-            collectorDataField.setText("No datafields available");
+            collectorDatafield.setText("No datafields available");
         }
 
         Button collectorShareButton = (Button) popupView.findViewById(R.id.collectorShareButton);
@@ -73,7 +73,7 @@ public class CollectorCardDetailBuilder {
 //        }
 
         // TODO Yuwen figure out what to do here
-//        collectorDataField.setText(collector.getDataFieldsToString());
+//        collectorDatafield.setText(collector.getDatafieldsToString());
 
 
         deleteBtn.setOnClickListener(new View.OnClickListener() {
@@ -85,7 +85,7 @@ public class CollectorCardDetailBuilder {
                 builder.setMessage("Are you sure you want to delete this collector?");
 
                 builder.setPositiveButton("Yes", (dialogInterface, i) -> {
-                    Toast.makeText(c, "Collector (ID:" + collector.getCollectorId() + ") is deleted", Toast.LENGTH_LONG).show();
+                    Toast.makeText(c, "Collector for " + collector.getAppName() + " is deleted", Toast.LENGTH_LONG).show();
                     // This will only set the status of collector to deleted,
                     // it will still be present in database but won't be displayed
                     collector.deleteCollector();
