@@ -39,9 +39,6 @@ import com.google.firebase.auth.GoogleAuthProvider;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Random;
@@ -82,9 +79,6 @@ public class GoogleLoginActivity extends AppCompatActivity {
         // initialize database managers
         dbManager = DatabaseManager.getInstance(getApplicationContext());
         fbManager = new FirebaseCommunicationManager(getApplicationContext());
-
-        // TODO REMOVE THIS
-        dbManager.clearDatabase();
 
         // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
@@ -257,7 +251,7 @@ public class GoogleLoginActivity extends AppCompatActivity {
     }
 
     private void addDatafieldForCollector(Collector collector) {
-        fbManager.retrieveDatafieldswithCollectorId(collector.getCollectorId(), new FirebaseCallback<ArrayList<Datafield>>() {
+        fbManager.retrieveDatafieldsWithCollectorId(collector.getCollectorId(), new FirebaseCallback<ArrayList<Datafield>>() {
             public void onResponse(ArrayList<Datafield> datafields) {
                 for (Datafield datafield : datafields) {
                     dbManager.addOneDatafield(datafield);

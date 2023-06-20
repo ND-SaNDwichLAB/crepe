@@ -211,7 +211,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
                                             firebaseCommunicationManager.putData(resultData).addOnSuccessListener(suc -> {
                                                 Log.i("Firebase", "Successfully added collector " + resultData.getDataContent() + " to firebase.");
                                             }).addOnFailureListener(er -> {
-                                                Log.e("Firebase", "Failed to add collector " + resultData.getDataContent() + " to firebase.");
+                                                Log.e("Firebase", "Failed to add collector " + resultData.getDataContent() + " to firebase. Error: " + er.getMessage());
                                             });
 
                                             // update the last saved result timestamp

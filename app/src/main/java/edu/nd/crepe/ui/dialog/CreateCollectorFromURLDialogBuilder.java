@@ -25,7 +25,6 @@ import edu.nd.crepe.database.Datafield;
 import edu.nd.crepe.graphquery.Const;
 import edu.nd.crepe.network.FirebaseCallback;
 import edu.nd.crepe.network.FirebaseCommunicationManager;
-import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -95,7 +94,7 @@ public class CreateCollectorFromURLDialogBuilder {
 
                     });
 
-                    firebaseCommunicationManager.retrieveDatafieldswithCollectorId(collectorIdEditText.getText().toString(), new FirebaseCallback<List<Datafield>>() {
+                    firebaseCommunicationManager.retrieveDatafieldsWithCollectorId(collectorIdEditText.getText().toString(), new FirebaseCallback<List<Datafield>>() {
                         public void onResponse(List<Datafield> results) {
                             for (Datafield result : results) {
                                 dbManager.addOneDatafield(result);

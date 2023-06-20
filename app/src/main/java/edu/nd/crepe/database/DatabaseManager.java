@@ -629,14 +629,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
             db.close();
         }
     }
-
-    public void clearDatabase() {
-        db.execSQL("DROP TABLE IF EXISTS " + COLLECTOR_TABLE);
-        db.execSQL("DROP TABLE IF EXISTS " + DATAFIELD_TABLE);
-        db.execSQL("DROP TABLE IF EXISTS " + DATA_TABLE);
-        db.execSQL("DROP TABLE IF EXISTS " + USER_TABLE);
-        onCreate(db);
-    }
 }
 
 
