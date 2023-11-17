@@ -193,7 +193,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                     public void onClick(View view) {
                         // Use the MaterialDatePicker from Material Design
                         MaterialDatePicker.Builder collectorStartDatePickerBuilder = MaterialDatePicker.Builder.datePicker();
-                        collectorStartDatePickerBuilder.setTitleText("SELECT THE COLLECTOR START DATE");
+                        collectorStartDatePickerBuilder.setTitleText("COLLECTOR START DATE");
                         collectorStartDatePickerBuilder.setSelection(MaterialDatePicker.todayInUtcMilliseconds());
                         final MaterialDatePicker collectorStartDatePicker = collectorStartDatePickerBuilder.build();
 
@@ -214,7 +214,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                     public void onClick(View view) {
                         // Use the Material DatePicker from Material Design
                         MaterialDatePicker.Builder collectorEndDatePickerBuilder = MaterialDatePicker.Builder.datePicker();
-                        collectorEndDatePickerBuilder.setTitleText("SELECT THE COLLECTOR END DATE");
+                        collectorEndDatePickerBuilder.setTitleText("COLLECTOR END DATE");
                         collectorEndDatePickerBuilder.setSelection(MaterialDatePicker.todayInUtcMilliseconds());
                         final MaterialDatePicker collectorEndDatePicker = collectorEndDatePickerBuilder.build();
 
@@ -282,7 +282,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         Date startDate = dateFormat.parse(startDateText.getText().toString(), pp1);
                         collector.setCollectorStartTime(startDate.getTime());
 
-                        ParsePosition pp2 = new ParsePosition(1);
+                        ParsePosition pp2 = new ParsePosition(0);
                         Date endDate = dateFormat.parse(endDateText.getText().toString(), pp2);
                         collector.setCollectorEndTime(endDate.getTime());
 
