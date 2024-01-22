@@ -247,7 +247,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     public Boolean checkIfUserExists(String userId) {
 
-        String query = "SELECT * FROM " + USER_TABLE + " WHERE " + COLUMN_USER_ID + " = \"" + userId + "\"";
+        String query = "SELECT * FROM " + USER_TABLE + " WHERE " + COLUMN_USER_ID + " = \'" + userId + "\'";
         Cursor cursor = db.rawQuery(query, null);
         int cursorCount = cursor.getCount();
 
@@ -279,7 +279,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     }
 
     public String getUsername(String userId) {
-        String query = "SELECT " + COLUMN_USER_NAME + " from " + USER_TABLE + " where " + COLUMN_USER_ID + "= \"" + userId + "\"";
+        String query = "SELECT " + COLUMN_USER_NAME + " from " + USER_TABLE + " where " + COLUMN_USER_ID + "= \'" + userId + "\'";
 
         Cursor cursor = db.rawQuery(query, null);
         cursor.moveToFirst();
@@ -421,7 +421,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     public List<Data> getDataForCollector(Collector collector) {
         List<Data> dataList = new ArrayList<>();
-        String getAllDataQuery = "SELECT * FROM " + DATA_TABLE + " WHERE " + COLUMN_COLLECTOR_ID + " = \"" + collector.getCollectorId() + "\";";
+        String getAllDataQuery = "SELECT * FROM " + DATA_TABLE + " WHERE " + COLUMN_COLLECTOR_ID + " = \'" + collector.getCollectorId() + "\';";
 
         Cursor cursor = db.rawQuery(getAllDataQuery, null);
 
@@ -474,7 +474,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     public void removeDatafieldById(String datafieldId) {
         // the result equals to the number of entries being deleted
 
-        int result = db.delete(DATAFIELD_TABLE, "datafieldId = " + datafieldId, null);
+        int result = db.delete(DATAFIELD_TABLE, "datafieldId = \"" + datafieldId + "\"", null);
         if(result > 0) {
             Log.i("database", "successfully deleted " + result + " datafield with id " + datafieldId);
         } else {
@@ -484,7 +484,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     public void removeDatafieldByCollectorId(String collectorId) {
         // the result equals to the number of entries being deleted
 
-        int result = db.delete(DATAFIELD_TABLE, "collectorId = " + collectorId, null);
+        int result = db.delete(DATAFIELD_TABLE, "collectorId = \'" + collectorId + "\'", null);
         if(result > 0) {
             Log.i("database", "successfully deleted " + result + " datafield from collector " + collectorId);
         } else {
@@ -524,7 +524,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     public List<Datafield> getAllDatafieldsForCollector(Collector collector) {
         List<Datafield> dataList = new ArrayList<>();
-        String getAllDataQuery = "SELECT * FROM " + DATAFIELD_TABLE + " WHERE " + COLUMN_COLLECTOR_ID + " = \"" + collector.getCollectorId() + "\";";
+        String getAllDataQuery = "SELECT * FROM " + DATAFIELD_TABLE + " WHERE " + COLUMN_COLLECTOR_ID + " = \'" + collector.getCollectorId() + "\';";
 
         Cursor cursor = db.rawQuery(getAllDataQuery, null);
 
@@ -562,7 +562,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     public List<Collector> getActiveCollectors() {
         List<Collector> collectorList = new ArrayList<>();
-        String getActiveCollectorsQuery = "SELECT * FROM " + COLLECTOR_TABLE + " WHERE " + COLUMN_COLLECTOR_STATUS + " = \"active\";";
+        String getActiveCollectorsQuery = "SELECT * FROM " + COLLECTOR_TABLE + " WHERE " + COLUMN_COLLECTOR_STATUS + " = \'active\';";
 
         Cursor cursor = db.rawQuery(getActiveCollectorsQuery, null);
 
@@ -595,7 +595,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     // query to get one collector by id
     public Collector getCollectorById(String collectorId) {
-        String getCollectorByIdQuery = "SELECT * FROM " + COLLECTOR_TABLE + " WHERE " + COLUMN_COLLECTOR_ID + " = \"" + collectorId + "\";";
+        String getCollectorByIdQuery = "SELECT * FROM " + COLLECTOR_TABLE + " WHERE " + COLUMN_COLLECTOR_ID + " = \'" + collectorId + "\';";
 
         Cursor cursor = db.rawQuery(getCollectorByIdQuery, null);
 

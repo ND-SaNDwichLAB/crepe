@@ -100,6 +100,7 @@ public class FirebaseCommunicationManager {
     }
 
     public Task<Void> removeDatafield(String key){
+
         DatabaseReference databaseReference = db.getReference(Datafield.class.getSimpleName());
         return databaseReference.child(key).removeValue();
     }

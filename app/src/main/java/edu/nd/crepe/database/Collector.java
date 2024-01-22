@@ -231,7 +231,7 @@ public class Collector implements Serializable {
         this.collectorStatus = ACTIVE;
     }
 
-    public void deleteCollector() {
+    public void setStatusDeleted() {
         this.collectorStatus = DELETED;
     }
 

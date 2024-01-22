@@ -15,6 +15,7 @@ import edu.nd.crepe.R;
 import edu.nd.crepe.database.Collector;
 import edu.nd.crepe.database.DatabaseManager;
 import edu.nd.crepe.database.Datafield;
+import edu.nd.crepe.network.FirebaseCommunicationManager;
 
 import java.util.List;
 
@@ -24,6 +25,7 @@ public class CollectorCardDetailBuilder {
     private Collector collector;
     private Runnable refreshCollectorListRunnable;
     private DatabaseManager dbManager;
+    private FirebaseCommunicationManager fbManager;
 
     public CollectorCardDetailBuilder(Context c, Collector collector, Runnable refreshCollectorListRunnable) {
         this.c = c;
@@ -31,6 +33,7 @@ public class CollectorCardDetailBuilder {
         this.collector = collector;
         this.refreshCollectorListRunnable = refreshCollectorListRunnable;
         this.dbManager = DatabaseManager.getInstance(c);
+        this.fbManager = new FirebaseCommunicationManager(c);
     }
 
     public Dialog build() {
@@ -86,11 +89,20 @@ public class CollectorCardDetailBuilder {
 
                 builder.setPositiveButton("Yes", (dialogInterface, i) -> {
                     Toast.makeText(c, "Collector for " + collector.getAppName() + " is deleted", Toast.LENGTH_LONG).show();
-                    // This will only set the status of collector to deleted,
+                    // save datafield info before deleting
+                    List<Datafield> datafieldsForCollector = dbManager.getAllDatafieldsForCollector(collector);
+                    // For record keeping: this will set the status of collector to deleted,
                     // it will still be present in database but won't be displayed
-                    collector.deleteCollector();
+                    collector.setStatusDeleted();
                     dbManager.updateCollectorStatus(collector);
-                    // TODO Yuwen: maybe we should also delete all the datafields associated with this collector, also delete the collector from firebase?
+                    // delete all the datafields associated with this collector
+                    dbManager.removeDatafieldByCollectorId(collector.getCollectorId());
+                    // also delete the collector and associated datafields from firebase
+                    fbManager.removeCollector(collector.getCollectorId());
+                    for (Datafield datafield : datafieldsForCollector) {
+                        fbManager.removeDatafield(datafield.getDatafieldId());
+                    }
+
 
                     // update the home fragment list
                     refreshCollectorListRunnable.run();
