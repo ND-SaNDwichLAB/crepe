@@ -267,9 +267,7 @@ public class FirebaseCommunicationManager {
 
     public void retrieveDatafieldsWithCollectorId(String collectorId, FirebaseCallback firebaseCallback) {
         DatabaseReference databaseReference = db.getReference(Datafield.class.getSimpleName());
-        Query query = databaseReference.orderByChild("collectorId");
-
-
+        Query query = databaseReference.orderByChild("collectorId").equalTo(collectorId);
         query.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DataSnapshot> task) {
