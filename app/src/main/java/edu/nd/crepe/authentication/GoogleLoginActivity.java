@@ -58,7 +58,7 @@ public class GoogleLoginActivity extends AppCompatActivity {
     private DatabaseManager dbManager;
     private FirebaseCommunicationManager fbManager;
 
-    private static String[] randomNameList = {"Dolphin", "Tiger", "Lion", "Leopard", "Cheetah", "Bear", "Polar bear", "Turtle", "Tortoise", "Rabbit", "Porcupine", "Hare"};
+    private static String[] randomNameList = {"Dolphin", "Tiger", "Lion", "Leopard", "Cheetah", "Bear", "Polar Bear", "Turtle", "Tortoise", "Rabbit", "Porcupine", "Hare"};
 
 
     public void onStart() {
