@@ -334,7 +334,6 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         // check if the accessibility service is running
                         Boolean accessibilityServiceEnabled = isAccessibilityServiceEnabled(context, CrepeAccessibilityService.class);
 
-
                         // if accessibility service is not on
                         if (!accessibilityServiceEnabled) {
                             MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context);
@@ -462,55 +461,6 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                     }
                 });
                 break;
-
-
-//            case "buildDialogFromConfigDatafield":
-//                dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_add_collector_from_config_data_field, null);
-//                dialog.setContentView(dialogMainView);
-//
-//                Button datafieldNxtBtn = (Button) dialogMainView.findViewById(R.id.datafieldNextButton);
-//                Button datafieldBckBtn = (Button) dialogMainView.findViewById(R.id.datafieldBackButton);
-//                ImageButton datafieldCloseImg = (ImageButton) dialogMainView.findViewById(R.id.closeDatafieldImageButton);
-//                LinearLayout datafieldLinearLayout = (LinearLayout) dialogMainView.findViewById(R.id.dataFiledLinearLayout);
-//
-//
-//                // get size of ril and create a list
-//                DatafieldConstraintLayoutBuilder builder = new DatafieldConstraintLayoutBuilder(context);
-//                updateDatafield(collector,datafieldLinearLayout, builder);
-//
-//
-//
-//                datafieldBckBtn.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View view) {
-//                        // update currentScreen String value
-//                        currentScreenState = "buildDialogFromConfigGraphQuery";
-//                        // recursively call itself with new currentScreen String value
-//                        updateCurrentView();
-//                    }
-//                });
-//
-//                datafieldNxtBtn.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View view) {
-//                        // write data field into collector
-//                        //String datafieldContent = datafieldEditText.getText().toString();
-//                        //collector.setCollectorAppDatafields(datafieldContent);
-//                        // update currentScreen String value
-//                        currentScreenState = "buildDialogFromConfigDescription";
-//
-//                        // recursively call itself with new currentScreen String value
-//                        updateCurrentView();
-//                    }
-//                });
-//
-//                datafieldCloseImg.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View view) {
-//                        dialog.dismiss();
-//                    }
-//                });
-//                break;
 
 
             case "buildDialogFromConfigDescription":
