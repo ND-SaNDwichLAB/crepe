@@ -10,6 +10,7 @@ import edu.nd.crepe.database.Collector;
 import edu.nd.crepe.database.Data;
 import edu.nd.crepe.database.Datafield;
 import edu.nd.crepe.database.User;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -37,7 +38,7 @@ public class FirebaseCommunicationManager {
         this.context = c;
     }
 
-    public Task<Void> putCollector(Collector collector){
+    public Task<Void> putCollector(Collector collector) {
         DatabaseReference databaseReference = db.getReference(Collector.class.getSimpleName());
         return databaseReference.child(collector.getCollectorId()).setValue(collector);
 
@@ -58,48 +59,48 @@ public class FirebaseCommunicationManager {
         return databaseReference.child(datafield.getDatafieldId()).setValue(datafield);
     }
 
-    public Task<Void> updateCollector(String key, HashMap<String, Object> hashMap){
+    public Task<Void> updateCollector(String key, HashMap<String, Object> hashMap) {
         DatabaseReference databaseReference = db.getReference(Collector.class.getSimpleName());
         return databaseReference.child(key).updateChildren(hashMap);
     }
 
-    public Task<Void> updateUser(String key, HashMap<String, Object> hashMap){
+    public Task<Void> updateUser(String key, HashMap<String, Object> hashMap) {
         DatabaseReference databaseReference = db.getReference(User.class.getSimpleName());
         return databaseReference.child(key).updateChildren(hashMap);
     }
 
     // write a function to update the userName for a given user
-    public Task<Void> updateUserName(String key, String userName){
+    public Task<Void> updateUserName(String key, String userName) {
         DatabaseReference databaseReference = db.getReference(User.class.getSimpleName());
         return databaseReference.child(key).child("userName").setValue(userName);
     }
 
-    public Task<Void> updateData(String key, HashMap<String, Object> hashMap){
+    public Task<Void> updateData(String key, HashMap<String, Object> hashMap) {
         DatabaseReference databaseReference = db.getReference(Data.class.getSimpleName());
         return databaseReference.child(key).updateChildren(hashMap);
     }
 
-    public Task<Void> updateDatafield(String key, HashMap<String, Object> hashMap){
+    public Task<Void> updateDatafield(String key, HashMap<String, Object> hashMap) {
         DatabaseReference databaseReference = db.getReference(Datafield.class.getSimpleName());
         return databaseReference.child(key).updateChildren(hashMap);
     }
 
-    public Task<Void> removeCollector(String key){
+    public Task<Void> removeCollector(String key) {
         DatabaseReference databaseReference = db.getReference(Collector.class.getSimpleName());
         return databaseReference.child(key).removeValue();
     }
 
-    public Task<Void> removeUser(String key){
+    public Task<Void> removeUser(String key) {
         DatabaseReference databaseReference = db.getReference(User.class.getSimpleName());
         return databaseReference.child(key).removeValue();
     }
 
-    public Task<Void> removeData(String key){
+    public Task<Void> removeData(String key) {
         DatabaseReference databaseReference = db.getReference(Data.class.getSimpleName());
         return databaseReference.child(key).removeValue();
     }
 
-    public Task<Void> removeDatafield(String key){
+    public Task<Void> removeDatafield(String key) {
 
         DatabaseReference databaseReference = db.getReference(Datafield.class.getSimpleName());
         return databaseReference.child(key).removeValue();
@@ -154,7 +155,8 @@ public class FirebaseCommunicationManager {
                         long timeCreated = (long) dataSnapshot.child("timeCreated").getValue();
                         long timeLastEdited = (long) dataSnapshot.child("timeLastEdited").getValue();
 
-                        GenericTypeIndicator<List<String>> genericTypeIndicator = new GenericTypeIndicator<List<String>>() {};
+                        GenericTypeIndicator<List<String>> genericTypeIndicator = new GenericTypeIndicator<List<String>>() {
+                        };
                         List<String> userCollectorsList = dataSnapshot.child("userCollectors").getValue(genericTypeIndicator);
                         ArrayList<String> userCollectors;
                         if (userCollectorsList == null) {
@@ -170,7 +172,7 @@ public class FirebaseCommunicationManager {
                         Log.e("Firebase", "retrieve user: Failed to find the user firebase.");
                         Toast.makeText(context, "retrieve user: Failed to find the user firebase.", Toast.LENGTH_LONG).show();
                     }
-            } else {
+                } else {
                     Log.e("Firebase", "retrieve user: Failed to launch connection to firebase.");
                     Toast.makeText(context, "retrieve user: Failed to launch connection to firebase.", Toast.LENGTH_LONG).show();
                 }
@@ -228,8 +230,13 @@ public class FirebaseCommunicationManager {
                 if (task.isSuccessful()) {
                     if (task.getResult().exists()) {
                         DataSnapshot dataSnapshot = task.getResult();
-                        List<Collector> collectorList = new ArrayList<>();
                         for (DataSnapshot collectorSnapshot : dataSnapshot.getChildren()) {
+
+                            // if the collector is already expired, it will have only one field
+                            if (collectorSnapshot.getChildrenCount() == 1
+                                    && String.valueOf(collectorSnapshot.child("collectorStatus").getValue()).equals(Collector.EXPIRED)) {
+                                continue;
+                            }
 
                             // retrieve relevant attributes
                             String collectorId = String.valueOf(collectorSnapshot.child("collectorId").getValue());
@@ -263,7 +270,6 @@ public class FirebaseCommunicationManager {
             }
         });
     }
-
 
 
     public void retrieveDatafieldsWithCollectorId(String collectorId, FirebaseCallback firebaseCallback) {
@@ -312,7 +318,7 @@ public class FirebaseCommunicationManager {
                         String datafieldId = String.valueOf(snapshot.child("datafieldId").getValue());
                         String dataContent = String.valueOf(snapshot.child("dataContent").getValue());
                         long timestamp = (long) snapshot.child("timestamp").getValue();
-                        Data data = new Data(dataId, datafieldId, userId,  timestamp, dataContent);
+                        Data data = new Data(dataId, datafieldId, userId, timestamp, dataContent);
 //                        // if creator, add all data
 //                        if (checkDataAccessRule(userId,dbManager.getAllUsers().get(0)).equals(PARTICIPANT)) {
 //                            datas.add(data);
