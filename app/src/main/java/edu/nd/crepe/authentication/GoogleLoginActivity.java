@@ -124,6 +124,7 @@ public class GoogleLoginActivity extends AppCompatActivity {
                     }
                 } else {
                     Log.d(TAG, "onActivityResult: Google Sign In Failed");
+                    Log.d(TAG, "onActivityResult: Result Code: " + resultCode);
                 }
             }
         });
