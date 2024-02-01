@@ -260,9 +260,10 @@ public class MainActivity extends AppCompatActivity {
 
         if (screenState != null && !screenState.equals("dismissed") && collectorJson != null) {
             Collector prevCollector = new Gson().fromJson(collectorJson, Collector.class);
-            wrapper = createCollectorFromConfigDialogBuilder.buildDialogWrapperWithExistingCollector(prevCollector);
-            wrapper.setCurrentScreenState(screenState);
-            wrapper.show();
+//            wrapper = createCollectorFromConfigDialogBuilder.buildDialogWrapperWithExistingCollector(prevCollector);
+//            wrapper.setCurrentScreenState(screenState);
+
+//            wrapper.show();
         }
     }
 

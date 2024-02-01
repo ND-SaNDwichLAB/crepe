@@ -323,8 +323,11 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                 openAppButton.setText("Open " + appName);
                 commentOnOpenAppButton.setText("Demonstrate in the " + appName +" app");
 
+                Log.i("hello", "buildDialogFromConfigGraphQuery: " + collector.getAppName());
+
                 // modify content of the popup box based on current state
                 updateDisplayedDatafieldsFromDemonstration(dialogMainView);
+
 
                 // Open App button
                 openAppButton.setOnClickListener(new View.OnClickListener() {
@@ -408,7 +411,6 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                                 Intent intent = new Intent(context, widgetService.getClass());
                                 intent.putExtra("graphQueryCallback", graphQueryCallback);
                                 context.startService(intent);
-
                                 finish();
                             }
                         }
