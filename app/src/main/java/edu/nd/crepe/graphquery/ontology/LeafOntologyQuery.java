@@ -218,7 +218,6 @@ public class LeafOntologyQuery extends OntologyQuery {
         boolean objectBool = false;
         boolean subjectBool = false;
         if(object != null){
-            // TODO not create so many objects?
             for(SugiliteSerializableEntity o : object){
                 try {
                     if (QueryFunction.apply(new SubjectEntityObjectEntityPair(currNode, new SugiliteEntity(o)), graph)) {

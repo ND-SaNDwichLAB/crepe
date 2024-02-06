@@ -60,24 +60,13 @@ public class CollectorCardDetailBuilder {
                 ClipboardManager clipboard = (ClipboardManager) c.getSystemService(Context.CLIPBOARD_SERVICE);
                 ClipData clip = ClipData.newPlainText("share URL", collector.getCollectorId());
                 clipboard.setPrimaryClip(clip);
-                Toast.makeText(c,"collector ID copied to clipboard " + collector.getCollectorId(), Toast.LENGTH_LONG).show();
+                Toast.makeText(c,"collector ID copied to clipboard. Share with participants! " + collector.getCollectorId(), Toast.LENGTH_LONG).show();
             }
         });
 
 
         Button closeBtn = (Button) popupView.findViewById(R.id.collectorCloseButton);
         Button deleteBtn = (Button) popupView.findViewById(R.id.collectorDeleteButton);
-//        Switch enableSwitch = (Switch) popupView.findViewById(R.id.collectorStatusSwitch);
-//        if(collector.getCollectorStatus().equals("disabled")){
-//            enableSwitch.setChecked(false);
-//            enableSwitch.setText("Disabled");
-//        } else{
-//            enableSwitch.setChecked(true);
-//        }
-
-        // TODO Yuwen figure out what to do here
-//        collectorDatafield.setText(collector.getDatafieldsToString());
-
 
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -180,9 +180,6 @@ public class CrepeAccessibilityService extends AccessibilityService {
                             }
                         }
 
-                        Log.i("query execution", "collectorIdsToStart: " + collectorIdsToStart.toString());
-                        Log.i("query execution", "datafieldsToStart: " + datafieldsToStart.toString());
-
                         // for each datafield, run the graph query on the uiSnapshot
                         for (Datafield datafield : datafieldsToStart) {
                             Log.i("query execution", "starting datafield: " + datafield.toString());

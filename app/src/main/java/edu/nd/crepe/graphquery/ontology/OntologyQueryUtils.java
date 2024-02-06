@@ -70,7 +70,6 @@ public class OntologyQueryUtils {
     }
 
     public static OntologyQuery getQueryWithClassAndPackageConstraints(OntologyQuery query, Node clickedNode, boolean toAddClassQuery, boolean toAddPackageQuery, boolean toAddClickableQuery){
-        //TODO: glue
         toAddClickableQuery = false;
 
         //de-serialize the query

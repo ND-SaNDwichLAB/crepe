@@ -69,6 +69,13 @@ public class CreateCollectorFromURLDialogBuilder {
                     FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(c);
 
                     DatabaseManager dbManager = DatabaseManager.getInstance(c);
+
+                    if (dbManager.getCollectorById(collectorIdEditText.getText().toString()) != null) {
+                        Toast.makeText(c, "Collector already exists. Is it already in your list?", Toast.LENGTH_LONG).show();
+                        dialog.dismiss();
+                        return;
+                    }
+
                     firebaseCommunicationManager.retrieveCollector(collectorIdEditText.getText().toString(), new FirebaseCallback<Collector>() {
                         public void onResponse(Collector result) {
                             dbManager.addOneCollector(result);
@@ -112,8 +119,6 @@ public class CreateCollectorFromURLDialogBuilder {
 
 
                     dialog.dismiss();
-//                    CreateCollectorFromURLDialogSuccessMessage nextPopup = new CreateCollectorFromURLDialogSuccessMessage(c);
-//                    nextPopup.build();
                     Toast.makeText(c, "Collector successfully added!", Toast.LENGTH_LONG).show();
 
                     // enable accessibility service

@@ -323,8 +323,6 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                 openAppButton.setText("Open " + appName);
                 commentOnOpenAppButton.setText("Demonstrate in the " + appName +" app");
 
-                Log.i("hello", "buildDialogFromConfigGraphQuery: " + collector.getAppName());
-
                 // modify content of the popup box based on current state
                 updateDisplayedDatafieldsFromDemonstration(dialogMainView);
 
@@ -501,10 +499,8 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         DatabaseManager dbManager = DatabaseManager.getInstance(context);
                         // store to firebase as well
                         FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(context);
-
+                        // save locally
                         dbManager.addOneCollector(collector);
-
-
                         // save to Firebase
                         firebaseCommunicationManager.putCollector(collector).addOnSuccessListener(suc->{
                             Log.i("Firebase","Successfully added collector " + collector.getCollectorId() + " to firebase.");
