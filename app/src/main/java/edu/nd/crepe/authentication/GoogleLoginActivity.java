@@ -58,9 +58,6 @@ public class GoogleLoginActivity extends AppCompatActivity {
     private DatabaseManager dbManager;
     private FirebaseCommunicationManager fbManager;
 
-    private static String[] randomNameList = {"Dolphin", "Tiger", "Lion", "Leopard", "Cheetah", "Bear", "Polar Bear", "Turtle", "Tortoise", "Rabbit", "Porcupine", "Hare"};
-
-
     public void onStart() {
         super.onStart();
         FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -141,14 +138,13 @@ public class GoogleLoginActivity extends AppCompatActivity {
                                               Log.d(TAG, "firebaseAuthWithGoogle: Sign In Successful");
                                               FirebaseUser user = mAuth.getCurrentUser();
 
-                                              // generate a random name for the user
-                                              Random rand = new Random();
-                                              String randomName = "Anonymous " + randomNameList[rand.nextInt(randomNameList.length)];
+                                              // Get the user's Google name
+                                              String googleName = account.getDisplayName();
 
                                               if (authResult.getAdditionalUserInfo().isNewUser()) {
                                                   Log.d(TAG, "onSuccess: New User");
                                                   // only the admin of this application can retrieve user profile from the uid, so users' privacy is protected
-                                                  createNewUser(user.getUid(), randomName, "");
+                                                  createNewUser(user.getUid(), googleName, "");
 
                                                   // move to main activity
                                                   Intent intent = new Intent(getApplicationContext(), MainActivity.class);
