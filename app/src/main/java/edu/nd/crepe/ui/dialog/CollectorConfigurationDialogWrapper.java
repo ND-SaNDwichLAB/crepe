@@ -340,7 +340,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                             MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context);
                             builder.setTitle("Service Permission Required")
                                     .setMessage(Const.appName + " needs accessibility service to function. Please enable it in the phone settings.")
-                                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                    .setPositiveButton("Enable", new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
                                             Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);

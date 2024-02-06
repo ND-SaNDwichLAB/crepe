@@ -91,6 +91,7 @@ public class HomeFragment extends Fragment {
             fragmentInnerLinearLayout.removeAllViews();
 
             if(collectorList.size() > 0) {
+                // hide the no collector textview
                 noCollectorTextView.setVisibility(View.GONE);
 
                 // get all installed apps

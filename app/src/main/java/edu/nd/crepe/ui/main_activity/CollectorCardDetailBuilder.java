@@ -87,10 +87,13 @@ public class CollectorCardDetailBuilder {
                     // delete all the datafields associated with this collector
                     dbManager.removeDatafieldByCollectorId(collector.getCollectorId());
                     // also delete the collector and associated datafields from firebase
-                    fbManager.removeCollector(collector.getCollectorId());
-                    for (Datafield datafield : datafieldsForCollector) {
-                        fbManager.removeDatafield(datafield.getDatafieldId());
-                    }
+                    fbManager.deleteCollector(collector.getCollectorId());
+
+                    // we do not really remove datafields, since they are queried through collectors.
+                    // if collector status is set as deleted, the datafields will not be retrieved
+//                    for (Datafield datafield : datafieldsForCollector) {
+//                        fbManager.removeDatafield(datafield.getDatafieldId());
+//                    }
 
 
                     // update the home fragment list

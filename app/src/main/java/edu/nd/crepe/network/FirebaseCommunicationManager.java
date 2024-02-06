@@ -24,6 +24,7 @@ import com.google.firebase.database.Query;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class FirebaseCommunicationManager {
     private Context context;
@@ -85,10 +86,21 @@ public class FirebaseCommunicationManager {
         return databaseReference.child(key).updateChildren(hashMap);
     }
 
-    public Task<Void> removeCollector(String key) {
+    public Task<Void> deleteCollector(String key) {
+        // instead of removing the collector from firebase, we will just set the status to deleted
+        // this is consistent with local database behavior, so we do not lose existing collector data
         DatabaseReference databaseReference = db.getReference(Collector.class.getSimpleName());
-        return databaseReference.child(key).removeValue();
+
+        // Create a map to hold updates regarding the deletion
+        Map<String, Object> updates = new HashMap<>();
+        // Set the collectorStatus field to DELETED
+        updates.put("collectorStatus", Collector.DELETED);
+
+        // Update the child node
+        return databaseReference.child(key).updateChildren(updates);
     }
+
+
 
     public Task<Void> removeUser(String key) {
         DatabaseReference databaseReference = db.getReference(User.class.getSimpleName());
@@ -105,41 +117,6 @@ public class FirebaseCommunicationManager {
         DatabaseReference databaseReference = db.getReference(Datafield.class.getSimpleName());
         return databaseReference.child(key).removeValue();
     }
-/*
-    public void retrieveCollector(String key, FirebaseCallback firebaseCallback){
-        DatabaseReference databaseReference = db.getReference(Collector.class.getSimpleName());
-        databaseReference.child(key).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DataSnapshot> task) {
-                if (task.isSuccessful()){
-                    if (task.getResult().exists()){
-                        DataSnapshot dataSnapshot = task.getResult();
-                        String collectorId = String.valueOf(dataSnapshot.child("collectorId").getValue());
-                        String creatorUserId = String.valueOf(dataSnapshot.child("creatorUserId").getValue());
-                        String appName = String.valueOf(dataSnapshot.child("appName").getValue());
-                        String appPackage = String.valueOf(dataSnapshot.child("appPackage").getValue());
-                        String description = String.valueOf(dataSnapshot.child("description").getValue());
-                        String mode = String.valueOf(dataSnapshot.child("mode").getValue());
-                        String status = String.valueOf(dataSnapshot.child("collectorStatus").getValue());
-                        long collectorStartTime = (long) dataSnapshot.child("collectorStartTime").getValue();
-                        long collectorEndTime = (long) dataSnapshot.child("collectorEndTime").getValue();
-                        Collector collector = new Collector(collectorId,creatorUserId,appName, appPackage, description,mode,String.valueOf(collectorStartTime),String.valueOf(collectorEndTime),status);
-                        // call firebase callback to update collector
-                        firebaseCallback.onResponse(collector);
-
-                    } else {
-                        Log.e("Firebase","Failed to find the collector firebase.");
-                        Toast.makeText(context,"Failed to find the collector firebase.",Toast.LENGTH_LONG).show();
-                    }
-                } else {
-                    Log.e("Firebase", "Failed to launch connection to firebase.");
-                    Toast.makeText(context,"Failed to launch connection to firebase.",Toast.LENGTH_LONG).show();
-                }
-            }
-        });
-    }
-
- */
 
     public void retrieveUser(String key, FirebaseCallback firebaseCallback) {
         DatabaseReference databaseReference = db.getReference(User.class.getSimpleName());
