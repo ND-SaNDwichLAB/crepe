@@ -37,7 +37,6 @@ import edu.nd.crepe.database.DatabaseManager;
 import edu.nd.crepe.database.Datafield;
 import edu.nd.crepe.demonstration.WidgetService;
 import edu.nd.crepe.graphquery.Const;
-import edu.nd.crepe.network.FirebaseCallback;
 import edu.nd.crepe.network.FirebaseCommunicationManager;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
@@ -115,7 +114,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
                 collector.setCreatorUserId(currentUser.getUserId());
 
-                dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_add_collector_from_config, null);
+                dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_create_collector_from_config, null);
                 dialog.setContentView(dialogMainView);
                 // buttons
                 Button popupCancelBtn = (Button) dialogMainView.findViewById(R.id.addCollectorFromConfigDialogCancelButton);
@@ -308,7 +307,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
 
             case "buildDialogFromConfigGraphQuery":
-                dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_add_collector_from_config_graph_query, null);
+                dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_create_collector_from_config_graph_query, null);
                 dialog.setContentView(dialogMainView);
                 Button graphQueryNxtBtn = (Button) dialogMainView.findViewById(R.id.graphQueryNextButton);
                 Button graphQueryBckBtn = (Button) dialogMainView.findViewById(R.id.graphQueryBackButton);
@@ -464,7 +463,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
 
             case "buildDialogFromConfigDescription":
-                dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_add_collector_from_config_description, null);
+                dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_create_collector_from_config_description, null);
                 dialog.setContentView(dialogMainView);
 
                 Button descriptionCreateBtn = (Button) dialogMainView.findViewById(R.id.descriptionCreateButton);
@@ -553,7 +552,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
 
             case "buildDialogFromConfigSuccessMessage":
-                dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_add_collector_from_config_success_message, null);
+                dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_create_collector_from_config_success_message, null);
                 dialog.setContentView(dialogMainView);
 
                 // update the displayed app info
