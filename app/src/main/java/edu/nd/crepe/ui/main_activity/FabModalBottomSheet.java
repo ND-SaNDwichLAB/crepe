@@ -4,7 +4,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
@@ -13,37 +12,32 @@ import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
-import edu.nd.crepe.MainActivity;
 import edu.nd.crepe.R;
-import edu.nd.crepe.graphquery.Const;
 import edu.nd.crepe.ui.dialog.CollectorConfigurationDialogWrapper;
 import edu.nd.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilder;
-import edu.nd.crepe.ui.dialog.CreateCollectorFromURLDialogBuilder;
+import edu.nd.crepe.ui.dialog.AddCollectorFromURLDialogBuilder;
 
 public class FabModalBottomSheet extends BottomSheetDialogFragment {
 
     public static final String TAG = "ModalBottomSheet";
     private HomeFragment currentFragment;
-    private CreateCollectorFromURLDialogBuilder createCollectorFromURLDialogBuilder;
+    private AddCollectorFromURLDialogBuilder addCollectorFromURLDialogBuilder;
     private CreateCollectorFromConfigDialogBuilder createCollectorFromConfigDialogBuilder;
     private CollectorConfigurationDialogWrapper wrapper;
 
     private Context context;
 
-    public FabModalBottomSheet(CreateCollectorFromURLDialogBuilder createCollectorFromURLDialogBuilder, CreateCollectorFromConfigDialogBuilder createCollectorFromConfigDialogBuilder) {
-        this.createCollectorFromURLDialogBuilder = createCollectorFromURLDialogBuilder;
+    public FabModalBottomSheet(AddCollectorFromURLDialogBuilder addCollectorFromURLDialogBuilder, CreateCollectorFromConfigDialogBuilder createCollectorFromConfigDialogBuilder) {
+        this.addCollectorFromURLDialogBuilder = addCollectorFromURLDialogBuilder;
         this.createCollectorFromConfigDialogBuilder = createCollectorFromConfigDialogBuilder;
     }
 
@@ -65,7 +59,7 @@ public class FabModalBottomSheet extends BottomSheetDialogFragment {
 
                 dismiss();
 
-                Dialog dialog = createCollectorFromURLDialogBuilder.build();
+                Dialog dialog = addCollectorFromURLDialogBuilder.build();
                 dialog.show();
             }
         });

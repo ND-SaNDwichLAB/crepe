@@ -30,13 +30,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class CreateCollectorFromURLDialogBuilder {
+public class AddCollectorFromURLDialogBuilder {
 
     private Context c;
     private AlertDialog.Builder dialogBuilder;
     private Runnable refreshCollectorListRunnable;
 
-    public CreateCollectorFromURLDialogBuilder(Context c, Runnable runnable) {
+    public AddCollectorFromURLDialogBuilder(Context c, Runnable runnable) {
         this.c = c;
         this.dialogBuilder = new AlertDialog.Builder(c);
         this.refreshCollectorListRunnable = runnable;

@@ -1,8 +1,5 @@
 package edu.nd.crepe;
 
-import android.app.Dialog;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -13,22 +10,18 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 
 import edu.nd.crepe.database.Collector;
 import edu.nd.crepe.database.DatabaseManager;
 import edu.nd.crepe.database.User;
-import edu.nd.crepe.graphquery.Const;
-import edu.nd.crepe.network.DataLoadingEvent;
 import edu.nd.crepe.network.FirebaseCommunicationManager;
 import edu.nd.crepe.ui.dialog.CollectorConfigurationDialogWrapper;
 import edu.nd.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilder;
-import edu.nd.crepe.ui.dialog.CreateCollectorFromURLDialogBuilder;
+import edu.nd.crepe.ui.dialog.AddCollectorFromURLDialogBuilder;
 import edu.nd.crepe.ui.main_activity.FabModalBottomSheet;
 import edu.nd.crepe.ui.main_activity.HomeFragment;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.annotation.NonNull;
@@ -36,7 +29,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 
@@ -54,15 +46,11 @@ import com.google.gson.Gson;
 
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.InputStream;
 import java.net.URL;
@@ -83,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
 
     private DatabaseManager dbManager;
 
-    private CreateCollectorFromURLDialogBuilder createCollectorFromURLDialogBuilder;
+    private AddCollectorFromURLDialogBuilder addCollectorFromURLDialogBuilder;
     private CreateCollectorFromConfigDialogBuilder createCollectorFromConfigDialogBuilder;
 
     private FirebaseAuth mAuth;
@@ -182,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        this.createCollectorFromURLDialogBuilder = new CreateCollectorFromURLDialogBuilder(this, refreshCollectorListRunnable);
+        this.addCollectorFromURLDialogBuilder = new AddCollectorFromURLDialogBuilder(this, refreshCollectorListRunnable);
         this.createCollectorFromConfigDialogBuilder = new CreateCollectorFromConfigDialogBuilder(this, refreshCollectorListRunnable);
 
         // get the fab icon
@@ -192,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                FabModalBottomSheet modalBottomSheet = new FabModalBottomSheet(createCollectorFromURLDialogBuilder, createCollectorFromConfigDialogBuilder);
+                FabModalBottomSheet modalBottomSheet = new FabModalBottomSheet(addCollectorFromURLDialogBuilder, createCollectorFromConfigDialogBuilder);
                 modalBottomSheet.show(getSupportFragmentManager(), FabModalBottomSheet.TAG);
 
             }

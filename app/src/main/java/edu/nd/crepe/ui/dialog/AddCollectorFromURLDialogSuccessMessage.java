@@ -6,12 +6,12 @@ import android.content.Context;
 import edu.nd.crepe.R;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
-public class CreateCollectorFromURLDialogSuccessMessage {
+public class AddCollectorFromURLDialogSuccessMessage {
     private Context c;
     private MaterialAlertDialogBuilder alertDialogBuilder;
 
     // Constructor
-    public CreateCollectorFromURLDialogSuccessMessage(Context c) {
+    public AddCollectorFromURLDialogSuccessMessage(Context c) {
         this.c = c;
         this.alertDialogBuilder = new MaterialAlertDialogBuilder(c);
     }
