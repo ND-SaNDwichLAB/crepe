@@ -106,7 +106,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
             dbManager.updateCollectorStatus(collector);
         }
 
-        // TODO: check firebase database usage, why is it used here, and in general in the app?
+        // TODO: Yuwen check firebase database usage, why is it used here, and in general in the app?
         if (collectors != null && !collectors.isEmpty()) {
             firebaseCommunicationManager.updateAllCollectors();
         }

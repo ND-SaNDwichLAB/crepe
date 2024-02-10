@@ -62,6 +62,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
     private static Collector collector;
     private Runnable refreshCollectorListRunnable;
     private DatabaseManager dbManager;
+    private FirebaseCommunicationManager firebaseCommunicationManager;
     private static View dialogMainView;
 
     private static List<Datafield> datafields = new ArrayList<>();
@@ -86,6 +87,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
         this.currentScreenState = "buildDialogFromConfig";
         this.refreshCollectorListRunnable = refreshCollectorListRunnable;
         this.dbManager = DatabaseManager.getInstance(context);
+        this.firebaseCommunicationManager = new FirebaseCommunicationManager(context);;
     }
 
     public static Boolean isNull() {
@@ -456,6 +458,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         dialog.dismiss();
+                        // clear the current datafields list, since this collector creation process is terminated
                         clearDatafields();
                     }
                 });
@@ -493,11 +496,8 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         String descriptionText = descriptionEditText.getText().toString();
                         collector.setDescription(descriptionText);
 
-                        // save the collector to database
-                        // add a callback to refresh homepage every time
-                        DatabaseManager dbManager = DatabaseManager.getInstance(context);
-                        // store to firebase as well
-                        FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(context);
+
+
                         // save locally
                         dbManager.addOneCollector(collector);
                         // save to Firebase
@@ -517,25 +517,20 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                             });
                         }
 
-                        // update user by add the collector info to user
-                        dbManager.addCollectorForUser(collector, currentUser);
-                        // update user in firebase
-                        HashMap<String, Object> userUpdates = new HashMap<>();
+                        // Note: we do not need to update the field "userCollectors" under User (see /database/User.java),
+                        // be cause the user is the creator of this collector, and this piece of info is already stored in the Collector object (see /database/Collector.java) under the field "creatorUserId"
 
-                        ArrayList<String> updatedUserCollectors = currentUser.getCollectorsForCurrentUser();
-                        updatedUserCollectors.add(collector.getCollectorId());
-                        userUpdates.put("userCollectors", updatedUserCollectors);
-                        firebaseCommunicationManager.updateUser(currentUser.getUserId(), userUpdates);
-
-
+                        // clear the current datafields list, since this collector creation process is done
                         clearDatafields();
-//                        List<Collector> collectors = dbManager.getActiveCollectors();
 
-                        // update currentScreen String value
-                        currentScreenState = "buildDialogFromConfigSuccessMessage";
-                        // recursively call itself with new currentScreen String value
+                        // update all collectors' status, before refreshing the collector list
+                        // to make sure we only display active collectors.
                         CrepeAccessibilityService.getsSharedInstance().refreshCollector();
+                        // a callback to refresh homepage every time
                         refreshCollectorListRunnable.run();
+
+                        // update currentScreen String value, recursively call itself with new currentScreen String value
+                        currentScreenState = "buildDialogFromConfigSuccessMessage";
                         updateCurrentView();
                     }
                 });
@@ -544,6 +539,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         dialog.dismiss();
+                        // clear the current datafields list, since this collector creation process is terminated
                         clearDatafields();
                     }
                 });
