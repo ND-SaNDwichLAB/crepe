@@ -13,6 +13,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.provider.Settings;
 import android.util.Log;
@@ -117,6 +119,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
                 dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_create_collector_from_config, null);
                 dialog.setContentView(dialogMainView);
+
                 // buttons
                 Button popupCancelBtn = (Button) dialogMainView.findViewById(R.id.addCollectorFromConfigDialogCancelButton);
                 Button popupNextBtn = (Button) dialogMainView.findViewById(R.id.addCollectorFromConfigDialogNextButton);
@@ -339,7 +342,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         if (!accessibilityServiceEnabled) {
                             MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context);
                             builder.setTitle("Service Permission Required")
-                                    .setMessage(Const.appName + " needs accessibility service to function. Please enable it in the phone settings.")
+                                    .setMessage("Crepe needs accessibility service to function. Please enable it in the phone settings.")
                                     .setPositiveButton("Enable", new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
@@ -395,8 +398,8 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
                                 MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context);
                                 builder.setTitle("Service Permission Required")
-                                        .setMessage(Const.appName + " needs the permission to display over other app for proper function. Please enable the service in the phone settings.")
-                                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                        .setMessage("Crepe needs the permission to display over other app for proper function. Please enable the service in the phone settings.")
+                                        .setPositiveButton("ENABLE", new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialog, int which) {
                                                 Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + context.getPackageName()));

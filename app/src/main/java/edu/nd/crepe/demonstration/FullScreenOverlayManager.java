@@ -265,7 +265,7 @@ public class FullScreenOverlayManager {
                             WindowManager.LayoutParams.WRAP_CONTENT,
                             Const.OVERLAY_TYPE,
                             WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_INSET_DECOR,
-                            PixelFormat.OPAQUE);
+                            PixelFormat.TRANSLUCENT);
                     LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                     View confirmationView = layoutInflater.inflate(R.layout.demonstration_confirmation, null);
 

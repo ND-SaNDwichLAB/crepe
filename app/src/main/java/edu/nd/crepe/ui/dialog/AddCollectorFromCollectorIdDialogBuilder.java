@@ -17,6 +17,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import edu.nd.crepe.CrepeAccessibilityService;
 import edu.nd.crepe.R;
 import edu.nd.crepe.database.Collector;
@@ -60,7 +62,7 @@ public class AddCollectorFromCollectorIdDialogBuilder {
     }
 
     public Dialog build(){
-        final View popupView = LayoutInflater.from(c).inflate(R.layout.dialog_add_collector_from_url, null);
+        final View popupView = LayoutInflater.from(c).inflate(R.layout.dialog_add_collector_from_collector_id, null);
         dialogBuilder.setView(popupView);
         Dialog dialog = dialogBuilder.create();
         Button popupCancelBtn = (Button) popupView.findViewById(R.id.addFromUrlCancelButton);
@@ -171,10 +173,10 @@ public class AddCollectorFromCollectorIdDialogBuilder {
 
                     // if accessibility service is not on
                     if (!accessibilityServiceRunning) {
-                        AlertDialog.Builder builder1 = new AlertDialog.Builder(c);
-                        builder1.setTitle("Service Permission Required")
+                        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(c);
+                        builder.setTitle("Service Permission Required")
                                 .setMessage("The accessibility service is not enabled for " + Const.appName + ". Please enable the service in the phone settings before recording.")
-                                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                .setPositiveButton("ENABLE", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
