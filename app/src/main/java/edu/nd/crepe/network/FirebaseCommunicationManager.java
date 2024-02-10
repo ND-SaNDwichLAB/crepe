@@ -12,8 +12,6 @@ import edu.nd.crepe.database.Datafield;
 import edu.nd.crepe.database.User;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
@@ -86,7 +84,9 @@ public class FirebaseCommunicationManager {
         return databaseReference.child(key).updateChildren(hashMap);
     }
 
-    public Task<Void> deleteCollector(String key) {
+    // NOTE: this does not actually "remove" the collector, it just sets the status to deleted.
+    // This is consistent with local database behavior and helps to preserve the collector info even after it's deleted.
+    public Task<Void> setCollectorStatusDeleted(String key) {
         // instead of removing the collector from firebase, we will just set the status to deleted
         // this is consistent with local database behavior, so we do not lose existing collector data
         DatabaseReference databaseReference = db.getReference(Collector.class.getSimpleName());
@@ -188,6 +188,40 @@ public class FirebaseCommunicationManager {
                 } else {
                     Log.e("Firebase", "retrieve collector: Failed to launch connection to firebase. Error: ", task.getException());
                     Toast.makeText(context, "retrieve collector: Failed to launch connection to firebase.", Toast.LENGTH_LONG).show();
+                    firebaseCallback.onErrorResponse(task.getException());
+                }
+            }
+        });
+    }
+
+    public void retrieveCollectorWithCreatorUserId(String userId, FirebaseCallback firebaseCallback) {
+        DatabaseReference databaseReference = db.getReference(Collector.class.getSimpleName());
+        Query query = databaseReference.orderByChild("creatorUserId").equalTo(userId);
+        query.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                if (task.isSuccessful()) {
+                    List<Collector> collectors = new ArrayList<>();
+                    for (DataSnapshot snapshot : task.getResult().getChildren()) {
+                        String collectorId = String.valueOf(snapshot.child("collectorId").getValue());
+                        String creatorUserId = String.valueOf(snapshot.child("creatorUserId").getValue());
+                        String appName = String.valueOf(snapshot.child("appName").getValue());
+                        String appPackage = String.valueOf(snapshot.child("appPackage").getValue());
+                        String description = String.valueOf(snapshot.child("description").getValue());
+                        String mode = String.valueOf(snapshot.child("mode").getValue());
+                        String targetServerIp = String.valueOf(snapshot.child("targetServerIp").getValue());
+                        String collectorStatus = String.valueOf(snapshot.child("collectorStatus").getValue());
+                        long collectorStartTime = (long) snapshot.child("collectorStartTime").getValue();
+                        long collectorEndTime = (long) snapshot.child("collectorEndTime").getValue();
+
+                        Collector collector = new Collector(collectorId, creatorUserId, appName, appPackage, description, mode, targetServerIp, collectorStartTime, collectorEndTime, collectorStatus);
+                        collectors.add(collector);
+                    }
+
+                    // Call firebase callback to update collectors
+                    firebaseCallback.onResponse(collectors);
+                } else {
+                    Log.e("Firebase", "retrieve collector with creator user id: Failed to launch connection to firebase.");
                     firebaseCallback.onErrorResponse(task.getException());
                 }
             }

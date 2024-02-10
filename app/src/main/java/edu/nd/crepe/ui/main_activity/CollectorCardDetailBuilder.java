@@ -78,23 +78,15 @@ public class CollectorCardDetailBuilder {
 
                 builder.setPositiveButton("Yes", (dialogInterface, i) -> {
                     Toast.makeText(c, "Collector for " + collector.getAppName() + " is deleted", Toast.LENGTH_LONG).show();
-                    // save datafield info before deleting
-                    List<Datafield> datafieldsForCollector = dbManager.getAllDatafieldsForCollector(collector);
-                    // For record keeping: this will set the status of collector to deleted,
+                    // This will set the status of collector to deleted instead of directly removing it
                     // it will still be present in database but won't be displayed
                     collector.setStatusDeleted();
                     dbManager.updateCollectorStatus(collector);
-                    // delete all the datafields associated with this collector
-                    dbManager.removeDatafieldByCollectorId(collector.getCollectorId());
-                    // also delete the collector and associated datafields from firebase
-                    fbManager.deleteCollector(collector.getCollectorId());
-
                     // we do not really remove datafields, since they are queried through collectors.
-                    // if collector status is set as deleted, the datafields will not be retrieved
-//                    for (Datafield datafield : datafieldsForCollector) {
-//                        fbManager.removeDatafield(datafield.getDatafieldId());
-//                    }
+                    // once the collector status is set "deleted", the datafields will not be queried anymore
 
+                    // also delete the collector from firebase
+                    fbManager.setCollectorStatusDeleted(collector.getCollectorId());
 
                     // update the home fragment list
                     refreshCollectorListRunnable.run();

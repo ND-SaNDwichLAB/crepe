@@ -24,20 +24,20 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import edu.nd.crepe.R;
 import edu.nd.crepe.ui.dialog.CollectorConfigurationDialogWrapper;
 import edu.nd.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilder;
-import edu.nd.crepe.ui.dialog.AddCollectorFromURLDialogBuilder;
+import edu.nd.crepe.ui.dialog.AddCollectorFromCollectorIdDialogBuilder;
 
 public class FabModalBottomSheet extends BottomSheetDialogFragment {
 
     public static final String TAG = "ModalBottomSheet";
     private HomeFragment currentFragment;
-    private AddCollectorFromURLDialogBuilder addCollectorFromURLDialogBuilder;
+    private AddCollectorFromCollectorIdDialogBuilder addCollectorFromCollectorIdDialogBuilder;
     private CreateCollectorFromConfigDialogBuilder createCollectorFromConfigDialogBuilder;
     private CollectorConfigurationDialogWrapper wrapper;
 
     private Context context;
 
-    public FabModalBottomSheet(AddCollectorFromURLDialogBuilder addCollectorFromURLDialogBuilder, CreateCollectorFromConfigDialogBuilder createCollectorFromConfigDialogBuilder) {
-        this.addCollectorFromURLDialogBuilder = addCollectorFromURLDialogBuilder;
+    public FabModalBottomSheet(AddCollectorFromCollectorIdDialogBuilder addCollectorFromCollectorIdDialogBuilder, CreateCollectorFromConfigDialogBuilder createCollectorFromConfigDialogBuilder) {
+        this.addCollectorFromCollectorIdDialogBuilder = addCollectorFromCollectorIdDialogBuilder;
         this.createCollectorFromConfigDialogBuilder = createCollectorFromConfigDialogBuilder;
     }
 
@@ -59,7 +59,7 @@ public class FabModalBottomSheet extends BottomSheetDialogFragment {
 
                 dismiss();
 
-                Dialog dialog = addCollectorFromURLDialogBuilder.build();
+                Dialog dialog = addCollectorFromCollectorIdDialogBuilder.build();
                 dialog.show();
             }
         });

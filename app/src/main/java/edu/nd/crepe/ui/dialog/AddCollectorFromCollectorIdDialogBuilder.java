@@ -30,17 +30,33 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class AddCollectorFromURLDialogBuilder {
+/**
+ * This class is used to build a dialog for adding a collector from a Collector ID.
+ * The dialog will prompt the user to enter the collector ID and then add the collector to the user's profile.
+ * This happens when a user wants to participate in a study with a new collector, so we make sure the collector is already created and not yet added to this user's profile.
+ * It should not be used when a user wants to create a new collector
+ */
+
+public class AddCollectorFromCollectorIdDialogBuilder {
 
     private Context c;
     private AlertDialog.Builder dialogBuilder;
     private Runnable refreshCollectorListRunnable;
+    private DatabaseManager dbManager;
+    private FirebaseCommunicationManager firebaseCommunicationManager;
 
-    public AddCollectorFromURLDialogBuilder(Context c, Runnable runnable) {
+    private Collector targetCollector;
+    private ArrayList<Datafield> targetDatafields;
+    private Boolean retrievalStatus = true;
+
+    public AddCollectorFromCollectorIdDialogBuilder(Context c, Runnable runnable) {
         this.c = c;
         this.dialogBuilder = new AlertDialog.Builder(c);
         this.refreshCollectorListRunnable = runnable;
-
+        this.firebaseCommunicationManager = new FirebaseCommunicationManager(c);
+        this.dbManager = DatabaseManager.getInstance(c);
+        this.targetCollector = null;
+        this.targetDatafields = new ArrayList<>();
     }
 
     public Dialog build(){
@@ -65,37 +81,30 @@ public class AddCollectorFromURLDialogBuilder {
                 InputMethodManager imm = (InputMethodManager) c.getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
                 if (!collectorIdEditText.getText().toString().isEmpty()) {
-                    // Firebase
-                    FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(c);
 
-                    DatabaseManager dbManager = DatabaseManager.getInstance(c);
-
-                    if (dbManager.getCollectorById(collectorIdEditText.getText().toString()) != null) {
+                    // check if the collector already exists in participant's userCollectors list
+                    // if so, do not add it again
+                    if (dbManager.userParticipationStatusForCollector(currentUser.getUserId(), collectorIdEditText.getText().toString())){
                         Toast.makeText(c, "Collector already exists. Is it already in your list?", Toast.LENGTH_LONG).show();
                         dialog.dismiss();
                         return;
                     }
 
+                    // if it does not exist, retrieve the collector from firebase and add it to the user's profile
+                    // 3 steps:
+                    // 1. add collector to local database
+                    // 2. add collector to user's userCollectors list (local and firebase)
+                    // 3. add the associated datafields to the local database
                     firebaseCommunicationManager.retrieveCollector(collectorIdEditText.getText().toString(), new FirebaseCallback<Collector>() {
                         public void onResponse(Collector result) {
-                            dbManager.addOneCollector(result);
-
-                            // update user by adding the collector info to the user
-                            dbManager.addCollectorForUser(result, currentUser);
-
-                            HashMap<String, Object> userUpdates = new HashMap<>();
-                            ArrayList<String> updatedUserCollectors = currentUser.getCollectorsForCurrentUser();
-                            updatedUserCollectors.add(result.getCollectorId());
-                            userUpdates.put("userCollectors", updatedUserCollectors);
-                            firebaseCommunicationManager.updateUser(currentUser.getUserId(), userUpdates);
-
-                            refreshCollectorListRunnable.run();
+                            targetCollector = result;
                         }
                         public void onErrorResponse(Exception e) {
+                            retrievalStatus = false;
                             try {
-                                Log.e("Firebase collector", e.getMessage());
+                                Log.e("Firebase collector", "Failed to retrieve collector with the specified collector ID from firebase." + e.getMessage());
                             } catch (NullPointerException ex) {
-                                Log.e("Firebase collector", "An unknown error occurred.");
+                                Log.e("Firebase collector", "An unknown error occurred while retrieving collector with the specified collector ID from firebase.");
                             }
                         }
 
@@ -103,23 +112,48 @@ public class AddCollectorFromURLDialogBuilder {
 
                     firebaseCommunicationManager.retrieveDatafieldsWithCollectorId(collectorIdEditText.getText().toString(), new FirebaseCallback<List<Datafield>>() {
                         public void onResponse(List<Datafield> results) {
-                            for (Datafield result : results) {
-                                dbManager.addOneDatafield(result);
-                            }
+                            targetDatafields.addAll(results);
                         }
                         public void onErrorResponse(Exception e) {
+                            retrievalStatus = false;
                             try {
-                                Log.e("Firebase datafield", e.getMessage());
+                                Log.e("Firebase datafield", "Failed to retrieve datafields with the specified collector ID from firebase." + e.getMessage());
                             } catch (NullPointerException ex) {
-                                Log.e("Firebase datafield", "An unknown error occurred.");
+                                Log.e("Firebase datafield", "An unknown error occurred while retrieving datafields with the specified collector ID from firebase.");
                             }
                         }
 
                     });
 
+                    // if retrieval is successful
+                    if (retrievalStatus) {
+                        // 1. add collector to local database
+                        dbManager.addOneCollector(targetCollector);
 
-                    dialog.dismiss();
-                    Toast.makeText(c, "Collector successfully added!", Toast.LENGTH_LONG).show();
+                        // 2a. add collector to user's userCollectors list (local)
+                        dbManager.addCollectorForUser(targetCollector, currentUser);
+
+                        // 2b. add collector to user's userCollectors list (firebase)
+                        HashMap<String, Object> userUpdates = new HashMap<>();
+                        ArrayList<String> updatedUserCollectors = currentUser.getCollectorsForCurrentUser();
+                        updatedUserCollectors.add(targetCollector.getCollectorId());
+                        userUpdates.put("userCollectors", updatedUserCollectors);
+                        firebaseCommunicationManager.updateUser(currentUser.getUserId(), userUpdates);
+
+                        // 3. add the associated datafields to the local database
+                        for (Datafield dfield : targetDatafields) {
+                            dbManager.addOneDatafield(dfield);
+                        }
+
+                        dialog.dismiss();
+                        refreshCollectorListRunnable.run();
+                        Toast.makeText(c, "Collector successfully added!", Toast.LENGTH_LONG).show();
+
+                    } else {
+                        Toast.makeText(c, "Failed to retrieve collector with the specified collector ID from firebase.", Toast.LENGTH_LONG).show();
+                        dialog.dismiss();
+                    }
+
 
                     // enable accessibility service
                     // check if the accessibility service is running

@@ -41,7 +41,6 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class GoogleLoginActivity extends AppCompatActivity {
@@ -194,9 +193,16 @@ public class GoogleLoginActivity extends AppCompatActivity {
                 startActivity(intent);
                 finish();
 
+                // get the collectors associated with this user
+                // contains 2 types of associations:
+                // 1. collectors that this user is participating in
+                // simply by using the field under User "userCollectors" (see /database/User.java)
                 ArrayList<String> collectorIds = user.getCollectorsForCurrentUser();
+                addParticipatingCollectors(collectorIds);
 
-                addAssociatedCollectors(collectorIds);
+                // 2. collectors that this user has created
+                // we need to index all collectors on the "creatorUserId" field, find the ones that contain current user's userId (see /database/Collector.java)
+                addCreatedCollectors(user.getUserId());
 
             }
             public void onErrorResponse(Exception e) {
@@ -220,7 +226,7 @@ public class GoogleLoginActivity extends AppCompatActivity {
         return hexString.toString();
     }
 
-    private void addAssociatedCollectors(ArrayList<String> collectorIds) {
+    private void addParticipatingCollectors(ArrayList<String> collectorIds) {
         AtomicInteger collectorCounter = new AtomicInteger(0);
         int totalCollectorCount = collectorIds.size();
 
@@ -247,6 +253,25 @@ public class GoogleLoginActivity extends AppCompatActivity {
         }
     }
 
+    private void addCreatedCollectors(String userId) {
+        fbManager.retrieveCollectorWithCreatorUserId(userId, new FirebaseCallback<ArrayList<Collector>>() {
+            public void onResponse(ArrayList<Collector> collectors) {
+                for (Collector collector : collectors) {
+                    dbManager.addOneCollector(collector);
+                    addDatafieldForCollector(collector);
+                }
+            }
+            public void onErrorResponse(Exception e) {
+                try {
+                    Log.i("Firebase collector", "No collector is found that is created by current user.\n" + e.getMessage());
+                } catch (NullPointerException ex) {
+                    Log.e("Firebase collector", "No collector is found that is created by current user. An unknown error occurred.");
+                }
+            }
+        });
+    }
+
+    // from firebase, retrieve all datafields associated with this collector and save to local
     private void addDatafieldForCollector(Collector collector) {
         fbManager.retrieveDatafieldsWithCollectorId(collector.getCollectorId(), new FirebaseCallback<ArrayList<Datafield>>() {
             public void onResponse(ArrayList<Datafield> datafields) {

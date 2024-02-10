@@ -12,6 +12,7 @@ import androidx.annotation.Nullable;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -127,7 +128,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return instance;
     }
 
-
+    // a method to add one collector to the local database
     public Boolean addOneCollector(Collector collector) {
         ContentValues cv = new ContentValues();
         cv.put(COLUMN_COLLECTOR_ID, collector.getCollectorId());
@@ -147,9 +148,10 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return true;
     }
 
+    // Warning: this method will directly remove the collector from the database. The preferred method: use updateCollectorStatus to set the collector status to "deleted",
+    // so that we still have a copy of the collector in the database.
     public void removeCollectorById(String collectorId) {
-        // the result equals to the number of entries being deleted
-
+        // the result equals to the number of entries being deleted in the database
         int result = db.delete(COLLECTOR_TABLE, "collectorId = " + collectorId, null);
         if(result > 0) {
             Log.i("database", "successfully deleted " + result + " collectors with id " + collectorId);
@@ -288,6 +290,22 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
         cursor.close();
         return username;
+    }
+
+    public ArrayList<String> getUserCollectors(String userId) {
+        String query = "SELECT " + COLUMN_USER_COLLECTORS + " from " + USER_TABLE + " where " + COLUMN_USER_ID + "= \'" + userId + "\'";
+
+        Cursor cursor = db.rawQuery(query, null);
+        cursor.moveToFirst();
+        int collectorsColumnIndex = cursor.getColumnIndex(COLUMN_USER_COLLECTORS);
+        String collectorsJson = cursor.getString(collectorsColumnIndex);
+
+        Gson gson = new Gson();
+        Type type = new TypeToken<ArrayList<String>>(){}.getType();
+        ArrayList<String> collectorIds = gson.fromJson(collectorsJson, type);
+
+        cursor.close();
+        return collectorIds;
     }
 
     // Use this function to update the database when the user set their name in the left panel
@@ -481,6 +499,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
             Log.i("database", "remove datafield by id error, current datafields: " + getAllDatafields().toString());
         }
     }
+
+    // NOTE: This method is not used in the app, because once a collector is set as "deleted", the datafields will not be queried anymore.
     public void removeDatafieldByCollectorId(String collectorId) {
         // the result equals to the number of entries being deleted
 
@@ -621,6 +641,16 @@ public class DatabaseManager extends SQLiteOpenHelper {
             Log.i("", "The collector list is empty.");
             cursor.close();
             return null;
+        }
+    }
+
+    // check if the user is already participating in the collector
+    public boolean userParticipationStatusForCollector(String userId, String collectorId) {
+        ArrayList<String> userCollectors = getUserCollectors(userId);
+        if (userCollectors.contains(collectorId)) {
+            return true;
+        } else {
+            return false;
         }
     }
 

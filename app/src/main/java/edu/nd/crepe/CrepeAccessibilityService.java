@@ -83,19 +83,20 @@ public class CrepeAccessibilityService extends AccessibilityService {
         dbManager = DatabaseManager.getInstance(this.getApplicationContext());
         firebaseCommunicationManager = new FirebaseCommunicationManager(this);
 
+        // refresh the collector status for current collectors every REFRESH_INTERVAL minutes
         scheduler = Executors.newScheduledThreadPool(1);
         scheduler.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                refreshCollector();
+                refreshAllCollectorStatus();
             }
         }, 0, REFRESH_INTERVAL, TimeUnit.MINUTES);
 
 
-        refreshCollector();
+        refreshAllCollectorStatus();
     }
 
-    public void refreshCollector() {
+    public void refreshAllCollectorStatus() {
         // retrieve all stored collectors and datafields
         collectors = dbManager.getActiveCollectors();
         datafields = dbManager.getAllDatafields();
@@ -106,7 +107,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
             dbManager.updateCollectorStatus(collector);
         }
 
-        // TODO: check firebase database usage, why is it used here, and in general in the app?
+        // TODO: Yuwen check firebase database usage, why is it used here, and in general in the app?
         if (collectors != null && !collectors.isEmpty()) {
             firebaseCommunicationManager.updateAllCollectors();
         }

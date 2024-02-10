@@ -10,7 +10,9 @@ public class User {
     private long timeCreated;
     private long timeLastEdited;
 
-    private ArrayList<String> userCollectors = new ArrayList<>();   // store collectorId for the user
+    // store collectorId for the collectors that the user is participating in
+    // NOTE: this does not contain collectors that the user has created. That information is stored in the collectors themselves under the field "creatorUserId"
+    private ArrayList<String> userCollectors = new ArrayList<>();
 
     public User(String userId, String name, String photoUrl, long timeCreated, long timeLastEdited) {
         this.userId = userId;

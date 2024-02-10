@@ -18,7 +18,7 @@ import edu.nd.crepe.database.User;
 import edu.nd.crepe.network.FirebaseCommunicationManager;
 import edu.nd.crepe.ui.dialog.CollectorConfigurationDialogWrapper;
 import edu.nd.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilder;
-import edu.nd.crepe.ui.dialog.AddCollectorFromURLDialogBuilder;
+import edu.nd.crepe.ui.dialog.AddCollectorFromCollectorIdDialogBuilder;
 import edu.nd.crepe.ui.main_activity.FabModalBottomSheet;
 import edu.nd.crepe.ui.main_activity.HomeFragment;
 
@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
 
     private DatabaseManager dbManager;
 
-    private AddCollectorFromURLDialogBuilder addCollectorFromURLDialogBuilder;
+    private AddCollectorFromCollectorIdDialogBuilder addCollectorFromCollectorIdDialogBuilder;
     private CreateCollectorFromConfigDialogBuilder createCollectorFromConfigDialogBuilder;
 
     private FirebaseAuth mAuth;
@@ -118,11 +118,11 @@ public class MainActivity extends AppCompatActivity {
 //        ImageView userImageView = navHeader.findViewById(R.id.userImage);
 
         if (currentUser == null) {
-            // get the current stored user from the database, saved in the log in process with google authentication
+            // get the current stored user from the database, which we fetched with google authentication (see authentication/GoogleSignInActivity.java)
             if (dbManager.getAllUsers().size() == 1) {
                 currentUser = dbManager.getAllUsers().get(0);
                 userNameTextView.setText(currentUser.getName());
-                Toast.makeText(this, "Welcome, " + currentUser.getName() + "! 🥳🎉🎊", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Welcome, " + currentUser.getName().split(" ")[0] + "! 🥳🎉🎊", Toast.LENGTH_SHORT).show();   // only take the first name
             } else if (dbManager.getAllUsers().size() > 1) {
                 Log.e("Main Activity", "Error: more than 1 user found in database.");
             } else {
@@ -153,9 +153,6 @@ public class MainActivity extends AppCompatActivity {
 //
 //        }
 
-
-
-
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
@@ -170,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        this.addCollectorFromURLDialogBuilder = new AddCollectorFromURLDialogBuilder(this, refreshCollectorListRunnable);
+        this.addCollectorFromCollectorIdDialogBuilder = new AddCollectorFromCollectorIdDialogBuilder(this, refreshCollectorListRunnable);
         this.createCollectorFromConfigDialogBuilder = new CreateCollectorFromConfigDialogBuilder(this, refreshCollectorListRunnable);
 
         // get the fab icon
@@ -180,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                FabModalBottomSheet modalBottomSheet = new FabModalBottomSheet(addCollectorFromURLDialogBuilder, createCollectorFromConfigDialogBuilder);
+                FabModalBottomSheet modalBottomSheet = new FabModalBottomSheet(addCollectorFromCollectorIdDialogBuilder, createCollectorFromConfigDialogBuilder);
                 modalBottomSheet.show(getSupportFragmentManager(), FabModalBottomSheet.TAG);
 
             }
