@@ -1,4 +1,9 @@
 
+
+## File Structure
+
+
+
 ### Database design
 
 We have a local android database using SQLite, and a firebase remote database
@@ -12,3 +17,14 @@ When removing collectors, we do not really remove them from database to avoid da
 ### Graph Query
 
 Ranking algorithm and the use of LLM
+
+
+## ui
+
+In `CollectorConfigurationDialogWrapper.java`, we are maintaining a state called `currentScreenState`.
+
+
+### Setup
+
+
+If you are using Android Studio, you need to install `HAXM installer` to launch the project.

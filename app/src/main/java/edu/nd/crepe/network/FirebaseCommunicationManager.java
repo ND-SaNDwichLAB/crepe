@@ -128,7 +128,6 @@ public class FirebaseCommunicationManager {
                         DataSnapshot dataSnapshot = task.getResult();
                         String userId = String.valueOf(dataSnapshot.child("userId").getValue());
                         String userName = String.valueOf(dataSnapshot.child("name").getValue());
-                        Log.d("zq", userId);
                         String photoUrl = String.valueOf(dataSnapshot.child("photoUrl").getValue());
                         long timeCreated = (long) dataSnapshot.child("timeCreated").getValue();
                         long timeLastEdited = (long) dataSnapshot.child("timeLastEdited").getValue();
