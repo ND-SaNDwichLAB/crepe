@@ -82,9 +82,9 @@ public class AddCollectorFromCollectorIdDialogBuilder {
                 imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
                 if (!collectorIdEditText.getText().toString().isEmpty()) {
 
-                    // check if the collector already exists in local database (i.e. already added to the user's profile)
+                    // check if the collector already exists in participant's userCollectors list
                     // if so, do not add it again
-                    if (dbManager.getCollectorById(collectorIdEditText.getText().toString()) != null) {
+                    if (dbManager.userParticipationStatusForCollector(currentUser.getUserId(), collectorIdEditText.getText().toString())){
                         Toast.makeText(c, "Collector already exists. Is it already in your list?", Toast.LENGTH_LONG).show();
                         dialog.dismiss();
                         return;
@@ -125,7 +125,7 @@ public class AddCollectorFromCollectorIdDialogBuilder {
 
                     });
 
-                    // if retrieval is successful, do following
+                    // if retrieval is successful
                     if (retrievalStatus) {
                         // 1. add collector to local database
                         dbManager.addOneCollector(targetCollector);
@@ -140,7 +140,6 @@ public class AddCollectorFromCollectorIdDialogBuilder {
                         userUpdates.put("userCollectors", updatedUserCollectors);
                         firebaseCommunicationManager.updateUser(currentUser.getUserId(), userUpdates);
 
-
                         // 3. add the associated datafields to the local database
                         for (Datafield dfield : targetDatafields) {
                             dbManager.addOneDatafield(dfield);
@@ -149,7 +148,6 @@ public class AddCollectorFromCollectorIdDialogBuilder {
                         dialog.dismiss();
                         refreshCollectorListRunnable.run();
                         Toast.makeText(c, "Collector successfully added!", Toast.LENGTH_LONG).show();
-
 
                     } else {
                         Toast.makeText(c, "Failed to retrieve collector with the specified collector ID from firebase.", Toast.LENGTH_LONG).show();

@@ -90,7 +90,7 @@ public class HomeFragment extends Fragment {
             // clear the collector list
             fragmentInnerLinearLayout.removeAllViews();
 
-            if(collectorList.size() > 0) {
+            if (collectorList.size() > 0) {
                 // hide the no collector textview
                 noCollectorTextView.setVisibility(View.GONE);
 

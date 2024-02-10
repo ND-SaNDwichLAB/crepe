@@ -49,7 +49,6 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Dictionary;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -525,7 +524,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
                         // update all collectors' status, before refreshing the collector list
                         // to make sure we only display active collectors.
-                        CrepeAccessibilityService.getsSharedInstance().refreshCollector();
+                        CrepeAccessibilityService.getsSharedInstance().refreshAllCollectorStatus();
                         // a callback to refresh homepage every time
                         refreshCollectorListRunnable.run();
 

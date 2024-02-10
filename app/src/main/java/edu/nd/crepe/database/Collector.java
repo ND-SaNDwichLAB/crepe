@@ -16,7 +16,7 @@ public class Collector implements Serializable {
     private String appPackage;
     private String description;
     private String mode;
-    private String targetServerIp;
+    private String targetServerIp;  // not really in use, should be null most of the time. intended to be used when researchers want to collect data to their own specific server
     private long collectorStartTime;
     private long collectorEndTime;
     private String collectorStatus;
@@ -212,9 +212,12 @@ public class Collector implements Serializable {
         } else {
             newStatus = EXPIRED;
         }
-        this.collectorStatus = newStatus;
-
-        return collectorStatus != newStatus;
+        if (newStatus.equals(this.collectorStatus)) {
+            return false;
+        } else {
+            this.collectorStatus = newStatus;
+            return true;
+        }
     }
 
     // We also provide a set status function to manually set the status to an arbitrary value
