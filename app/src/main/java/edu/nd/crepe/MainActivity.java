@@ -18,7 +18,7 @@ import edu.nd.crepe.database.User;
 import edu.nd.crepe.network.FirebaseCommunicationManager;
 import edu.nd.crepe.ui.dialog.CollectorConfigurationDialogWrapper;
 import edu.nd.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilder;
-import edu.nd.crepe.ui.dialog.AddCollectorFromURLDialogBuilder;
+import edu.nd.crepe.ui.dialog.AddCollectorFromCollectorIdDialogBuilder;
 import edu.nd.crepe.ui.main_activity.FabModalBottomSheet;
 import edu.nd.crepe.ui.main_activity.HomeFragment;
 
@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
 
     private DatabaseManager dbManager;
 
-    private AddCollectorFromURLDialogBuilder addCollectorFromURLDialogBuilder;
+    private AddCollectorFromCollectorIdDialogBuilder addCollectorFromCollectorIdDialogBuilder;
     private CreateCollectorFromConfigDialogBuilder createCollectorFromConfigDialogBuilder;
 
     private FirebaseAuth mAuth;
@@ -170,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        this.addCollectorFromURLDialogBuilder = new AddCollectorFromURLDialogBuilder(this, refreshCollectorListRunnable);
+        this.addCollectorFromCollectorIdDialogBuilder = new AddCollectorFromCollectorIdDialogBuilder(this, refreshCollectorListRunnable);
         this.createCollectorFromConfigDialogBuilder = new CreateCollectorFromConfigDialogBuilder(this, refreshCollectorListRunnable);
 
         // get the fab icon
@@ -180,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                FabModalBottomSheet modalBottomSheet = new FabModalBottomSheet(addCollectorFromURLDialogBuilder, createCollectorFromConfigDialogBuilder);
+                FabModalBottomSheet modalBottomSheet = new FabModalBottomSheet(addCollectorFromCollectorIdDialogBuilder, createCollectorFromConfigDialogBuilder);
                 modalBottomSheet.show(getSupportFragmentManager(), FabModalBottomSheet.TAG);
 
             }
