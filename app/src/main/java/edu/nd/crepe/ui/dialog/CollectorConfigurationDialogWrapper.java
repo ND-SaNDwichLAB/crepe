@@ -510,7 +510,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         // store the data fields into database
                         for (Datafield datafield : datafields) {
                             dbManager.addOneDatafield(datafield);
-                            firebaseCommunicationManager.putDatafield(datafield).addOnCompleteListener(task -> {
+                            firebaseCommunicationManager.putDataField(datafield).addOnCompleteListener(task -> {
                                 Log.i("Firebase","Successfully added datafield " + datafield.getDatafieldId() + " to firebase.");
                             }).addOnFailureListener(er->{
                                 Log.e("Firebase","Failed to add datafield " + datafield.getDatafieldId() + " to firebase. Error: " + er.getMessage());

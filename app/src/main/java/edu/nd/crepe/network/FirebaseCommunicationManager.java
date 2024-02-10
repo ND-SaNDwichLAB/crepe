@@ -55,7 +55,7 @@ public class FirebaseCommunicationManager {
         return databaseReference.child(data.getDataId()).setValue(data);
     }
 
-    public Task<Void> putDatafield(Datafield datafield) {
+    public Task<Void> putDataField(Datafield datafield) {
         DatabaseReference databaseReference = db.getReference(Datafield.class.getSimpleName());
         return databaseReference.child(datafield.getDatafieldId()).setValue(datafield);
     }
@@ -128,6 +128,7 @@ public class FirebaseCommunicationManager {
                         DataSnapshot dataSnapshot = task.getResult();
                         String userId = String.valueOf(dataSnapshot.child("userId").getValue());
                         String userName = String.valueOf(dataSnapshot.child("name").getValue());
+                        Log.d("zq", userId);
                         String photoUrl = String.valueOf(dataSnapshot.child("photoUrl").getValue());
                         long timeCreated = (long) dataSnapshot.child("timeCreated").getValue();
                         long timeLastEdited = (long) dataSnapshot.child("timeLastEdited").getValue();
