@@ -53,7 +53,7 @@ public class FirebaseCommunicationManager {
         return databaseReference.child(data.getDataId()).setValue(data);
     }
 
-    public Task<Void> putDataField(Datafield datafield) {
+    public Task<Void> putDatafield(Datafield datafield) {
         DatabaseReference databaseReference = db.getReference(Datafield.class.getSimpleName());
         return databaseReference.child(datafield.getDatafieldId()).setValue(datafield);
     }
