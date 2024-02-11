@@ -1,5 +1,7 @@
 package edu.nd.crepe.ui.main_activity;
 
+import android.app.ActivityManager;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -12,6 +14,7 @@ import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
@@ -21,6 +24,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
+import edu.nd.crepe.CrepeAccessibilityService;
 import edu.nd.crepe.R;
 import edu.nd.crepe.ui.dialog.CollectorConfigurationDialogWrapper;
 import edu.nd.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilder;
@@ -59,8 +63,42 @@ public class FabModalBottomSheet extends BottomSheetDialogFragment {
 
                 dismiss();
 
-                Dialog dialog = addCollectorFromCollectorIdDialogBuilder.build();
-                dialog.show();
+                // enable accessibility service
+                // check if the accessibility service is running
+                Boolean accessibilityServiceRunning = false;
+                ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+                Class clazz = CrepeAccessibilityService.class;
+
+                if (manager != null) {
+                    for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+                        if (clazz.getName().equals(service.service.getClassName())) {
+                            accessibilityServiceRunning = true;
+                        }
+                    }
+                }
+                // if accessibility service is not on
+                if (!accessibilityServiceRunning) {
+                    final View accessibilityPermissionView = LayoutInflater.from(context).inflate(R.layout.accessibility_permission_request, null);
+                    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
+                    dialogBuilder.setView(accessibilityPermissionView);
+                    Dialog dialog = dialogBuilder.create();
+                    dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                    Button accessibilityEnableButton = (Button) accessibilityPermissionView.findViewById(R.id.accessibilityEnableButton);
+                    accessibilityEnableButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+                            context.startActivity(intent);
+                            dialog.dismiss();
+                        }
+                    });
+                    dialog.show();
+                } else {
+                    Dialog dialog = addCollectorFromCollectorIdDialogBuilder.build();
+                    dialog.show();
+                }
+
+
             }
         });
 

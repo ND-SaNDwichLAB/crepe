@@ -156,36 +156,6 @@ public class AddCollectorFromCollectorIdDialogBuilder {
                         dialog.dismiss();
                     }
 
-
-                    // enable accessibility service
-                    // check if the accessibility service is running
-                    Boolean accessibilityServiceRunning = false;
-                    ActivityManager manager = (ActivityManager) c.getSystemService(Context.ACTIVITY_SERVICE);
-                    Class clazz = CrepeAccessibilityService.class;
-
-                    if (manager != null) {
-                        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-                            if (clazz.getName().equals(service.service.getClassName())) {
-                                accessibilityServiceRunning = true;
-                            }
-                        }
-                    }
-
-                    // if accessibility service is not on
-                    if (!accessibilityServiceRunning) {
-                        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(c);
-                        builder.setTitle("Service Permission Required")
-                                .setMessage("The accessibility service is not enabled for " + Const.appName + ". Please enable the service in the phone settings before recording.")
-                                .setPositiveButton("ENABLE", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
-                                        c.startActivity(intent);
-                                        //do nothing
-                                    }
-                                }).show();
-                    }
-
                 }
             }
 
