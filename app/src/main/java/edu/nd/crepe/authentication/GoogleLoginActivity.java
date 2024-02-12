@@ -187,7 +187,6 @@ public class GoogleLoginActivity extends AppCompatActivity {
                 // save this user to local database
                 dbManager.addOneUser(user);
 
-
                 // move to main activity
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                 startActivity(intent);

@@ -12,6 +12,7 @@ import edu.nd.crepe.database.Datafield;
 import edu.nd.crepe.database.User;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
@@ -159,39 +160,37 @@ public class FirebaseCommunicationManager {
 
     public void retrieveCollector(String collectorId, FirebaseCallback firebaseCallback) {
         DatabaseReference databaseReference = db.getReference(Collector.class.getSimpleName());
-        databaseReference.child(collectorId).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DataSnapshot> task) {
-                if (task.isSuccessful()) {
-                    if (task.getResult().exists()) {
-                        DataSnapshot dataSnapshot = task.getResult();
-                        String collectorId = String.valueOf(dataSnapshot.child("collectorId").getValue());
-                        String creatorUserId = String.valueOf(dataSnapshot.child("creatorUserId").getValue());
-                        String appName = String.valueOf(dataSnapshot.child("appName").getValue());
-                        String appPackage = String.valueOf(dataSnapshot.child("appPackage").getValue());
-                        String description = String.valueOf(dataSnapshot.child("description").getValue());
-                        String mode = String.valueOf(dataSnapshot.child("mode").getValue());
-                        String targetServerIp = String.valueOf(dataSnapshot.child("targetServerIp").getValue());
-                        String collectorStatus = String.valueOf(dataSnapshot.child("collectorStatus").getValue());
-                        long collectorStartTime = (long) dataSnapshot.child("collectorStartTime").getValue();
-                        long collectorEndTime = (long) dataSnapshot.child("collectorEndTime").getValue();
+        databaseReference.child(collectorId).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                if (task.getResult().exists()) {
+                    DataSnapshot dataSnapshot = task.getResult();
+                    String collectorId1 = String.valueOf(dataSnapshot.child("collectorId").getValue());
+                    String creatorUserId = String.valueOf(dataSnapshot.child("creatorUserId").getValue());
+                    String appName = String.valueOf(dataSnapshot.child("appName").getValue());
+                    String appPackage = String.valueOf(dataSnapshot.child("appPackage").getValue());
+                    String description = String.valueOf(dataSnapshot.child("description").getValue());
+                    String mode = String.valueOf(dataSnapshot.child("mode").getValue());
+                    String targetServerIp = String.valueOf(dataSnapshot.child("targetServerIp").getValue());
+                    String collectorStatus = String.valueOf(dataSnapshot.child("collectorStatus").getValue());
+                    long collectorStartTime = (long) dataSnapshot.child("collectorStartTime").getValue();
+                    long collectorEndTime = (long) dataSnapshot.child("collectorEndTime").getValue();
 
-                        Collector collector = new Collector(collectorId, creatorUserId, appName, appPackage, description, mode, targetServerIp, collectorStartTime, collectorEndTime, collectorStatus);
+                    Collector collector = new Collector(collectorId1, creatorUserId, appName, appPackage, description, mode, targetServerIp, collectorStartTime, collectorEndTime, collectorStatus);
 
-                        // Call firebase callback to update collector
-                        firebaseCallback.onResponse(collector);
+                    // Call firebase callback to update collector
+                    firebaseCallback.onResponse(collector);
 
-                    } else {
-                        Log.e("Firebase", "retrieve collector: Failed to find the collector in firebase.");
-                        Toast.makeText(context, "retrieve collector: Failed to find the collector in firebase.", Toast.LENGTH_LONG).show();
-                    }
                 } else {
-                    Log.e("Firebase", "retrieve collector: Failed to launch connection to firebase. Error: ", task.getException());
-                    Toast.makeText(context, "retrieve collector: Failed to launch connection to firebase.", Toast.LENGTH_LONG).show();
-                    firebaseCallback.onErrorResponse(task.getException());
+                    Log.e("Firebase", "Failed to retrieve collector, it does not exist.");
+                    firebaseCallback.onErrorResponse(new Exception("Failed to retrieve collector, it does not exist."));
                 }
+            } else {
+                Log.e("Firebase", "retrieve collector: Failed to launch connection to firebase. Error: ", task.getException());
+                firebaseCallback.onErrorResponse(task.getException());
             }
         });
+
+
     }
 
     public void retrieveCollectorWithCreatorUserId(String userId, FirebaseCallback firebaseCallback) {
@@ -313,6 +312,29 @@ public class FirebaseCommunicationManager {
         });
     }
 
+    // retrieve all collector ids on firebase
+    public void retrieveAllCollectors(FirebaseCallback firebaseCallback) {
+        DatabaseReference databaseReference = db.getReference(Collector.class.getSimpleName());
+        databaseReference.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                if (task.isSuccessful()) {
+                    List<Collector> collectors = new ArrayList<>();
+                    for (DataSnapshot snapshot : task.getResult().getChildren()) {
+                        Collector collector = snapshot.getValue(Collector.class);
+                        collectors.add(collector);
+                    }
+
+                    // Call firebase callback to update collectors
+                    firebaseCallback.onResponse(collectors);
+                } else {
+                    Log.e("Firebase", "retrieve all collectors: Failed to launch connection to firebase.");
+                    firebaseCallback.onErrorResponse(task.getException());
+                }
+            }
+        });
+    }
+
     // retrieve data with datafieldId?
     public void retrieveDataWithDatafieldId(String datafieldId, FirebaseCallback firebaseCallback) {
         DatabaseReference databaseReference = db.getReference(Data.class.getSimpleName());
@@ -350,6 +372,7 @@ public class FirebaseCommunicationManager {
     }
 
     /* description of firebase access rule (set on the web portal)
+    WARNING: This is actually not in use, the access rule is set on the web portal
     User
     - creator: read & write access to only userId = self.userId
     - participant: read & write access to userId = self.userId

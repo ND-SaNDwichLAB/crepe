@@ -43,7 +43,6 @@ public class AddCollectorFromCollectorIdDialogBuilder {
 
     private Collector targetCollector;
     private ArrayList<Datafield> targetDatafields;
-    private Boolean retrievalStatus = true;
 
     public AddCollectorFromCollectorIdDialogBuilder(Context c, Runnable runnable) {
         this.c = c;
@@ -55,7 +54,7 @@ public class AddCollectorFromCollectorIdDialogBuilder {
         this.targetDatafields = new ArrayList<>();
     }
 
-    public Dialog build(){
+    public Dialog build() {
         final View popupView = LayoutInflater.from(c).inflate(R.layout.dialog_add_collector_from_collector_id, null);
         dialogBuilder.setView(popupView);
         Dialog dialog = dialogBuilder.create();
@@ -77,86 +76,117 @@ public class AddCollectorFromCollectorIdDialogBuilder {
                 // show the keyboard when edittext is clicked
                 InputMethodManager imm = (InputMethodManager) c.getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-                if (!collectorIdEditText.getText().toString().isEmpty()) {
+                String collectorId = collectorIdEditText.getText().toString();
 
-                    // check if the collector already exists in participant's userCollectors list
-                    // if so, do not add it again
-                    if (dbManager.userParticipationStatusForCollector(currentUser.getUserId(), collectorIdEditText.getText().toString())){
-                        Toast.makeText(c, "Collector already exists. Is it already in your list?", Toast.LENGTH_LONG).show();
-                        dialog.dismiss();
-                        return;
-                    }
-
-                    // if it does not exist, retrieve the collector from firebase and add it to the user's profile
-                    // 3 steps:
-                    // 1. add collector to local database
-                    // 2. add collector to user's userCollectors list (local and firebase)
-                    // 3. add the associated datafields to the local database
-                    firebaseCommunicationManager.retrieveCollector(collectorIdEditText.getText().toString(), new FirebaseCallback<Collector>() {
-                        public void onResponse(Collector result) {
-                            targetCollector = result;
-                        }
-                        public void onErrorResponse(Exception e) {
-                            retrievalStatus = false;
-                            try {
-                                Log.e("Firebase collector", "Failed to retrieve collector with the specified collector ID from firebase." + e.getMessage());
-                            } catch (NullPointerException ex) {
-                                Log.e("Firebase collector", "An unknown error occurred while retrieving collector with the specified collector ID from firebase.");
-                            }
-                        }
-
-                    });
-
-                    // TODO YUWEN THIS FAILS WHEN THE ID DOES NOT EXIST
-                    firebaseCommunicationManager.retrieveDatafieldsWithCollectorId(collectorIdEditText.getText().toString(), new FirebaseCallback<List<Datafield>>() {
-                        public void onResponse(List<Datafield> results) {
-                            targetDatafields.addAll(results);
-                        }
-                        public void onErrorResponse(Exception e) {
-                            retrievalStatus = false;
-                            try {
-                                Log.e("Firebase datafield", "Failed to retrieve datafields with the specified collector ID from firebase." + e.getMessage());
-                            } catch (NullPointerException ex) {
-                                Log.e("Firebase datafield", "An unknown error occurred while retrieving datafields with the specified collector ID from firebase.");
-                            }
-                        }
-
-                    });
-
-                    // if retrieval is successful
-                    if (retrievalStatus) {
-                        // 1. add collector to local database
-                        dbManager.addOneCollector(targetCollector);
-
-                        // 2a. add collector to user's userCollectors list (local)
-                        dbManager.addCollectorForUser(targetCollector, currentUser);
-
-                        // 2b. add collector to user's userCollectors list (firebase)
-                        HashMap<String, Object> userUpdates = new HashMap<>();
-                        ArrayList<String> updatedUserCollectors = currentUser.getCollectorsForCurrentUser();
-                        updatedUserCollectors.add(targetCollector.getCollectorId());
-                        userUpdates.put("userCollectors", updatedUserCollectors);
-                        firebaseCommunicationManager.updateUser(currentUser.getUserId(), userUpdates);
-
-                        // 3. add the associated datafields to the local database
-                        for (Datafield dfield : targetDatafields) {
-                            dbManager.addOneDatafield(dfield);
-                        }
-
-                        dialog.dismiss();
-                        refreshCollectorListRunnable.run();
-                        Toast.makeText(c, "Collector successfully added!", Toast.LENGTH_LONG).show();
-
-                    } else {
-                        Toast.makeText(c, "Failed to retrieve collector with the specified collector ID from firebase.", Toast.LENGTH_LONG).show();
-                        dialog.dismiss();
-                    }
-
+                // handle edge cases
+                if (collectorId.isEmpty()) {
+                    Toast.makeText(c, "Please enter collector ID.", Toast.LENGTH_LONG).show();
+                    return;
                 }
-            }
 
+                if (!isValidCollectorId(collectorId)) {
+                    Toast.makeText(c, "Invalid collector ID. Please double check the collector id.", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                // check if the collector already exists in participant's userCollectors list
+                // if so, do not add it again
+                if (dbManager.userParticipationStatusForCollector(currentUser.getUserId(), collectorIdEditText.getText().toString())) {
+                    Toast.makeText(c, "Collector already exists. Is it already in your list?", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+
+                // now, try to retrieve the collector from firebase and add it to the user's profile
+                // 3 steps:
+                // 1. add collector to local database
+                // 2. add collector to user's userCollectors list (local and firebase)
+                // 3. add the associated datafields to the local database
+
+                // get all collectorIds from firebase, to make sure the collector exists on firebase
+                firebaseCommunicationManager.retrieveAllCollectors(new FirebaseCallback<List<Collector>>() {
+                    public void onResponse(List<Collector> result) {
+                        if (result.size() == 0) {
+                            Log.i("Firebase", "No collectors found in Firebase.");
+                        } else {
+                            for (Collector c : result) {
+                                // if the collector is found in firebase
+                                if (c.getCollectorId().equals(collectorId)) {
+                                    targetCollector = c;
+                                    // 1. add collector to local database
+                                    dbManager.addOneCollector(targetCollector);
+
+                                    // 2a. add collector to user's userCollectors list (local)
+                                    dbManager.addCollectorForUser(targetCollector, currentUser);
+
+                                    // 2b. add collector to user's userCollectors list (firebase)
+                                    HashMap<String, Object> userUpdates = new HashMap<>();
+                                    ArrayList<String> updatedUserCollectors = currentUser.getCollectorsForCurrentUser();
+                                    updatedUserCollectors.add(targetCollector.getCollectorId());
+                                    userUpdates.put("userCollectors", updatedUserCollectors);
+                                    firebaseCommunicationManager.updateUser(currentUser.getUserId(), userUpdates);
+                                }
+                            }
+                        }
+
+                        onComplete();
+                    }
+
+                    public void onErrorResponse(Exception e) {
+                        Log.e("Firebase", "Failed to retrieve collectors from Firebase.");
+                    }
+
+                    public void onComplete() {
+                        // if the collector is not found in firebase
+                        if (targetCollector == null) {
+                            Toast.makeText(c, "Collector not found in Firebase. Please double check the collector id.", Toast.LENGTH_LONG).show();
+//                            dialog.dismiss();
+                        } else {
+                            // if the collector is found, then, retrieve the data fields
+                            firebaseCommunicationManager.retrieveDatafieldsWithCollectorId(collectorIdEditText.getText().toString(), new FirebaseCallback<List<Datafield>>() {
+                                public void onResponse(List<Datafield> results) {
+                                    targetDatafields.addAll(results);
+                                    onComplete();
+                                }
+
+                                public void onErrorResponse(Exception e) {
+                                    Toast.makeText(c, "Failed to retrieve datafields for associated collector from Firebase.", Toast.LENGTH_LONG).show();
+                                    onComplete();
+                                }
+
+                                public void onComplete() {
+                                    // Check if retrieval was successful
+                                    if (targetDatafields.size() > 0 && targetCollector != null) {
+                                        // Perform the database update and UI refresh
+                                        // 3. add the associated datafields to the local database
+                                        for (Datafield dfield : targetDatafields) {
+                                            dbManager.addOneDatafield(dfield);
+                                        }
+
+                                        dialog.dismiss();
+                                        refreshCollectorListRunnable.run();
+                                        Toast.makeText(c, "Collector successfully added!", Toast.LENGTH_LONG).show();
+
+                                    } else {
+                                        Toast.makeText(c, "Failed to retrieve datafields for associated collector from Firebase.", Toast.LENGTH_LONG).show();
+                                        dialog.dismiss();
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
+
+
+
+            }
         });
         return dialog;
     }
 
+    private boolean isValidCollectorId(String collectorId) {
+        // Check if collectorId is null or contains invalid characters
+        return collectorId != null && !collectorId.contains(".") && !collectorId.contains("#")
+                && !collectorId.contains("$") && !collectorId.contains("[") && !collectorId.contains("]");
+    }
 }
