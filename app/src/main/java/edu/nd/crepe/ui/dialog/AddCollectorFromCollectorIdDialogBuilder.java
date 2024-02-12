@@ -5,6 +5,8 @@ import static edu.nd.crepe.MainActivity.currentUser;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -57,6 +59,7 @@ public class AddCollectorFromCollectorIdDialogBuilder {
         final View popupView = LayoutInflater.from(c).inflate(R.layout.dialog_add_collector_from_collector_id, null);
         dialogBuilder.setView(popupView);
         Dialog dialog = dialogBuilder.create();
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         Button popupCancelBtn = (Button) popupView.findViewById(R.id.addFromUrlCancelButton);
         Button popupNextBtn = (Button) popupView.findViewById(R.id.addFromUrlAddButton);
         EditText collectorIdEditText = (EditText) popupView.findViewById(R.id.collectorIdEditText);
@@ -104,6 +107,7 @@ public class AddCollectorFromCollectorIdDialogBuilder {
 
                     });
 
+                    // TODO YUWEN THIS FAILS WHEN THE ID DOES NOT EXIST
                     firebaseCommunicationManager.retrieveDatafieldsWithCollectorId(collectorIdEditText.getText().toString(), new FirebaseCallback<List<Datafield>>() {
                         public void onResponse(List<Datafield> results) {
                             targetDatafields.addAll(results);
