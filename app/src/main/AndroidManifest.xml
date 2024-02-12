@@ -56,7 +56,7 @@
         </activity>
 
         <service
-            android:name=".CrepeAccessibilityService"
+            android:name=".accessibilityservice.CrepeAccessibilityService"
             android:exported="true"
             android:enabled="true"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">

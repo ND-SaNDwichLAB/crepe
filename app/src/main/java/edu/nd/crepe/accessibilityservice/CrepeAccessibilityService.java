@@ -1,4 +1,4 @@
-package edu.nd.crepe;
+package edu.nd.crepe.accessibilityservice;
 
 import static android.view.accessibility.AccessibilityEvent.TYPE_ANNOUNCEMENT;
 import static android.view.accessibility.AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED;
@@ -23,6 +23,7 @@ import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
+import edu.nd.crepe.MainActivity;
 import edu.nd.crepe.database.Collector;
 import edu.nd.crepe.database.Data;
 import edu.nd.crepe.database.DatabaseManager;

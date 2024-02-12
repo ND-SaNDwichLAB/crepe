@@ -1,6 +1,6 @@
 package edu.nd.crepe.ui.dialog;
 
-import static edu.nd.crepe.CrepeAccessibilityService.isAccessibilityServiceEnabled;
+import static edu.nd.crepe.accessibilityservice.CrepeAccessibilityService.isAccessibilityServiceEnabled;
 import static edu.nd.crepe.MainActivity.currentUser;
 
 import android.app.AlertDialog;
@@ -13,8 +13,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.provider.Settings;
 import android.util.Log;
@@ -31,14 +29,13 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import edu.nd.crepe.CrepeAccessibilityService;
+import edu.nd.crepe.accessibilityservice.CrepeAccessibilityService;
 import edu.nd.crepe.MainActivity;
 import edu.nd.crepe.R;
 import edu.nd.crepe.database.Collector;
 import edu.nd.crepe.database.DatabaseManager;
 import edu.nd.crepe.database.Datafield;
 import edu.nd.crepe.demonstration.WidgetService;
-import edu.nd.crepe.graphquery.Const;
 import edu.nd.crepe.network.FirebaseCommunicationManager;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;

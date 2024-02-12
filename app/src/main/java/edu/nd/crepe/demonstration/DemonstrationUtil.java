@@ -13,10 +13,7 @@ import android.view.accessibility.AccessibilityNodeInfo;
 //import edu.nd.crepe.graphquery.ontology.OntologyQuery;
 import androidx.annotation.RequiresApi;
 
-import edu.nd.crepe.CrepeAccessibilityService;
-import edu.nd.crepe.database.Data;
-import edu.nd.crepe.database.DatabaseManager;
-import edu.nd.crepe.database.Datafield;
+import edu.nd.crepe.accessibilityservice.CrepeAccessibilityService;
 import edu.nd.crepe.graphquery.Const;
 import edu.nd.crepe.graphquery.automation.AutomatorUtil;
 import edu.nd.crepe.graphquery.model.Node;
@@ -27,7 +24,6 @@ import edu.nd.crepe.graphquery.ontology.SugiliteEntity;
 import edu.nd.crepe.graphquery.ontology.SugiliteRelation;
 import edu.nd.crepe.graphquery.ontology.SugiliteTriple;
 import edu.nd.crepe.graphquery.ontology.UISnapshot;
-import edu.nd.crepe.network.FirebaseCommunicationManager;
 
 import org.apache.commons.lang3.StringUtils;
 

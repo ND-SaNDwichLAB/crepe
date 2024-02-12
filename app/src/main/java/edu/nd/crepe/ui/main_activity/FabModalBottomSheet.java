@@ -24,7 +24,8 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
-import edu.nd.crepe.CrepeAccessibilityService;
+import edu.nd.crepe.accessibilityservice.AccessibilityPermissionManager;
+import edu.nd.crepe.accessibilityservice.CrepeAccessibilityService;
 import edu.nd.crepe.R;
 import edu.nd.crepe.ui.dialog.CollectorConfigurationDialogWrapper;
 import edu.nd.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilder;
@@ -59,41 +60,14 @@ public class FabModalBottomSheet extends BottomSheetDialogFragment {
         addExistingBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // collapse the fab icon
-
-                dismiss();
-
-                // enable accessibility service
-                // check if the accessibility service is running
-                Boolean accessibilityServiceRunning = false;
-                ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-                Class clazz = CrepeAccessibilityService.class;
-
-                if (manager != null) {
-                    for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-                        if (clazz.getName().equals(service.service.getClassName())) {
-                            accessibilityServiceRunning = true;
-                        }
-                    }
-                }
-                // if accessibility service is not on
-                if (!accessibilityServiceRunning) {
-                    final View accessibilityPermissionView = LayoutInflater.from(context).inflate(R.layout.accessibility_permission_request, null);
-                    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
-                    dialogBuilder.setView(accessibilityPermissionView);
-                    Dialog dialog = dialogBuilder.create();
-                    dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                    Button accessibilityEnableButton = (Button) accessibilityPermissionView.findViewById(R.id.accessibilityEnableButton);
-                    accessibilityEnableButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
-                            context.startActivity(intent);
-                            dialog.dismiss();
-                        }
-                    });
-                    dialog.show();
+                // check accessibility service permission
+                if (!CrepeAccessibilityService.isAccessibilityServiceEnabled(getContext(), CrepeAccessibilityService.class)) {
+                    Dialog enableAccessibilityServiceDialog = AccessibilityPermissionManager.getInstance().getEnableAccessibilityServiceDialog(getContext());
+                    enableAccessibilityServiceDialog.show();
                 } else {
+                    // first, collapse the fab icon
+                    dismiss();
+                    // then, bring up the dialog to add a collector from collector id
                     Dialog dialog = addCollectorFromCollectorIdDialogBuilder.build();
                     dialog.show();
                 }
@@ -106,11 +80,12 @@ public class FabModalBottomSheet extends BottomSheetDialogFragment {
             @Override
             public void onClick(View view) {
 
-                dismiss();
-
-                wrapper = createCollectorFromConfigDialogBuilder.buildDialogWrapperWithNewCollector();
-                if (!Settings.canDrawOverlays(context)){
-
+                // check accessibility service permission
+                if (!CrepeAccessibilityService.isAccessibilityServiceEnabled(getContext(), CrepeAccessibilityService.class)) {
+                    Dialog enableAccessibilityServiceDialog = AccessibilityPermissionManager.getInstance().getEnableAccessibilityServiceDialog(getContext());
+                    enableAccessibilityServiceDialog.show();
+                    // then, check display over other apps permission
+                } else if (!Settings.canDrawOverlays(context)) {
                     MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context);
                     builder.setTitle("Service Permission Required")
                             .setMessage("Please enable the permission to display over other app for proper function.")
@@ -122,8 +97,11 @@ public class FabModalBottomSheet extends BottomSheetDialogFragment {
                                     context.startActivity(intent);
                                 }
                             }).show();
-                }
-                else {
+                } else {
+                    // first, collapse the fab icon
+                    dismiss();
+                    // then, bring up the dialog to create a new collector
+                    wrapper = createCollectorFromConfigDialogBuilder.buildDialogWrapperWithNewCollector();
                     wrapper.show();
                 }
             }
@@ -143,7 +121,7 @@ public class FabModalBottomSheet extends BottomSheetDialogFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setStyle(BottomSheetDialogFragment.STYLE_NORMAL, R.style.CustomBottomSheetDialogTheme );
+        setStyle(BottomSheetDialogFragment.STYLE_NORMAL, R.style.CustomBottomSheetDialogTheme);
     }
 
     @Override

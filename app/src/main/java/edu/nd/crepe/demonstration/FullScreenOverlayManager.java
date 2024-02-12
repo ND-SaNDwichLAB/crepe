@@ -1,14 +1,9 @@
 package edu.nd.crepe.demonstration;
 
-import static android.content.Context.WINDOW_SERVICE;
-
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
-import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
@@ -28,7 +23,7 @@ import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 
-import edu.nd.crepe.CrepeAccessibilityService;
+import edu.nd.crepe.accessibilityservice.CrepeAccessibilityService;
 import edu.nd.crepe.R;
 import edu.nd.crepe.graphquery.Const;
 import edu.nd.crepe.graphquery.model.Node;
