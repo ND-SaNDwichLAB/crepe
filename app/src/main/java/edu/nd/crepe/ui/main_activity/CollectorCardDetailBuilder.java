@@ -5,6 +5,8 @@ import android.app.Dialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -40,6 +42,7 @@ public class CollectorCardDetailBuilder {
         final View popupView = LayoutInflater.from(c).inflate(R.layout.collector_detail, null);
         dialogBuilder.setView(popupView);
         Dialog dialog = dialogBuilder.create();
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
         List<Datafield> datafieldsForCollector = dbManager.getAllDatafieldsForCollector(collector);
 
@@ -60,7 +63,7 @@ public class CollectorCardDetailBuilder {
                 ClipboardManager clipboard = (ClipboardManager) c.getSystemService(Context.CLIPBOARD_SERVICE);
                 ClipData clip = ClipData.newPlainText("share URL", collector.getCollectorId());
                 clipboard.setPrimaryClip(clip);
-                Toast.makeText(c,"collector ID copied to clipboard. Share with participants! " + collector.getCollectorId(), Toast.LENGTH_LONG).show();
+                Toast.makeText(c,"collector ID copied to clipboard. Share with your participants!", Toast.LENGTH_LONG).show();
             }
         });
 

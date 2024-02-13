@@ -80,19 +80,19 @@ public class AddCollectorFromCollectorIdDialogBuilder {
 
                 // handle edge cases
                 if (collectorId.isEmpty()) {
-                    Toast.makeText(c, "Please enter collector ID.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(c, "Please enter collector ID!", Toast.LENGTH_LONG).show();
                     return;
                 }
 
                 if (!isValidCollectorId(collectorId)) {
-                    Toast.makeText(c, "Invalid collector ID. Please double check the collector id.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(c, "Invalid collector ID!", Toast.LENGTH_LONG).show();
                     return;
                 }
 
                 // check if the collector already exists in participant's userCollectors list
                 // if so, do not add it again
                 if (dbManager.userParticipationStatusForCollector(currentUser.getUserId(), collectorIdEditText.getText().toString())) {
-                    Toast.makeText(c, "Collector already exists. Is it already in your list?", Toast.LENGTH_LONG).show();
+                    Toast.makeText(c, "You are already participating in this collection!", Toast.LENGTH_LONG).show();
                     return;
                 }
 
@@ -139,7 +139,7 @@ public class AddCollectorFromCollectorIdDialogBuilder {
                     public void onComplete() {
                         // if the collector is not found in firebase
                         if (targetCollector == null) {
-                            Toast.makeText(c, "Collector not found in Firebase. Please double check the collector id.", Toast.LENGTH_LONG).show();
+                            Toast.makeText(c, "Invalid collector ID!", Toast.LENGTH_LONG).show();
 //                            dialog.dismiss();
                         } else {
                             // if the collector is found, then, retrieve the data fields
@@ -150,7 +150,7 @@ public class AddCollectorFromCollectorIdDialogBuilder {
                                 }
 
                                 public void onErrorResponse(Exception e) {
-                                    Toast.makeText(c, "Failed to retrieve datafields for associated collector from Firebase.", Toast.LENGTH_LONG).show();
+                                    Toast.makeText(c, "Failed to retrieve datafields for the collector.", Toast.LENGTH_LONG).show();
                                     onComplete();
                                 }
 
@@ -168,7 +168,7 @@ public class AddCollectorFromCollectorIdDialogBuilder {
                                         Toast.makeText(c, "Collector successfully added!", Toast.LENGTH_LONG).show();
 
                                     } else {
-                                        Toast.makeText(c, "Failed to retrieve datafields for associated collector from Firebase.", Toast.LENGTH_LONG).show();
+                                        Toast.makeText(c, "Failed to retrieve datafields for the collector.", Toast.LENGTH_LONG).show();
                                         dialog.dismiss();
                                     }
                                 }

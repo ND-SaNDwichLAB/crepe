@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:id="@+id/collector_card"
-    android:background="@drawable/rounded_corner">
+    android:background="@drawable/rounded_corner_transparent">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/card_view"
@@ -99,10 +99,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:layout_marginEnd="20dp"
+                android:layout_marginEnd="4dp"
                 android:layout_marginBottom="20dp"
+                android:gravity="center_vertical|left"
                 android:text="Details"
-                android:textAlignment="viewEnd"
                 android:textColor="@color/ND_gold"
                 android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="parent"

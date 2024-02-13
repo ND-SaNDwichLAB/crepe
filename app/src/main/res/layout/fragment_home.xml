@@ -20,7 +20,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:gravity="center"
-        android:lineSpacingExtra="20dp"></TextView>
+        android:lineSpacingExtra="20dp" />
 
     <ScrollView
         android:layout_width="match_parent"
