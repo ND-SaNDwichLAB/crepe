@@ -1,6 +1,5 @@
-package edu.nd.crepe.accessibilityservice;
+package edu.nd.crepe.servicemanager;
 
-import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;

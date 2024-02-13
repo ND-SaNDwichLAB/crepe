@@ -1,22 +1,15 @@
 package edu.nd.crepe.ui.main_activity;
 
-import android.app.ActivityManager;
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -29,12 +22,12 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import edu.nd.crepe.accessibilityservice.AccessibilityPermissionManager;
-import edu.nd.crepe.accessibilityservice.CrepeAccessibilityService;
 import edu.nd.crepe.R;
 import edu.nd.crepe.database.Collector;
 import edu.nd.crepe.database.DatabaseManager;
 import edu.nd.crepe.network.DataLoadingEvent;
+import edu.nd.crepe.servicemanager.AccessibilityPermissionManager;
+import edu.nd.crepe.servicemanager.CrepeAccessibilityService;
 
 import java.util.HashMap;
 import java.util.List;
@@ -63,6 +56,14 @@ public class HomeFragment extends Fragment {
             initCollectorList();
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
+        }
+
+
+        // check accessibility service permission
+        if (!CrepeAccessibilityService.isAccessibilityServiceEnabled(getContext(), CrepeAccessibilityService.class)) {
+            // show the accessibility service permission dialog
+            Dialog dialog = AccessibilityPermissionManager.getInstance().getEnableAccessibilityServiceDialog(getContext());
+            dialog.show();
         }
     }
 

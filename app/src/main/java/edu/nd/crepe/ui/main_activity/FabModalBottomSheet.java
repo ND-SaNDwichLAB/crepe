@@ -1,7 +1,5 @@
 package edu.nd.crepe.ui.main_activity;
 
-import android.app.ActivityManager;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -14,7 +12,6 @@ import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
@@ -24,9 +21,10 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
-import edu.nd.crepe.accessibilityservice.AccessibilityPermissionManager;
-import edu.nd.crepe.accessibilityservice.CrepeAccessibilityService;
+import edu.nd.crepe.servicemanager.AccessibilityPermissionManager;
+import edu.nd.crepe.servicemanager.CrepeAccessibilityService;
 import edu.nd.crepe.R;
+import edu.nd.crepe.servicemanager.DisplayPermissionManager;
 import edu.nd.crepe.ui.dialog.CollectorConfigurationDialogWrapper;
 import edu.nd.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilder;
 import edu.nd.crepe.ui.dialog.AddCollectorFromCollectorIdDialogBuilder;
@@ -80,23 +78,10 @@ public class FabModalBottomSheet extends BottomSheetDialogFragment {
             @Override
             public void onClick(View view) {
 
-                // check accessibility service permission
-                if (!CrepeAccessibilityService.isAccessibilityServiceEnabled(getContext(), CrepeAccessibilityService.class)) {
-                    Dialog enableAccessibilityServiceDialog = AccessibilityPermissionManager.getInstance().getEnableAccessibilityServiceDialog(getContext());
-                    enableAccessibilityServiceDialog.show();
-                    // then, check display over other apps permission
-                } else if (!Settings.canDrawOverlays(context)) {
-                    MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context);
-                    builder.setTitle("Service Permission Required")
-                            .setMessage("Please enable the permission to display over other app for proper function.")
-                            .setPositiveButton("ENABLE", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + context.getPackageName()));
-                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                    context.startActivity(intent);
-                                }
-                            }).show();
+                // check display over other apps permission
+                if (!Settings.canDrawOverlays(context)) {
+                    Dialog enableDisplayServiceDialog = DisplayPermissionManager.getInstance().getEnableDisplayServiceDialog(context);
+                    enableDisplayServiceDialog.show();
                 } else {
                     // first, collapse the fab icon
                     dismiss();
@@ -104,6 +89,8 @@ public class FabModalBottomSheet extends BottomSheetDialogFragment {
                     wrapper = createCollectorFromConfigDialogBuilder.buildDialogWrapperWithNewCollector();
                     wrapper.show();
                 }
+
+
             }
         });
 

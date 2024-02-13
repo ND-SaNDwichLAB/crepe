@@ -1,10 +1,13 @@
 package edu.nd.crepe.ui.dialog;
 
-import static edu.nd.crepe.accessibilityservice.CrepeAccessibilityService.isAccessibilityServiceEnabled;
+import static edu.nd.crepe.servicemanager.CrepeAccessibilityService.isAccessibilityServiceEnabled;
 import static edu.nd.crepe.MainActivity.currentUser;
 
 import android.app.AlertDialog;
+
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
+import android.app.Dialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -29,7 +32,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import edu.nd.crepe.accessibilityservice.CrepeAccessibilityService;
+import edu.nd.crepe.servicemanager.AccessibilityPermissionManager;
+import edu.nd.crepe.servicemanager.CrepeAccessibilityService;
 import edu.nd.crepe.MainActivity;
 import edu.nd.crepe.R;
 import edu.nd.crepe.database.Collector;
@@ -37,6 +41,7 @@ import edu.nd.crepe.database.DatabaseManager;
 import edu.nd.crepe.database.Datafield;
 import edu.nd.crepe.demonstration.WidgetService;
 import edu.nd.crepe.network.FirebaseCommunicationManager;
+
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 
@@ -72,10 +77,11 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
         public void onDataReceived(String query, String targetText) {
             // datafield id format: collectorId%[index]
             String datafieldId = collector.getCollectorId() + "%" + String.valueOf(datafields.size());
-            datafields.add(new Datafield(datafieldId, collector.getCollectorId(),query,targetText,true));
+            datafields.add(new Datafield(datafieldId, collector.getCollectorId(), query, targetText, true));
             updateDisplayedDatafieldsFromDemonstration(dialogMainView);
         }
     }
+
     private GraphQueryCallback graphQueryCallback = new GraphQueryCallback();
 
     CollectorConfigurationDialogWrapper(Context context, AlertDialog dialog, Collector collector, Runnable refreshCollectorListRunnable) {
@@ -85,7 +91,8 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
         this.currentScreenState = "buildDialogFromConfig";
         this.refreshCollectorListRunnable = refreshCollectorListRunnable;
         this.dbManager = DatabaseManager.getInstance(context);
-        this.firebaseCommunicationManager = new FirebaseCommunicationManager(context);;
+        this.firebaseCommunicationManager = new FirebaseCommunicationManager(context);
+        ;
     }
 
     public static Boolean isNull() {
@@ -113,7 +120,6 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
             case "buildDialogFromConfig":
 
                 collector.setCreatorUserId(currentUser.getUserId());
-
                 dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_create_collector_from_config, null);
                 dialog.setContentView(dialogMainView);
 
@@ -321,7 +327,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                 TextView commentOnOpenAppButton = (TextView) dialogMainView.findViewById(R.id.commentOnOpenAppButton);
                 String appName = collector.getAppName();
                 openAppButton.setText("Open " + appName);
-                commentOnOpenAppButton.setText("Demonstrate in the " + appName +" app");
+                commentOnOpenAppButton.setText("Demonstrate in the " + appName + " app");
 
                 // modify content of the popup box based on current state
                 updateDisplayedDatafieldsFromDemonstration(dialogMainView);
@@ -331,87 +337,53 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                 openAppButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-
-                        // check if the accessibility service is running
-                        Boolean accessibilityServiceEnabled = isAccessibilityServiceEnabled(context, CrepeAccessibilityService.class);
-
-                        // if accessibility service is not on
-                        if (!accessibilityServiceEnabled) {
-                            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context);
-                            builder.setTitle("Service Permission Required")
-                                    .setMessage("Crepe needs accessibility service to function. Please enable it in the phone settings.")
-                                    .setPositiveButton("Enable", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
-                                            context.startActivity(intent);
-                                            //do nothing
-                                        }
-                                    }).show();
-                        } else {
-                            // find the package
-                            final Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
-                            mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-                            // get list of all the apps installed
-                            // ril stands for ResolveInfoList
-                            List<ResolveInfo> ril = context.getPackageManager().queryIntentActivities(mainIntent, 0);
-                            String appName = collector.getAppName();
-                            String nameBuffer;
-                            String packageName = "";
-                            for (ResolveInfo ri : ril) {
-                                if (ri.activityInfo != null) {
+                        // find the package
+                        final Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
+                        mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+                        // get list of all the apps installed
+                        // ril stands for ResolveInfoList
+                        List<ResolveInfo> ril = context.getPackageManager().queryIntentActivities(mainIntent, 0);
+                        String appName = collector.getAppName();
+                        String nameBuffer;
+                        String packageName = "";
+                        for (ResolveInfo ri : ril) {
+                            if (ri.activityInfo != null) {
+                                // get package
+                                Resources res = null;
+                                try {
+                                    res = context.getPackageManager().getResourcesForApplication(ri.activityInfo.applicationInfo);
+                                } catch (PackageManager.NameNotFoundException e) {
+                                    e.printStackTrace();
+                                }
+                                // if activity label res is found
+                                if (ri.activityInfo.labelRes != 0) {
+                                    nameBuffer = res.getString(ri.activityInfo.labelRes);
+                                } else {
+                                    nameBuffer = ri.activityInfo.applicationInfo.loadLabel(
+                                            context.getPackageManager()).toString();
+                                }
+                                if (nameBuffer.equals(appName)) {
                                     // get package
-                                    Resources res = null;
-                                    try {
-                                        res = context.getPackageManager().getResourcesForApplication(ri.activityInfo.applicationInfo);
-                                    } catch (PackageManager.NameNotFoundException e) {
-                                        e.printStackTrace();
-                                    }
-                                    // if activity label res is found
-                                    if (ri.activityInfo.labelRes != 0) {
-                                        nameBuffer = res.getString(ri.activityInfo.labelRes);
-                                    } else {
-                                        nameBuffer = ri.activityInfo.applicationInfo.loadLabel(
-                                                context.getPackageManager()).toString();
-                                    }
-                                    if (nameBuffer.equals(appName)) {
-                                        // get package
-                                        packageName = ri.activityInfo.packageName;
-                                        break;
-                                    }
+                                    packageName = ri.activityInfo.packageName;
+                                    break;
                                 }
                             }
-
-                            // launch the app
-                            Intent launchIntent = context.getPackageManager().getLaunchIntentForPackage(packageName);
-                            if (launchIntent != null) {
-                                context.startActivity(launchIntent);
-                            } else {
-                                Toast.makeText(context, "There is no package available in android", Toast.LENGTH_LONG).show();
-                            }
-
-                            // launch the float widget
-                            if (!Settings.canDrawOverlays(context)){
-
-                                MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context);
-                                builder.setTitle("Service Permission Required")
-                                        .setMessage("Crepe needs the permission to display over other app for proper function. Please enable the service in the phone settings.")
-                                        .setPositiveButton("ENABLE", new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + context.getPackageName()));
-                                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                                context.startActivity(intent);
-                                            }
-                                        }).show();
-                            } else {
-                                WidgetService widgetService = new WidgetService();
-                                Intent intent = new Intent(context, widgetService.getClass());
-                                intent.putExtra("graphQueryCallback", graphQueryCallback);
-                                context.startService(intent);
-                                finish();
-                            }
                         }
+
+                        // launch the app
+                        Intent launchIntent = context.getPackageManager().getLaunchIntentForPackage(packageName);
+                        if (launchIntent != null) {
+                            context.startActivity(launchIntent);
+                        } else {
+                            Toast.makeText(context, "There is no package available in android", Toast.LENGTH_LONG).show();
+                        }
+
+                        // launch the float widget
+                        WidgetService widgetService = new WidgetService();
+                        Intent intent = new Intent(context, widgetService.getClass());
+                        intent.putExtra("graphQueryCallback", graphQueryCallback);
+                        context.startService(intent);
+                        finish();
                     }
                 });
 
@@ -496,23 +468,22 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         collector.setDescription(descriptionText);
 
 
-
                         // save locally
                         dbManager.addOneCollector(collector);
                         // save to Firebase
-                        firebaseCommunicationManager.putCollector(collector).addOnSuccessListener(suc->{
-                            Log.i("Firebase","Successfully added collector " + collector.getCollectorId() + " to firebase.");
-                        }).addOnFailureListener(er->{
-                            Log.e("Firebase","Failed to add collector " + collector.getCollectorId() + " to firebase.");
+                        firebaseCommunicationManager.putCollector(collector).addOnSuccessListener(suc -> {
+                            Log.i("Firebase", "Successfully added collector " + collector.getCollectorId() + " to firebase.");
+                        }).addOnFailureListener(er -> {
+                            Log.e("Firebase", "Failed to add collector " + collector.getCollectorId() + " to firebase.");
                         });
 
                         // store the data fields into database
                         for (Datafield datafield : datafields) {
                             dbManager.addOneDatafield(datafield);
                             firebaseCommunicationManager.putDatafield(datafield).addOnCompleteListener(task -> {
-                                Log.i("Firebase","Successfully added datafield " + datafield.getDatafieldId() + " to firebase.");
-                            }).addOnFailureListener(er->{
-                                Log.e("Firebase","Failed to add datafield " + datafield.getDatafieldId() + " to firebase. Error: " + er.getMessage());
+                                Log.i("Firebase", "Successfully added datafield " + datafield.getDatafieldId() + " to firebase.");
+                            }).addOnFailureListener(er -> {
+                                Log.e("Firebase", "Failed to add datafield " + datafield.getDatafieldId() + " to firebase. Error: " + er.getMessage());
                             });
                         }
 
@@ -588,7 +559,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
                         ClipData clip = ClipData.newPlainText("share URL", collector.getCollectorId());
                         clipboard.setPrimaryClip(clip);
-                        Toast.makeText(context,"collector ID copied to clipboard " + collector.getCollectorId(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(context, "collector ID copied to clipboard " + collector.getCollectorId(), Toast.LENGTH_LONG).show();
                         currentScreenState = "dismissed";
                     }
                 });

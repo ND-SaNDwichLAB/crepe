@@ -1,4 +1,4 @@
-package edu.nd.crepe.accessibilityservice;
+package edu.nd.crepe.servicemanager;
 
 import static android.view.accessibility.AccessibilityEvent.TYPE_ANNOUNCEMENT;
 import static android.view.accessibility.AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED;

@@ -23,7 +23,7 @@ import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 
-import edu.nd.crepe.accessibilityservice.CrepeAccessibilityService;
+import edu.nd.crepe.servicemanager.CrepeAccessibilityService;
 import edu.nd.crepe.R;
 import edu.nd.crepe.graphquery.Const;
 import edu.nd.crepe.graphquery.model.Node;
@@ -31,6 +31,7 @@ import edu.nd.crepe.graphquery.ontology.OntologyQuery;
 import edu.nd.crepe.graphquery.ontology.SugiliteEntity;
 import edu.nd.crepe.graphquery.ontology.SugiliteRelation;
 import edu.nd.crepe.graphquery.ontology.UISnapshot;
+import edu.nd.crepe.servicemanager.DisplayPermissionManager;
 import edu.nd.crepe.ui.dialog.Callback;
 
 import java.util.ArrayList;
@@ -150,13 +151,8 @@ public class FullScreenOverlayManager {
         int currentApiVersion = android.os.Build.VERSION.SDK_INT;
         if (currentApiVersion >= 23) {
             if (!Settings.canDrawOverlays(context)) {
-                /* if not construct intent to request permission */
-                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                        Uri.parse("package:" + context.getPackageName()));
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                /* request permission via start activity for result */
-                context.startActivity(intent);
-
+                // if not, form up an Intent to launch the permission request
+                DisplayPermissionManager.getInstance().getEnableDisplayServiceDialog(context).show();
             }
         }
     }
