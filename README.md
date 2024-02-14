@@ -28,3 +28,7 @@ In `CollectorConfigurationDialogWrapper.java`, we are maintaining a state called
 
 
 If you are using Android Studio, you need to install `HAXM installer` to launch the project.
+
+### Problem
+
+No useage of `onDataLoadingEvent()` in `ui/main_activity/HomeFragment.java`
