@@ -31,4 +31,4 @@ If you are using Android Studio, you need to install `HAXM installer` to launch 
 
 ### Problem
 
-No useage of `onDataLoadingEvent()` in `ui/main_activity/HomeFragment.java`
+No usage of `onDataLoadingEvent()` in `ui/main_activity/HomeFragment.java`
