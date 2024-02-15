@@ -3,7 +3,6 @@ package edu.nd.crepe.servicemanager;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -36,15 +35,12 @@ public class DisplayPermissionManager {
             dialogBuilder.setView(displayPermissionView);
             Dialog dialog = dialogBuilder.create();
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            Button confirmationYesButton = (Button) displayPermissionView.findViewById(R.id.confirmationYesButton);
-            confirmationYesButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + context.getPackageName()));
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    context.startActivity(intent);
-                    dialog.dismiss();
-                }
+            Button confirmationYesButton = displayPermissionView.findViewById(R.id.confirmationYesButton);
+            confirmationYesButton.setOnClickListener(view -> {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + context.getPackageName()));
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(intent);
+                dialog.dismiss();
             });
             return dialog;
         }

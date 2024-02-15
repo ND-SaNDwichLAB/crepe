@@ -614,7 +614,6 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                     name = ri.activityInfo.applicationInfo.loadLabel(
                             context.getPackageManager()).toString();
                 }
-//                apps[i] = name;
                 appDict.put(name, ri.activityInfo.packageName);
                 i++;
             }

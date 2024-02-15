@@ -5,6 +5,8 @@ import static edu.nd.crepe.MainActivity.currentUser;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.util.Log;
@@ -23,6 +25,7 @@ import edu.nd.crepe.network.FirebaseCallback;
 import edu.nd.crepe.network.FirebaseCommunicationManager;
 
 import java.util.ArrayList;
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.List;
 
@@ -109,10 +112,32 @@ public class AddCollectorFromCollectorIdDialogBuilder {
                         if (result.size() == 0) {
                             Log.i("Firebase", "No collectors found in Firebase.");
                         } else {
-                            for (Collector c : result) {
+                            for (Collector collector : result) {
                                 // if the collector is found in firebase
-                                if (c.getCollectorId().equals(collectorId)) {
-                                    targetCollector = c;
+                                if (collector.getCollectorId().equals(collectorId)) {
+                                    targetCollector = collector;
+
+                                    Boolean isTargetAppInstalled = false;
+                                    // 0. first, check if the collector's app exist on the participant's phone
+                                    // Get a list of installed apps.
+                                    PackageManager packageManager = c.getPackageManager();
+                                    List<ApplicationInfo> apps = packageManager.getInstalledApplications(PackageManager.GET_META_DATA);
+
+                                    // Iterate over the applications and check if any is the same as the target collector's app
+                                    for (ApplicationInfo app : apps) {
+                                        String appPackageName = app.packageName;
+                                        if (appPackageName.equals(targetCollector.getAppPackage())) {
+                                            // if the app is found, then, add the collector
+                                            isTargetAppInstalled = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!isTargetAppInstalled) {
+                                        // if the app is not found, then, show a message
+                                        Toast.makeText(c, "You need to install " + targetCollector.getAppName() + " to participate in this collector study", Toast.LENGTH_LONG).show();
+                                        return;
+                                    }
+
                                     // 1. add collector to local database
                                     dbManager.addOneCollector(targetCollector);
 
