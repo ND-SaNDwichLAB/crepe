@@ -66,6 +66,9 @@ public class AddCollectorFromCollectorIdDialogBuilder {
         Button popupNextBtn = (Button) popupView.findViewById(R.id.addFromUrlAddButton);
         EditText collectorIdEditText = (EditText) popupView.findViewById(R.id.collectorIdEditText);
 
+        // first, try to update all collector status in firebase
+        firebaseCommunicationManager.updateAllCollectors();
+
         popupCancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

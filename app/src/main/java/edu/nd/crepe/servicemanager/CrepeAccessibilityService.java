@@ -8,6 +8,8 @@ import static android.view.accessibility.AccessibilityEvent.TYPE_VIEW_TEXT_SELEC
 import static android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED;
 import static android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED;
 
+import static edu.nd.crepe.MainActivity.currentUser;
+
 import android.accessibilityservice.AccessibilityService;
 import android.app.ActivityManager;
 import android.content.ComponentName;
@@ -23,6 +25,8 @@ import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
+import com.google.firebase.database.snapshot.BooleanNode;
+
 import edu.nd.crepe.MainActivity;
 import edu.nd.crepe.database.Collector;
 import edu.nd.crepe.database.Data;
@@ -36,6 +40,7 @@ import edu.nd.crepe.network.FirebaseCommunicationManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -104,11 +109,12 @@ public class CrepeAccessibilityService extends AccessibilityService {
 
         // refresh collector status based on current time
         for (Collector collector : collectors) {
-            collector.autoSetCollectorStatus();
-            dbManager.updateCollectorStatus(collector);
+            Boolean collectorUpdated = collector.autoSetCollectorStatus();
+            if (collectorUpdated) {
+                dbManager.updateCollectorStatus(collector);
+            }
         }
 
-        // TODO: Yuwen check firebase database usage, why is it used here, and in general in the app?
         if (collectors != null && !collectors.isEmpty()) {
             firebaseCommunicationManager.updateAllCollectors();
         }
