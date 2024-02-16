@@ -90,9 +90,7 @@ public class DemonstrationUtil {
      * @return
      */
     public static List<AccessibilityNodeInfo> findMatchingNodeFromClick(List<AccessibilityNodeInfo> allNodeList, float clickX, float clickY){
-        if(allNodeList != null && allNodeList.size() == 0){
-            return null;
-        }
+        if(allNodeList != null && allNodeList.size() == 0 || allNodeList == null) return null;
 
         List<AccessibilityNodeInfo> matchingList = new ArrayList<>();
 

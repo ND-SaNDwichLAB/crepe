@@ -69,7 +69,7 @@ public class CollectorCardDetailBuilder {
                 ClipboardManager clipboard = (ClipboardManager) c.getSystemService(Context.CLIPBOARD_SERVICE);
                 ClipData clip = ClipData.newPlainText("share URL", collector.getCollectorId());
                 clipboard.setPrimaryClip(clip);
-                Toast.makeText(c,"collector ID copied to clipboard. Share with your participants!", Toast.LENGTH_LONG).show();
+                Toast.makeText(c,"collector ID copied. Share with your participants!", Toast.LENGTH_LONG).show();
             }
         });
 

@@ -559,7 +559,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
                         ClipData clip = ClipData.newPlainText("share URL", collector.getCollectorId());
                         clipboard.setPrimaryClip(clip);
-                        Toast.makeText(context, "collector ID copied to clipboard " + collector.getCollectorId(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(context, "collector ID copied. Share with your participants", Toast.LENGTH_LONG).show();
                         currentScreenState = "dismissed";
                     }
                 });
