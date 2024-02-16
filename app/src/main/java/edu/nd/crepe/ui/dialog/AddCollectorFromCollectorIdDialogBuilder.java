@@ -146,6 +146,7 @@ public class AddCollectorFromCollectorIdDialogBuilder {
 
                                     // 2a. add collector to user's userCollectors list (local)
                                     dbManager.addCollectorForUser(targetCollector, currentUser);
+                                    currentUser.addCollectorForCurrentUser(targetCollector.getCollectorId());
 
                                     // 2b. add collector to user's userCollectors list (firebase)
                                     HashMap<String, Object> userUpdates = new HashMap<>();

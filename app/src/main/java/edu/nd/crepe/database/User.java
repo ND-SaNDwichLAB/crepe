@@ -82,8 +82,8 @@ public class User {
         this.userCollectors.add(collectorId);
     }
 
-    public void removeCollectorForCurrentUser(Collector collectorId) {
-        this.userCollectors.remove(collectorId);
+    public void removeCollectorForCurrentUser(Collector collector) {
+        this.userCollectors.remove(collector);
     }
 
     public void removeAllCollectorsForCurrentUser() {
