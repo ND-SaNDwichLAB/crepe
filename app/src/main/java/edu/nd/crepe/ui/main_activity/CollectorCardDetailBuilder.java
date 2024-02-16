@@ -7,10 +7,12 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.media.Image;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -59,7 +61,7 @@ public class CollectorCardDetailBuilder {
             collectorDatafield.setText("No datafields available");
         }
 
-        Button collectorShareButton = (Button) popupView.findViewById(R.id.collectorShareButton);
+        ImageButton collectorShareButton = (ImageButton) popupView.findViewById(R.id.collectorShareButton);
         collectorShareButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -71,9 +73,20 @@ public class CollectorCardDetailBuilder {
             }
         });
 
+        ImageButton collectorEditButton = (ImageButton) popupView.findViewById(R.id.collectorEditButton);
+        collectorEditButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // dismiss current dialog
+                dialog.dismiss();
+
+                // TODO Meng: finish the logic for the edit button
+            }
+        });
+
 
         Button closeBtn = (Button) popupView.findViewById(R.id.collectorCloseButton);
-        Button deleteBtn = (Button) popupView.findViewById(R.id.collectorDeleteButton);
+        ImageButton deleteBtn = (ImageButton) popupView.findViewById(R.id.collectorDeleteButton);
 
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override

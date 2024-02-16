@@ -65,10 +65,10 @@ public class CollectorCardDeleteConfirmationBuilder {
         // set the content of the confirmation based on users' role
         TextView confirmationDetail = (TextView) deleteCollectorConfirmationView.findViewById(R.id.collectorDetailContent);
         if (userRole == UserRole.ADMIN) {
-            confirmationDetail.setText("You are the admin of this collector and deleting it will stop the data collection on all participants' phones. You can still get existing collected data. Are you sure you want to proceed?");
+            confirmationDetail.setText("As the admin, deleting this collector will halt data collection for all participants. Do you want to continue with deletion?");
         }
         if (userRole == UserRole.USER) {
-            confirmationDetail.setText("By deleting this collector, you will no longer contribute data to this collector. The creator of this collector will be notified. Are you sure you want to proceed?");
+            confirmationDetail.setText("Deleting this collector means you'll stop sending data to it. The creator will be informed of this change. Are you sure you wish to proceed?");
         }
 
         Button confirmBtn = (Button) deleteCollectorConfirmationView.findViewById(R.id.confirmDeleteButton);

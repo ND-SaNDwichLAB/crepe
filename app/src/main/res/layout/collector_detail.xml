@@ -28,15 +28,15 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/collectorDetailTitle" />
 
-<!--    <TextView-->
-<!--        android:id="@+id/collectorResearcherContactTitle"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginTop="24dp"-->
-<!--        android:text="Rider Contact"-->
-<!--        android:textSize="20sp"-->
-<!--        app:layout_constraintStart_toStartOf="@+id/collectorDetailDatafield"-->
-<!--        app:layout_constraintTop_toBottomOf="@+id/collectorDetailDatafield" />-->
+    <!--    <TextView-->
+    <!--        android:id="@+id/collectorResearcherContactTitle"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:layout_marginTop="24dp"-->
+    <!--        android:text="Rider Contact"-->
+    <!--        android:textSize="20sp"-->
+    <!--        app:layout_constraintStart_toStartOf="@+id/collectorDetailDatafield"-->
+    <!--        app:layout_constraintTop_toBottomOf="@+id/collectorDetailDatafield" />-->
 
     <TextView
         android:id="@+id/collectorDetailDatafield"
@@ -49,74 +49,62 @@
         app:layout_constraintStart_toStartOf="@+id/collectorDatafieldTitle"
         app:layout_constraintTop_toBottomOf="@+id/collectorDatafieldTitle" />
 
-<!--    <TextView-->
-<!--        android:id="@+id/collectorResearcherContact"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginTop="12dp"-->
-<!--        android:text="John Doe, University of Notre Dame \nEmail: jdoe6@nd.edu"-->
-<!--        app:layout_constraintStart_toStartOf="@+id/collectorResearcherContactTitle"-->
-<!--        app:layout_constraintTop_toBottomOf="@+id/collectorResearcherContactTitle" />-->
+    <!--    <TextView-->
+    <!--        android:id="@+id/collectorResearcherContact"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:layout_marginTop="12dp"-->
+    <!--        android:text="John Doe, University of Notre Dame \nEmail: jdoe6@nd.edu"-->
+    <!--        app:layout_constraintStart_toStartOf="@+id/collectorResearcherContactTitle"-->
+    <!--        app:layout_constraintTop_toBottomOf="@+id/collectorResearcherContactTitle" />-->
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <Button
+        android:id="@+id/collectorCloseButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:padding="24dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="24dp"
+        android:background="@android:color/transparent"
+        android:text="DONE"
+        android:textColor="@color/ND_gold"
+        android:textColorHint="@color/ND_gold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/collectorDetailDatafield"
-        app:layout_constraintTop_toBottomOf="@id/collectorDetailDatafield">
+        app:layout_constraintTop_toBottomOf="@+id/collectorDetailDatafield" />
 
-        <Button
-            android:id="@+id/collectorDeleteButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:text="DELETE"
-            android:textColor="@color/gray"
-            android:textColorHint="@color/gray"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+    <ImageButton
+        android:id="@+id/collectorDeleteButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginBottom="8dp"
+        android:background="@android:color/transparent"
+        android:padding="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/collectorCloseButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/material_delete_icon" />
 
-        <Button
-            android:id="@+id/collectorShareButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:text="SHARE"
-            android:textColor="@color/ND_blue"
-            android:textColorHint="@color/ND_blue"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/collectorCloseButton"
-            app:layout_constraintStart_toEndOf="@+id/collectorDeleteButton"
-            app:layout_constraintTop_toTopOf="parent" />
+    <ImageButton
+        android:id="@+id/collectorShareButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:background="@android:color/transparent"
+        android:padding="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/collectorDeleteButton"
+        app:layout_constraintStart_toEndOf="@+id/collectorDeleteButton"
+        app:srcCompat="@drawable/material_share_icon" />
 
-        <Button
-            android:id="@+id/collectorCloseButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:text="DONE"
-            android:textColor="@color/ND_gold"
-            android:textColorHint="@color/ND_gold"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-<!--    <Switch-->
-<!--        android:id="@+id/collectorStatusSwitch"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginTop="24dp"-->
-<!--        android:layout_marginEnd="24dp"-->
-<!--        android:checked="true"-->
-<!--        android:text="Enabled"-->
-<!--        android:shadowColor="@color/ND_blue"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintTop_toTopOf="parent" />-->
+    <ImageButton
+        android:id="@+id/collectorEditButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:background="@android:color/transparent"
+        android:padding="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/collectorShareButton"
+        app:layout_constraintStart_toEndOf="@+id/collectorShareButton"
+        app:srcCompat="@drawable/ic_edit_dark" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
