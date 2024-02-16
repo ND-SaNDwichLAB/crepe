@@ -207,16 +207,18 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
 
-        SharedPreferences sharedPreferences = getSharedPreferences("prefs", MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-
-        if (!CollectorConfigurationDialogWrapper.isNull()) {
-            wrapper = CollectorConfigurationDialogWrapper.getInstance();
-            editor.putString("screen_state", wrapper.getCurrentScreenState());
-            editor.putString("collector", new Gson().toJson(wrapper.getCurrentCollector()));
-
-            editor.apply();
-        }
+        // we used this to store the state of the activity before moving to demonstrate in another app
+        // however, we probably do not need this if do not call finish() inside the activity to kill it
+//        SharedPreferences sharedPreferences = getSharedPreferences("prefs", MODE_PRIVATE);
+//        SharedPreferences.Editor editor = sharedPreferences.edit();
+//
+//        if (!CollectorConfigurationDialogWrapper.isNull()) {
+//            wrapper = CollectorConfigurationDialogWrapper.getInstance();
+//            editor.putString("screen_state", wrapper.getCurrentScreenState());
+//            editor.putString("collector", new Gson().toJson(wrapper.getCurrentCollector()));
+//
+//            editor.apply();
+//        }
     }
 
     // a function to switch between fragments using the navDrawer
@@ -251,18 +253,18 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        SharedPreferences sharedPreferences = getSharedPreferences("prefs", MODE_PRIVATE);
-
-        String screenState = sharedPreferences.getString("screen_state", null);
-        String collectorJson = sharedPreferences.getString("collector", null);
-
-        if (screenState != null && !screenState.equals("dismissed") && collectorJson != null) {
-            Collector prevCollector = new Gson().fromJson(collectorJson, Collector.class);
+//        SharedPreferences sharedPreferences = getSharedPreferences("prefs", MODE_PRIVATE);
+//
+//        String screenState = sharedPreferences.getString("screen_state", null);
+//        String collectorJson = sharedPreferences.getString("collector", null);
+//
+//        if (screenState != null && !screenState.equals("dismissed") && collectorJson != null) {
+//            Collector prevCollector = new Gson().fromJson(collectorJson, Collector.class);
 //            wrapper = createCollectorFromConfigDialogBuilder.buildDialogWrapperWithExistingCollector(prevCollector);
 //            wrapper.setCurrentScreenState(screenState);
 
 //            wrapper.show();
-        }
+//        }
     }
 
 

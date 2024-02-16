@@ -383,7 +383,6 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         Intent intent = new Intent(context, widgetService.getClass());
                         intent.putExtra("graphQueryCallback", graphQueryCallback);
                         context.startService(intent);
-                        finish();
                     }
                 });
 
