@@ -75,8 +75,8 @@ public class HomeFragment extends Fragment {
 
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onDataLoadingEvent(DataLoadingEvent event){
-        if(event.isCompleted()){
+    public void onDataLoadingEvent(DataLoadingEvent event) {
+        if (event.isCompleted()) {
             try {
                 initCollectorList();
             } catch (PackageManager.NameNotFoundException e) {
@@ -86,41 +86,40 @@ public class HomeFragment extends Fragment {
     }
 
     public void initCollectorList() throws PackageManager.NameNotFoundException {
-        if (dbManager != null) {
-            collectorList = dbManager.getActiveCollectors();
+        // at this time, only collectors for this user are retrieved from firebase to local db
+        // see code in GoogleLoginActivity.java and function addParticipatingCollectors
+        collectorList = dbManager.getActiveCollectors();
 
-            TextView noCollectorTextView = getView().findViewById(R.id.empty_text_view);
-            LinearLayout fragmentInnerLinearLayout = getView().findViewById(R.id.fragment_home_inner_linear_layout);
-            // clear the collector list
-            fragmentInnerLinearLayout.removeAllViews();
+        TextView noCollectorTextView = getView().findViewById(R.id.empty_text_view);
+        LinearLayout fragmentInnerLinearLayout = getView().findViewById(R.id.fragment_home_inner_linear_layout);
+        // clear the collector list
+        fragmentInnerLinearLayout.removeAllViews();
 
-            if (collectorList.size() > 0) {
-                // hide the no collector textview
-                noCollectorTextView.setVisibility(View.GONE);
+        if (collectorList.size() > 0) {
+            // hide the no collector textview
+            noCollectorTextView.setVisibility(View.GONE);
 
-                // get all installed apps
-                Map<String, Drawable> apps = getAppImage();
-                CollectorCardConstraintLayoutBuilder builder = new CollectorCardConstraintLayoutBuilder(getActivity(), homeFragmentRefreshCollectorListRunnable,apps);
+            // get all installed apps
+            Map<String, Drawable> apps = getAppImage();
+            CollectorCardConstraintLayoutBuilder builder = new CollectorCardConstraintLayoutBuilder(getActivity(), homeFragmentRefreshCollectorListRunnable, apps);
 
 
-                for (Collector collector : collectorList) {
+            for (Collector collector : collectorList) {
 
-                    ConstraintLayout collectorCardView = builder.build(collector, fragmentInnerLinearLayout, "cardLayout");
+                ConstraintLayout collectorCardView = builder.build(collector, fragmentInnerLinearLayout, "cardLayout");
 
-                    // if the cardView is not null, meaning the collector is not in deleted status
-                    if (collectorCardView != null) {
-                        collectorCardView.setId(View.generateViewId());
+                // if the cardView is not null, meaning the collector is not in deleted status
+                if (collectorCardView != null) {
+                    collectorCardView.setId(View.generateViewId());
 
-                        // Toast.makeText(this.getActivity(), fragmentInnerConstraintLayout.toString(), Toast.LENGTH_LONG).show();
-                        fragmentInnerLinearLayout.addView(collectorCardView);
-                    }
+                    // Toast.makeText(this.getActivity(), fragmentInnerConstraintLayout.toString(), Toast.LENGTH_LONG).show();
+                    fragmentInnerLinearLayout.addView(collectorCardView);
                 }
-
-            } else {
-                noCollectorTextView.setVisibility(View.VISIBLE);
             }
-        }
 
+        } else {
+            noCollectorTextView.setVisibility(View.VISIBLE);
+        }
     }
 
     Runnable homeFragmentRefreshCollectorListRunnable = new Runnable() {
@@ -163,13 +162,11 @@ public class HomeFragment extends Fragment {
                 }
                 packageName = ri.activityInfo.packageName;
                 image = getContext().getPackageManager().getApplicationIcon(packageName);
-                apps.put(name,image);
+                apps.put(name, image);
             }
         }
         return apps;
     }
-
-
 
 
 }

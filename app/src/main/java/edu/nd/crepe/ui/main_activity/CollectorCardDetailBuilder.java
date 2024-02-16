@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,6 +41,9 @@ public class CollectorCardDetailBuilder {
 
     public Dialog build() {
         final View popupView = LayoutInflater.from(c).inflate(R.layout.collector_detail, null);
+        if (popupView.getParent() != null) {
+            ((ViewGroup)popupView.getParent()).removeView(popupView); // <- remove the view from its parent
+        }
         dialogBuilder.setView(popupView);
         Dialog dialog = dialogBuilder.create();
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
@@ -74,32 +78,13 @@ public class CollectorCardDetailBuilder {
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // new popup to confirm
-                AlertDialog.Builder builder = new AlertDialog.Builder(c);
-                builder.setTitle("Delete Collector");
-                builder.setMessage("Are you sure you want to delete this collector?");
 
-                builder.setPositiveButton("Yes", (dialogInterface, i) -> {
-                    Toast.makeText(c, "Collector for " + collector.getAppName() + " is deleted", Toast.LENGTH_LONG).show();
-                    // This will set the status of collector to deleted instead of directly removing it
-                    // it will still be present in database but won't be displayed
-                    collector.setStatusDeleted();
-                    dbManager.updateCollectorStatus(collector);
-                    // we do not really remove datafields, since they are queried through collectors.
-                    // once the collector status is set "deleted", the datafields will not be queried anymore
+                // dismiss current dialog
+                dialog.dismiss();
 
-                    // also delete the collector from firebase
-                    fbManager.setCollectorStatusDeleted(collector.getCollectorId());
-
-                    // update the home fragment list
-                    refreshCollectorListRunnable.run();
-                    dialog.dismiss();
-                });
-                builder.setNegativeButton("No", (dialogInterface, i) -> {
-                    dialogInterface.dismiss();
-                });
-
-                builder.show();
+                CollectorCardDeleteConfirmationBuilder deleteConfirmationBuilder = new CollectorCardDeleteConfirmationBuilder(c, collector, dialog, refreshCollectorListRunnable);
+                Dialog deleteConfirmationDialog = deleteConfirmationBuilder.build();
+                deleteConfirmationDialog.show();
             }
         });
 
