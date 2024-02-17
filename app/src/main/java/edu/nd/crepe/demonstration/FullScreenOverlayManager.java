@@ -39,6 +39,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class FullScreenOverlayManager {
 
@@ -425,7 +426,12 @@ public class FullScreenOverlayManager {
             }
         }
 
-        Log.i("graphquery", "correctQueries.size() = " + correctQueries.size());
+        Log.i("correctQueries", "correctQueries.size() = " + correctQueries.size());
+        Log.i("correctQueries", correctQueries.stream()
+                .map(pair -> pair.first.toString())
+                .collect(Collectors.joining("\n")));
+
+        // TODO Yuwen Use LLM here
 
         // second, we select the query that can retrieve the least unrelated data, then rank by the heuristics score
         if (correctQueries.size() == 0) {

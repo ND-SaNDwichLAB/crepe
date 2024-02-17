@@ -36,6 +36,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author toby
@@ -226,6 +227,10 @@ public class DemonstrationUtil {
             Log.e("generate queries", "Cannot find the tapped entity!");
         }
 
+        Log.i("defaultQueries", defaultQueries.stream()
+                .map(pair -> pair.first.toString())
+                .collect(Collectors.joining("\n")));
+
         // test if the queries can retrieve components on screen
         if(defaultQueries != null) {
             for(Pair<OntologyQuery, Double> query : defaultQueries) {
@@ -294,7 +299,7 @@ public class DemonstrationUtil {
         SugiliteEntity<Node> foundEntity = targetEntity;
 
 
-        //generate sub queries -- add the packageName and className constraints to q
+        // generate sub queries -- add the packageName and className constraints to q
 
         if (! relationsToExclude.contains(SugiliteRelation.HAS_PACKAGE_NAME)) {
             if (getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_PACKAGE_NAME)) != null) {

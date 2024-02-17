@@ -1,34 +1,24 @@
 package edu.nd.crepe;
 
-import android.app.ActivityManager;
 import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
-import edu.nd.crepe.database.Collector;
 import edu.nd.crepe.database.DatabaseManager;
 import edu.nd.crepe.database.User;
-import edu.nd.crepe.graphquery.Const;
+import edu.nd.crepe.network.ApiCallManager;
 import edu.nd.crepe.network.FirebaseCommunicationManager;
 import edu.nd.crepe.ui.dialog.CollectorConfigurationDialogWrapper;
 import edu.nd.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilder;
 import edu.nd.crepe.ui.dialog.AddCollectorFromCollectorIdDialogBuilder;
-import edu.nd.crepe.ui.main_activity.FabModalBottomSheet;
 import edu.nd.crepe.ui.main_activity.HomeFragment;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -38,9 +28,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.provider.Settings;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 
 import androidx.core.view.GravityCompat;
@@ -53,11 +41,9 @@ import edu.nd.crepe.databinding.ActivityMainBinding;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.gson.Gson;
 
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -66,6 +52,8 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.io.InputStream;
 import java.net.URL;
+
+import javax.json.JsonObject;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -190,8 +178,20 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                FabModalBottomSheet modalBottomSheet = new FabModalBottomSheet(addCollectorFromCollectorIdDialogBuilder, createCollectorFromConfigDialogBuilder);
-                modalBottomSheet.show(getSupportFragmentManager(), FabModalBottomSheet.TAG);
+//                FabModalBottomSheet modalBottomSheet = new FabModalBottomSheet(addCollectorFromCollectorIdDialogBuilder, createCollectorFromConfigDialogBuilder);
+//                modalBottomSheet.show(getSupportFragmentManager(), FabModalBottomSheet.TAG);
+                ApiCallManager apiCallManager = new ApiCallManager(getApplicationContext());
+                apiCallManager.getResponse("say hello to me!", new ApiCallManager.ApiCallback() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.i("ApiCallManager", "API call successful: \n" + response);
+                    }
+
+                    @Override
+                    public void onErrorResponse(Exception e) {
+                        Log.e("ApiCallManager", "API call failed: " + e.getMessage());
+                    }
+                });
 
             }
         });
