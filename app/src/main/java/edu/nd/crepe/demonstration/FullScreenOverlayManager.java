@@ -23,6 +23,7 @@ import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 
+import edu.nd.crepe.network.ApiCallManager;
 import edu.nd.crepe.servicemanager.CrepeAccessibilityService;
 import edu.nd.crepe.R;
 import edu.nd.crepe.graphquery.Const;
@@ -39,7 +40,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class FullScreenOverlayManager {
 
@@ -179,6 +182,7 @@ public class FullScreenOverlayManager {
             class MyGestureDetector extends GestureDetector.SimpleOnGestureListener {
 
                 SelectionOverlayView selectionOverlay = null;
+
                 @RequiresApi(api = Build.VERSION_CODES.R)
                 @Override
                 public boolean onSingleTapConfirmed(MotionEvent event) {
@@ -217,7 +221,7 @@ public class FullScreenOverlayManager {
                     AccessibilityNodeInfo matchedNode;
 
                     if (matchedAccessibilityNodeList != null) {
-                        if(matchedAccessibilityNodeList.size() == 1) {
+                        if (matchedAccessibilityNodeList.size() == 1) {
                             matchedNode = matchedAccessibilityNodeList.get(0);
                             targetEntity = uiSnapshot.getEntityWithAccessibilityNode(matchedNode);
                         } else {
@@ -228,7 +232,7 @@ public class FullScreenOverlayManager {
                     }
 
 
-                    if(targetEntity != null) {
+                    if (targetEntity != null) {
                         SugiliteRelation[] relationsToExclude = new SugiliteRelation[1];
                         relationsToExclude[0] = SugiliteRelation.HAS_TEXT;
                         defaultQueries = DemonstrationUtil.generateDefaultQueries(uiSnapshot, targetEntity, relationsToExclude);
@@ -283,7 +287,6 @@ public class FullScreenOverlayManager {
                     windowManager.addView(dimView, dimParams);
                     // Then add the confirmation dialog to the window
                     windowManager.addView(confirmationView, dialogParams);
-
 
 
                     // set the onclick listener for the buttons
@@ -368,7 +371,6 @@ public class FullScreenOverlayManager {
                 }
 
 
-
 //                @Override
 //                public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
 //                    if (Const.ROOT_ENABLED) {
@@ -426,43 +428,88 @@ public class FullScreenOverlayManager {
             }
         }
 
+        // second, we select the query with LLM
         Log.i("correctQueries", "correctQueries.size() = " + correctQueries.size());
-        Log.i("correctQueries", correctQueries.stream()
-                .map(pair -> pair.first.toString())
-                .collect(Collectors.joining("\n")));
-
-        // TODO Yuwen Use LLM here
-
-        // second, we select the query that can retrieve the least unrelated data, then rank by the heuristics score
         if (correctQueries.size() == 0) {
             return null;
-        }
-        else if (correctQueries.size() == 1) {
+        } else if (correctQueries.size() == 1) {
             return correctQueries.get(0).first.toString();
-        }
-        else {
-            // sort the queries by the heuristics score
-            Collections.sort(correctQueries, new Comparator<Pair<OntologyQuery, Double>>() {
+        } else {
+
+//        String correctQueryAggregated = correctQueries.stream()
+//                .map(pair -> pair.first.toString())
+//                .collect(Collectors.joining("\n"));
+
+
+            // TODO YUWEN TEST IF THIS WORKS, and how to get user description for each datafield
+            // Initialize the CountDownLatch, to wait for async callback to finish
+            CountDownLatch latch = new CountDownLatch(1);
+
+            String correctQueryAggregated = IntStream.range(0, correctQueries.size())
+                    .mapToObj(index -> index + ": " + correctQueries.get(index).first.toString())
+                    .collect(Collectors.joining("\n"));
+
+            String promptPrefix = "We defined this new graph query to locate relevant data on mobile UI structure. Now, we have generated the following potential queries:\n";
+            String promptSuffix = "\nWhich one matches the following description the best? \n [insert-user-description] \n Please only return the index number, without any additional information, even periods or comma.\n Example response format: \n0";
+
+            final String[] finalPrompt = {promptPrefix + correctQueryAggregated + promptSuffix.replace("[insert-user-description]", "")};   // TODO YUWEN here, insert the datafield description
+
+            final Pair<OntologyQuery, Double>[] bestQuery = new Pair[1];
+            // set up API call
+            ApiCallManager apiCallManager = new ApiCallManager(context);
+            apiCallManager.getResponse(finalPrompt[0], new ApiCallManager.ApiCallback() {
                 @Override
-                public int compare(Pair<OntologyQuery, Double> o1, Pair<OntologyQuery, Double> o2) {
-                    if(o1.second > o2.second) return 1;
-                    else if (o1.second.equals(o2.second)) return 0;
-                    else return -1;
-                }
-            });
-            // select the query that can retrieve the least unrelated data
-            Pair<OntologyQuery, Double> bestQuery = correctQueries.get(0);
-            int minSize = bestQuery.first.executeOn(currentUISnapshot).size();
-            for (int i = 1; i < correctQueries.size(); i++) {
-                int size = correctQueries.get(i).first.executeOn(currentUISnapshot).size();
-                if (size < minSize && size >= 1) {
-                    minSize = size;
-                    bestQuery = correctQueries.get(i);
+                public void onResponse(String response) {
+                    Log.i("ApiCallManager", "API call successful: \n" + response);
+                    int index = Integer.parseInt(response);
+                    if (index >= 0 && index < correctQueries.size()) {
+                        bestQuery[0] = correctQueries.get(index);
+                    } else {
+                        Log.e("ApiCallManager", "API call failed: invalid index");
+                    }
+                    latch.countDown();
                 }
 
+                @Override
+                public void onErrorResponse(Exception e) {
+                    Log.e("ApiCallManager", "API call failed: " + e.getMessage());
+                    latch.countDown();
+                }
+            });
+
+            try {
+                latch.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-            return bestQuery.first.toString();
+
+            return bestQuery[0] == null ? correctQueries.get(0).first.toString() : bestQuery[0].first.toString();
         }
+
+
+//        else {
+//            // sort the queries by the heuristics score
+//            Collections.sort(correctQueries, new Comparator<Pair<OntologyQuery, Double>>() {
+//                @Override
+//                public int compare(Pair<OntologyQuery, Double> o1, Pair<OntologyQuery, Double> o2) {
+//                    if(o1.second > o2.second) return 1;
+//                    else if (o1.second.equals(o2.second)) return 0;
+//                    else return -1;
+//                }
+//            });
+//            // select the query that can retrieve the least unrelated data
+//            Pair<OntologyQuery, Double> bestQuery = correctQueries.get(0);
+//            int minSize = bestQuery.first.executeOn(currentUISnapshot).size();
+//            for (int i = 1; i < correctQueries.size(); i++) {
+//                int size = correctQueries.get(i).first.executeOn(currentUISnapshot).size();
+//                if (size < minSize && size >= 1) {
+//                    minSize = size;
+//                    bestQuery = correctQueries.get(i);
+//                }
+//
+//            }
+//            return bestQuery.first.toString();
+//        }
 
     }
 

@@ -19,6 +19,7 @@ import edu.nd.crepe.network.FirebaseCommunicationManager;
 import edu.nd.crepe.ui.dialog.CollectorConfigurationDialogWrapper;
 import edu.nd.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilder;
 import edu.nd.crepe.ui.dialog.AddCollectorFromCollectorIdDialogBuilder;
+import edu.nd.crepe.ui.main_activity.FabModalBottomSheet;
 import edu.nd.crepe.ui.main_activity.HomeFragment;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -178,20 +179,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-//                FabModalBottomSheet modalBottomSheet = new FabModalBottomSheet(addCollectorFromCollectorIdDialogBuilder, createCollectorFromConfigDialogBuilder);
-//                modalBottomSheet.show(getSupportFragmentManager(), FabModalBottomSheet.TAG);
-                ApiCallManager apiCallManager = new ApiCallManager(getApplicationContext());
-                apiCallManager.getResponse("say hello to me!", new ApiCallManager.ApiCallback() {
-                    @Override
-                    public void onResponse(String response) {
-                        Log.i("ApiCallManager", "API call successful: \n" + response);
-                    }
+                FabModalBottomSheet modalBottomSheet = new FabModalBottomSheet(addCollectorFromCollectorIdDialogBuilder, createCollectorFromConfigDialogBuilder);
+                modalBottomSheet.show(getSupportFragmentManager(), FabModalBottomSheet.TAG);
 
-                    @Override
-                    public void onErrorResponse(Exception e) {
-                        Log.e("ApiCallManager", "API call failed: " + e.getMessage());
-                    }
-                });
 
             }
         });
