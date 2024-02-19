@@ -216,7 +216,6 @@ public class FullScreenOverlayManager {
                     List<AccessibilityNodeInfo> matchedAccessibilityNodeList = CrepeAccessibilityService.getsSharedInstance().getMatchingNodeFromClickWithText(rawX, rawY);
                     // this matchedAccessibilityNode is an AccessibilityNodeInfo, which is not exactly the node stored in the screen's nodeSugiliteEntityMap.
                     // We retrieved that stored node from this screen's uisnapshot
-
                     SugiliteEntity<Node> targetEntity = new SugiliteEntity<>();
                     AccessibilityNodeInfo matchedNode;
 
@@ -265,6 +264,7 @@ public class FullScreenOverlayManager {
                     LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                     View confirmationView = layoutInflater.inflate(R.layout.demonstration_confirmation, null);
 
+                    // TODO YUWEN here, insert the datafield description
                     TextView queryTextView = confirmationView.findViewById(R.id.confirmationInfo);
                     // set the text of the dialog window
                     String displayText = "";
@@ -293,6 +293,7 @@ public class FullScreenOverlayManager {
                     Button yesButton = confirmationView.findViewById(R.id.confirmationYesButton);
                     Button noButton = confirmationView.findViewById(R.id.confirmationNoButton);
 
+                    // TODO Yuwen 3. wait in the new dialog to do this
                     // select the correct query that can retrieve our data, and can retrieve least other unrelated data
                     final String data = selectBestQuery(defaultQueries, targetEntity, uiSnapshot);
 
@@ -305,31 +306,9 @@ public class FullScreenOverlayManager {
                             if (confirmationView != null) {
                                 windowManager.removeView(confirmationView);
                             }
-                            // remove the selection overlay
-                            if (selectionOverlay != null) {
-                                windowManager.removeView(selectionOverlay);
-                            }
-                            // remove the dim view
-                            if (dimView != null) {
-                                windowManager.removeView(dimView);
-                            }
+                            // TODO YUWEN 0. show the new view here
 
-                            // set the data to the main activity
-                            desiredQuery = data;
-                            processCallback(finalTargetEntity.getEntityValue().getText());
-                            // clear the overlay
-                            disableOverlay();
-                            // stop widget service
-                            Intent intent = new Intent(context, WidgetService.class);
-                            context.stopService(intent);
-                            // go back to the main activity
-                            Intent mainActivityIntent = context.getPackageManager().getLaunchIntentForPackage("edu.nd.crepe");
-                            mainActivityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                            if (mainActivityIntent != null) {
-                                context.startActivity(mainActivityIntent);
-                            } else {
-                                Toast.makeText(context, "There is no package available in android", Toast.LENGTH_LONG).show();
-                            }
+
                         }
                     });
 
@@ -441,14 +420,12 @@ public class FullScreenOverlayManager {
 //                .collect(Collectors.joining("\n"));
 
 
-            // TODO YUWEN TEST IF THIS WORKS, and how to get user description for each datafield
+            // TODO YUWEN 5. TEST IF THIS WORKS, and how to get user description for each datafield
             // Initialize the CountDownLatch, to wait for async callback to finish
             CountDownLatch latch = new CountDownLatch(1);
-
             String correctQueryAggregated = IntStream.range(0, correctQueries.size())
                     .mapToObj(index -> index + ": " + correctQueries.get(index).first.toString())
                     .collect(Collectors.joining("\n"));
-
             String promptPrefix = "We defined this new graph query to locate relevant data on mobile UI structure. Now, we have generated the following potential queries:\n";
             String promptSuffix = "\nWhich one matches the following description the best? \n [insert-user-description] \n Please only return the index number, without any additional information, even periods or comma.\n Example response format: \n0";
 

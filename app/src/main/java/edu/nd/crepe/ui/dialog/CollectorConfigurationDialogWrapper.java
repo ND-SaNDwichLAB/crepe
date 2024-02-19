@@ -464,6 +464,14 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                     public void onClick(View view) {
                         // write description into collector
                         String descriptionText = descriptionEditText.getText().toString();
+
+                        if (descriptionText.equals("")) {
+                            // remind user to add description
+                            Context currentContext = context.getApplicationContext();
+                            Toast.makeText(currentContext, "Please add a description!", Toast.LENGTH_LONG).show();
+                            return;
+                        }
+
                         collector.setDescription(descriptionText);
 
 
