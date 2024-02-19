@@ -65,7 +65,7 @@ public class CollectorCardDetailBuilder {
         Boolean createdByCurrentUser = false;
         for (User user : allUsers) {
             if (user.getUserId().equals(creatorUserId)) {
-                creatorNameTextView.setText(user.getName() + " (You)");
+                creatorNameTextView.setText(user.getName() + " (you)");
                 createdByCurrentUser = true;
                 break;
             }
@@ -90,6 +90,8 @@ public class CollectorCardDetailBuilder {
 
         // populate the datafield information
         List<Datafield> datafieldsForCollector = dbManager.getAllDatafieldsForCollector(collector);
+        // TODO Yuwen - retrieve datafields from firebase
+//        List<Datafield> datafieldsForCollectorFromFirebase = fbManager.retrieveDatafieldsWithCollectorId(collector.getCollectorId());
 
         TextView collectorDatafield = (TextView) popupView.findViewById(R.id.collectorDetailDatafield);
         if (datafieldsForCollector.size() > 0) {
@@ -143,30 +145,10 @@ public class CollectorCardDetailBuilder {
         closeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                if(enableSwitch.isChecked()){
-//                    collector.activateCollector();
-//                    dbManager.updateCollectorStatus(collector);
-//                } else {
-//                    collector.disableCollector();
-//                    dbManager.updateCollectorStatus(collector);
-//                }
-//                // update the home fragment list
-//                refreshCollectorListRunnable.run();
                 dialog.dismiss();
             }
         });
 
-//        enableSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-//            @Override
-//            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-//                // Commented the following block out, don't feel it's necessary because the collector status is updated at the closeBtn onclicklistener
-//                if (!isChecked){
-//                    enableSwitch.setText("Disabled");
-//                } else {
-//                    enableSwitch.setText("Enabled");
-//                }
-//            }
-//        });
 
 
         return dialog;
