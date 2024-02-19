@@ -1,23 +1,16 @@
 package edu.nd.crepe.ui.dialog;
 
-import static edu.nd.crepe.servicemanager.CrepeAccessibilityService.isAccessibilityServiceEnabled;
 import static edu.nd.crepe.MainActivity.currentUser;
 
 import android.app.AlertDialog;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-
-import android.app.Dialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
-import android.net.Uri;
-import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,7 +25,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import edu.nd.crepe.servicemanager.AccessibilityPermissionManager;
 import edu.nd.crepe.servicemanager.CrepeAccessibilityService;
 import edu.nd.crepe.MainActivity;
 import edu.nd.crepe.R;
@@ -72,7 +64,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
     private static CollectorConfigurationDialogWrapper singletonInstance = null;
 
-    public static class GraphQueryCallback implements Callback, Serializable {
+    public static class GraphQueryGraphQueryCallback implements edu.nd.crepe.ui.dialog.GraphQueryCallback, Serializable {
         @Override
         public void onDataReceived(String query, String targetText) {
             // datafield id format: collectorId%[index]
@@ -82,7 +74,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
         }
     }
 
-    private GraphQueryCallback graphQueryCallback = new GraphQueryCallback();
+    private GraphQueryGraphQueryCallback graphQueryCallback = new GraphQueryGraphQueryCallback();
 
     CollectorConfigurationDialogWrapper(Context context, AlertDialog dialog, Collector collector, Runnable refreshCollectorListRunnable) {
         this.context = context;

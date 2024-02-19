@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
-import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
@@ -33,40 +32,43 @@ import edu.nd.crepe.graphquery.ontology.SugiliteEntity;
 import edu.nd.crepe.graphquery.ontology.SugiliteRelation;
 import edu.nd.crepe.graphquery.ontology.UISnapshot;
 import edu.nd.crepe.servicemanager.DisplayPermissionManager;
-import edu.nd.crepe.ui.dialog.Callback;
+import edu.nd.crepe.ui.dialog.AddDatafieldDescriptionDialogBuilder;
+import edu.nd.crepe.ui.dialog.DatafieldDescriptionCallback;
+import edu.nd.crepe.ui.dialog.GraphQueryCallback;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class FullScreenOverlayManager {
+public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
 
     private Context context;
     private WindowManager windowManager;
+    private String desiredQuery = "";
     private View overlay;
     private DisplayMetrics displayMetrics;
-    private Callback callback;
+    private GraphQueryCallback graphQueryCallback;
     private Boolean showingOverlay;
     private NavigationBarUtil navigationBarUtil;
     private int overlayCurrentHeight;
     private int overlayCurrentWidth;
     private int overlayCurrentFlag;
     private SelectionOverlayViewManager selectionOverlayViewManager;
+    private View dimView;
+    private List<Pair<OntologyQuery, Double>> defaultQueries;
+    private SugiliteEntity<Node> targetEntity = new SugiliteEntity<>();
+    private UISnapshot uiSnapshot;
 
     private int entityId = 0;
 
-    private String desiredQuery = "";
-
-    public FullScreenOverlayManager(Context context, WindowManager windowManager, DisplayMetrics displayMetrics, Callback callback) {
+    public FullScreenOverlayManager(Context context, WindowManager windowManager, DisplayMetrics displayMetrics, GraphQueryCallback graphQueryCallback) {
         this.context = context;
         this.windowManager = windowManager;
         this.displayMetrics = displayMetrics;
-        this.callback = callback;
+        this.graphQueryCallback = graphQueryCallback;
         this.overlay = getRectangleOverlay(context, displayMetrics.widthPixels, displayMetrics.heightPixels, Const.RECORDING_OVERLAY_COLOR);
         this.showingOverlay = false;
         this.navigationBarUtil = new NavigationBarUtil();
@@ -75,6 +77,7 @@ public class FullScreenOverlayManager {
         this.overlayCurrentWidth = displayMetrics.widthPixels - 1;
         this.overlayCurrentFlag = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
         this.selectionOverlayViewManager = new SelectionOverlayViewManager(context);
+        this.dimView = new View(context);
     }
 
     public void enableOverlay(WidgetDisplay widgetDisplay) {
@@ -208,15 +211,14 @@ public class FullScreenOverlayManager {
 //                        windowManager.addView(this.selectionOverlay, selectionLayoutParams);
 //                    }
 
-                    List<Pair<OntologyQuery, Double>> defaultQueries = DemonstrationUtil.processOverlayClick(rawX, rawY);
+                    defaultQueries = DemonstrationUtil.processOverlayClick(rawX, rawY);
 
                     // get the current uisnapshot
-                    UISnapshot uiSnapshot = CrepeAccessibilityService.getsSharedInstance().generateUISnapshot();
+                    uiSnapshot = CrepeAccessibilityService.getsSharedInstance().generateUISnapshot();
 
                     List<AccessibilityNodeInfo> matchedAccessibilityNodeList = CrepeAccessibilityService.getsSharedInstance().getMatchingNodeFromClickWithText(rawX, rawY);
                     // this matchedAccessibilityNode is an AccessibilityNodeInfo, which is not exactly the node stored in the screen's nodeSugiliteEntityMap.
                     // We retrieved that stored node from this screen's uisnapshot
-                    SugiliteEntity<Node> targetEntity = new SugiliteEntity<>();
                     AccessibilityNodeInfo matchedNode;
 
                     if (matchedAccessibilityNodeList != null) {
@@ -264,7 +266,7 @@ public class FullScreenOverlayManager {
                     LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                     View confirmationView = layoutInflater.inflate(R.layout.demonstration_confirmation, null);
 
-                    // TODO YUWEN here, insert the datafield description
+                    // TODO YUWEN here, insert the datafield description dialog
                     TextView queryTextView = confirmationView.findViewById(R.id.confirmationInfo);
                     // set the text of the dialog window
                     String displayText = "";
@@ -273,7 +275,6 @@ public class FullScreenOverlayManager {
                     queryTextView.setText(displayText);
 
                     // Create a full-screen black view with a certain transparency
-                    View dimView = new View(context);
                     dimView.setBackgroundColor(Color.parseColor("#99000000")); // change the alpha value to adjust transparency
 
                     WindowManager.LayoutParams dimParams = new WindowManager.LayoutParams(
@@ -293,11 +294,6 @@ public class FullScreenOverlayManager {
                     Button yesButton = confirmationView.findViewById(R.id.confirmationYesButton);
                     Button noButton = confirmationView.findViewById(R.id.confirmationNoButton);
 
-                    // TODO Yuwen 3. wait in the new dialog to do this
-                    // select the correct query that can retrieve our data, and can retrieve least other unrelated data
-                    final String data = selectBestQuery(defaultQueries, targetEntity, uiSnapshot);
-
-                    SugiliteEntity<Node> finalTargetEntity = targetEntity;
                     yesButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -306,8 +302,10 @@ public class FullScreenOverlayManager {
                             if (confirmationView != null) {
                                 windowManager.removeView(confirmationView);
                             }
-                            // TODO YUWEN 0. show the new view here
-
+                            // show the new view here
+                            AddDatafieldDescriptionDialogBuilder addDatafieldDescriptionDialogBuilder = new AddDatafieldDescriptionDialogBuilder(context, selectionOverlay, windowManager, confirmationView, dialogParams, FullScreenOverlayManager.this);
+                            View addDatafieldDescriptionView = addDatafieldDescriptionDialogBuilder.buildDialog();
+                            windowManager.addView(addDatafieldDescriptionView, dialogParams);
 
                         }
                     });
@@ -397,30 +395,24 @@ public class FullScreenOverlayManager {
         });
     }
 
-    private String selectBestQuery(List<Pair<OntologyQuery, Double>> defaultQueries, SugiliteEntity<Node> targetEntity, UISnapshot currentUISnapshot) {
-        // first, we filter out queries that cannot actually retrieve the targe data
+    private String selectBestQuery(String datafieldUserDescription) {
+        // first, we filter out queries that cannot actually retrieve the target data
         List<Pair<OntologyQuery, Double>> correctQueries = new ArrayList<>();   // those that can actually retrieve the data
         for (Pair<OntologyQuery, Double> query : defaultQueries) {
-            Set<SugiliteEntity> result = query.first.executeOn(currentUISnapshot);
+            Set<SugiliteEntity> result = query.first.executeOn(uiSnapshot);
             if (result.contains(targetEntity)) {
                 correctQueries.add(query);
             }
         }
 
         // second, we select the query with LLM
-        Log.i("correctQueries", "correctQueries.size() = " + correctQueries.size());
         if (correctQueries.size() == 0) {
             return null;
         } else if (correctQueries.size() == 1) {
             return correctQueries.get(0).first.toString();
         } else {
 
-//        String correctQueryAggregated = correctQueries.stream()
-//                .map(pair -> pair.first.toString())
-//                .collect(Collectors.joining("\n"));
-
-
-            // TODO YUWEN 5. TEST IF THIS WORKS, and how to get user description for each datafield
+            // Call OpenAI API to select the best query based on user description and candidate queries
             // Initialize the CountDownLatch, to wait for async callback to finish
             CountDownLatch latch = new CountDownLatch(1);
             String correctQueryAggregated = IntStream.range(0, correctQueries.size())
@@ -429,7 +421,7 @@ public class FullScreenOverlayManager {
             String promptPrefix = "We defined this new graph query to locate relevant data on mobile UI structure. Now, we have generated the following potential queries:\n";
             String promptSuffix = "\nWhich one matches the following description the best? \n [insert-user-description] \n Please only return the index number, without any additional information, even periods or comma.\n Example response format: \n0";
 
-            final String[] finalPrompt = {promptPrefix + correctQueryAggregated + promptSuffix.replace("[insert-user-description]", "")};   // TODO YUWEN here, insert the datafield description
+            final String[] finalPrompt = {promptPrefix + correctQueryAggregated + promptSuffix.replace("[insert-user-description]", datafieldUserDescription)};
 
             final Pair<OntologyQuery, Double>[] bestQuery = new Pair[1];
             // set up API call
@@ -438,11 +430,11 @@ public class FullScreenOverlayManager {
                 @Override
                 public void onResponse(String response) {
                     Log.i("ApiCallManager", "API call successful: \n" + response);
-                    int index = Integer.parseInt(response);
+                    int index = Integer.parseInt(response.replaceAll("^\"|\"$", "").trim());
                     if (index >= 0 && index < correctQueries.size()) {
                         bestQuery[0] = correctQueries.get(index);
                     } else {
-                        Log.e("ApiCallManager", "API call failed: invalid index");
+                        Log.e("ApiCallManager", "API response invalid: invalid index");
                     }
                     latch.countDown();
                 }
@@ -476,9 +468,9 @@ public class FullScreenOverlayManager {
 //            });
 //            // select the query that can retrieve the least unrelated data
 //            Pair<OntologyQuery, Double> bestQuery = correctQueries.get(0);
-//            int minSize = bestQuery.first.executeOn(currentUISnapshot).size();
+//            int minSize = bestQuery.first.executeOn(uiSnapshot).size();
 //            for (int i = 1; i < correctQueries.size(); i++) {
-//                int size = correctQueries.get(i).first.executeOn(currentUISnapshot).size();
+//                int size = correctQueries.get(i).first.executeOn(uiSnapshot).size();
 //                if (size < minSize && size >= 1) {
 //                    minSize = size;
 //                    bestQuery = correctQueries.get(i);
@@ -490,9 +482,42 @@ public class FullScreenOverlayManager {
 
     }
 
-    private void processCallback(String targetText) {
-        this.callback.onDataReceived(desiredQuery, targetText);
+    @Override
+    public void onProcessDescriptionEditText(String datafieldDescription) {
+        if (datafieldDescription.trim().isEmpty()) {
+            Toast.makeText(context, "Datafield description cannot be blank!", Toast.LENGTH_SHORT).show();
+        } else {
+            // deal with the Views
+            if (dimView != null) {
+                windowManager.removeView(dimView);
+            }
+            // select the correct query that can retrieve our result, using LLM
+            final String data = selectBestQuery(datafieldDescription);
+
+            // send the data to MainActivity
+            desiredQuery = data;
+            SugiliteEntity<Node> finalTargetEntity = targetEntity;
+            processCallback(finalTargetEntity.getEntityValue().getText());
+            // clear the overlay
+            disableOverlay();
+            // stop widget service
+            Intent intent = new Intent(context, WidgetService.class);
+            context.stopService(intent);
+            // go back to the main activity
+            Intent mainActivityIntent = context.getPackageManager().getLaunchIntentForPackage("edu.nd.crepe");
+            mainActivityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            if (mainActivityIntent != null) {
+                context.startActivity(mainActivityIntent);
+            } else {
+                Toast.makeText(context, "There is no package available in android", Toast.LENGTH_LONG).show();
+            }
+
+
+        }
     }
 
 
+    private void processCallback(String targetText) {
+        this.graphQueryCallback.onDataReceived(desiredQuery, targetText);
+    }
 }

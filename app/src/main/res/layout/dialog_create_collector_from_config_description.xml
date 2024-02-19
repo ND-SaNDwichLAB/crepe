@@ -48,7 +48,7 @@
         android:layout_marginEnd="24dp"
         android:layout_marginBottom="24dp"
         android:background="@android:color/transparent"
-        android:text="NEXT"
+        android:text="CREATE"
         android:textColor="@color/ND_gold"
         android:textColorHint="@color/ND_gold"
         app:layout_constraintBottom_toBottomOf="parent"
