@@ -8,6 +8,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.media.Image;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,7 @@ import edu.nd.crepe.R;
 import edu.nd.crepe.database.Collector;
 import edu.nd.crepe.database.DatabaseManager;
 import edu.nd.crepe.database.Datafield;
+import edu.nd.crepe.database.User;
 import edu.nd.crepe.network.FirebaseCallback;
 import edu.nd.crepe.network.FirebaseCommunicationManager;
 
@@ -53,6 +55,40 @@ public class CollectorCardDetailBuilder {
         Dialog dialog = dialogBuilder.create();
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
+        // populate information of the collector
+        TextView creatorTitleTextView = (TextView) popupView.findViewById(R.id.collectorCreatorTitle);
+        TextView creatorNameTextView = (TextView) popupView.findViewById(R.id.collectorCreatorName);
+        String creatorUserId = collector.getCreatorUserId();
+        List<User> allUsers = dbManager.getAllUsers();
+        // if it is created by current user, change the title to "Created By You" and show the participant count
+        // otherwise, show the creator's name
+        Boolean createdByCurrentUser = false;
+        for (User user : allUsers) {
+            if (user.getUserId().equals(creatorUserId)) {
+                creatorNameTextView.setText(user.getName() + " (You)");
+                createdByCurrentUser = true;
+                break;
+            }
+        }
+        if (!createdByCurrentUser) {
+            fbManager.retrieveUser(creatorUserId, new FirebaseCallback() {
+                @Override
+                public void onResponse (Object user) {
+                    User creator = (User) user;
+                    creatorNameTextView.setText(creator.getName());
+                }
+
+                @Override
+                public void onErrorResponse(Exception e) {
+                    Log.e("CollectorCardDetailBuilder", "Error retrieving creator user: " + e.getMessage());
+                    creatorTitleTextView.setVisibility(View.GONE);
+                    creatorNameTextView.setVisibility(View.GONE);
+                }
+            });
+        }
+
+
+        // populate the datafield information
         List<Datafield> datafieldsForCollector = dbManager.getAllDatafieldsForCollector(collector);
 
         TextView collectorDatafield = (TextView) popupView.findViewById(R.id.collectorDetailDatafield);
