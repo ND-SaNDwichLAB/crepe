@@ -266,7 +266,6 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
                     LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                     View confirmationView = layoutInflater.inflate(R.layout.demonstration_confirmation, null);
 
-                    // TODO YUWEN here, insert the datafield description dialog
                     TextView queryTextView = confirmationView.findViewById(R.id.confirmationInfo);
                     // set the text of the dialog window
                     String displayText = "";
