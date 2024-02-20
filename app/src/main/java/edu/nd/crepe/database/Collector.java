@@ -2,6 +2,8 @@ package edu.nd.crepe.database;
 
 import android.util.Log;
 
+import com.google.firebase.database.core.view.Change;
+
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -26,6 +28,11 @@ public class Collector implements Serializable {
     public static final String ACTIVE = "active";
     public static final String NOTYETSTARTED = "notYetStarted";
     public static final String EXPIRED = "expired";
+
+    // used in the collector comparison function (compareWith), we do not compare the collectorId, creatorId, appName, and appPackage, since we assume these are not changeable
+    public enum ChangeStatus {
+        NO_CHANGE, DESCRIPTION_CHANGE, COLLECTOR_START_TIME_CHANGE, COLLECTOR_END_TIME_CHANGE, COLLECTOR_STATUS_CHANGE
+    }
 
 
     public Collector(String collectorId, String creatorUserID, String appName, String appPackage, String description, String mode, String targetServerIp, String collectorStartTime, String collectorEndTime) {
@@ -73,22 +80,12 @@ public class Collector implements Serializable {
         this.collectorId = collectorId;
     }
 
-    public Collector() {}
+    public Collector() {
+    }
 
     @Override
     public String toString() {
-        return "Collector{" +
-                "collectorId='" + collectorId + '\'' +
-                ", creatorUserId='" + creatorUserId + '\'' +
-                ", appName='" + appName + '\'' +
-                ", appPackage='" + appPackage + '\'' +
-                ", description='" + description + '\'' +
-                ", collectorStartTime=" + collectorStartTime +
-                ", collectorEndTime=" + collectorEndTime +
-                ", mode='" + mode + '\'' +
-                ", targetServerIP='" + targetServerIp + '\'' +
-                ", collectorStatus='" + collectorStatus + '\'' +
-                '}';
+        return "Collector{" + "collectorId='" + collectorId + '\'' + ", creatorUserId='" + creatorUserId + '\'' + ", appName='" + appName + '\'' + ", appPackage='" + appPackage + '\'' + ", description='" + description + '\'' + ", collectorStartTime=" + collectorStartTime + ", collectorEndTime=" + collectorEndTime + ", mode='" + mode + '\'' + ", targetServerIP='" + targetServerIp + '\'' + ", collectorStatus='" + collectorStatus + '\'' + '}';
     }
 
     public String idToString() {
@@ -188,9 +185,9 @@ public class Collector implements Serializable {
     }
 
 
-    public String getCollectorStatus() {return collectorStatus;}
-
-
+    public String getCollectorStatus() {
+        return collectorStatus;
+    }
 
 
     // The collectorStatus will be set based on current time and the collector's start and end time
@@ -242,4 +239,27 @@ public class Collector implements Serializable {
         return this.collectorStatus.equals(DELETED);
     }
 
+    public ChangeStatus compareWith(Collector updatedCollector) {
+        if (this.collectorId.equals(updatedCollector.getCollectorId())
+                && this.creatorUserId.equals(updatedCollector.getCreatorUserId())
+                && this.appName.equals(updatedCollector.getAppName())
+                && this.appPackage.equals(updatedCollector.getAppPackage())) {
+            if (!this.description.equals(updatedCollector.getDescription())) {
+                return ChangeStatus.DESCRIPTION_CHANGE;
+            }
+            if (this.collectorStartTime != updatedCollector.getCollectorStartTime()) {
+                return ChangeStatus.COLLECTOR_START_TIME_CHANGE;
+            }
+            if (this.collectorEndTime != updatedCollector.getCollectorEndTime()) {
+                return ChangeStatus.COLLECTOR_END_TIME_CHANGE;
+            }
+            if (!this.collectorStatus.equals(updatedCollector.getCollectorStatus())) {
+                return ChangeStatus.COLLECTOR_STATUS_CHANGE;
+            }
+            return ChangeStatus.NO_CHANGE;
+        } else {
+            Log.e("collector", "The input collector is not the same as the current collector");
+            return null;
+        }
+    }
 }

@@ -3,6 +3,7 @@ package edu.nd.crepe.ui.main_activity;
 import static edu.nd.crepe.ui.main_activity.CollectorCardConstraintLayoutBuilder.DELETED;
 import static edu.nd.crepe.ui.main_activity.CollectorCardConstraintLayoutBuilder.EXPIRED;
 
+import android.Manifest;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -10,6 +11,7 @@ import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +22,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.firebase.Firebase;
@@ -41,6 +46,7 @@ import edu.nd.crepe.network.DataLoadingEvent;
 import edu.nd.crepe.network.FirebaseCommunicationManager;
 import edu.nd.crepe.servicemanager.AccessibilityPermissionManager;
 import edu.nd.crepe.servicemanager.CrepeAccessibilityService;
+import edu.nd.crepe.servicemanager.NotificationManager;
 
 import java.util.HashMap;
 import java.util.List;
@@ -54,7 +60,6 @@ public class HomeFragment extends Fragment {
     private ChildEventListener collectorListener;
     private DatabaseReference datafieldReference;
     private ChildEventListener datafieldListener;
-
 
 
     private List<Collector> collectorList;
@@ -85,7 +90,7 @@ public class HomeFragment extends Fragment {
             List<String> collectorIds = collectorList.stream().map(Collector::getCollectorId).collect(Collectors.toList());
             // add listener to collector and datafield updates
             collectorReference = FirebaseDatabase.getInstance().getReference(Collector.class.getSimpleName());
-            datafieldReference = FirebaseDatabase.getInstance().getReference(Datafield.class.getSimpleName();
+            datafieldReference = FirebaseDatabase.getInstance().getReference(Datafield.class.getSimpleName());
             collectorListener = new ChildEventListener() {
                 @Override
                 public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
@@ -101,6 +106,53 @@ public class HomeFragment extends Fragment {
                     if (collectorIds.contains(updatedCollectorId)) {
                         // this updateCollector function can also handle when only the collector status was changed
                         dbManager.updateCollector(updatedCollector);
+
+                        Collector currentCollector = collectorList.stream().filter(collector -> collector.getCollectorId().equals(updatedCollectorId)).findFirst().orElse(null);
+                        if (currentCollector != null) {
+
+                            // compare the current collector and the updated collector, return the difference
+                            Collector.ChangeStatus changeStatus = currentCollector.compareWith(updatedCollector);
+
+                            if (changeStatus == Collector.ChangeStatus.NO_CHANGE) {
+                                // do nothing, but log because this should not happen
+                                Log.i("collector childEventListener", "The collector with id " + updatedCollectorId + " is changed, but no change is detected. Please check.");
+                            } else {
+                                NotificationManager notificationManager = new NotificationManager(getContext(), getActivity());
+                                if (changeStatus == Collector.ChangeStatus.DESCRIPTION_CHANGE) {
+                                    // if the collector description is changed, we need to notify the participant and researcher
+                                    notificationManager.showNotification("The description of your " + currentCollector.getAppName() + " collector is changed. See details in the app.");
+                                } else if (changeStatus == Collector.ChangeStatus.COLLECTOR_START_TIME_CHANGE) {
+                                    // if the collector start time is changed, we don't need to notify the participant and researcher
+                                    Log.i("collector childEventListener", "The collector with id " + updatedCollectorId + " start time is changed in Firebase.");
+                                } else if (changeStatus == Collector.ChangeStatus.COLLECTOR_END_TIME_CHANGE) {
+                                    // if the collector end time is changed, we need to notify the participant and researcher
+                                    notificationManager.showNotification("The end time of your " + currentCollector.getAppName() + " collector has changed. See details in the app.");
+                                } else if (changeStatus == Collector.ChangeStatus.COLLECTOR_STATUS_CHANGE) {
+                                    // if the collector status is changed, we need to notify the participant and researcher
+                                    // if the status changed to deleted
+                                    if (updatedCollector.getCollectorStatus().equals(DELETED)) {
+                                        notificationManager.showNotification("Your " + currentCollector.getAppName() + " collector has been deleted by the researcher. No more data will be collected. See details in the app.");
+                                    }
+                                    // if the status changed to expired, that means the collection is complete
+                                    if (updatedCollector.getCollectorStatus().equals(EXPIRED)) {
+                                        notificationManager.showNotification("Your " + currentCollector.getAppName() + " collector has finished. Thank you for your participation!");
+                                    }
+                                    // if the status changed to active, something is wrong
+                                    if (updatedCollector.getCollectorStatus().equals(CollectorCardConstraintLayoutBuilder.ACTIVE)) {
+                                        Log.e("collector childEventListener", "The collector with id " + updatedCollectorId + " status has changed to active. Please check.");
+                                    }
+                                    Log.e("collector childEventListener", "The collector with id " + updatedCollectorId + " status is changed to " + updatedCollector.getCollectorStatus() + ", but not caught. Please check.");
+                                }
+
+                                // TODO Yuwen we need to check for collector participant list, and notify the researcher when a participant drops
+                                // But doing this might require data base schema change, on hold for now
+
+                            }
+
+                        } else {
+                            Log.e("collector childEventListener", "Cannot find the collector with id " + updatedCollectorId + " in local db. Please check.");
+                        }
+
                     }
                 }
 

@@ -1,6 +1,9 @@
 package edu.nd.crepe;
 
 import android.app.AlertDialog;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -10,6 +13,7 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 
 import edu.nd.crepe.database.DatabaseManager;
@@ -29,6 +33,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 
@@ -42,6 +47,7 @@ import edu.nd.crepe.databinding.ActivityMainBinding;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.FirebaseDatabase;
 
 import android.view.Menu;
 import android.view.MenuItem;
@@ -96,6 +102,10 @@ public class MainActivity extends AppCompatActivity {
         dbManager = DatabaseManager.getInstance(this.getApplicationContext());
         FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(this);
 
+        // Enable Firebase persistence only once and before any usage of the database instance
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+
+
         mAuth = FirebaseAuth.getInstance();
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
@@ -131,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.i("Main Activity", "no user found in database.");
             }
         }
-
+        // code block for user image, maybe of use in the future
 //        if (userImage == null) {
 //            new Thread(new Runnable() {
 //                @Override
@@ -154,6 +164,19 @@ public class MainActivity extends AppCompatActivity {
 //            }).start();
 //
 //        }
+
+        // set up the notification channel
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "crepeChannel";
+            String description = "Crepe app notification channel, delivering information regarding collector status changes.";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel("CREPE_NOTIFICATION_CHANNEL", name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
