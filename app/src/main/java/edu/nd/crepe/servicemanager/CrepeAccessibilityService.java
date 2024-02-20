@@ -8,16 +8,18 @@ import static android.view.accessibility.AccessibilityEvent.TYPE_VIEW_TEXT_SELEC
 import static android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED;
 import static android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED;
 
-import static edu.nd.crepe.MainActivity.currentUser;
-
 import android.accessibilityservice.AccessibilityService;
 import android.app.ActivityManager;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.os.Binder;
+import android.os.Build;
 import android.os.IBinder;
 import android.provider.Settings;
 import android.util.Log;
@@ -25,9 +27,10 @@ import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
-import com.google.firebase.database.snapshot.BooleanNode;
+import androidx.core.app.NotificationCompat;
 
 import edu.nd.crepe.MainActivity;
+import edu.nd.crepe.R;
 import edu.nd.crepe.database.Collector;
 import edu.nd.crepe.database.Data;
 import edu.nd.crepe.database.DatabaseManager;
@@ -40,7 +43,6 @@ import edu.nd.crepe.network.FirebaseCommunicationManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -76,6 +78,10 @@ public class CrepeAccessibilityService extends AccessibilityService {
     private List<Collector> collectors;
     private List<Datafield> datafields;
     private List<AccessibilityNodeInfo> allNodeList;
+    // used for setting a foreground notification channel
+    private static final int NOTIFICATION_ID = 1;
+    private static final String CHANNEL_ID = "CrepeAccessibilityServiceChannel";
+
 
     public UISnapshot getCurrentUiSnapshot() {
         return uiSnapshot;
@@ -98,9 +104,10 @@ public class CrepeAccessibilityService extends AccessibilityService {
                 refreshAllCollectorStatus();
             }
         }, 0, REFRESH_INTERVAL, TimeUnit.MINUTES);
-
-
         refreshAllCollectorStatus();
+
+        // Create a notification channel
+        createNotificationChannel();
     }
 
     public void refreshAllCollectorStatus() {
@@ -330,6 +337,13 @@ public class CrepeAccessibilityService extends AccessibilityService {
     @Override
     public void onServiceConnected() {
         sSharedInstance = this;
+        Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setContentTitle("Crepe")
+                .setContentText("Crepe successfully running...")
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .build();
+
+        startForeground(NOTIFICATION_ID, notification);
     }
 
     @Override
@@ -348,5 +362,16 @@ public class CrepeAccessibilityService extends AccessibilityService {
         return prefString != null && prefString.contains(context.getPackageName() + "/" + accessibilityService.getName());
     }
 
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = getString(R.string.channel_name);
+            String description = getString(R.string.channel_description);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
 
 }

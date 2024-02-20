@@ -28,4 +28,6 @@
     <string name="fab_button_new_collector_title">Create New</string>
     <string name="add_existing_collector_icon">add existing collector icon</string>
     <string name="floating_action_button_for_adding_new_collectors">floating action button for adding new collectors</string>
+    <string name="channel_name">CrepeAccessibilityForegroundChannel</string>
+    <string name="channel_description">A channel for running CrepeAccessibilityService as a foreground service, active whenever the screen is on</string>
 </resources>

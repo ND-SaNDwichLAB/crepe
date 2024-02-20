@@ -11,13 +11,13 @@ import androidx.core.app.NotificationManagerCompat;
 
 import edu.nd.crepe.R;
 
-public class NotificationManager {
+public class CrepeNotificationManager {
     private Context context;
     private Activity activity;
     private String notificationMessage;
 
     final private String CHANNEL_ID = "CREPE_NOTIFICATION_CHANNEL";
-    public NotificationManager(Context context, Activity activity) {
+    public CrepeNotificationManager(Context context, Activity activity) {
         this.context = context;
         this.activity = activity;
     }
