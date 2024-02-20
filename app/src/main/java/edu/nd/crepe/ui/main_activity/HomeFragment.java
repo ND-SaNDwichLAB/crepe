@@ -190,6 +190,10 @@ public class HomeFragment extends Fragment {
                     String updatedDatafieldId = updatedDatafield.getCollectorId();
                     if (collectorIds.contains(updatedDatafieldId)) {
                         dbManager.updateDatafield(updatedDatafield);
+                        String collectorId = updatedDatafield.getCollectorId();
+                        String collectorName = collectorList.stream().filter(collector -> collector.getCollectorId().equals(collectorId)).findFirst().orElse(null).getAppName();
+                        NotificationManager notificationManager = new NotificationManager(getContext(), getActivity());
+                        notificationManager.showNotification("Datafields are modified for your " + collectorName + " collector. See details in the app.");
                     }
                 }
 
