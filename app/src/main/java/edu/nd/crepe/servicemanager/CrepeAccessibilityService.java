@@ -66,7 +66,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
     private FirebaseCommunicationManager firebaseCommunicationManager;
 
     // maintain a thread pool inside of the accessibility for running graph queries
-     private ThreadPoolExecutor threadPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
+    private ThreadPoolExecutor threadPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
 
     private WindowManager windowManager;
     private String currentAppActivityName;
@@ -80,6 +80,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
     public UISnapshot getCurrentUiSnapshot() {
         return uiSnapshot;
     }
+
     private ScheduledExecutorService scheduler;
 
     @Override
@@ -146,17 +147,23 @@ public class CrepeAccessibilityService extends AccessibilityService {
 
         if (!targetEventTypes.contains(accessibilityEvent.getEventType())) {
             Log.i("accessibilityEvent", accessibilityEvent.getEventType() + " not in the target event list");
+        } else if (collectors.size() == 0) {
+            Log.i("accessibilityEvent", "No collectors to monitor");
         } else {
-
             // update the list of apps we need to monitor
-            List<String> monitoredApps = new ArrayList<>();
+            List<String> monitoredAppPackages = new ArrayList<>();
             for (Collector collector : collectors) {
-                monitoredApps.add(collector.getAppPackage());
+                monitoredAppPackages.add(collector.getAppPackage());
             }
 
             try {
                 // get the current package
                 currentPackageName = accessibilityEvent.getPackageName().toString();
+                // if we are not monitoring this app, return
+                if (!monitoredAppPackages.contains(currentPackageName)) {
+                    Log.i("accessibilityEvent", "Current package " + currentPackageName + " not in the monitored app list");
+                    return;
+                }
             } catch (NullPointerException e) {
                 Log.e(TAG, "Null pointer exception when getting package name");
                 return;
@@ -166,80 +173,76 @@ public class CrepeAccessibilityService extends AccessibilityService {
             uiSnapshot = generateUISnapshot(accessibilityEvent);
             allNodeList = getAllNodesOnScreen();
 
-            if (collectors.size() > 0) {
-                Log.i("accessibilityEvent", "Accessibility Event Type: " + accessibilityEvent.getEventType() + ", opening a new thread, current count: " + threadPool.getActiveCount());
+            Log.i("accessibilityEvent", "Accessibility Event Type: " + accessibilityEvent.getEventType() + ", opening a new thread, current count: " + threadPool.getActiveCount());
 
-                // use this as a time window to determine if we should save the result
-                AtomicLong lastSavedResultTimestamp = new AtomicLong(0);
+            // use this as a time window to determine if we should save the result
+            AtomicLong lastSavedResultTimestamp = new AtomicLong(0);
 
-                // Submit a task to the thread pool
-                threadPool.submit(new Runnable() {
-                    @Override
-                    public void run() {
-                        ArrayList<String> collectorIdsToStart = new ArrayList<>();
-                        ArrayList<Datafield> datafieldsToStart = new ArrayList<>();
-                        for (Collector collector : collectors) {
-                            collectorIdsToStart.add(collector.getCollectorId());
-                            // also add the datafields that are associated with this collector
-                            for (Datafield datafield : datafields) {
-                                if (datafield.getCollectorId().equals(collector.getCollectorId())) {
-                                    datafieldsToStart.add(datafield);
+            // Submit a task to the thread pool
+            threadPool.submit(new Runnable() {
+                @Override
+                public void run() {
+                    ArrayList<String> collectorIdsToStart = new ArrayList<>();
+                    ArrayList<Datafield> datafieldsToStart = new ArrayList<>();
+                    for (Collector collector : collectors) {
+                        collectorIdsToStart.add(collector.getCollectorId());
+                        // also add the datafields that are associated with this collector
+                        for (Datafield datafield : datafields) {
+                            if (datafield.getCollectorId().equals(collector.getCollectorId())) {
+                                datafieldsToStart.add(datafield);
+                            }
+                        }
+                    }
+
+                    // for each datafield, run the graph query on the uiSnapshot
+                    for (Datafield datafield : datafieldsToStart) {
+                        Log.i("query execution", "starting datafield: " + datafield.toString());
+                        // Start a new graph query thread and execute the graph query
+                        // 1. convert the graph query string to a graph query object
+                        OntologyQuery currentQuery = OntologyQuery.deserialize(datafield.getGraphQuery());
+                        // 2. run the graph query on the uiSnapshot
+                        Set<SugiliteEntity> currentResults = currentQuery.executeOn(uiSnapshot);
+                        Log.i("query execution", "currentResults: " + currentResults);
+
+                        // 3. store the new results in the database
+                        for (SugiliteEntity result : currentResults) {
+                            Log.i("query execution", "result: " + result);
+                            Log.i("query execution", "prevResults: " + prevResults);
+                            Log.i("query execution", "prevResults.contains(result): " + prevResults.contains(result));
+                            if (!prevResults.contains(result) && System.currentTimeMillis() - lastSavedResultTimestamp.get() > 1000) {
+                                // if the result is not in the previous results, add it to the database
+                                long timestamp = System.currentTimeMillis();
+                                // the data id is the collector id + "%" + timestamp
+                                Data resultData = new Data(datafield.getCollectorId() + "%" + timestamp, datafield.getDatafieldId(), MainActivity.currentUser.getUserId(), result.saveToDatabaseAsString());
+
+                                try {
+                                    dbManager.addData(resultData);
+                                    Log.i("database", "added data: " + resultData);
+
+                                    // send the data to firebase
+                                    firebaseCommunicationManager.putData(resultData).addOnSuccessListener(suc -> {
+                                        Log.i("Firebase", "Successfully added collector " + resultData.getDataContent() + " to firebase.");
+                                    }).addOnFailureListener(er -> {
+                                        Log.e("Firebase", "Failed to add collector " + resultData.getDataContent() + " to firebase. Error: " + er.getMessage());
+                                    });
+
+                                    // update the last saved result timestamp
+                                    lastSavedResultTimestamp.set(System.currentTimeMillis());
+
+                                } catch (Exception e) {
+                                    Log.i("database", "failed to add data: " + resultData.toString());
+                                    e.printStackTrace();
                                 }
                             }
                         }
-
-                        // for each datafield, run the graph query on the uiSnapshot
-                        for (Datafield datafield : datafieldsToStart) {
-                            Log.i("query execution", "starting datafield: " + datafield.toString());
-                            // Start a new graph query thread and execute the graph query
-                            // 1. convert the graph query string to a graph query object
-                            OntologyQuery currentQuery = OntologyQuery.deserialize(datafield.getGraphQuery());
-                            // 2. run the graph query on the uiSnapshot
-                            Set<SugiliteEntity> currentResults = currentQuery.executeOn(uiSnapshot);
-                            Log.i("query execution", "currentResults: " + currentResults);
-
-                            // 3. store the new results in the database
-                            for (SugiliteEntity result : currentResults) {
-                                Log.i("query execution", "result: " + result);
-                                Log.i("query execution", "prevResults: " + prevResults);
-                                Log.i("query execution", "prevResults.contains(result): " + prevResults.contains(result));
-                                    if (!prevResults.contains(result) && System.currentTimeMillis() - lastSavedResultTimestamp.get() > 1000) {
-                                        // if the result is not in the previous results, add it to the database
-                                        long timestamp = System.currentTimeMillis();
-                                        // the data id is the collector id + "%" + timestamp
-                                        Data resultData = new Data(datafield.getCollectorId() + "%" + timestamp, datafield.getDatafieldId(), MainActivity.currentUser.getUserId(), result.saveToDatabaseAsString());
-
-                                        try {
-                                            dbManager.addData(resultData);
-                                            Log.i("database", "added data: " + resultData);
-
-                                            // send the data to firebase
-                                            firebaseCommunicationManager.putData(resultData).addOnSuccessListener(suc -> {
-                                                Log.i("Firebase", "Successfully added collector " + resultData.getDataContent() + " to firebase.");
-                                            }).addOnFailureListener(er -> {
-                                                Log.e("Firebase", "Failed to add collector " + resultData.getDataContent() + " to firebase. Error: " + er.getMessage());
-                                            });
-
-                                            // update the last saved result timestamp
-                                            lastSavedResultTimestamp.set(System.currentTimeMillis());
-
-                                        } catch (Exception e) {
-                                            Log.i("database", "failed to add data: " + resultData.toString());
-                                            e.printStackTrace();
-                                        }
-                                    }
-                            }
-                            prevResults = currentResults;
-
-                        }
+                        prevResults = currentResults;
 
                     }
 
-                });
-            }
+                }
 
+            });
         }
-
 
 
     }
@@ -304,9 +307,9 @@ public class CrepeAccessibilityService extends AccessibilityService {
         List<AccessibilityNodeInfo> resultNodeList = new ArrayList<>();
 
         if (matchingNodeInfoList != null) {
-            for (AccessibilityNodeInfo matchingNode: matchingNodeInfoList) {
+            for (AccessibilityNodeInfo matchingNode : matchingNodeInfoList) {
                 // change here
-                if(matchingNode.getText() != null && !matchingNode.getText().toString().isEmpty()) {
+                if (matchingNode.getText() != null && !matchingNode.getText().toString().isEmpty()) {
                     resultNodeList.add(matchingNode);
                 }
             }

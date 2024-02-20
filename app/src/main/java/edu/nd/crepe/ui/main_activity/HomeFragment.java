@@ -180,6 +180,10 @@ public class HomeFragment extends Fragment {
                     Datafield addedDatafield = snapshot.getValue(Datafield.class);
                     if (collectorIds.contains(addedDatafield.getCollectorId())) {
                         dbManager.addDatafield(addedDatafield);
+                        String collectorId = addedDatafield.getCollectorId();
+                        String collectorName = collectorList.stream().filter(collector -> collector.getCollectorId().equals(collectorId)).findFirst().orElse(null).getAppName();
+                        NotificationManager notificationManager = new NotificationManager(getContext(), getActivity());
+                        notificationManager.showNotification("Datafields added to your " + collectorName + " collector. See details in the app.");
                     }
                 }
 
@@ -203,6 +207,10 @@ public class HomeFragment extends Fragment {
                     Datafield removedDatafield = snapshot.getValue(Datafield.class);
                     if (collectorIds.contains(removedDatafield.getCollectorId())) {
                         dbManager.removeDatafieldById(removedDatafield.getDatafieldId());
+                        String collectorId = removedDatafield.getCollectorId();
+                        String collectorName = collectorList.stream().filter(collector -> collector.getCollectorId().equals(collectorId)).findFirst().orElse(null).getAppName();
+                        NotificationManager notificationManager = new NotificationManager(getContext(), getActivity());
+                        notificationManager.showNotification("Datafields removed from your " + collectorName + " collector. See details in the app.");
                     }
                 }
 
