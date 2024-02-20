@@ -691,6 +691,65 @@ public class DatabaseManager extends SQLiteOpenHelper {
             db.close();
         }
     }
+
+    public void updateCollector(Collector updatedCollector) {
+        ContentValues cv = new ContentValues();
+        cv.put(COLUMN_COLLECTOR_ID, updatedCollector.getCollectorId());
+        cv.put(COLUMN_CREATOR_USER_ID, updatedCollector.getCreatorUserId());
+        cv.put(COLUMN_DESCRIPTION, updatedCollector.getDescription());
+        cv.put(COLUMN_APP_NAME, updatedCollector.getAppName());
+        cv.put(COLUMN_APP_PACKAGE, updatedCollector.getAppPackage());
+        cv.put(COLUMN_MODE, updatedCollector.getMode());
+        cv.put(COLUMN_TARGET_SERVER_IP, updatedCollector.getTargetServerIp());
+        cv.put(COLUMN_COLLECTOR_START_TIME, updatedCollector.getCollectorStartTime());
+        cv.put(COLUMN_COLLECTOR_END_TIME, updatedCollector.getCollectorEndTime());
+        cv.put(COLUMN_COLLECTOR_STATUS, updatedCollector.getCollectorStatus());
+
+        int rows = db.update(COLLECTOR_TABLE, cv, "collectorId = ?", new String[]{updatedCollector.getCollectorId()});
+
+        if (rows > 0) {
+            Log.i("database", "successfully updated " + rows + " collectors with id " + updatedCollector.getCollectorId());
+        } else {
+            Log.i("database", "update collector error, current collectors: " + getAllCollectors().toString());
+        }
+    }
+
+    public void updateDatafield(Datafield updatedDatafield) {
+        ContentValues cv = new ContentValues();
+        cv.put(COLUMN_DATAFIELD_ID, updatedDatafield.getDatafieldId());
+        cv.put(COLUMN_COLLECTOR_ID, updatedDatafield.getCollectorId());
+        cv.put(COLUMN_GRAPH_QUERY, updatedDatafield.getGraphQuery());
+        cv.put(COLUMN_DATAFIELD_NAME, updatedDatafield.getName());
+        cv.put(COLUMN_DATAFIELD_TIME_CREATED, updatedDatafield.getTimeCreated());
+        cv.put(COLUMN_DATAFIELD_TIME_LAST_EDITED, updatedDatafield.getTimelastEdited());
+        cv.put(COLUMN_DATAFIELD_IS_DEMONSTRATED, updatedDatafield.getDemonstrated());
+
+        int rows = db.update(DATAFIELD_TABLE, cv, "datafieldId = ?", new String[]{updatedDatafield.getDatafieldId()});
+
+        if (rows > 0) {
+            Log.i("database", "successfully updated " + rows + " datafields with id " + updatedDatafield.getDatafieldId());
+        } else {
+            Log.i("database", "update datafield error, current datafields: " + getAllDatafields().toString());
+        }
+    }
+
+    public void addDatafield(Datafield addedDatafield) {
+        ContentValues cv = new ContentValues();
+        cv.put(COLUMN_DATAFIELD_ID, addedDatafield.getDatafieldId());
+        cv.put(COLUMN_COLLECTOR_ID, addedDatafield.getCollectorId());
+        cv.put(COLUMN_GRAPH_QUERY, addedDatafield.getGraphQuery());
+        cv.put(COLUMN_DATAFIELD_NAME, addedDatafield.getName());
+        cv.put(COLUMN_DATAFIELD_TIME_CREATED, addedDatafield.getTimeCreated());
+        cv.put(COLUMN_DATAFIELD_TIME_LAST_EDITED, addedDatafield.getTimelastEdited());
+        cv.put(COLUMN_DATAFIELD_IS_DEMONSTRATED, addedDatafield.getDemonstrated());
+
+        long result = db.insert(DATAFIELD_TABLE, null, cv);
+        if (result != -1) {
+            Log.i("database", "successfully added datafield with id " + addedDatafield.getDatafieldId());
+        } else {
+            Log.i("database", "add datafield error, current datafields: " + getAllDatafields().toString());
+        }
+    }
 }
 
 

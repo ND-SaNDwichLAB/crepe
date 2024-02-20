@@ -8,13 +8,16 @@ import androidx.annotation.NonNull;
 
 import edu.nd.crepe.database.Collector;
 import edu.nd.crepe.database.Data;
+import edu.nd.crepe.database.DatabaseManager;
 import edu.nd.crepe.database.Datafield;
 import edu.nd.crepe.database.User;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
@@ -102,8 +105,6 @@ public class FirebaseCommunicationManager {
         // Update the child node
         return databaseReference.child(key).updateChildren(updates);
     }
-
-
 
     public Task<Void> removeUser(String key) {
         DatabaseReference databaseReference = db.getReference(User.class.getSimpleName());

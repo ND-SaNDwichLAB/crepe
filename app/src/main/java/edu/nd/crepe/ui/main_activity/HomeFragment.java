@@ -1,5 +1,8 @@
 package edu.nd.crepe.ui.main_activity;
 
+import static edu.nd.crepe.ui.main_activity.CollectorCardConstraintLayoutBuilder.DELETED;
+import static edu.nd.crepe.ui.main_activity.CollectorCardConstraintLayoutBuilder.EXPIRED;
+
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -7,6 +10,7 @@ import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +22,13 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
+import com.google.firebase.Firebase;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -25,17 +36,27 @@ import org.greenrobot.eventbus.ThreadMode;
 import edu.nd.crepe.R;
 import edu.nd.crepe.database.Collector;
 import edu.nd.crepe.database.DatabaseManager;
+import edu.nd.crepe.database.Datafield;
 import edu.nd.crepe.network.DataLoadingEvent;
+import edu.nd.crepe.network.FirebaseCommunicationManager;
 import edu.nd.crepe.servicemanager.AccessibilityPermissionManager;
 import edu.nd.crepe.servicemanager.CrepeAccessibilityService;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class HomeFragment extends Fragment {
 
     private DatabaseManager dbManager;
+    private DatabaseReference collectorReference;
+    private ChildEventListener collectorListener;
+    private DatabaseReference datafieldReference;
+    private ChildEventListener datafieldListener;
+
+
+
     private List<Collector> collectorList;
 
     @Nullable
@@ -58,6 +79,93 @@ public class HomeFragment extends Fragment {
             e.printStackTrace();
         }
 
+        if (collectorList.size() > 0) {
+
+            // get all collector ids
+            List<String> collectorIds = collectorList.stream().map(Collector::getCollectorId).collect(Collectors.toList());
+            // add listener to collector and datafield updates
+            collectorReference = FirebaseDatabase.getInstance().getReference(Collector.class.getSimpleName());
+            datafieldReference = FirebaseDatabase.getInstance().getReference(Datafield.class.getSimpleName();
+            collectorListener = new ChildEventListener() {
+                @Override
+                public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                    // when a collector of this id is added, do not do anything
+                    Log.i("collector childEventListener", "This collector with id " + snapshot.getKey() + " is somehow added. Please check.");
+                }
+
+                @Override
+                public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                    // when a collector of this id is changed, update the collector in local db
+                    Collector updatedCollector = snapshot.getValue(Collector.class);
+                    String updatedCollectorId = updatedCollector.getCollectorId();
+                    if (collectorIds.contains(updatedCollectorId)) {
+                        // this updateCollector function can also handle when only the collector status was changed
+                        dbManager.updateCollector(updatedCollector);
+                    }
+                }
+
+                @Override
+                public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+                    // collectors should not be removed from firebased based on our setup, but only marked as deleted in collectorStatus
+                    Log.e("collector childEventListener", "This collector with id " + snapshot.getKey() + " is mistakenly removed. Please check.");
+                }
+
+                @Override
+                public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                    Log.e("collector childEventListener", "This collector with id " + snapshot.getKey() + " is mistakenly moved. Please check.");
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Log.e("collector childEventListener", "The read failed: " + error.getCode());
+                }
+            };
+
+            datafieldListener = new ChildEventListener() {
+                @Override
+                public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                    // when a datafield of current local collector is added, add it to local db
+                    Datafield addedDatafield = snapshot.getValue(Datafield.class);
+                    if (collectorIds.contains(addedDatafield.getCollectorId())) {
+                        dbManager.addDatafield(addedDatafield);
+                    }
+                }
+
+                @Override
+                public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                    // when a datafield of this id is changed, update the datafield in local db
+                    Datafield updatedDatafield = snapshot.getValue(Datafield.class);
+                    String updatedDatafieldId = updatedDatafield.getCollectorId();
+                    if (collectorIds.contains(updatedDatafieldId)) {
+                        dbManager.updateDatafield(updatedDatafield);
+                    }
+                }
+
+                @Override
+                public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+                    // datafields should not be removed from firebased based on our setup, but only marked as deleted in datafieldStatus
+                    Datafield removedDatafield = snapshot.getValue(Datafield.class);
+                    if (collectorIds.contains(removedDatafield.getCollectorId())) {
+                        dbManager.removeDatafieldById(removedDatafield.getDatafieldId());
+                    }
+                }
+
+                @Override
+                public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                    Log.e("datafield childEventListener", "This datafield with id " + snapshot.getKey() + " is somehow moved. Please check.");
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Log.e("datafield childEventListener", "The read failed: " + error.getCode());
+                }
+            };
+
+            collectorReference.addChildEventListener(collectorListener);
+            datafieldReference.addChildEventListener(datafieldListener);
+
+        }
+
 
         // check accessibility service permission
         if (!CrepeAccessibilityService.isAccessibilityServiceEnabled(getContext(), CrepeAccessibilityService.class)) {
@@ -70,6 +178,12 @@ public class HomeFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
+        if (collectorListener != null) {
+            collectorReference.removeEventListener(collectorListener);
+        }
+        if (datafieldListener != null) {
+            datafieldReference.removeEventListener(datafieldListener);
+        }
         EventBus.getDefault().unregister(this);
     }
 
