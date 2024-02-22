@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
         dbManager = DatabaseManager.getInstance(this.getApplicationContext());
         FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(this);
 
-        // Enable Firebase persistence only once and before any usage of the database instance
+        // Enable Firebase offline persistence only once and before any usage of the database instance
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 
 

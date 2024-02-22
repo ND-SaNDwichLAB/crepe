@@ -82,6 +82,8 @@ public class CrepeAccessibilityService extends AccessibilityService {
     private static final int NOTIFICATION_ID = 1;
     private static final String CHANNEL_ID = "CrepeAccessibilityServiceChannel";
 
+    // implement a heartbeat mechanism to check the service running status
+    private final int HEARTBEAT_INTERVAL = 1000 * 600; // 10 minute
 
     public UISnapshot getCurrentUiSnapshot() {
         return uiSnapshot;
@@ -309,6 +311,8 @@ public class CrepeAccessibilityService extends AccessibilityService {
 
     public List<AccessibilityNodeInfo> getMatchingNodeFromClickWithText(float clickX, float clickY) {
 
+        this.allNodeList = getAllNodesOnScreen();
+
         List<AccessibilityNodeInfo> matchingNodeInfoList = DemonstrationUtil.findMatchingNodeFromClick(this.allNodeList, clickX, clickY);
 
         List<AccessibilityNodeInfo> resultNodeList = new ArrayList<>();
@@ -337,6 +341,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
     @Override
     public void onServiceConnected() {
         sSharedInstance = this;
+        // for crepe foreground service
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("Crepe")
                 .setContentText("Crepe successfully running...")
