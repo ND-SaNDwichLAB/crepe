@@ -39,8 +39,6 @@ public class FirebaseCommunicationManager {
     public FirebaseCommunicationManager(Context c) {
         this.db = FirebaseDatabase.getInstance();
         this.context = c;
-        // enable offline persistence
-        this.db.setPersistenceEnabled(true);
     }
 
     public Task<Void> putCollector(Collector collector) {
