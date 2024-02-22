@@ -19,6 +19,7 @@
         android:lineSpacingExtra="5dp"
         android:paddingStart="16dp"
         android:singleLine="true"
+        android:textColor="@color/custom_text_secondary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/urlPopupTitle" />
@@ -31,6 +32,7 @@
         android:layout_marginTop="24dp"
         android:layout_marginEnd="24dp"
         android:text="ADD NEW COLLECTOR"
+        android:textColor="@color/custom_text_secondary"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -69,6 +71,7 @@
         android:layout_marginStart="36dp"
         android:layout_marginTop="8dp"
         android:text="The collector ID you received"
+        android:textColor="@color/custom_text_secondary"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/collectorIdEditText" />
 
@@ -82,6 +85,7 @@
         android:paddingStart="2dp"
         android:paddingEnd="2dp"
         android:text="Enter Collector ID"
+        android:textColor="@color/custom_text_secondary"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/urlPopupTitle" />
 

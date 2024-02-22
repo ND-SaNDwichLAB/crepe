@@ -12,6 +12,7 @@
         android:layout_marginStart="24dp"
         android:layout_marginTop="24dp"
         android:text="Service Permission Required"
+        android:textColor="@color/custom_text_secondary"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -27,6 +28,7 @@
         android:layout_marginTop="12dp"
         android:layout_marginEnd="24dp"
         android:text="Crepe needs permission to display over other apps to function properly. Please enable it in the settings."
+        android:textColor="@color/custom_text_secondary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/demoConfirmationTitle" />

@@ -15,18 +15,21 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="24dp"
         android:layout_marginBottom="8dp"
+        android:backgroundTint="@color/white"
+        app:cardBackgroundColor="@color/white"
         app:cardCornerRadius="4dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
-<!--        tools:layout_editor_absoluteX="55dp">-->
+        <!--        tools:layout_editor_absoluteX="55dp">-->
 
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical">
+            android:layout_gravity="center_vertical"
+            android:backgroundTint="@color/white">
 
             <TextView
                 android:id="@+id/datafieldTextView"
@@ -36,7 +39,9 @@
                 android:layout_marginTop="4dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginBottom="4dp"
+                android:backgroundTint="@color/white"
                 android:text="Price Label from NewTaskWindow"
+                android:textColor="@color/custom_text_secondary"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/removeDatafieldButton"
                 app:layout_constraintHorizontal_bias="0.0"
@@ -50,17 +55,15 @@
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:layout_marginTop="4dp"
-                android:layout_marginBottom="4dp"
                 android:layout_marginEnd="16dp"
+                android:layout_marginBottom="4dp"
                 android:background="@null"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:srcCompat="@drawable/ic_baseline_delete_24" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-
-
 
 
     </androidx.cardview.widget.CardView>

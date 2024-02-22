@@ -72,7 +72,8 @@
                     android:layout_marginBottom="16dp"
                     android:gravity="left"
                     android:text="@string/fab_button_create_new_collector"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textColor="@color/custom_text_secondary" />
             </LinearLayout>
 
 
@@ -120,7 +121,8 @@
                     android:layout_marginBottom="16dp"
                     android:gravity="left"
                     android:text="Join experiment with a provided ID"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textColor="@color/custom_text_secondary" />
             </LinearLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
