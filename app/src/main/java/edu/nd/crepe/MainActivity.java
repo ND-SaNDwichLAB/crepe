@@ -96,14 +96,12 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        FirebaseApp.initializeApp(this);
         super.onCreate(savedInstanceState);
 
         dbManager = DatabaseManager.getInstance(this.getApplicationContext());
+
         FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(this);
 
-        // Enable Firebase offline persistence only once and before any usage of the database instance
-        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 
 
         mAuth = FirebaseAuth.getInstance();

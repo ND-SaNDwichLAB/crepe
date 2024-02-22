@@ -8,6 +8,8 @@ import static android.view.accessibility.AccessibilityEvent.TYPE_VIEW_TEXT_SELEC
 import static android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED;
 import static android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED;
 
+import static edu.nd.crepe.MainActivity.currentUser;
+
 import android.accessibilityservice.AccessibilityService;
 import android.app.ActivityManager;
 import android.app.Notification;
@@ -20,6 +22,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.os.Binder;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
 import android.provider.Settings;
 import android.util.Log;
@@ -43,6 +46,7 @@ import edu.nd.crepe.network.FirebaseCommunicationManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -84,6 +88,14 @@ public class CrepeAccessibilityService extends AccessibilityService {
 
     // implement a heartbeat mechanism to check the service running status
     private final int HEARTBEAT_INTERVAL = 1000 * 600; // 10 minute
+    private Handler handler = new Handler();
+    private Runnable heartbeatRunnable = new Runnable() {
+        @Override
+        public void run() {
+            updateHeartbeatTimestamp();
+            handler.postDelayed(this, HEARTBEAT_INTERVAL);
+        }
+    };
 
     public UISnapshot getCurrentUiSnapshot() {
         return uiSnapshot;
@@ -112,25 +124,6 @@ public class CrepeAccessibilityService extends AccessibilityService {
         createNotificationChannel();
     }
 
-    public void refreshAllCollectorStatus() {
-        // retrieve all stored collectors and datafields
-        collectors = dbManager.getActiveCollectors();
-        datafields = dbManager.getAllDatafields();
-
-        // refresh collector status based on current time
-        for (Collector collector : collectors) {
-            Boolean collectorUpdated = collector.autoSetCollectorStatus();
-            if (collectorUpdated) {
-                dbManager.updateCollectorStatus(collector);
-            }
-        }
-
-        if (collectors != null && !collectors.isEmpty()) {
-            firebaseCommunicationManager.updateAllCollectors();
-        }
-
-    }
-
     /**
      * Class used for the client Binder.  Because we know this service always
      * runs in the same process as its clients, we don't need to deal with IPC.
@@ -141,6 +134,40 @@ public class CrepeAccessibilityService extends AccessibilityService {
             return CrepeAccessibilityService.this;
         }
     }   // however, we cannot override the onBind method because it's declared final for accessibilityServices
+
+
+
+    // the below 3 functions are used to get around not being able to override onBind for accessibilityServices
+    @Override
+    public void onServiceConnected() {
+        sSharedInstance = this;
+        // for crepe foreground service
+        Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setContentTitle("Crepe")
+                .setContentText("Crepe successfully running...")
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .build();
+
+        startForeground(NOTIFICATION_ID, notification);
+        handler.post(heartbeatRunnable);
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        sSharedInstance = null;
+        scheduler.shutdown();
+        return true;
+    }
+
+    @Override
+    public void onDestroy() {
+        handler.removeCallbacks(heartbeatRunnable);
+        super.onDestroy();
+    }
+
+    public static CrepeAccessibilityService getsSharedInstance() {
+        return sSharedInstance;
+    }
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
@@ -222,7 +249,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
                                 // if the result is not in the previous results, add it to the database
                                 long timestamp = System.currentTimeMillis();
                                 // the data id is the collector id + "%" + timestamp
-                                Data resultData = new Data(datafield.getCollectorId() + "%" + timestamp, datafield.getDatafieldId(), MainActivity.currentUser.getUserId(), result.saveToDatabaseAsString());
+                                Data resultData = new Data(datafield.getCollectorId() + "%" + timestamp, datafield.getDatafieldId(), currentUser.getUserId(), result.saveToDatabaseAsString());
 
                                 try {
                                     dbManager.addData(resultData);
@@ -337,34 +364,29 @@ public class CrepeAccessibilityService extends AccessibilityService {
         return DemonstrationUtil.preOrderTraverse(rootNodeInfo);
     }
 
-    // the below 3 functions are used to get around not being able to override onBind for accessibilityServices
-    @Override
-    public void onServiceConnected() {
-        sSharedInstance = this;
-        // for crepe foreground service
-        Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle("Crepe")
-                .setContentText("Crepe successfully running...")
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .build();
-
-        startForeground(NOTIFICATION_ID, notification);
-    }
-
-    @Override
-    public boolean onUnbind(Intent intent) {
-        sSharedInstance = null;
-        scheduler.shutdown();
-        return true;
-    }
-
-    public static CrepeAccessibilityService getsSharedInstance() {
-        return sSharedInstance;
-    }
-
     public static boolean isAccessibilityServiceEnabled(Context context, Class accessibilityService) {
         String prefString = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
         return prefString != null && prefString.contains(context.getPackageName() + "/" + accessibilityService.getName());
+    }
+
+
+    public void refreshAllCollectorStatus() {
+        // retrieve all stored collectors and datafields
+        collectors = dbManager.getActiveCollectors();
+        datafields = dbManager.getAllDatafields();
+
+        // refresh collector status based on current time
+        for (Collector collector : collectors) {
+            Boolean collectorUpdated = collector.autoSetCollectorStatus();
+            if (collectorUpdated) {
+                dbManager.updateCollectorStatus(collector);
+            }
+        }
+
+        if (collectors != null && !collectors.isEmpty()) {
+            firebaseCommunicationManager.updateAllCollectors();
+        }
+
     }
 
     private void createNotificationChannel() {
@@ -377,6 +399,18 @@ public class CrepeAccessibilityService extends AccessibilityService {
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
         }
+    }
+
+    private void updateHeartbeatTimestamp() {
+        // Update timestamp in local database
+        long currentTime = System.currentTimeMillis();
+        currentUser.setLastHeartBeat(currentTime);
+        dbManager.updateUser(currentUser);
+        // send the updated timestamp in the updated user info to firebase
+        HashMap<String, Object> userUpdates = new HashMap<>();
+        ArrayList<String> updatedUserCollectors = currentUser.getCollectorsForCurrentUser();
+        userUpdates.put("lastHeartBeat", currentTime);
+        firebaseCommunicationManager.updateUser(currentUser.getUserId(), userUpdates);
     }
 
 }

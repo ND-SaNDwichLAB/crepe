@@ -140,7 +140,7 @@ public class GoogleLoginActivity extends AppCompatActivity {
                                               // Get the user's Google name
                                               String googleName = account.getDisplayName();
 
-                                              if (authResult.getAdditionalUserInfo().isNewUser()) {
+//                                              if (authResult.getAdditionalUserInfo().isNewUser()) {
                                                   Log.d(TAG, "onSuccess: New User");
                                                   // only the admin of this application can retrieve user profile from the uid, so users' privacy is protected
                                                   createNewUser(user.getUid(), googleName, "");
@@ -150,10 +150,10 @@ public class GoogleLoginActivity extends AppCompatActivity {
                                                   startActivity(intent);
                                                   finish();
 
-                                              } else {
-                                                  Log.d(TAG, "onSuccess: Existing User");
-                                                  addExistingUserInfo(user.getUid());
-                                              }
+//                                              } else {
+//                                                  Log.d(TAG, "onSuccess: Existing User");
+//                                                  addExistingUserInfo(user.getUid());
+//                                              }
 
                                           }
                                       }

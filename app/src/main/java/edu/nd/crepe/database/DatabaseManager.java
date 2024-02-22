@@ -12,7 +12,6 @@ import androidx.annotation.Nullable;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,7 +45,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     public static final String COLUMN_TIMESTAMP = "timestamp";
     public static final String COLUMN_DATA_CONTENT = "dataContent";
     private static final String COLUMN_USER_TIME_CREATED = "userTimeCreated";
-    private static final String COLUMN_USER_LAST_TIME_EDITED = "userTimeLastEdited";
+    private static final String COLUMN_USER_LAST_HEARTBEAT = "userLastHeartbeat";
     private static final String COLUMN_USER_COLLECTORS = "userCollectors";
 
     private static final String DATAFIELD_TABLE = "datafield";
@@ -76,7 +75,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
             "            " + COLUMN_USER_NAME + " VARCHAR, " +
             "            " + COLUMN_USER_PHOTO_URL + " VARCHAR, " +
             "            " + COLUMN_USER_TIME_CREATED + " BIGINT, " +
-            "            " + COLUMN_USER_LAST_TIME_EDITED + " BIGINT, " +
+            "            " + COLUMN_USER_LAST_HEARTBEAT + " BIGINT, " +
             "            " + COLUMN_USER_COLLECTORS + " VARCHAR)";
 
     private final String createDatafieldTableStatement = "CREATE TABLE IF NOT EXISTS " + DATAFIELD_TABLE + " (" + COLUMN_DATAFIELD_ID + " VARCHAR PRIMARY KEY, " +
@@ -203,7 +202,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         cv.put(COLUMN_USER_NAME, user.getName());
         cv.put(COLUMN_USER_PHOTO_URL, user.getPhotoUrl());
         cv.put(COLUMN_USER_TIME_CREATED, user.getTimeCreated());
-        cv.put(COLUMN_USER_LAST_TIME_EDITED, user.getTimeLastEdited());
+        cv.put(COLUMN_USER_LAST_HEARTBEAT, user.getLastHeartBeat());
 
         // convert the collectors list to json string
         Gson gson = new Gson();
@@ -305,7 +304,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         cv.put(COLUMN_USER_PHOTO_URL, "");
         cv.put(COLUMN_USER_TIME_CREATED, timeCreated);
         // use the current time for last edited
-        cv.put(COLUMN_USER_LAST_TIME_EDITED, timeCreated);
+        cv.put(COLUMN_USER_LAST_HEARTBEAT, timeCreated);
         cv.put(COLUMN_USER_COLLECTORS, "");
 
         long insert = db.insert(USER_TABLE, null, cv);
@@ -748,6 +747,28 @@ public class DatabaseManager extends SQLiteOpenHelper {
             Log.i("database", "successfully added datafield with id " + addedDatafield.getDatafieldId());
         } else {
             Log.i("database", "add datafield error, current datafields: " + getAllDatafields().toString());
+        }
+    }
+
+    public void updateUser(User currentUser) {
+        ContentValues cv = new ContentValues();
+        cv.put(COLUMN_USER_ID, currentUser.getUserId());
+        cv.put(COLUMN_USER_NAME, currentUser.getName());
+        cv.put(COLUMN_USER_PHOTO_URL, currentUser.getPhotoUrl());
+        cv.put(COLUMN_USER_TIME_CREATED, currentUser.getTimeCreated());
+        cv.put(COLUMN_USER_LAST_HEARTBEAT, currentUser.getLastHeartBeat());
+
+        // convert the collectors list to json string
+        Gson gson = new Gson();
+        String collectorsJson = gson.toJson(currentUser.getCollectorsForCurrentUser());
+        cv.put(COLUMN_USER_COLLECTORS, collectorsJson);
+
+        int rows = db.update(USER_TABLE, cv, "userId = ?", new String[]{currentUser.getUserId()});
+
+        if (rows > 0) {
+            Log.i("database", "successfully updated " + rows + " users with id " + currentUser.getUserId());
+        } else {
+            Log.i("database", "update user error, current users: " + getAllUsers().toString());
         }
     }
 }
