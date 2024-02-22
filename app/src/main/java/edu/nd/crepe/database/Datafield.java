@@ -15,6 +15,10 @@ public class Datafield {
 
     private Boolean isDemonstrated;
 
+    public Datafield() {
+        // Default constructor
+    }
+
     public Datafield(String datafieldId, String collectorId, String graphQuery, String name, Boolean isDemonstrated) {
         this.datafieldId = datafieldId;
         this.collectorId = collectorId;
