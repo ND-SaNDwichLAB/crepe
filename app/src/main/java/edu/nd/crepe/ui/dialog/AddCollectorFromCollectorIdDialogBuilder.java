@@ -80,8 +80,8 @@ public class AddCollectorFromCollectorIdDialogBuilder {
             @Override
             public void onClick(View view) {
                 // show the keyboard when edittext is clicked
-                InputMethodManager imm = (InputMethodManager) c.getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+//                InputMethodManager imm = (InputMethodManager) c.getSystemService(Context.INPUT_METHOD_SERVICE);
+//                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
                 String collectorId = collectorIdEditText.getText().toString();
 
                 // handle edge cases

@@ -404,6 +404,9 @@ public class CrepeAccessibilityService extends AccessibilityService {
     private void updateHeartbeatTimestamp() {
         // Update timestamp in local database
         long currentTime = System.currentTimeMillis();
+        if (currentUser == null) {
+            return;
+        }
         currentUser.setLastHeartBeat(currentTime);
         dbManager.updateUser(currentUser);
         // send the updated timestamp in the updated user info to firebase

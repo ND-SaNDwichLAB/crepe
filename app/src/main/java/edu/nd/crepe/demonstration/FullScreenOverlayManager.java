@@ -489,9 +489,6 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
             Toast.makeText(context, "Datafield description cannot be blank!", Toast.LENGTH_SHORT).show();
         } else {
 
-            // manually dismiss the keyboard to avoid the keyboard issues after going back to the main activity
-            hideKeyboard((Activity) context);
-
             // deal with the Views
             if (dimView != null) {
                 windowManager.removeView(dimView);
@@ -518,17 +515,6 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
             }
 
 
-        }
-    }
-
-    public static void hideKeyboard(Activity activity) {
-        if (activity != null) {
-            InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-            View view = activity.getCurrentFocus();
-            if (view == null) {
-                view = new View(activity);
-            }
-            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
 

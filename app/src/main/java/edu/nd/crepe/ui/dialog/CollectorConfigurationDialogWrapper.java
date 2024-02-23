@@ -4,6 +4,7 @@ import static edu.nd.crepe.MainActivity.currentUser;
 
 import android.app.AlertDialog;
 
+import android.app.Dialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -11,9 +12,13 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -24,6 +29,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.WindowInsetsCompat;
 
 import edu.nd.crepe.servicemanager.CrepeAccessibilityService;
 import edu.nd.crepe.MainActivity;
@@ -80,7 +86,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
         this.context = context;
         this.dialog = dialog;
         this.collector = collector;
-        this.currentScreenState = "buildDialogFromConfig";
+        this.currentScreenState = "buildDialogFromConfigDescription";
         this.refreshCollectorListRunnable = refreshCollectorListRunnable;
         this.dbManager = DatabaseManager.getInstance(context);
         this.firebaseCommunicationManager = new FirebaseCommunicationManager(context);
@@ -428,90 +434,117 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
 
             case "buildDialogFromConfigDescription":
-                dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_create_collector_from_config_description, null);
-                dialog.setContentView(dialogMainView);
 
-                Button descriptionCreateBtn = (Button) dialogMainView.findViewById(R.id.descriptionCreateButton);
-                Button descriptionBckBtn = (Button) dialogMainView.findViewById(R.id.descriptionBackButton);
-                ImageButton descriptionCloseImg = (ImageButton) dialogMainView.findViewById(R.id.closeDescriptionImageButton);
-                EditText descriptionEditText = (EditText) dialogMainView.findViewById(R.id.descriptionEditText);
+                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
+                final View popupView = LayoutInflater.from(context).inflate(R.layout.dialog_add_collector_from_collector_id, null);
+                dialogBuilder.setView(popupView);
+                Dialog yoloDialog = dialogBuilder.create();
+                yoloDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                Button addCollectorCancelBtn = (Button) popupView.findViewById(R.id.addFromUrlCancelButton);
+                Button addCollectorNextBtn = (Button) popupView.findViewById(R.id.addFromUrlAddButton);
+                EditText collectorIdEditText = (EditText) popupView.findViewById(R.id.collectorIdEditText);
 
-                // show description in the collector if available
-                if (collector.getDescription() != null) {
-                    descriptionEditText.setText(collector.getDescription());
-                }
+                yoloDialog.show();
 
-                descriptionBckBtn.setOnClickListener(new View.OnClickListener() {
+                addCollectorCancelBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        // update currentScreen String value
-                        currentScreenState = "buildDialogFromConfigGraphQuery";
-                        // recursively call itself with new currentScreen String value
-                        updateCurrentView();
+                        yoloDialog.dismiss();
                     }
                 });
 
-                descriptionCreateBtn.setOnClickListener(new View.OnClickListener() {
+                addCollectorCancelBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        // write description into collector
-                        String descriptionText = descriptionEditText.getText().toString();
-
-                        if (descriptionText.equals("")) {
-                            // remind user to add description
-                            Context currentContext = context.getApplicationContext();
-                            Toast.makeText(currentContext, "Please add a description!", Toast.LENGTH_LONG).show();
-                            return;
-                        }
-
-                        collector.setDescription(descriptionText);
-
-
-                        // save locally
-                        dbManager.addOneCollector(collector);
-                        // save to Firebase
-                        firebaseCommunicationManager.putCollector(collector).addOnSuccessListener(suc -> {
-                            Log.i("Firebase", "Successfully added collector " + collector.getCollectorId() + " to firebase.");
-                        }).addOnFailureListener(er -> {
-                            Log.e("Firebase", "Failed to add collector " + collector.getCollectorId() + " to firebase.");
-                        });
-
-                        // store the data fields into database
-                        for (Datafield datafield : datafields) {
-                            dbManager.addOneDatafield(datafield);
-                            firebaseCommunicationManager.putDatafield(datafield).addOnCompleteListener(task -> {
-                                Log.i("Firebase", "Successfully added datafield " + datafield.getDatafieldId() + " to firebase.");
-                            }).addOnFailureListener(er -> {
-                                Log.e("Firebase", "Failed to add datafield " + datafield.getDatafieldId() + " to firebase. Error: " + er.getMessage());
-                            });
-                        }
-
-                        // Note: we do not need to update the field "userCollectors" under User (see /database/User.java),
-                        // be cause the user is the creator of this collector, and this piece of info is already stored in the Collector object (see /database/Collector.java) under the field "creatorUserId"
-
-                        // clear the current datafields list, since this collector creation process is done
-                        clearDatafields();
-
-                        // update all collectors' status, before refreshing the collector list
-                        // to make sure we only display active collectors.
-                        CrepeAccessibilityService.getsSharedInstance().refreshAllCollectorStatus();
-                        // a callback to refresh homepage every time
-                        refreshCollectorListRunnable.run();
-
-                        // update currentScreen String value, recursively call itself with new currentScreen String value
-                        currentScreenState = "buildDialogFromConfigSuccessMessage";
-                        updateCurrentView();
                     }
                 });
 
-                descriptionCloseImg.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        dialog.dismiss();
-                        // clear the current datafields list, since this collector creation process is terminated
-                        clearDatafields();
-                    }
-                });
+                // TODO Yuwen uncomment this
+//                dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_create_collector_from_config_description, null);
+//                dialog.setContentView(dialogMainView);
+//
+//                Button descriptionCreateBtn = (Button) dialogMainView.findViewById(R.id.descriptionCreateButton);
+//                Button descriptionBckBtn = (Button) dialogMainView.findViewById(R.id.descriptionBackButton);
+//                ImageButton descriptionCloseImg = (ImageButton) dialogMainView.findViewById(R.id.closeDescriptionImageButton);
+//                EditText descriptionEditText = (EditText) dialogMainView.findViewById(R.id.descriptionEditText);
+//
+//                // show description in the collector if available
+//                if (collector.getDescription() != null) {
+//                    descriptionEditText.setText(collector.getDescription());
+//                }
+//
+//
+//                descriptionBckBtn.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        // update currentScreen String value
+//                        currentScreenState = "buildDialogFromConfigGraphQuery";
+//                        // recursively call itself with new currentScreen String value
+//                        updateCurrentView();
+//                    }
+//                });
+//
+//                descriptionCreateBtn.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        // write description into collector
+//                        String descriptionText = descriptionEditText.getText().toString();
+//
+//                        if (descriptionText.equals("")) {
+//                            // remind user to add description
+//                            Context currentContext = context.getApplicationContext();
+//                            Toast.makeText(currentContext, "Please add a description!", Toast.LENGTH_LONG).show();
+//                            return;
+//                        }
+//
+//                        collector.setDescription(descriptionText);
+//
+//
+//                        // save locally
+//                        dbManager.addOneCollector(collector);
+//                        // save to Firebase
+//                        firebaseCommunicationManager.putCollector(collector).addOnSuccessListener(suc -> {
+//                            Log.i("Firebase", "Successfully added collector " + collector.getCollectorId() + " to firebase.");
+//                        }).addOnFailureListener(er -> {
+//                            Log.e("Firebase", "Failed to add collector " + collector.getCollectorId() + " to firebase.");
+//                        });
+//
+//                        // store the data fields into database
+//                        for (Datafield datafield : datafields) {
+//                            dbManager.addOneDatafield(datafield);
+//                            firebaseCommunicationManager.putDatafield(datafield).addOnCompleteListener(task -> {
+//                                Log.i("Firebase", "Successfully added datafield " + datafield.getDatafieldId() + " to firebase.");
+//                            }).addOnFailureListener(er -> {
+//                                Log.e("Firebase", "Failed to add datafield " + datafield.getDatafieldId() + " to firebase. Error: " + er.getMessage());
+//                            });
+//                        }
+//
+//                        // Note: we do not need to update the field "userCollectors" under User (see /database/User.java),
+//                        // be cause the user is the creator of this collector, and this piece of info is already stored in the Collector object (see /database/Collector.java) under the field "creatorUserId"
+//
+//                        // clear the current datafields list, since this collector creation process is done
+//                        clearDatafields();
+//
+//                        // update all collectors' status, before refreshing the collector list
+//                        // to make sure we only display active collectors.
+//                        CrepeAccessibilityService.getsSharedInstance().refreshAllCollectorStatus();
+//                        // a callback to refresh homepage every time
+//                        refreshCollectorListRunnable.run();
+//
+//                        // update currentScreen String value, recursively call itself with new currentScreen String value
+//                        currentScreenState = "buildDialogFromConfigSuccessMessage";
+//                        updateCurrentView();
+//                    }
+//                });
+//
+//                descriptionCloseImg.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        dialog.dismiss();
+//                        // clear the current datafields list, since this collector creation process is terminated
+//                        clearDatafields();
+//                    }
+//                });
 
                 break;
 

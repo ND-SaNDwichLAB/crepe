@@ -132,7 +132,7 @@ public class FirebaseCommunicationManager {
                         String userName = String.valueOf(dataSnapshot.child("name").getValue());
                         String photoUrl = String.valueOf(dataSnapshot.child("photoUrl").getValue());
                         long timeCreated = (long) dataSnapshot.child("timeCreated").getValue();
-                        long timeLastEdited = (long) dataSnapshot.child("timeLastEdited").getValue();
+                        long lastHeartBeat = (long) dataSnapshot.child("lastHeartBeat").getValue();
 
                         GenericTypeIndicator<List<String>> genericTypeIndicator = new GenericTypeIndicator<List<String>>() {
                         };
@@ -144,7 +144,7 @@ public class FirebaseCommunicationManager {
                             userCollectors = new ArrayList<>(userCollectorsList);
                         }
 
-                        User user = new User(userId, userName, photoUrl, timeCreated, timeLastEdited, userCollectors);
+                        User user = new User(userId, userName, photoUrl, timeCreated, lastHeartBeat, userCollectors);
                         // call firebase callback to update user
                         firebaseCallback.onResponse(user);
                     } else {
