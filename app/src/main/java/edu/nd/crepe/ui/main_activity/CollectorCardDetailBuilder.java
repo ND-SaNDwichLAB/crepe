@@ -5,16 +5,27 @@ import android.app.Dialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.media.Image;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.firebase.Firebase;
 
 import edu.nd.crepe.R;
 import edu.nd.crepe.database.Collector;
 import edu.nd.crepe.database.DatabaseManager;
 import edu.nd.crepe.database.Datafield;
+import edu.nd.crepe.database.User;
+import edu.nd.crepe.network.FirebaseCallback;
+import edu.nd.crepe.network.FirebaseCommunicationManager;
 
 import java.util.List;
 
@@ -24,6 +35,7 @@ public class CollectorCardDetailBuilder {
     private Collector collector;
     private Runnable refreshCollectorListRunnable;
     private DatabaseManager dbManager;
+    private FirebaseCommunicationManager fbManager;
 
     public CollectorCardDetailBuilder(Context c, Collector collector, Runnable refreshCollectorListRunnable) {
         this.c = c;
@@ -31,25 +43,66 @@ public class CollectorCardDetailBuilder {
         this.collector = collector;
         this.refreshCollectorListRunnable = refreshCollectorListRunnable;
         this.dbManager = DatabaseManager.getInstance(c);
+        this.fbManager = new FirebaseCommunicationManager(c);
     }
 
     public Dialog build() {
         final View popupView = LayoutInflater.from(c).inflate(R.layout.collector_detail, null);
+        if (popupView.getParent() != null) {
+            ((ViewGroup)popupView.getParent()).removeView(popupView); // <- remove the view from its parent
+        }
         dialogBuilder.setView(popupView);
         Dialog dialog = dialogBuilder.create();
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
-        List<Datafield> datafieldsForCollector = dbManager.getAllDatafieldsForCollector(collector);
-
-        TextView collectorDataField = (TextView) popupView.findViewById(R.id.collectorDetailDataField);
-        if (datafieldsForCollector.size() > 0) {
-            for (Datafield datafield : datafieldsForCollector) {
-                collectorDataField.append("\"" + datafield.getName() + "\"\n\n");
+        // populate information of the collector
+        TextView creatorTitleTextView = (TextView) popupView.findViewById(R.id.collectorCreatorTitle);
+        TextView creatorNameTextView = (TextView) popupView.findViewById(R.id.collectorCreatorName);
+        String creatorUserId = collector.getCreatorUserId();
+        List<User> allUsers = dbManager.getAllUsers();
+        // if it is created by current user, change the title to "Created By You" and show the participant count
+        // otherwise, show the creator's name
+        Boolean createdByCurrentUser = false;
+        for (User user : allUsers) {
+            if (user.getUserId().equals(creatorUserId)) {
+                creatorNameTextView.setText(user.getName() + " (you)");
+                createdByCurrentUser = true;
+                break;
             }
-        } else {
-            collectorDataField.setText("No datafields available");
+        }
+        if (!createdByCurrentUser) {
+            fbManager.retrieveUser(creatorUserId, new FirebaseCallback() {
+                @Override
+                public void onResponse (Object user) {
+                    User creator = (User) user;
+                    creatorNameTextView.setText(creator.getName());
+                }
+
+                @Override
+                public void onErrorResponse(Exception e) {
+                    Log.e("CollectorCardDetailBuilder", "Error retrieving creator user: " + e.getMessage());
+                    creatorTitleTextView.setVisibility(View.GONE);
+                    creatorNameTextView.setVisibility(View.GONE);
+                }
+            });
         }
 
-        Button collectorShareButton = (Button) popupView.findViewById(R.id.collectorShareButton);
+
+        // populate the datafield information
+        List<Datafield> datafieldsForCollector = dbManager.getAllDatafieldsForCollector(collector);
+        // TODO Yuwen - retrieve datafields from firebase
+//        List<Datafield> datafieldsForCollectorFromFirebase = fbManager.retrieveDatafieldsWithCollectorId(collector.getCollectorId());
+
+        TextView collectorDatafield = (TextView) popupView.findViewById(R.id.collectorDetailDatafield);
+        if (datafieldsForCollector.size() > 0) {
+            for (Datafield datafield : datafieldsForCollector) {
+                collectorDatafield.append("\"" + datafield.getName() + "\"\n\n");
+            }
+        } else {
+            collectorDatafield.setText("No datafields available");
+        }
+
+        ImageButton collectorShareButton = (ImageButton) popupView.findViewById(R.id.collectorShareButton);
         collectorShareButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -57,80 +110,45 @@ public class CollectorCardDetailBuilder {
                 ClipboardManager clipboard = (ClipboardManager) c.getSystemService(Context.CLIPBOARD_SERVICE);
                 ClipData clip = ClipData.newPlainText("share URL", collector.getCollectorId());
                 clipboard.setPrimaryClip(clip);
-                Toast.makeText(c,"collector ID copied to clipboard " + collector.getCollectorId(), Toast.LENGTH_LONG).show();
+                Toast.makeText(c,"collector ID copied. Share with your participants!", Toast.LENGTH_LONG).show();
+            }
+        });
+
+        ImageButton collectorEditButton = (ImageButton) popupView.findViewById(R.id.collectorEditButton);
+        collectorEditButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // dismiss current dialog
+                dialog.dismiss();
+
+                // TODO Meng: finish the logic for the edit button
             }
         });
 
 
         Button closeBtn = (Button) popupView.findViewById(R.id.collectorCloseButton);
-        Button deleteBtn = (Button) popupView.findViewById(R.id.collectorDeleteButton);
-//        Switch enableSwitch = (Switch) popupView.findViewById(R.id.collectorStatusSwitch);
-//        if(collector.getCollectorStatus().equals("disabled")){
-//            enableSwitch.setChecked(false);
-//            enableSwitch.setText("Disabled");
-//        } else{
-//            enableSwitch.setChecked(true);
-//        }
-
-        // TODO Yuwen figure out what to do here
-//        collectorDataField.setText(collector.getDataFieldsToString());
-
+        ImageButton deleteBtn = (ImageButton) popupView.findViewById(R.id.collectorDeleteButton);
 
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // new popup to confirm
-                AlertDialog.Builder builder = new AlertDialog.Builder(c);
-                builder.setTitle("Delete Collector");
-                builder.setMessage("Are you sure you want to delete this collector?");
 
-                builder.setPositiveButton("Yes", (dialogInterface, i) -> {
-                    Toast.makeText(c, "Collector (ID:" + collector.getCollectorId() + ") is deleted", Toast.LENGTH_LONG).show();
-                    // This will only set the status of collector to deleted,
-                    // it will still be present in database but won't be displayed
-                    collector.deleteCollector();
-                    dbManager.updateCollectorStatus(collector);
-                    // TODO Yuwen: maybe we should also delete all the datafields associated with this collector, also delete the collector from firebase?
+                // dismiss current dialog
+                dialog.dismiss();
 
-                    // update the home fragment list
-                    refreshCollectorListRunnable.run();
-                    dialog.dismiss();
-                });
-                builder.setNegativeButton("No", (dialogInterface, i) -> {
-                    dialogInterface.dismiss();
-                });
-
-                builder.show();
+                CollectorCardDeleteConfirmationBuilder deleteConfirmationBuilder = new CollectorCardDeleteConfirmationBuilder(c, collector, dialog, refreshCollectorListRunnable);
+                Dialog deleteConfirmationDialog = deleteConfirmationBuilder.build();
+                deleteConfirmationDialog.show();
             }
         });
 
         closeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                if(enableSwitch.isChecked()){
-//                    collector.activateCollector();
-//                    dbManager.updateCollectorStatus(collector);
-//                } else {
-//                    collector.disableCollector();
-//                    dbManager.updateCollectorStatus(collector);
-//                }
-//                // update the home fragment list
-//                refreshCollectorListRunnable.run();
                 dialog.dismiss();
             }
         });
 
-//        enableSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-//            @Override
-//            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-//                // Commented the following block out, don't feel it's necessary because the collector status is updated at the closeBtn onclicklistener
-//                if (!isChecked){
-//                    enableSwitch.setText("Disabled");
-//                } else {
-//                    enableSwitch.setText("Enabled");
-//                }
-//            }
-//        });
 
 
         return dialog;

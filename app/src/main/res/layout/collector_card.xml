@@ -5,14 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:id="@+id/collector_card"
-    >
+    android:background="@drawable/rounded_corner_transparent">
 
     <androidx.cardview.widget.CardView
         android:id="@+id/card_view"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-
+        app:cardBackgroundColor="@color/white"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
@@ -35,7 +35,9 @@
                 android:layout_marginEnd="16dp"
                 android:ellipsize="end"
                 android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                android:textColor="@color/custom_text_secondary"
                 android:textSize="22sp"
+                app:layout_constraintBottom_toBottomOf="@+id/collectorImg"
                 app:layout_constraintEnd_toStartOf="@+id/runningLightImageView"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toEndOf="@+id/collectorImg"
@@ -63,23 +65,25 @@
                 android:id="@+id/collectorDataDescription"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:maxWidth="250dp"
-                android:ellipsize="end"
-                android:layout_marginTop="6dp"
+                android:layout_marginTop="16dp"
                 android:layout_marginEnd="20dp"
+                android:ellipsize="end"
+                android:maxWidth="250dp"
                 android:text="collector data description"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:textColor="@color/custom_text_secondary"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="@+id/collectorTitle"
-                app:layout_constraintTop_toBottomOf="@+id/collectorTitle" />
+                app:layout_constraintStart_toStartOf="@+id/startTime"
+                app:layout_constraintTop_toBottomOf="@+id/collectorImg" />
 
             <TextView
                 android:id="@+id/startTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="20dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="8dp"
+                android:text="START:  MM DD, YYYY"
+                android:textColor="@color/custom_text_secondary"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/collectorDataDescription" />
 
@@ -90,6 +94,7 @@
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="8dp"
                 android:text="End:  MM DD, YYYY"
+                android:textColor="@color/custom_text_secondary"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/startTime" />
 
@@ -98,35 +103,37 @@
                 style="@style/Widget.AppCompat.Button.Borderless"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
                 android:layout_marginTop="16dp"
+                android:layout_marginEnd="4dp"
                 android:layout_marginBottom="20dp"
+                android:gravity="center_vertical|left"
                 android:text="Details"
-                android:textAlignment="viewEnd"
                 android:textColor="@color/ND_gold"
                 android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/endTime" />
 
             <TextView
                 android:id="@+id/collectorStatusText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
                 android:layout_marginEnd="20dp"
                 android:text="Running"
+                android:textColor="@color/custom_text_secondary"
+                app:layout_constraintBottom_toBottomOf="@+id/collectorTitle"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="@+id/collectorTitle" />
 
             <ImageView
                 android:id="@+id/runningLightImageView"
                 android:layout_width="12dp"
                 android:layout_height="12dp"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="4dp"
                 android:layout_marginEnd="4dp"
+                app:layout_constraintBottom_toBottomOf="@+id/collectorTitle"
                 app:layout_constraintEnd_toStartOf="@+id/collectorStatusText"
-                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/collectorTitle"
                 app:srcCompat="@drawable/ic_baseline_circle_24_green" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>

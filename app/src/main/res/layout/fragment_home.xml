@@ -13,14 +13,14 @@
         android:layout_marginTop="24dp"
         android:layout_marginEnd="24dp"
         android:layout_marginBottom="24dp"
-        android:textColor="@color/gray"
-        android:text="No active collectors"
+        android:textColor="@color/custom_text_secondary"
+        android:text="Tap the '+' to create or add a collector"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:gravity="center"
-        android:lineSpacingExtra="20dp"></TextView>
+        android:lineSpacingExtra="20dp" />
 
     <ScrollView
         android:layout_width="match_parent"

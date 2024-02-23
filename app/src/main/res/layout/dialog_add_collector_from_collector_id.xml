@@ -2,84 +2,82 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/popup_box"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:background="@drawable/rounded_corner_transparent"
+    android:backgroundTint="@color/white">
 
     <EditText
-        android:id="@+id/descriptionEditText"
+        android:id="@+id/collectorIdEditText"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="textMultiLine"
+        android:layout_height="54dp"
         android:layout_marginStart="24dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="24dp"
         android:background="@drawable/custom_input"
-        android:hint="Describe purpose for this collector"
+        android:hint="e.g. dG4pWS61QwydkhSFe"
         android:lineSpacingExtra="5dp"
         android:paddingStart="16dp"
-        android:paddingTop="12dp"
-        android:paddingBottom="12dp"
         android:singleLine="true"
-        android:textSize="16sp"
+        android:textColor="@color/custom_text_secondary"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/descriptionPopupTitle" />
+        app:layout_constraintTop_toBottomOf="@+id/urlPopupTitle" />
 
     <TextView
-        android:id="@+id/descriptionPopupTitle"
+        android:id="@+id/urlPopupTitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="24dp"
-        android:text="DESCRIPTION"
+        android:text="ADD NEW COLLECTOR"
+        android:textColor="@color/custom_text_secondary"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/descriptionCreateButton"
+        android:id="@+id/addFromUrlAddButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="24dp"
         android:layout_marginBottom="24dp"
         android:background="@android:color/transparent"
-        android:text="CREATE"
+        android:text="ADD"
         android:textColor="@color/ND_gold"
         android:textColorHint="@color/ND_gold"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/descriptionEditText" />
+        app:layout_constraintEnd_toEndOf="@+id/collectorIdEditText"
+        app:layout_constraintTop_toBottomOf="@+id/commentOnUrl" />
 
     <Button
-        android:id="@+id/descriptionBackButton"
+        android:id="@+id/addFromUrlCancelButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:background="@android:color/transparent"
-        android:text="BACK"
+        android:text="Cancel"
         android:textColor="@color/ND_blue"
         android:textColorHint="@color/ND_blue"
-        app:layout_constraintEnd_toStartOf="@+id/descriptionCreateButton"
-        app:layout_constraintTop_toBottomOf="@+id/descriptionEditText" />
-
-<!--    <TextView-->
-<!--        android:id="@+id/commentOnDescription"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginStart="36dp"-->
-<!--        android:layout_marginTop="8dp"-->
-<!--        android:layout_marginEnd="36dp"-->
-<!--        android:text="Describe the data and purpose for this collector"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintTop_toBottomOf="@+id/descriptionEditText" />-->
+        app:layout_constraintEnd_toStartOf="@+id/addFromUrlAddButton"
+        app:layout_constraintTop_toBottomOf="@+id/commentOnUrl" />
 
     <TextView
-        android:id="@+id/hintEnterDescription"
+        android:id="@+id/commentOnUrl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="36dp"
+        android:layout_marginTop="8dp"
+        android:text="The collector ID you received"
+        android:textColor="@color/custom_text_secondary"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/collectorIdEditText" />
+
+    <TextView
+        android:id="@+id/hintEnterUrl"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="36dp"
@@ -87,20 +85,9 @@
         android:background="@color/white"
         android:paddingStart="2dp"
         android:paddingEnd="2dp"
-        android:text="Description"
+        android:text="Enter Collector ID"
+        android:textColor="@color/custom_text_secondary"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/descriptionPopupTitle" />
-
-    <ImageButton
-        android:id="@+id/closeDescriptionImageButton"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginTop="14dp"
-        android:layout_marginEnd="14dp"
-        android:background="@null"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_baseline_close_24"  />
-
+        app:layout_constraintTop_toBottomOf="@+id/urlPopupTitle" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

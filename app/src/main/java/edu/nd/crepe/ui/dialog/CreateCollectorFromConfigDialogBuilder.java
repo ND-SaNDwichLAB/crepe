@@ -2,6 +2,8 @@ package edu.nd.crepe.ui.dialog;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 
 import edu.nd.crepe.database.Collector;
 import edu.nd.crepe.database.DatabaseManager;
@@ -21,20 +23,9 @@ public class CreateCollectorFromConfigDialogBuilder {
     }
 
     public CollectorConfigurationDialogWrapper buildDialogWrapperWithNewCollector() {
-        AlertDialog dialog = builder.create();
-
-        CollectorConfigurationDialogWrapper.initializeInstance(c, dialog,  new Collector(), refreshCollectorListRunnable);
+        CollectorConfigurationDialogWrapper.initializeInstance(c, new Collector(), refreshCollectorListRunnable);
         collectorConfigurationDialogWrapper = CollectorConfigurationDialogWrapper.getInstance();
         return collectorConfigurationDialogWrapper;
     }
-
-    public CollectorConfigurationDialogWrapper buildDialogWrapperWithExistingCollector(Collector collector) {
-        AlertDialog dialog = builder.create();
-
-        CollectorConfigurationDialogWrapper.initializeInstance(c, dialog, collector, refreshCollectorListRunnable);
-        collectorConfigurationDialogWrapper = CollectorConfigurationDialogWrapper.getInstance();
-        return collectorConfigurationDialogWrapper;
-    }
-
 
 }

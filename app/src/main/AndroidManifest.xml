@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="edu.nd.crepe">
+    xmlns:tools="http://schemas.android.com/tools">
     <!-- give permission to draw over other apps -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" /> <!-- used to get all packages information when creating collectors -->
@@ -57,7 +56,7 @@
         </activity>
 
         <service
-            android:name=".CrepeAccessibilityService"
+            android:name=".servicemanager.CrepeAccessibilityService"
             android:exported="true"
             android:enabled="true"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/rounded_corner">
+
+    <TextView
+        android:id="@+id/demoDescriptionTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:text="DESCRIBE DATAFIELD"
+        android:textColor="@color/custom_text_secondary"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/descriptionInfo"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="24dp"
+        android:text="Please provide a specific, detailed description of the data you want to collect."
+        android:textColor="@color/custom_text_secondary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/demoDescriptionTitle" />
+
+    <EditText
+        android:id="@+id/datafieldDescriptionEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="24dp"
+        android:background="@drawable/custom_input"
+        android:hint="E.g. first song in the recommended list"
+        android:inputType="textMultiLine"
+        android:lineSpacingExtra="5dp"
+        android:paddingStart="16dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
+        android:singleLine="true"
+        android:textColor="@color/custom_text_secondary"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/descriptionInfo" />
+
+
+    <TextView
+        android:id="@+id/hintEnterDescription"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="36dp"
+        android:layout_marginTop="16dp"
+        android:background="@color/white"
+        android:paddingStart="2dp"
+        android:paddingEnd="2dp"
+        android:text="Description"
+        android:textColor="@color/custom_text_secondary"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/descriptionInfo" />
+
+    <Button
+        android:id="@+id/confirmationBackButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="24dp"
+        android:background="@android:color/transparent"
+        android:text="BACK"
+        android:textColor="@color/ND_blue"
+        android:textColorHint="@color/ND_blue"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/confirmationAddButton"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/datafieldDescriptionEditText" />
+
+    <Button
+        android:id="@+id/confirmationAddButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="24dp"
+        android:background="@android:color/transparent"
+        android:text="ADD"
+        android:textColor="@color/ND_gold"
+        android:textColorHint="@color/ND_gold"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/confirmationBackButton"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

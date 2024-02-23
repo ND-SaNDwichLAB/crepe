@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:id="@+id/collector_card"
-    >
+    android:background="@drawable/rounded_corner">
 
 
     <TextView
@@ -54,29 +54,32 @@
         android:id="@+id/startTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Started:  MM DD, YYYY"
-        app:layout_constraintStart_toStartOf="@+id/collectorDataDescription"
         android:layout_marginTop="16dp"
+        android:text="Started:  MM DD, YYYY"
+        android:textColor="@color/custom_text_secondary"
+        app:layout_constraintStart_toStartOf="@+id/collectorDataDescription"
         app:layout_constraintTop_toBottomOf="@+id/collectorDataDescription" />
 
-        <TextView
-            android:id="@+id/endTime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Scheduled end:  MM DD, YYYY"
-            app:layout_constraintStart_toStartOf="@+id/collectorDataDescription"
-            app:layout_constraintTop_toBottomOf="@+id/startTime" />
+    <TextView
+        android:id="@+id/endTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Scheduled end:  MM DD, YYYY"
+        android:textColor="@color/custom_text_secondary"
+        app:layout_constraintStart_toStartOf="@+id/collectorDataDescription"
+        app:layout_constraintTop_toBottomOf="@+id/startTime" />
 
-        <TextView
-            android:id="@+id/statusText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_marginEnd="20dp"
-            android:text="Running"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+    <TextView
+        android:id="@+id/statusText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"
+        android:text="Running"
+        android:textColor="@color/custom_text_secondary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/statusImageView"

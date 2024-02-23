@@ -2,6 +2,8 @@ package edu.nd.crepe.database;
 
 import android.util.Log;
 
+import com.google.firebase.database.core.view.Change;
+
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -16,17 +18,21 @@ public class Collector implements Serializable {
     private String appPackage;
     private String description;
     private String mode;
-    private String targetServerIp;
+    private String targetServerIp;  // not really in use, should be null most of the time. intended to be used when researchers want to collect data to their own specific server
     private long collectorStartTime;
     private long collectorEndTime;
     private String collectorStatus;
 
     // some constants for collector status
     public static final String DELETED = "deleted";
-    public static final String DISABLED = "disabled";
     public static final String ACTIVE = "active";
     public static final String NOTYETSTARTED = "notYetStarted";
     public static final String EXPIRED = "expired";
+
+    // used in the collector comparison function (compareWith), we do not compare the collectorId, creatorId, appName, and appPackage, since we assume these are not changeable
+    public enum ChangeStatus {
+        NO_CHANGE, DESCRIPTION_CHANGE, COLLECTOR_START_TIME_CHANGE, COLLECTOR_END_TIME_CHANGE, COLLECTOR_STATUS_CHANGE
+    }
 
 
     public Collector(String collectorId, String creatorUserID, String appName, String appPackage, String description, String mode, String targetServerIp, String collectorStartTime, String collectorEndTime) {
@@ -74,22 +80,12 @@ public class Collector implements Serializable {
         this.collectorId = collectorId;
     }
 
-    public Collector() {}
+    public Collector() {
+    }
 
     @Override
     public String toString() {
-        return "Collector{" +
-                "collectorId='" + collectorId + '\'' +
-                ", creatorUserId='" + creatorUserId + '\'' +
-                ", appName='" + appName + '\'' +
-                ", appPackage='" + appPackage + '\'' +
-                ", description='" + description + '\'' +
-                ", collectorStartTime=" + collectorStartTime +
-                ", collectorEndTime=" + collectorEndTime +
-                ", mode='" + mode + '\'' +
-                ", targetServerIP='" + targetServerIp + '\'' +
-                ", collectorStatus='" + collectorStatus + '\'' +
-                '}';
+        return "Collector{" + "collectorId='" + collectorId + '\'' + ", creatorUserId='" + creatorUserId + '\'' + ", appName='" + appName + '\'' + ", appPackage='" + appPackage + '\'' + ", description='" + description + '\'' + ", collectorStartTime=" + collectorStartTime + ", collectorEndTime=" + collectorEndTime + ", mode='" + mode + '\'' + ", targetServerIP='" + targetServerIp + '\'' + ", collectorStatus='" + collectorStatus + '\'' + '}';
     }
 
     public String idToString() {
@@ -189,9 +185,9 @@ public class Collector implements Serializable {
     }
 
 
-    public String getCollectorStatus() {return collectorStatus;}
-
-
+    public String getCollectorStatus() {
+        return collectorStatus;
+    }
 
 
     // The collectorStatus will be set based on current time and the collector's start and end time
@@ -213,17 +209,20 @@ public class Collector implements Serializable {
         } else {
             newStatus = EXPIRED;
         }
-        this.collectorStatus = newStatus;
-
-        return collectorStatus != newStatus;
+        if (newStatus.equals(this.collectorStatus)) {
+            return false;
+        } else {
+            this.collectorStatus = newStatus;
+            return true;
+        }
     }
 
     // We also provide a set status function to manually set the status to an arbitrary value
     public void setCollectorStatus(String collectorStatus) {
-        if (collectorStatus == DELETED || collectorStatus == DISABLED || collectorStatus == NOTYETSTARTED || collectorStatus == ACTIVE || collectorStatus == EXPIRED) {
+        if (collectorStatus == DELETED || collectorStatus == NOTYETSTARTED || collectorStatus == ACTIVE || collectorStatus == EXPIRED) {
             this.collectorStatus = collectorStatus;
         } else {
-            Log.e("collector", "The input status is not valid (must be deleted, disabled, notYetStarted, active, or expired)");
+            Log.e("collector", "The input status is not valid (must be deleted, notYetStarted, active, or expired)");
         }
     }
 
@@ -231,16 +230,36 @@ public class Collector implements Serializable {
         this.collectorStatus = ACTIVE;
     }
 
-    public void deleteCollector() {
+    public void setStatusDeleted() {
         this.collectorStatus = DELETED;
     }
 
-    public void disableCollector() {
-        this.collectorStatus = DISABLED;
-    }
 
     public Boolean isDeleted() {
         return this.collectorStatus.equals(DELETED);
     }
 
+    public ChangeStatus compareWith(Collector updatedCollector) {
+        if (this.collectorId.equals(updatedCollector.getCollectorId())
+                && this.creatorUserId.equals(updatedCollector.getCreatorUserId())
+                && this.appName.equals(updatedCollector.getAppName())
+                && this.appPackage.equals(updatedCollector.getAppPackage())) {
+            if (!this.description.equals(updatedCollector.getDescription())) {
+                return ChangeStatus.DESCRIPTION_CHANGE;
+            }
+            if (this.collectorStartTime != updatedCollector.getCollectorStartTime()) {
+                return ChangeStatus.COLLECTOR_START_TIME_CHANGE;
+            }
+            if (this.collectorEndTime != updatedCollector.getCollectorEndTime()) {
+                return ChangeStatus.COLLECTOR_END_TIME_CHANGE;
+            }
+            if (!this.collectorStatus.equals(updatedCollector.getCollectorStatus())) {
+                return ChangeStatus.COLLECTOR_STATUS_CHANGE;
+            }
+            return ChangeStatus.NO_CHANGE;
+        } else {
+            Log.e("collector", "The input collector is not the same as the current collector");
+            return null;
+        }
+    }
 }

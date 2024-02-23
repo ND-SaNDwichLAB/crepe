@@ -2,6 +2,7 @@ package edu.nd.crepe;
 
 import android.app.Application;
 
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.FirebaseDatabase;
 
 public class Crepe extends Application {
@@ -9,7 +10,8 @@ public class Crepe extends Application {
     public void onCreate() {
         super.onCreate();
 
-        // Enable Firebase persistence only once and before any usage of the database instance
+        FirebaseApp.initializeApp(this);
+        // Enable Firebase offline persistence only once and before any usage of the database instance
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);
     }
 }

@@ -8,25 +8,27 @@ public class User {
     private String name;
     private String photoUrl;
     private long timeCreated;
-    private long timeLastEdited;
+    private long lastHeartBeat; // sent every interval to keep track of when the user was last active, in CrepeAccessibilityService
 
-    private ArrayList<String> userCollectors = new ArrayList<>();   // store collectorId for the user
+    // store collectorId for the collectors that the user is participating in
+    // NOTE: this does not contain collectors that the user has created. That information is stored in the collectors themselves under the field "creatorUserId"
+    private ArrayList<String> userCollectors = new ArrayList<>();
 
-    public User(String userId, String name, String photoUrl, long timeCreated, long timeLastEdited) {
+    public User(String userId, String name, String photoUrl, long timeCreated, long lastHeartBeat) {
         this.userId = userId;
         this.name = name;
         this.photoUrl = photoUrl;
         this.timeCreated = timeCreated;
-        this.timeLastEdited = timeLastEdited;
+        this.lastHeartBeat = lastHeartBeat;
         this.userCollectors = new ArrayList<>();
     }
 
-    public User(String userId, String name, String photoUrl, long timeCreated, long timeLastEdited, ArrayList<String> userCollectors) {
+    public User(String userId, String name, String photoUrl, long timeCreated, long lastHeartBeat, ArrayList<String> userCollectors) {
         this.userId = userId;
         this.name = name;
         this.photoUrl = photoUrl;
         this.timeCreated = timeCreated;
-        this.timeLastEdited = timeLastEdited;
+        this.lastHeartBeat = lastHeartBeat;
         this.userCollectors.addAll(userCollectors);
     }
 
@@ -60,12 +62,12 @@ public class User {
 
     // no setter for time created because it should not be modified after creation
 
-    public long getTimeLastEdited() {
-        return timeLastEdited;
+    public long getLastHeartBeat() {
+        return lastHeartBeat;
     }
 
-    public void setTimeLastEdited(long timeLastEdited) {
-        this.timeLastEdited = timeLastEdited;
+    public void setLastHeartBeat(long lastHeartBeat) {
+        this.lastHeartBeat = lastHeartBeat;
     }
 
     public ArrayList<String> getCollectorsForCurrentUser() {
@@ -80,8 +82,8 @@ public class User {
         this.userCollectors.add(collectorId);
     }
 
-    public void removeCollectorForCurrentUser(Collector collectorId) {
-        this.userCollectors.remove(collectorId);
+    public void removeCollectorForCurrentUser(Collector collector) {
+        this.userCollectors.remove(collector);
     }
 
     public void removeAllCollectorsForCurrentUser() {

@@ -6,7 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
-import android.widget.Toast;
+
 import androidx.annotation.Nullable;
 
 import com.google.gson.Gson;
@@ -45,7 +45,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     public static final String COLUMN_TIMESTAMP = "timestamp";
     public static final String COLUMN_DATA_CONTENT = "dataContent";
     private static final String COLUMN_USER_TIME_CREATED = "userTimeCreated";
-    private static final String COLUMN_USER_LAST_TIME_EDITED = "userTimeLastEdited";
+    private static final String COLUMN_USER_LAST_HEARTBEAT = "userLastHeartbeat";
     private static final String COLUMN_USER_COLLECTORS = "userCollectors";
 
     private static final String DATAFIELD_TABLE = "datafield";
@@ -75,10 +75,10 @@ public class DatabaseManager extends SQLiteOpenHelper {
             "            " + COLUMN_USER_NAME + " VARCHAR, " +
             "            " + COLUMN_USER_PHOTO_URL + " VARCHAR, " +
             "            " + COLUMN_USER_TIME_CREATED + " BIGINT, " +
-            "            " + COLUMN_USER_LAST_TIME_EDITED + " BIGINT, " +
+            "            " + COLUMN_USER_LAST_HEARTBEAT + " BIGINT, " +
             "            " + COLUMN_USER_COLLECTORS + " VARCHAR)";
 
-    private final String createDataFieldTableStatement = "CREATE TABLE IF NOT EXISTS " + DATAFIELD_TABLE + " (" + COLUMN_DATAFIELD_ID + " VARCHAR PRIMARY KEY, " +
+    private final String createDatafieldTableStatement = "CREATE TABLE IF NOT EXISTS " + DATAFIELD_TABLE + " (" + COLUMN_DATAFIELD_ID + " VARCHAR PRIMARY KEY, " +
             "            " + COLUMN_COLLECTOR_ID + " VARCHAR, " +
             "            " + COLUMN_GRAPH_QUERY + " VARCHAR, " +
             "            " + COLUMN_DATAFIELD_NAME + " VARCHAR, " +
@@ -108,7 +108,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         // generate new tables
         sqLiteDatabase.execSQL(createCollectorTableStatement);
         sqLiteDatabase.execSQL(createUserTableStatement);
-        sqLiteDatabase.execSQL(createDataFieldTableStatement);
+        sqLiteDatabase.execSQL(createDatafieldTableStatement);
         sqLiteDatabase.execSQL(createDataTableStatement);
         System.out.println("create table success");
     }
@@ -127,7 +127,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return instance;
     }
 
-
+    // a method to add one collector to the local database
     public Boolean addOneCollector(Collector collector) {
         ContentValues cv = new ContentValues();
         cv.put(COLUMN_COLLECTOR_ID, collector.getCollectorId());
@@ -147,9 +147,10 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return true;
     }
 
+    // Warning: this method will directly remove the collector from the database. The preferred method: use updateCollectorStatus to set the collector status to "deleted",
+    // so that we still have a copy of the collector in the database.
     public void removeCollectorById(String collectorId) {
-        // the result equals to the number of entries being deleted
-
+        // the result equals to the number of entries being deleted in the database
         int result = db.delete(COLLECTOR_TABLE, "collectorId = " + collectorId, null);
         if(result > 0) {
             Log.i("database", "successfully deleted " + result + " collectors with id " + collectorId);
@@ -201,7 +202,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         cv.put(COLUMN_USER_NAME, user.getName());
         cv.put(COLUMN_USER_PHOTO_URL, user.getPhotoUrl());
         cv.put(COLUMN_USER_TIME_CREATED, user.getTimeCreated());
-        cv.put(COLUMN_USER_LAST_TIME_EDITED, user.getTimeLastEdited());
+        cv.put(COLUMN_USER_LAST_HEARTBEAT, user.getLastHeartBeat());
 
         // convert the collectors list to json string
         Gson gson = new Gson();
@@ -244,10 +245,42 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return false;
     }
 
+    public Boolean removeCollectorForUser(Collector collector, User user) {
+        Gson gson = new Gson();
+
+        // First, you retrieve the current list of collectors for the user from the database.
+        Cursor cursor = db.query(USER_TABLE, new String[]{COLUMN_USER_COLLECTORS}, "userId = ?",
+                new String[]{user.getUserId()}, null, null, null);
+
+        if (cursor != null && cursor.moveToFirst()) {
+            String collectorsJson = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USER_COLLECTORS));
+            ArrayList<String> collectors = gson.fromJson(collectorsJson, new TypeToken<ArrayList<String>>() {}.getType());
+
+            // Remove the collector's ID from the user's list of collectors.
+            collectors.remove(collector.getCollectorId());
+
+            // Convert the updated list back to a JSON string.
+            collectorsJson = gson.toJson(collectors);
+
+            // Create the new ContentValues object for the update.
+            ContentValues cv = new ContentValues();
+            cv.put(COLUMN_USER_COLLECTORS, collectorsJson);
+
+            // Perform the update.
+            int rows = db.update(USER_TABLE, cv, "userId = ?", new String[]{user.getUserId()});
+
+            cursor.close();
+
+            return (rows > 0);
+        }
+
+        return false;
+    }
+
 
     public Boolean checkIfUserExists(String userId) {
 
-        String query = "SELECT * FROM " + USER_TABLE + " WHERE " + COLUMN_USER_ID + " = \"" + userId + "\"";
+        String query = "SELECT * FROM " + USER_TABLE + " WHERE " + COLUMN_USER_ID + " = \'" + userId + "\'";
         Cursor cursor = db.rawQuery(query, null);
         int cursorCount = cursor.getCount();
 
@@ -271,7 +304,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         cv.put(COLUMN_USER_PHOTO_URL, "");
         cv.put(COLUMN_USER_TIME_CREATED, timeCreated);
         // use the current time for last edited
-        cv.put(COLUMN_USER_LAST_TIME_EDITED, timeCreated);
+        cv.put(COLUMN_USER_LAST_HEARTBEAT, timeCreated);
         cv.put(COLUMN_USER_COLLECTORS, "");
 
         long insert = db.insert(USER_TABLE, null, cv);
@@ -279,7 +312,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     }
 
     public String getUsername(String userId) {
-        String query = "SELECT " + COLUMN_USER_NAME + " from " + USER_TABLE + " where " + COLUMN_USER_ID + "= \"" + userId + "\"";
+        String query = "SELECT " + COLUMN_USER_NAME + " from " + USER_TABLE + " where " + COLUMN_USER_ID + "= \'" + userId + "\'";
 
         Cursor cursor = db.rawQuery(query, null);
         cursor.moveToFirst();
@@ -288,6 +321,22 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
         cursor.close();
         return username;
+    }
+
+    public ArrayList<String> getUserCollectors(String userId) {
+        String query = "SELECT " + COLUMN_USER_COLLECTORS + " from " + USER_TABLE + " where " + COLUMN_USER_ID + "= \'" + userId + "\'";
+
+        Cursor cursor = db.rawQuery(query, null);
+        cursor.moveToFirst();
+        int collectorsColumnIndex = cursor.getColumnIndex(COLUMN_USER_COLLECTORS);
+        String collectorsJson = cursor.getString(collectorsColumnIndex);
+
+        Gson gson = new Gson();
+        Type type = new TypeToken<ArrayList<String>>(){}.getType();
+        ArrayList<String> collectorIds = gson.fromJson(collectorsJson, type);
+
+        cursor.close();
+        return collectorIds;
     }
 
     // Use this function to update the database when the user set their name in the left panel
@@ -348,7 +397,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         ContentValues cv = new ContentValues();
 
         cv.put(COLUMN_DATA_ID, data.getDataId());
-        cv.put(COLUMN_DATAFIELD_ID, data.getDataFieldId());
+        cv.put(COLUMN_DATAFIELD_ID, data.getDatafieldId());
         cv.put(COLUMN_USER_ID, data.getUserId());
         cv.put(COLUMN_TIMESTAMP, data.getTimestamp());
         cv.put(COLUMN_DATA_CONTENT, data.getDataContent());
@@ -400,12 +449,12 @@ public class DatabaseManager extends SQLiteOpenHelper {
             do {
 
                 String dataId = cursor.getString(0);
-                String dataFieldId = cursor.getString(1);
+                String datafieldId = cursor.getString(1);
                 String userId = cursor.getString(2);
                 Long timestamp = cursor.getLong(3);
                 String dataContent = cursor.getString(4);
 
-                Data receivedData = new Data(dataId, dataFieldId, userId, timestamp, dataContent);
+                Data receivedData = new Data(dataId, datafieldId, userId, timestamp, dataContent);
 
                 dataList.add(receivedData);
 
@@ -421,7 +470,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     public List<Data> getDataForCollector(Collector collector) {
         List<Data> dataList = new ArrayList<>();
-        String getAllDataQuery = "SELECT * FROM " + DATA_TABLE + " WHERE " + COLUMN_COLLECTOR_ID + " = \"" + collector.getCollectorId() + "\";";
+        String getAllDataQuery = "SELECT * FROM " + DATA_TABLE + " WHERE " + COLUMN_COLLECTOR_ID + " = \'" + collector.getCollectorId() + "\';";
 
         Cursor cursor = db.rawQuery(getAllDataQuery, null);
 
@@ -429,12 +478,12 @@ public class DatabaseManager extends SQLiteOpenHelper {
             do {
 
                 String dataId = cursor.getString(0);
-                String dataFieldId = cursor.getString(1);
+                String datafieldId = cursor.getString(1);
                 String userId = cursor.getString(2);
                 Long timestamp = cursor.getLong(3);
                 String dataContent = cursor.getString(4);
 
-                Data receivedData = new Data(dataId, dataFieldId, userId, timestamp, dataContent);
+                Data receivedData = new Data(dataId, datafieldId, userId, timestamp, dataContent);
 
                 dataList.add(receivedData);
 
@@ -449,16 +498,16 @@ public class DatabaseManager extends SQLiteOpenHelper {
     }
 
 
-    public Boolean addOneDatafield(Datafield dataField) {
+    public Boolean addOneDatafield(Datafield datafield) {
         ContentValues cv = new ContentValues();
 
-        cv.put(COLUMN_DATAFIELD_ID, dataField.getDataFieldId());
-        cv.put(COLUMN_COLLECTOR_ID, dataField.getCollectorId());
-        cv.put(COLUMN_GRAPH_QUERY, dataField.getGraphQuery());
-        cv.put(COLUMN_DATAFIELD_NAME, dataField.getName());
-        cv.put(COLUMN_DATAFIELD_TIME_CREATED, dataField.getTimeCreated());
-        cv.put(COLUMN_DATAFIELD_TIME_LAST_EDITED, dataField.getTimelastEdited());
-        cv.put(COLUMN_DATAFIELD_IS_DEMONSTRATED, dataField.getDemonstrated());
+        cv.put(COLUMN_DATAFIELD_ID, datafield.getDatafieldId());
+        cv.put(COLUMN_COLLECTOR_ID, datafield.getCollectorId());
+        cv.put(COLUMN_GRAPH_QUERY, datafield.getGraphQuery());
+        cv.put(COLUMN_DATAFIELD_NAME, datafield.getName());
+        cv.put(COLUMN_DATAFIELD_TIME_CREATED, datafield.getTimeCreated());
+        cv.put(COLUMN_DATAFIELD_TIME_LAST_EDITED, datafield.getTimelastEdited());
+        cv.put(COLUMN_DATAFIELD_IS_DEMONSTRATED, datafield.getDemonstrated());
 
         // catch exception of the insert operation
         try {
@@ -474,17 +523,19 @@ public class DatabaseManager extends SQLiteOpenHelper {
     public void removeDatafieldById(String datafieldId) {
         // the result equals to the number of entries being deleted
 
-        int result = db.delete(DATAFIELD_TABLE, "datafieldId = " + datafieldId, null);
+        int result = db.delete(DATAFIELD_TABLE, "datafieldId = \"" + datafieldId + "\"", null);
         if(result > 0) {
             Log.i("database", "successfully deleted " + result + " datafield with id " + datafieldId);
         } else {
             Log.i("database", "remove datafield by id error, current datafields: " + getAllDatafields().toString());
         }
     }
+
+    // NOTE: This method is not used in the app, because once a collector is set as "deleted", the datafields will not be queried anymore.
     public void removeDatafieldByCollectorId(String collectorId) {
         // the result equals to the number of entries being deleted
 
-        int result = db.delete(DATAFIELD_TABLE, "collectorId = " + collectorId, null);
+        int result = db.delete(DATAFIELD_TABLE, "collectorId = \'" + collectorId + "\'", null);
         if(result > 0) {
             Log.i("database", "successfully deleted " + result + " datafield from collector " + collectorId);
         } else {
@@ -501,14 +552,14 @@ public class DatabaseManager extends SQLiteOpenHelper {
         if(cursor.moveToFirst()) {
             do {
 
-                String dataFieldId = cursor.getString(0);
+                String datafieldId = cursor.getString(0);
                 String collectorId = cursor.getString(1);
                 String graphQuery = cursor.getString(2);
                 String name = cursor.getString(3);
                 Long timeCreated = cursor.getLong(4);
                 Long timeLastEdited = cursor.getLong(5);
                 Boolean isDemonstrated = cursor.getInt(6) != 0;
-                Datafield receivedDatafield = new Datafield(dataFieldId, collectorId, graphQuery, name, timeCreated, timeLastEdited, isDemonstrated);
+                Datafield receivedDatafield = new Datafield(datafieldId, collectorId, graphQuery, name, timeCreated, timeLastEdited, isDemonstrated);
 
                 dataList.add(receivedDatafield);
 
@@ -524,21 +575,21 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     public List<Datafield> getAllDatafieldsForCollector(Collector collector) {
         List<Datafield> dataList = new ArrayList<>();
-        String getAllDataQuery = "SELECT * FROM " + DATAFIELD_TABLE + " WHERE " + COLUMN_COLLECTOR_ID + " = \"" + collector.getCollectorId() + "\";";
+        String getAllDataQuery = "SELECT * FROM " + DATAFIELD_TABLE + " WHERE " + COLUMN_COLLECTOR_ID + " = \'" + collector.getCollectorId() + "\';";
 
         Cursor cursor = db.rawQuery(getAllDataQuery, null);
 
         if(cursor.moveToFirst()) {
             do {
 
-                String dataFieldId = cursor.getString(0);
+                String datafieldId = cursor.getString(0);
                 String collectorId = cursor.getString(1);
                 String graphQuery = cursor.getString(2);
                 String name = cursor.getString(3);
                 Long timeCreated = cursor.getLong(4);
                 Long timeLastEdited = cursor.getLong(5);
                 Boolean isDemonstrated = cursor.getInt(6) != 0;
-                Datafield receivedDatafield = new Datafield(dataFieldId, collectorId, graphQuery, name, timeCreated, timeLastEdited, isDemonstrated);
+                Datafield receivedDatafield = new Datafield(datafieldId, collectorId, graphQuery, name, timeCreated, timeLastEdited, isDemonstrated);
 
                 dataList.add(receivedDatafield);
 
@@ -562,7 +613,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     public List<Collector> getActiveCollectors() {
         List<Collector> collectorList = new ArrayList<>();
-        String getActiveCollectorsQuery = "SELECT * FROM " + COLLECTOR_TABLE + " WHERE " + COLUMN_COLLECTOR_STATUS + " = \"active\";";
+        String getActiveCollectorsQuery = "SELECT * FROM " + COLLECTOR_TABLE + " WHERE " + COLUMN_COLLECTOR_STATUS + " = \'active\';";
 
         Cursor cursor = db.rawQuery(getActiveCollectorsQuery, null);
 
@@ -595,7 +646,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     // query to get one collector by id
     public Collector getCollectorById(String collectorId) {
-        String getCollectorByIdQuery = "SELECT * FROM " + COLLECTOR_TABLE + " WHERE " + COLUMN_COLLECTOR_ID + " = \"" + collectorId + "\";";
+        String getCollectorByIdQuery = "SELECT * FROM " + COLLECTOR_TABLE + " WHERE " + COLUMN_COLLECTOR_ID + " = \'" + collectorId + "\';";
 
         Cursor cursor = db.rawQuery(getCollectorByIdQuery, null);
 
@@ -624,9 +675,100 @@ public class DatabaseManager extends SQLiteOpenHelper {
         }
     }
 
+    // check if the user is already participating in the collector
+    public boolean userParticipationStatusForCollector(String userId, String collectorId) {
+        ArrayList<String> userCollectors = getUserCollectors(userId);
+        if (userCollectors.contains(collectorId)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public void closeDatabase() {
         if (db != null) {
             db.close();
+        }
+    }
+
+    public void updateCollector(Collector updatedCollector) {
+        ContentValues cv = new ContentValues();
+        cv.put(COLUMN_COLLECTOR_ID, updatedCollector.getCollectorId());
+        cv.put(COLUMN_CREATOR_USER_ID, updatedCollector.getCreatorUserId());
+        cv.put(COLUMN_DESCRIPTION, updatedCollector.getDescription());
+        cv.put(COLUMN_APP_NAME, updatedCollector.getAppName());
+        cv.put(COLUMN_APP_PACKAGE, updatedCollector.getAppPackage());
+        cv.put(COLUMN_MODE, updatedCollector.getMode());
+        cv.put(COLUMN_TARGET_SERVER_IP, updatedCollector.getTargetServerIp());
+        cv.put(COLUMN_COLLECTOR_START_TIME, updatedCollector.getCollectorStartTime());
+        cv.put(COLUMN_COLLECTOR_END_TIME, updatedCollector.getCollectorEndTime());
+        cv.put(COLUMN_COLLECTOR_STATUS, updatedCollector.getCollectorStatus());
+
+        int rows = db.update(COLLECTOR_TABLE, cv, "collectorId = ?", new String[]{updatedCollector.getCollectorId()});
+
+        if (rows > 0) {
+            Log.i("database", "successfully updated " + rows + " collectors with id " + updatedCollector.getCollectorId());
+        } else {
+            Log.i("database", "update collector error, current collectors: " + getAllCollectors().toString());
+        }
+    }
+
+    public void updateDatafield(Datafield updatedDatafield) {
+        ContentValues cv = new ContentValues();
+        cv.put(COLUMN_DATAFIELD_ID, updatedDatafield.getDatafieldId());
+        cv.put(COLUMN_COLLECTOR_ID, updatedDatafield.getCollectorId());
+        cv.put(COLUMN_GRAPH_QUERY, updatedDatafield.getGraphQuery());
+        cv.put(COLUMN_DATAFIELD_NAME, updatedDatafield.getName());
+        cv.put(COLUMN_DATAFIELD_TIME_CREATED, updatedDatafield.getTimeCreated());
+        cv.put(COLUMN_DATAFIELD_TIME_LAST_EDITED, updatedDatafield.getTimelastEdited());
+        cv.put(COLUMN_DATAFIELD_IS_DEMONSTRATED, updatedDatafield.getDemonstrated());
+
+        int rows = db.update(DATAFIELD_TABLE, cv, "datafieldId = ?", new String[]{updatedDatafield.getDatafieldId()});
+
+        if (rows > 0) {
+            Log.i("database", "successfully updated " + rows + " datafields with id " + updatedDatafield.getDatafieldId());
+        } else {
+            Log.i("database", "update datafield error, current datafields: " + getAllDatafields().toString());
+        }
+    }
+
+    public void addDatafield(Datafield addedDatafield) {
+        ContentValues cv = new ContentValues();
+        cv.put(COLUMN_DATAFIELD_ID, addedDatafield.getDatafieldId());
+        cv.put(COLUMN_COLLECTOR_ID, addedDatafield.getCollectorId());
+        cv.put(COLUMN_GRAPH_QUERY, addedDatafield.getGraphQuery());
+        cv.put(COLUMN_DATAFIELD_NAME, addedDatafield.getName());
+        cv.put(COLUMN_DATAFIELD_TIME_CREATED, addedDatafield.getTimeCreated());
+        cv.put(COLUMN_DATAFIELD_TIME_LAST_EDITED, addedDatafield.getTimelastEdited());
+        cv.put(COLUMN_DATAFIELD_IS_DEMONSTRATED, addedDatafield.getDemonstrated());
+
+        long result = db.insert(DATAFIELD_TABLE, null, cv);
+        if (result != -1) {
+            Log.i("database", "successfully added datafield with id " + addedDatafield.getDatafieldId());
+        } else {
+            Log.i("database", "add datafield error, current datafields: " + getAllDatafields().toString());
+        }
+    }
+
+    public void updateUser(User currentUser) {
+        ContentValues cv = new ContentValues();
+        cv.put(COLUMN_USER_ID, currentUser.getUserId());
+        cv.put(COLUMN_USER_NAME, currentUser.getName());
+        cv.put(COLUMN_USER_PHOTO_URL, currentUser.getPhotoUrl());
+        cv.put(COLUMN_USER_TIME_CREATED, currentUser.getTimeCreated());
+        cv.put(COLUMN_USER_LAST_HEARTBEAT, currentUser.getLastHeartBeat());
+
+        // convert the collectors list to json string
+        Gson gson = new Gson();
+        String collectorsJson = gson.toJson(currentUser.getCollectorsForCurrentUser());
+        cv.put(COLUMN_USER_COLLECTORS, collectorsJson);
+
+        int rows = db.update(USER_TABLE, cv, "userId = ?", new String[]{currentUser.getUserId()});
+
+        if (rows > 0) {
+            Log.i("database", "successfully updated " + rows + " users with id " + currentUser.getUserId());
+        } else {
+            Log.i("database", "update user error, current users: " + getAllUsers().toString());
         }
     }
 }

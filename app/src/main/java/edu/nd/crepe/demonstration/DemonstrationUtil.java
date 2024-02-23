@@ -13,10 +13,7 @@ import android.view.accessibility.AccessibilityNodeInfo;
 //import edu.nd.crepe.graphquery.ontology.OntologyQuery;
 import androidx.annotation.RequiresApi;
 
-import edu.nd.crepe.CrepeAccessibilityService;
-import edu.nd.crepe.database.Data;
-import edu.nd.crepe.database.DatabaseManager;
-import edu.nd.crepe.database.Datafield;
+import edu.nd.crepe.servicemanager.CrepeAccessibilityService;
 import edu.nd.crepe.graphquery.Const;
 import edu.nd.crepe.graphquery.automation.AutomatorUtil;
 import edu.nd.crepe.graphquery.model.Node;
@@ -27,7 +24,6 @@ import edu.nd.crepe.graphquery.ontology.SugiliteEntity;
 import edu.nd.crepe.graphquery.ontology.SugiliteRelation;
 import edu.nd.crepe.graphquery.ontology.SugiliteTriple;
 import edu.nd.crepe.graphquery.ontology.UISnapshot;
-import edu.nd.crepe.network.FirebaseCommunicationManager;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -40,6 +36,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author toby
@@ -94,9 +91,7 @@ public class DemonstrationUtil {
      * @return
      */
     public static List<AccessibilityNodeInfo> findMatchingNodeFromClick(List<AccessibilityNodeInfo> allNodeList, float clickX, float clickY){
-        if(allNodeList != null && allNodeList.size() == 0){
-            return null;
-        }
+        if(allNodeList != null && allNodeList.size() == 0 || allNodeList == null) return null;
 
         List<AccessibilityNodeInfo> matchingList = new ArrayList<>();
 
@@ -232,6 +227,10 @@ public class DemonstrationUtil {
             Log.e("generate queries", "Cannot find the tapped entity!");
         }
 
+        Log.i("defaultQueries", defaultQueries.stream()
+                .map(pair -> pair.first.toString())
+                .collect(Collectors.joining("\n")));
+
         // test if the queries can retrieve components on screen
         if(defaultQueries != null) {
             for(Pair<OntologyQuery, Double> query : defaultQueries) {
@@ -300,7 +299,7 @@ public class DemonstrationUtil {
         SugiliteEntity<Node> foundEntity = targetEntity;
 
 
-        //generate sub queries -- add the packageName and className constraints to q
+        // generate sub queries -- add the packageName and className constraints to q
 
         if (! relationsToExclude.contains(SugiliteRelation.HAS_PACKAGE_NAME)) {
             if (getValueIfOnlyOneObject(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_PACKAGE_NAME)) != null) {

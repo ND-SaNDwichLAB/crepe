@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/rounded_corner">
+
+    <TextView
+        android:id="@+id/collectorDetailTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:text="DELETE COLLECTOR"
+        android:textColor="@color/custom_text_secondary"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/collectorDetailContent"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="32dp"
+        android:text="Are you sure you want to delete this collector?"
+        android:textColor="@color/custom_text_secondary"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/collectorDetailTitle" />
+
+    <Button
+        android:id="@+id/confirmDeleteButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:background="@android:color/transparent"
+        android:text="DELETE"
+        android:textColor="@color/custom_text_secondary"
+        android:textColorHint="@color/gray"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/confirmCancelButton"
+        app:layout_constraintTop_toTopOf="@+id/confirmCancelButton" />
+
+    <Button
+        android:id="@+id/confirmCancelButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@android:color/transparent"
+        android:text="CANCEL"
+        android:textColor="@color/ND_blue"
+        android:textColorHint="@color/ND_blue"
+        app:layout_constraintEnd_toEndOf="@+id/collectorDetailContent"
+        app:layout_constraintTop_toBottomOf="@+id/collectorDetailContent" />
+
+
+    <!--    <Switch-->
+    <!--        android:id="@+id/collectorStatusSwitch"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:layout_marginTop="24dp"-->
+    <!--        android:layout_marginEnd="24dp"-->
+    <!--        android:checked="true"-->
+    <!--        android:text="Enabled"-->
+    <!--        android:shadowColor="@color/ND_blue"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:layout_constraintTop_toTopOf="parent" />-->
+
+</androidx.constraintlayout.widget.ConstraintLayout>

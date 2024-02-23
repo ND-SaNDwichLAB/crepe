@@ -22,6 +22,7 @@ import edu.nd.crepe.database.User;
 import edu.nd.crepe.network.DataLoadingEvent;
 import edu.nd.crepe.network.FirebaseCallback;
 import edu.nd.crepe.network.FirebaseCommunicationManager;
+
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -39,12 +40,8 @@ import com.google.firebase.auth.GoogleAuthProvider;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class GoogleLoginActivity extends AppCompatActivity {
@@ -60,9 +57,6 @@ public class GoogleLoginActivity extends AppCompatActivity {
 
     private DatabaseManager dbManager;
     private FirebaseCommunicationManager fbManager;
-
-    private static String[] randomNameList = {"Dolphin", "Tiger", "Lion", "Leopard", "Cheetah", "Bear", "Polar bear", "Turtle", "Tortoise", "Rabbit", "Porcupine", "Hare"};
-
 
     public void onStart() {
         super.onStart();
@@ -127,15 +121,15 @@ public class GoogleLoginActivity extends AppCompatActivity {
                     }
                 } else {
                     Log.d(TAG, "onActivityResult: Google Sign In Failed");
+                    Log.d(TAG, "onActivityResult: Result Code: " + resultCode);
                 }
             }
         });
     }
 
 
-
-    private void firebaseAuthWithGoogle(GoogleSignInAccount account){
-        AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(),null);
+    private void firebaseAuthWithGoogle(GoogleSignInAccount account) {
+        AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
         mAuth.signInWithCredential(credential)
                 .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
                                           @Override
@@ -143,24 +137,24 @@ public class GoogleLoginActivity extends AppCompatActivity {
                                               Log.d(TAG, "firebaseAuthWithGoogle: Sign In Successful");
                                               FirebaseUser user = mAuth.getCurrentUser();
 
-                                              // generate a random name for the user
-                                              Random rand = new Random();
-                                              String randomName = "Anonymous " + randomNameList[rand.nextInt(randomNameList.length)];
+                                              // Get the user's Google name
+                                              String googleName = account.getDisplayName();
 
                                               if (authResult.getAdditionalUserInfo().isNewUser()) {
                                                   Log.d(TAG, "onSuccess: New User");
                                                   // only the admin of this application can retrieve user profile from the uid, so users' privacy is protected
-                                                  createNewUser(user.getUid(), randomName, "");
+                                                  createNewUser(user.getUid(), googleName, "");
+
+                                                  // move to main activity
+                                                  Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                                                  startActivity(intent);
+                                                  finish();
+
                                               } else {
                                                   Log.d(TAG, "onSuccess: Existing User");
                                                   addExistingUserInfo(user.getUid());
                                               }
 
-                                              // move to main activity
-                                              Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-//                                              intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                                              startActivity(intent);
-                                              finish();
                                           }
                                       }
                 )
@@ -193,11 +187,24 @@ public class GoogleLoginActivity extends AppCompatActivity {
                 // save this user to local database
                 dbManager.addOneUser(user);
 
-                ArrayList<String> collectorIds = user.getCollectorsForCurrentUser();
+                // move to main activity
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                startActivity(intent);
+                finish();
 
-                addAssociatedCollectors(collectorIds);
+                // get the collectors associated with this user
+                // contains 2 types of associations:
+                // 1. collectors that this user is participating in
+                // simply by using the field under User "userCollectors" (see /database/User.java)
+                ArrayList<String> collectorIds = user.getCollectorsForCurrentUser();
+                addParticipatingCollectors(collectorIds);
+
+                // 2. collectors that this user has created
+                // we need to index all collectors on the "creatorUserId" field, find the ones that contain current user's userId (see /database/Collector.java)
+                addCreatedCollectors(user.getUserId());
 
             }
+
             public void onErrorResponse(Exception e) {
                 try {
                     Log.e("Firebase collector", e.getMessage());
@@ -213,13 +220,13 @@ public class GoogleLoginActivity extends AppCompatActivity {
         StringBuilder hexString = new StringBuilder(2 * hash.length);
         for (int i = 0; i < hash.length; i++) {
             String hex = Integer.toHexString(0xff & hash[i]);
-            if(hex.length() == 1) hexString.append('0');
+            if (hex.length() == 1) hexString.append('0');
             hexString.append(hex);
         }
         return hexString.toString();
     }
 
-    private void addAssociatedCollectors(ArrayList<String> collectorIds) {
+    private void addParticipatingCollectors(ArrayList<String> collectorIds) {
         AtomicInteger collectorCounter = new AtomicInteger(0);
         int totalCollectorCount = collectorIds.size();
 
@@ -230,11 +237,13 @@ public class GoogleLoginActivity extends AppCompatActivity {
                     dbManager.addOneCollector(collector);
                     addDatafieldForCollector(collector);
 
+                    // broadcast an event to HomeFragment to update the collector list
                     if (collectorCounter.incrementAndGet() == totalCollectorCount) {
                         // After fetching all data, post this event and HomeFragment will update the collector list on home page
                         EventBus.getDefault().post(new DataLoadingEvent(true));
                     }
                 }
+
                 public void onErrorResponse(Exception e) {
                     try {
                         Log.e("Firebase collector", e.getMessage());
@@ -246,13 +255,39 @@ public class GoogleLoginActivity extends AppCompatActivity {
         }
     }
 
+    private void addCreatedCollectors(String userId) {
+        fbManager.retrieveCollectorWithCreatorUserId(userId, new FirebaseCallback<ArrayList<Collector>>() {
+            public void onResponse(ArrayList<Collector> collectors) {
+
+                for (Collector collector : collectors) {
+                    dbManager.addOneCollector(collector);
+                    addDatafieldForCollector(collector);
+                }
+
+                // After fetching all data, post this event and HomeFragment will update the collector list on home page
+                EventBus.getDefault().post(new DataLoadingEvent(true));
+
+            }
+
+            public void onErrorResponse(Exception e) {
+                try {
+                    Log.i("Firebase collector", "No collector is found that is created by current user.\n" + e.getMessage());
+                } catch (NullPointerException ex) {
+                    Log.e("Firebase collector", "No collector is found that is created by current user. An unknown error occurred.");
+                }
+            }
+        });
+    }
+
+    // from firebase, retrieve all datafields associated with this collector and save to local
     private void addDatafieldForCollector(Collector collector) {
-        fbManager.retrieveDatafieldswithCollectorId(collector.getCollectorId(), new FirebaseCallback<ArrayList<Datafield>>() {
+        fbManager.retrieveDatafieldsWithCollectorId(collector.getCollectorId(), new FirebaseCallback<ArrayList<Datafield>>() {
             public void onResponse(ArrayList<Datafield> datafields) {
                 for (Datafield datafield : datafields) {
                     dbManager.addOneDatafield(datafield);
                 }
             }
+
             public void onErrorResponse(Exception e) {
                 try {
                     Log.e("Firebase datafield", e.getMessage());

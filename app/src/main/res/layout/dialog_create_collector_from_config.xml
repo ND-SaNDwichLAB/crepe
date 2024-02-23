@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/add_config"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
-
+    android:layout_height="wrap_content"
+    android:background="@drawable/rounded_corner">
 
     <TextView
         android:id="@+id/configPopupTitle"
@@ -14,6 +13,7 @@
         android:layout_marginStart="24dp"
         android:layout_marginTop="24dp"
         android:text="ADD A NEW COLLECTOR"
+        android:textColor="@color/custom_text_secondary"
         android:textSize="19sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -21,7 +21,7 @@
     <EditText
         android:id="@+id/startDateText"
         android:layout_width="0dp"
-        android:layout_height="40dp"
+        android:layout_height="48dp"
         android:layout_marginStart="24dp"
         android:layout_marginTop="35dp"
         android:layout_marginEnd="24dp"
@@ -32,6 +32,7 @@
         android:paddingTop="12dp"
         android:paddingBottom="8dp"
         android:singleLine="true"
+        android:textColor="@color/custom_text_primary"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -40,7 +41,7 @@
     <EditText
         android:id="@+id/endDateText"
         android:layout_width="0dp"
-        android:layout_height="40dp"
+        android:layout_height="48dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="24dp"
         android:background="@drawable/custom_input"
@@ -50,6 +51,7 @@
         android:paddingTop="12dp"
         android:paddingBottom="8dp"
         android:singleLine="true"
+        android:textColor="@color/custom_text_primary"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/startDateText"
@@ -58,14 +60,14 @@
     <Spinner
         android:id="@+id/appSpinner"
         android:layout_width="0dp"
-        android:layout_height="40dp"
+        android:layout_height="48dp"
         android:layout_marginStart="24dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="24dp"
         android:autofillHints="Uber"
         android:background="@drawable/custom_spinner"
         android:dropDownVerticalOffset="40dp"
-        android:lineSpacingExtra="5dp"
+        android:paddingStart="5dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/endDateText" />
@@ -104,10 +106,9 @@
         android:layout_marginStart="36dp"
         android:layout_marginTop="8dp"
         android:text="The APP to collect data from"
+        android:textColor="@color/custom_text_secondary"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/appSpinner" />
-
-
 
     <TextView
         android:id="@+id/startDateHintText"
@@ -119,6 +120,7 @@
         android:paddingStart="2dp"
         android:paddingEnd="2dp"
         android:text="Start Date"
+        android:textColor="@color/custom_text_secondary"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/configPopupTitle" />
 
@@ -132,6 +134,7 @@
         android:paddingStart="2dp"
         android:paddingEnd="2dp"
         android:text="End Date"
+        android:textColor="@color/custom_text_secondary"
         app:layout_constraintStart_toStartOf="@+id/endDateText"
         app:layout_constraintTop_toBottomOf="@+id/startDateText" />
 
@@ -163,11 +166,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="36dp"
+        android:layout_marginTop="14dp"
         android:background="@color/white"
         android:paddingStart="2dp"
         android:paddingEnd="2dp"
-        android:layout_marginTop="14dp"
         android:text="App"
+        android:textColor="@color/custom_text_secondary"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/endDateText" />
 

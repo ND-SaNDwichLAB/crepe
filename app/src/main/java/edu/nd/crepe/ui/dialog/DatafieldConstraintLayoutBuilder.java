@@ -15,23 +15,23 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import edu.nd.crepe.R;
 import edu.nd.crepe.database.Collector;
 
-public class DataFieldConstraintLayoutBuilder {
+public class DatafieldConstraintLayoutBuilder {
     private Context c;
-    private TextView dataFieldTextView;
+    private TextView datafieldTextView;
     private ImageButton removeButton;
-    private ConstraintLayout dataFieldConstraintLayout;
+    private ConstraintLayout datafieldConstraintLayout;
     private Collector collector;
 
 
-    public DataFieldConstraintLayoutBuilder(Context c){
+    public DatafieldConstraintLayoutBuilder(Context c){
         this.c = c;
     }
 
     public ConstraintLayout build(String text, ViewGroup rootView, Collector collector){
-        dataFieldConstraintLayout = (ConstraintLayout) LayoutInflater.from(c).inflate(R.layout.datafield_card, rootView, false);
-        dataFieldTextView = (TextView) dataFieldConstraintLayout.findViewById(R.id.datafieldTextView);
-        dataFieldTextView.setText(text);
-        removeButton = (ImageButton) dataFieldConstraintLayout.findViewById(R.id.removeDataFieldButton);
+        datafieldConstraintLayout = (ConstraintLayout) LayoutInflater.from(c).inflate(R.layout.datafield_card, rootView, false);
+        datafieldTextView = (TextView) datafieldConstraintLayout.findViewById(R.id.datafieldTextView);
+        datafieldTextView.setText(text);
+        removeButton = (ImageButton) datafieldConstraintLayout.findViewById(R.id.removeDatafieldButton);
         this.collector = collector;
         MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(c);
 
@@ -47,11 +47,11 @@ public class DataFieldConstraintLayoutBuilder {
                     public void onClick(DialogInterface dialog, int which) {
                         // remove this graph query
                         // TODO Yuwen figure out what to do here
-//                        if (!collector.removeDataField(text)){
+//                        if (!collector.removeDatafield(text)){
 //                            Toast.makeText(c, "This data field is already removed!", Toast.LENGTH_LONG).show();
 //                        };
                         // refresh the list
-                        rootView.removeView(dataFieldConstraintLayout);
+                        rootView.removeView(datafieldConstraintLayout);
                     }
                 });
                 alertDialogBuilder.setNegativeButton(c.getResources().getString(R.string.negative),new DialogInterface.OnClickListener(){
@@ -63,7 +63,7 @@ public class DataFieldConstraintLayoutBuilder {
             }
         });
 
-        return dataFieldConstraintLayout;
+        return datafieldConstraintLayout;
 
     }
 

@@ -16,7 +16,7 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import edu.nd.crepe.R;
-import edu.nd.crepe.ui.dialog.Callback;
+import edu.nd.crepe.ui.dialog.GraphQueryCallback;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.Calendar;
@@ -29,7 +29,7 @@ public class WidgetService extends Service {
     Context c = WidgetService.this;
     FullScreenOverlayManager fullScreenOverlayManager;
 
-    Callback callback;
+    GraphQueryCallback graphQueryCallback;
 
     public IBinder onBind(Intent intent){
         return null;
@@ -43,7 +43,7 @@ public class WidgetService extends Service {
             LAYOUT_FLAG = WindowManager.LayoutParams.TYPE_PHONE;
         }
 
-        this.callback = (Callback) intent.getSerializableExtra("graphQueryCallback");
+        this.graphQueryCallback = (GraphQueryCallback) intent.getSerializableExtra("graphQueryCallback");
 
         // inflate widget layout
         mFloatingView = LayoutInflater.from(c).inflate(R.layout.demonstration_float_widget, null);
@@ -65,7 +65,7 @@ public class WidgetService extends Service {
         width = windowManager.getDefaultDisplay().getHeight();
 
         // initialize fullScreenOverlayManager
-        fullScreenOverlayManager = new FullScreenOverlayManager(c, windowManager, getResources().getDisplayMetrics(), this.callback);
+        fullScreenOverlayManager = new FullScreenOverlayManager(c, windowManager, getResources().getDisplayMetrics(), this.graphQueryCallback);
 
 
         // initialize callback for the data received from the demonstration
@@ -225,8 +225,8 @@ public class WidgetService extends Service {
         }
     }
 
-    public void registerCallback(Callback dataCallback) {
-        callback = dataCallback;
+    public void registerCallback(GraphQueryCallback dataGraphQueryCallback) {
+        graphQueryCallback = dataGraphQueryCallback;
     }
 
 

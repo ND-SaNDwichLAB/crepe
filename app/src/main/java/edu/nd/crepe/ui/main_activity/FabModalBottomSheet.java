@@ -4,7 +4,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
@@ -13,37 +12,35 @@ import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
-import edu.nd.crepe.MainActivity;
+import edu.nd.crepe.servicemanager.AccessibilityPermissionManager;
+import edu.nd.crepe.servicemanager.CrepeAccessibilityService;
 import edu.nd.crepe.R;
-import edu.nd.crepe.graphquery.Const;
+import edu.nd.crepe.servicemanager.DisplayPermissionManager;
 import edu.nd.crepe.ui.dialog.CollectorConfigurationDialogWrapper;
 import edu.nd.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilder;
-import edu.nd.crepe.ui.dialog.CreateCollectorFromURLDialogBuilder;
+import edu.nd.crepe.ui.dialog.AddCollectorFromCollectorIdDialogBuilder;
 
 public class FabModalBottomSheet extends BottomSheetDialogFragment {
 
     public static final String TAG = "ModalBottomSheet";
     private HomeFragment currentFragment;
-    private CreateCollectorFromURLDialogBuilder createCollectorFromURLDialogBuilder;
+    private AddCollectorFromCollectorIdDialogBuilder addCollectorFromCollectorIdDialogBuilder;
     private CreateCollectorFromConfigDialogBuilder createCollectorFromConfigDialogBuilder;
     private CollectorConfigurationDialogWrapper wrapper;
 
     private Context context;
 
-    public FabModalBottomSheet(CreateCollectorFromURLDialogBuilder createCollectorFromURLDialogBuilder, CreateCollectorFromConfigDialogBuilder createCollectorFromConfigDialogBuilder) {
-        this.createCollectorFromURLDialogBuilder = createCollectorFromURLDialogBuilder;
+    public FabModalBottomSheet(AddCollectorFromCollectorIdDialogBuilder addCollectorFromCollectorIdDialogBuilder, CreateCollectorFromConfigDialogBuilder createCollectorFromConfigDialogBuilder) {
+        this.addCollectorFromCollectorIdDialogBuilder = addCollectorFromCollectorIdDialogBuilder;
         this.createCollectorFromConfigDialogBuilder = createCollectorFromConfigDialogBuilder;
     }
 
@@ -61,12 +58,19 @@ public class FabModalBottomSheet extends BottomSheetDialogFragment {
         addExistingBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // collapse the fab icon
+                // check accessibility service permission
+                if (!CrepeAccessibilityService.isAccessibilityServiceEnabled(getContext(), CrepeAccessibilityService.class)) {
+                    Dialog enableAccessibilityServiceDialog = AccessibilityPermissionManager.getInstance().getEnableAccessibilityServiceDialog(getContext());
+                    enableAccessibilityServiceDialog.show();
+                } else {
+                    // first, collapse the fab icon
+                    dismiss();
+                    // then, bring up the dialog to add a collector from collector id
+                    Dialog dialog = addCollectorFromCollectorIdDialogBuilder.build();
+                    dialog.show();
+                }
 
-                dismiss();
 
-                Dialog dialog = createCollectorFromURLDialogBuilder.build();
-                dialog.show();
             }
         });
 
@@ -74,26 +78,19 @@ public class FabModalBottomSheet extends BottomSheetDialogFragment {
             @Override
             public void onClick(View view) {
 
-                dismiss();
-
-                wrapper = createCollectorFromConfigDialogBuilder.buildDialogWrapperWithNewCollector();
-                if (!Settings.canDrawOverlays(context)){
-
-                    MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context);
-                    builder.setTitle("Service Permission Required")
-                            .setMessage("Please enable the permission to display over other app for proper function.")
-                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + context.getPackageName()));
-                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                    context.startActivity(intent);
-                                }
-                            }).show();
-                }
-                else {
+                // check display over other apps permission
+                if (!Settings.canDrawOverlays(context)) {
+                    Dialog enableDisplayServiceDialog = DisplayPermissionManager.getInstance().getEnableDisplayServiceDialog(context);
+                    enableDisplayServiceDialog.show();
+                } else {
+                    // first, collapse the fab icon
+                    dismiss();
+                    // then, bring up the dialog to create a new collector
+                    wrapper = createCollectorFromConfigDialogBuilder.buildDialogWrapperWithNewCollector();
                     wrapper.show();
                 }
+
+
             }
         });
 
@@ -111,7 +108,7 @@ public class FabModalBottomSheet extends BottomSheetDialogFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setStyle(BottomSheetDialogFragment.STYLE_NORMAL, R.style.CustomBottomSheetDialogTheme );
+        setStyle(BottomSheetDialogFragment.STYLE_NORMAL, R.style.CustomBottomSheetDialogTheme);
     }
 
     @Override

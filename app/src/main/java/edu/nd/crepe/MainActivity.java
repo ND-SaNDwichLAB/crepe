@@ -1,9 +1,9 @@
 package edu.nd.crepe;
 
-import android.app.Dialog;
-import android.content.DialogInterface;
+import android.app.AlertDialog;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -13,22 +13,19 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
-import edu.nd.crepe.database.Collector;
 import edu.nd.crepe.database.DatabaseManager;
 import edu.nd.crepe.database.User;
-import edu.nd.crepe.graphquery.Const;
-import edu.nd.crepe.network.DataLoadingEvent;
+import edu.nd.crepe.network.ApiCallManager;
 import edu.nd.crepe.network.FirebaseCommunicationManager;
 import edu.nd.crepe.ui.dialog.CollectorConfigurationDialogWrapper;
 import edu.nd.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilder;
-import edu.nd.crepe.ui.dialog.CreateCollectorFromURLDialogBuilder;
+import edu.nd.crepe.ui.dialog.AddCollectorFromCollectorIdDialogBuilder;
 import edu.nd.crepe.ui.main_activity.FabModalBottomSheet;
 import edu.nd.crepe.ui.main_activity.HomeFragment;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.annotation.NonNull;
@@ -50,22 +47,20 @@ import edu.nd.crepe.databinding.ActivityMainBinding;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.gson.Gson;
+import com.google.firebase.database.FirebaseDatabase;
 
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.InputStream;
 import java.net.URL;
+
+import javax.json.JsonObject;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -83,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
 
     private DatabaseManager dbManager;
 
-    private CreateCollectorFromURLDialogBuilder createCollectorFromURLDialogBuilder;
+    private AddCollectorFromCollectorIdDialogBuilder addCollectorFromCollectorIdDialogBuilder;
     private CreateCollectorFromConfigDialogBuilder createCollectorFromConfigDialogBuilder;
 
     private FirebaseAuth mAuth;
@@ -93,18 +88,21 @@ public class MainActivity extends AppCompatActivity {
     private TextView userNameTextView;
 
     // the unique id extracted from the user's device, used as their user id
-    public static User currentUser = null;
-    public static Drawable userImage = null;
+    public static User currentUser;
+    public static Drawable userImage;
+    private AlertDialog.Builder dialogBuilder;
 
     private CollectorConfigurationDialogWrapper wrapper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        FirebaseApp.initializeApp(this);
         super.onCreate(savedInstanceState);
 
         dbManager = DatabaseManager.getInstance(this.getApplicationContext());
+
         FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(this);
+
+
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -129,23 +127,19 @@ public class MainActivity extends AppCompatActivity {
         userNameTextView = navHeader.findViewById(R.id.userName);
 //        ImageView userImageView = navHeader.findViewById(R.id.userImage);
 
-
         if (currentUser == null) {
-            // get the current stored user from the database, saved in the log in process with google authentication
+            // get the current stored user from the database, which we fetched with google authentication (see authentication/GoogleSignInActivity.java)
             if (dbManager.getAllUsers().size() == 1) {
                 currentUser = dbManager.getAllUsers().get(0);
                 userNameTextView.setText(currentUser.getName());
-                Toast.makeText(this, "Welcome, " + currentUser.getName() + "! 🥳🎉🎊", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Welcome, " + currentUser.getName().split(" ")[0] + "! 🥳🎉🎊", Toast.LENGTH_SHORT).show();   // only take the first name
             } else if (dbManager.getAllUsers().size() > 1) {
                 Log.e("Main Activity", "Error: more than 1 user found in database.");
             } else {
                 Log.i("Main Activity", "no user found in database.");
             }
         }
-
-        // if it is existing user and the profile is not pulled from firebase yet, register for the event and update when it is ready
-        EventBus.getDefault().register(this);
-
+        // code block for user image, maybe of use in the future
 //        if (userImage == null) {
 //            new Thread(new Runnable() {
 //                @Override
@@ -169,7 +163,17 @@ public class MainActivity extends AppCompatActivity {
 //
 //        }
 
-
+        // set up the notification channel
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "crepeChannel";
+            String description = "Crepe app notification channel, delivering information regarding collector status changes.";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel("CREPE_NOTIFICATION_CHANNEL", name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
 
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -186,7 +190,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        this.createCollectorFromURLDialogBuilder = new CreateCollectorFromURLDialogBuilder(this, refreshCollectorListRunnable);
+        this.addCollectorFromCollectorIdDialogBuilder = new AddCollectorFromCollectorIdDialogBuilder(this, refreshCollectorListRunnable);
         this.createCollectorFromConfigDialogBuilder = new CreateCollectorFromConfigDialogBuilder(this, refreshCollectorListRunnable);
 
         // get the fab icon
@@ -196,8 +200,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                FabModalBottomSheet modalBottomSheet = new FabModalBottomSheet(createCollectorFromURLDialogBuilder, createCollectorFromConfigDialogBuilder);
+                FabModalBottomSheet modalBottomSheet = new FabModalBottomSheet(addCollectorFromCollectorIdDialogBuilder, createCollectorFromConfigDialogBuilder);
                 modalBottomSheet.show(getSupportFragmentManager(), FabModalBottomSheet.TAG);
+
 
             }
         });
@@ -213,16 +218,18 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
 
-        SharedPreferences sharedPreferences = getSharedPreferences("prefs", MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-
-        if (!CollectorConfigurationDialogWrapper.isNull()) {
-            wrapper = CollectorConfigurationDialogWrapper.getInstance();
-            editor.putString("screen_state", wrapper.getCurrentScreenState());
-            editor.putString("collector", new Gson().toJson(wrapper.getCurrentCollector()));
-
-            editor.apply();
-        }
+        // we used this to store the state of the activity before moving to demonstrate in another app
+        // however, we probably do not need this if do not call finish() inside the activity to kill it
+//        SharedPreferences sharedPreferences = getSharedPreferences("prefs", MODE_PRIVATE);
+//        SharedPreferences.Editor editor = sharedPreferences.edit();
+//
+//        if (!CollectorConfigurationDialogWrapper.isNull()) {
+//            wrapper = CollectorConfigurationDialogWrapper.getInstance();
+//            editor.putString("screen_state", wrapper.getCurrentScreenState());
+//            editor.putString("collector", new Gson().toJson(wrapper.getCurrentCollector()));
+//
+//            editor.apply();
+//        }
     }
 
     // a function to switch between fragments using the navDrawer
@@ -257,17 +264,18 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        SharedPreferences sharedPreferences = getSharedPreferences("prefs", MODE_PRIVATE);
+//        SharedPreferences sharedPreferences = getSharedPreferences("prefs", MODE_PRIVATE);
+//
+//        String screenState = sharedPreferences.getString("screen_state", null);
+//        String collectorJson = sharedPreferences.getString("collector", null);
+//
+//        if (screenState != null && !screenState.equals("dismissed") && collectorJson != null) {
+//            Collector prevCollector = new Gson().fromJson(collectorJson, Collector.class);
+//            wrapper = createCollectorFromConfigDialogBuilder.buildDialogWrapperWithExistingCollector(prevCollector);
+//            wrapper.setCurrentScreenState(screenState);
 
-        String screenState = sharedPreferences.getString("screen_state", null);
-        String collectorJson = sharedPreferences.getString("collector", null);
-
-        if (screenState != null && !screenState.equals("dismissed") && collectorJson != null) {
-            Collector prevCollector = new Gson().fromJson(collectorJson, Collector.class);
-            wrapper = createCollectorFromConfigDialogBuilder.buildDialogWrapperWithExistingCollector(prevCollector);
-            wrapper.setCurrentScreenState(screenState);
-            wrapper.show();
-        }
+//            wrapper.show();
+//        }
     }
 
 
@@ -360,14 +368,4 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onDataLoadingEvent(DataLoadingEvent event){
-        if(event.isCompleted()){
-            if (dbManager.getAllUsers().size() == 1) {
-                currentUser = dbManager.getAllUsers().get(0);
-                userNameTextView.setText(currentUser.getName());
-                Toast.makeText(this, "Welcome, " + currentUser.getName() + "! 🥳🎉🎊", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
 }

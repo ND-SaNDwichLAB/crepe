@@ -3,7 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:background="@drawable/rounded_corner_transparent"
+    android:backgroundTint="@color/white">
 
     <TextView
         android:id="@+id/collectorInfoTitle"
@@ -12,6 +14,7 @@
         android:layout_marginStart="24dp"
         android:layout_marginTop="24dp"
         android:text="COLLECTOR INFO FROM URL"
+        android:textColor="@color/custom_text_secondary"
         android:textSize="20sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -23,6 +26,7 @@
         android:layout_marginStart="48dp"
         android:layout_marginTop="36dp"
         android:text="Created By"
+        android:textColor="@color/custom_text_secondary"
         android:textSize="20sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/collectorInfoTitle" />
@@ -33,7 +37,8 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="48dp"
         android:layout_marginTop="12dp"
-        android:text="Yuwen Lu, University of Notre Dame\n Email: yuwenlu@nd.edu"
+        android:text="Yuwen Lu, University of Notre Dame\n Email: ylu23@nd.edu"
+        android:textColor="@color/custom_text_secondary"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/ownerTitle" />
 
@@ -44,6 +49,7 @@
         android:layout_marginStart="48dp"
         android:layout_marginTop="12dp"
         android:text="01/11/2021"
+        android:textColor="@color/custom_text_secondary"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/startDateTitle" />
 
@@ -54,6 +60,7 @@
         android:layout_marginStart="63dp"
         android:layout_marginTop="12dp"
         android:text="01/11/2021"
+        android:textColor="@color/custom_text_secondary"
         app:layout_constraintStart_toEndOf="@+id/startDate"
         app:layout_constraintTop_toBottomOf="@+id/endDateTitle" />
 
@@ -64,6 +71,7 @@
         android:layout_marginStart="48dp"
         android:layout_marginTop="12dp"
         android:text="Uber"
+        android:textColor="@color/custom_text_secondary"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/appNameTitle" />
 
@@ -74,6 +82,7 @@
         android:layout_marginStart="48dp"
         android:layout_marginTop="24dp"
         android:text="Start Date"
+        android:textColor="@color/custom_text_secondary"
         android:textSize="20sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/ownerInfo" />
@@ -85,6 +94,7 @@
         android:layout_marginStart="48dp"
         android:layout_marginTop="24dp"
         android:text="App"
+        android:textColor="@color/custom_text_secondary"
         android:textSize="20sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/startDate" />
@@ -96,6 +106,7 @@
         android:layout_marginStart="48dp"
         android:layout_marginTop="24dp"
         android:text="Description"
+        android:textColor="@color/custom_text_secondary"
         android:textSize="20sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/appName" />
@@ -107,6 +118,7 @@
         android:layout_marginStart="48dp"
         android:layout_marginTop="24dp"
         android:text="End Date"
+        android:textColor="@color/custom_text_secondary"
         android:textSize="20sp"
         app:layout_constraintStart_toEndOf="@+id/startDateTitle"
         app:layout_constraintTop_toBottomOf="@+id/ownerInfo" />
@@ -119,6 +131,7 @@
         android:layout_marginTop="12dp"
         android:layout_marginEnd="48dp"
         android:text="Collect price, departure and destination, and duration from the Uber app for research purpose only."
+        android:textColor="@color/custom_text_secondary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
