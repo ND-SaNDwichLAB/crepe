@@ -21,7 +21,7 @@
     <EditText
         android:id="@+id/startDateText"
         android:layout_width="0dp"
-        android:layout_height="40dp"
+        android:layout_height="48dp"
         android:layout_marginStart="24dp"
         android:layout_marginTop="35dp"
         android:layout_marginEnd="24dp"
@@ -41,7 +41,7 @@
     <EditText
         android:id="@+id/endDateText"
         android:layout_width="0dp"
-        android:layout_height="40dp"
+        android:layout_height="48dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="24dp"
         android:background="@drawable/custom_input"
@@ -60,7 +60,7 @@
     <Spinner
         android:id="@+id/appSpinner"
         android:layout_width="0dp"
-        android:layout_height="40dp"
+        android:layout_height="48dp"
         android:layout_marginStart="24dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="24dp"

@@ -5,7 +5,8 @@
     android:id="@+id/popup_box"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/rounded_corner">
+    android:background="@drawable/rounded_corner_transparent"
+    android:backgroundTint="@color/white">
 
     <EditText
         android:id="@+id/collectorIdEditText"
