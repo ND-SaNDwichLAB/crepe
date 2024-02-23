@@ -192,17 +192,6 @@ public class GoogleLoginActivity extends AppCompatActivity {
                 startActivity(intent);
                 finish();
 
-                // get the collectors associated with this user
-                // contains 2 types of associations:
-                // 1. collectors that this user is participating in
-                // simply by using the field under User "userCollectors" (see /database/User.java)
-                ArrayList<String> collectorIds = user.getCollectorsForCurrentUser();
-                addParticipatingCollectors(collectorIds);
-
-                // 2. collectors that this user has created
-                // we need to index all collectors on the "creatorUserId" field, find the ones that contain current user's userId (see /database/Collector.java)
-                addCreatedCollectors(user.getUserId());
-
             }
 
             public void onErrorResponse(Exception e) {
@@ -226,76 +215,5 @@ public class GoogleLoginActivity extends AppCompatActivity {
         return hexString.toString();
     }
 
-    private void addParticipatingCollectors(ArrayList<String> collectorIds) {
-        AtomicInteger collectorCounter = new AtomicInteger(0);
-        int totalCollectorCount = collectorIds.size();
-
-        // retrieve all collectors associated with this user from firebase and save to local
-        for (String collectorId : collectorIds) {
-            fbManager.retrieveCollector(collectorId, new FirebaseCallback<Collector>() {
-                public void onResponse(Collector collector) {
-                    dbManager.addOneCollector(collector);
-                    addDatafieldForCollector(collector);
-
-                    // broadcast an event to HomeFragment to update the collector list
-                    if (collectorCounter.incrementAndGet() == totalCollectorCount) {
-                        // After fetching all data, post this event and HomeFragment will update the collector list on home page
-                        EventBus.getDefault().post(new DataLoadingEvent(true));
-                    }
-                }
-
-                public void onErrorResponse(Exception e) {
-                    try {
-                        Log.e("Firebase collector", e.getMessage());
-                    } catch (NullPointerException ex) {
-                        Log.e("Firebase collector", "An unknown error occurred.");
-                    }
-                }
-            });
-        }
-    }
-
-    private void addCreatedCollectors(String userId) {
-        fbManager.retrieveCollectorWithCreatorUserId(userId, new FirebaseCallback<ArrayList<Collector>>() {
-            public void onResponse(ArrayList<Collector> collectors) {
-
-                for (Collector collector : collectors) {
-                    dbManager.addOneCollector(collector);
-                    addDatafieldForCollector(collector);
-                }
-
-                // After fetching all data, post this event and HomeFragment will update the collector list on home page
-                EventBus.getDefault().post(new DataLoadingEvent(true));
-
-            }
-
-            public void onErrorResponse(Exception e) {
-                try {
-                    Log.i("Firebase collector", "No collector is found that is created by current user.\n" + e.getMessage());
-                } catch (NullPointerException ex) {
-                    Log.e("Firebase collector", "No collector is found that is created by current user. An unknown error occurred.");
-                }
-            }
-        });
-    }
-
-    // from firebase, retrieve all datafields associated with this collector and save to local
-    private void addDatafieldForCollector(Collector collector) {
-        fbManager.retrieveDatafieldsWithCollectorId(collector.getCollectorId(), new FirebaseCallback<ArrayList<Datafield>>() {
-            public void onResponse(ArrayList<Datafield> datafields) {
-                for (Datafield datafield : datafields) {
-                    dbManager.addOneDatafield(datafield);
-                }
-            }
-
-            public void onErrorResponse(Exception e) {
-                try {
-                    Log.e("Firebase datafield", e.getMessage());
-                } catch (NullPointerException ex) {
-                    Log.e("Firebase datafield", "An unknown error occurred.");
-                }
-            }
-        });
-    }
 
 }

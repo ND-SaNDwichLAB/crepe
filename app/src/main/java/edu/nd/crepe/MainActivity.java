@@ -16,9 +16,13 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 
+import edu.nd.crepe.database.Collector;
 import edu.nd.crepe.database.DatabaseManager;
+import edu.nd.crepe.database.Datafield;
 import edu.nd.crepe.database.User;
 import edu.nd.crepe.network.ApiCallManager;
+import edu.nd.crepe.network.DataLoadingEvent;
+import edu.nd.crepe.network.FirebaseCallback;
 import edu.nd.crepe.network.FirebaseCommunicationManager;
 import edu.nd.crepe.ui.dialog.CollectorConfigurationDialogWrapper;
 import edu.nd.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilder;
@@ -59,6 +63,9 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.json.JsonObject;
 
@@ -77,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private DatabaseManager dbManager;
-
+    private FirebaseCommunicationManager firebaseCommunicationManager;
     private AddCollectorFromCollectorIdDialogBuilder addCollectorFromCollectorIdDialogBuilder;
     private CreateCollectorFromConfigDialogBuilder createCollectorFromConfigDialogBuilder;
 
@@ -100,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
 
         dbManager = DatabaseManager.getInstance(this.getApplicationContext());
 
-        FirebaseCommunicationManager firebaseCommunicationManager = new FirebaseCommunicationManager(this);
+        firebaseCommunicationManager = new FirebaseCommunicationManager(this);
 
 
 
@@ -108,11 +115,6 @@ public class MainActivity extends AppCompatActivity {
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-        // display the home fragment
-        // the id here is the id for the nav menu, due to the design of the function.
-        // see details of the function in later sections of this file
-        displaySelectedScreen(R.id.nav_menu_home);
 
         // sidebar toggle
         drawerLayout = findViewById(R.id.drawer_layout);
@@ -139,6 +141,12 @@ public class MainActivity extends AppCompatActivity {
                 Log.i("Main Activity", "no user found in database.");
             }
         }
+
+
+        // display the home fragment
+        // the id here is the id for the nav menu, due to the design of the function.
+        displaySelectedScreen(R.id.nav_menu_home);
+
         // code block for user image, maybe of use in the future
 //        if (userImage == null) {
 //            new Thread(new Runnable() {
@@ -235,6 +243,18 @@ public class MainActivity extends AppCompatActivity {
     // a function to switch between fragments using the navDrawer
     private void displaySelectedScreen(int itemId) {
 
+
+        // get the collectors associated with this user
+        // contains 2 types of associations:
+        // 1. collectors that this user is participating in
+        // simply by using the field under User "userCollectors" (see /database/User.java)
+        ArrayList<String> collectorIds = currentUser.getCollectorsForCurrentUser();
+        addParticipatingCollectors(collectorIds);
+
+        // 2. collectors that this user has created
+        // we need to index all collectors on the "creatorUserId" field, find the ones that contain current user's userId (see /database/Collector.java)
+        addCreatedCollectors(currentUser.getUserId());
+
         // initialize a fragment for switching
 
         switch (itemId) {
@@ -313,6 +333,81 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         DatabaseManager.getInstance(this.getApplicationContext()).closeDatabase();
     }
+
+
+    private void addParticipatingCollectors(ArrayList<String> collectorIds) {
+        AtomicInteger collectorCounter = new AtomicInteger(0);
+        int totalCollectorCount = collectorIds.size();
+
+        // retrieve all collectors associated with this user from firebase and save to local
+        for (String collectorId : collectorIds) {
+            firebaseCommunicationManager.retrieveCollector(collectorId, new FirebaseCallback<Collector>() {
+                public void onResponse(Collector collector) {
+                    dbManager.addOneCollector(collector);
+                    addDatafieldForCollector(collector);
+
+                    // broadcast an event to HomeFragment to update the collector list
+                    if (collectorCounter.incrementAndGet() == totalCollectorCount) {
+                        // After fetching all data, post this event and HomeFragment will update the collector list on home page
+                        EventBus.getDefault().post(new DataLoadingEvent(true));
+                    }
+                }
+
+                public void onErrorResponse(Exception e) {
+                    try {
+                        Log.e("Firebase collector", e.getMessage());
+                    } catch (NullPointerException ex) {
+                        Log.e("Firebase collector", "An unknown error occurred.");
+                    }
+                }
+            });
+        }
+    }
+
+    private void addCreatedCollectors(String userId) {
+        firebaseCommunicationManager.retrieveCollectorWithCreatorUserId(userId, new FirebaseCallback<ArrayList<Collector>>() {
+            public void onResponse(ArrayList<Collector> collectors) {
+
+                for (Collector collector : collectors) {
+                    dbManager.addOneCollector(collector);
+                    addDatafieldForCollector(collector);
+                }
+
+                // After fetching all data, post this event and HomeFragment will update the collector list on home page
+                EventBus.getDefault().post(new DataLoadingEvent(true));
+
+            }
+
+            public void onErrorResponse(Exception e) {
+                try {
+                    Log.i("Firebase collector", "No collector is found that is created by current user.\n" + e.getMessage());
+                } catch (NullPointerException ex) {
+                    Log.e("Firebase collector", "No collector is found that is created by current user. An unknown error occurred.");
+                }
+            }
+        });
+    }
+
+
+    // from firebase, retrieve all datafields associated with this collector and save to local
+    private void addDatafieldForCollector(Collector collector) {
+        firebaseCommunicationManager.retrieveDatafieldsWithCollectorId(collector.getCollectorId(), new FirebaseCallback<ArrayList<Datafield>>() {
+            public void onResponse(ArrayList<Datafield> datafields) {
+                for (Datafield datafield : datafields) {
+                    dbManager.addOneDatafield(datafield);
+                }
+            }
+
+            public void onErrorResponse(Exception e) {
+                try {
+                    Log.e("Firebase datafield", e.getMessage());
+                } catch (NullPointerException ex) {
+                    Log.e("Firebase datafield", "An unknown error occurred.");
+                }
+            }
+        });
+    }
+
 
     public Drawable loadImageFromUrl(String url) {
         try {
