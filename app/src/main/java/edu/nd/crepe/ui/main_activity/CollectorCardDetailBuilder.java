@@ -121,7 +121,7 @@ public class CollectorCardDetailBuilder {
                 // dismiss current dialog
                 dialog.dismiss();
 
-                // TODO Meng: finish the logic for the edit button
+                // TODO Qi Zhao: finish the logic for the edit button
             }
         });
 
