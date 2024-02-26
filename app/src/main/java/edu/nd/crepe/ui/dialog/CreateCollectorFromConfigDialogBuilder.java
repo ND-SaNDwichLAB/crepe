@@ -28,4 +28,10 @@ public class CreateCollectorFromConfigDialogBuilder {
         return collectorConfigurationDialogWrapper;
     }
 
+    public CollectorConfigurationDialogWrapper buildDialogWrapperWithExistingCollector(Collector collector) {
+        CollectorConfigurationDialogWrapper.initializeInstance(c, collector, refreshCollectorListRunnable);
+        collectorConfigurationDialogWrapper = CollectorConfigurationDialogWrapper.getInstance();
+        return collectorConfigurationDialogWrapper;
+    }
+
 }

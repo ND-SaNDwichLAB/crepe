@@ -8,6 +8,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.media.Image;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,6 +27,9 @@ import edu.nd.crepe.database.Datafield;
 import edu.nd.crepe.database.User;
 import edu.nd.crepe.network.FirebaseCallback;
 import edu.nd.crepe.network.FirebaseCommunicationManager;
+import edu.nd.crepe.servicemanager.DisplayPermissionManager;
+import edu.nd.crepe.ui.dialog.CollectorConfigurationDialogWrapper;
+import edu.nd.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilder;
 
 import java.util.List;
 
@@ -37,6 +41,10 @@ public class CollectorCardDetailBuilder {
     private DatabaseManager dbManager;
     private FirebaseCommunicationManager fbManager;
 
+    // add for editing function 02/25 qi
+    private CreateCollectorFromConfigDialogBuilder createCollectorFromConfigDialogBuilder;
+    private CollectorConfigurationDialogWrapper wrapper;
+
     public CollectorCardDetailBuilder(Context c, Collector collector, Runnable refreshCollectorListRunnable) {
         this.c = c;
         this.dialogBuilder = new AlertDialog.Builder(c);
@@ -44,6 +52,7 @@ public class CollectorCardDetailBuilder {
         this.refreshCollectorListRunnable = refreshCollectorListRunnable;
         this.dbManager = DatabaseManager.getInstance(c);
         this.fbManager = new FirebaseCommunicationManager(c);
+        this.createCollectorFromConfigDialogBuilder = new CreateCollectorFromConfigDialogBuilder(c, refreshCollectorListRunnable);
     }
 
     public Dialog build() {
@@ -119,9 +128,21 @@ public class CollectorCardDetailBuilder {
             @Override
             public void onClick(View view) {
                 // dismiss current dialog
-                dialog.dismiss();
 
                 // TODO Qi Zhao: finish the logic for the edit button
+                // check display over other apps permission
+//                if (!Settings.canDrawOverlays(c)) {
+//                    Dialog enableDisplayServiceDialog = DisplayPermissionManager.getInstance().getEnableDisplayServiceDialog(c);
+//                    enableDisplayServiceDialog.show();
+//                } else {
+                    dialog.dismiss();
+                    // first, collapse the fab icon
+                    // then, bring up the dialog to create a new collector
+                    wrapper = createCollectorFromConfigDialogBuilder.buildDialogWrapperWithExistingCollector(collector);
+                    wrapper.show();
+//                }
+
+
             }
         });
 
