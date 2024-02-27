@@ -139,7 +139,7 @@ public class CollectorCardDetailBuilder {
                     // first, collapse the fab icon
                     // then, bring up the dialog to create a new collector
                     wrapper = createCollectorFromConfigDialogBuilder.buildDialogWrapperWithExistingCollector(collector);
-                    wrapper.show();
+                    wrapper.showEdit();
 //                }
 
 

@@ -29,7 +29,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.WindowInsetsCompat;
 
 import edu.nd.crepe.servicemanager.CrepeAccessibilityService;
 import edu.nd.crepe.MainActivity;
@@ -594,6 +593,514 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
         }
     }
 
+    public void updateCurrentViewForEditing() {
+
+        switch (currentScreenState) {
+            case "buildDialogFromConfig":
+
+                Button popupCancelBtn;
+                Button popupNextBtn;
+                Spinner appDropDown;
+                Dictionary<String, String> appPackageDict = new Hashtable<>();
+                try {
+                    appPackageDict = getAllInstalledAppNames();
+                } catch (PackageManager.NameNotFoundException e) {
+                    e.getMessage();
+                }
+
+                dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_edit_collector_from_config, null);
+                // buttons
+                popupCancelBtn = (Button) dialogMainView.findViewById(R.id.editCollectorFromConfigDialogCancelButton);
+                popupNextBtn = (Button) dialogMainView.findViewById(R.id.editCollectorFromConfigDialogNextButton);
+
+                appDropDown = (Spinner) dialogMainView.findViewById(R.id.appSpinner);
+
+
+                String[] singleAppItem = {collector.getAppName()};
+                ArrayAdapter<String> singleAppAdapter = new ArrayAdapter<String>(context.getApplicationContext(), android.R.layout.simple_spinner_dropdown_item, singleAppItem);
+                singleAppAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                // Set the adapter to the spinner
+                appDropDown.setAdapter(singleAppAdapter);
+
+                // Automatically select the only available option
+                appDropDown.setSelection(0);
+
+                appDropDown.setEnabled(false);
+                appDropDown.setClickable(false);
+                appDropDown.setFocusable(false);
+
+                AlertDialog dialogConfig = createNewAlertDialog(dialogMainView);
+                dialogConfig.show();
+
+                collector.setCreatorUserId(currentUser.getUserId());
+
+
+                // app spinner
+                String[] appItems = {""};
+
+                // get the keys of the dictionary and put them into an array
+                appItems = Collections.list(appPackageDict.keys()).toArray(new String[0]);
+                ArrayAdapter<String> appAdapter = new ArrayAdapter<String>(context.getApplicationContext(), android.R.layout.simple_spinner_dropdown_item, appItems);
+                appAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                appDropDown.setAdapter(appAdapter);
+
+                // When coming back from later popups using back button, if there's previously a selection made
+                if (collector.getAppName() != null) {
+                    for (int i = 0; i < appItems.length; i++) {
+                        if (collector.getAppName().equals(appItems[i]))
+                            appDropDown.setSelection(i);
+                    }
+
+                }
+
+//                // location spinner
+//                String[] locationItems = new String[]{"Local", "Remote"};
+//                ArrayAdapter<String> locationAdapter = new ArrayAdapter<String>(context.getApplicationContext(), android.R.layout.simple_spinner_dropdown_item, locationItems);
+//                locationAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//                locationDropDown.setAdapter(locationAdapter);
+//                // When coming back from later popups using back button, if there's previously a selection made
+//                if (collector.getMode() != null) {
+//                    int i;
+//                    for (i = 0; i < locationItems.length; i++) {
+//                        if (collector.getMode() == locationItems[i])
+//                            break;
+//                    }
+//                    locationDropDown.setSelection(i);
+//                }
+
+                // date picker buttons and textview
+                ImageButton startDateCalendarBtn = (ImageButton) dialogMainView.findViewById(R.id.startImageButton);
+                ImageButton endDateCalendarBtn = (ImageButton) dialogMainView.findViewById(R.id.endImageButton);
+                EditText startDateText = (EditText) dialogMainView.findViewById(R.id.startDateText);
+                EditText endDateText = (EditText) dialogMainView.findViewById(R.id.endDateText);
+
+                // update field values based on current collector information, mostly used when coming back from next dialogs
+                if (Long.valueOf(collector.getCollectorStartTime()) != 0) {
+                    startDateText.setText(collector.getCollectorStartTimeString());
+                } else {
+                    Calendar c = Calendar.getInstance();
+                    SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+                    String currentDate = df.format(c.getTime());
+                    startDateText.setText(currentDate);
+                }
+                if (Long.valueOf(collector.getCollectorEndTime()) != 0) {
+                    endDateText.setText(collector.getCollectorEndTimeString());
+                } else {
+                    Calendar c = Calendar.getInstance();
+                    c.add(Calendar.DAY_OF_YEAR, 1);
+                    SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
+                    String currentDate = df.format(c.getTime());
+                    endDateText.setText(currentDate);
+                }
+
+                startDateCalendarBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        // Use the MaterialDatePicker from Material Design
+                        MaterialDatePicker.Builder collectorStartDatePickerBuilder = MaterialDatePicker.Builder.datePicker();
+                        collectorStartDatePickerBuilder.setTitleText("COLLECTOR START DATE");
+                        collectorStartDatePickerBuilder.setSelection(MaterialDatePicker.todayInUtcMilliseconds());
+                        final MaterialDatePicker collectorStartDatePicker = collectorStartDatePickerBuilder.build();
+
+                        collectorStartDatePicker.show(((MainActivity) context).getSupportFragmentManager(), "tag");
+
+                        collectorStartDatePicker.addOnPositiveButtonClickListener(new MaterialPickerOnPositiveButtonClickListener<Long>() {
+                            @Override
+                            public void onPositiveButtonClick(Long selection) {
+                                collector.setCollectorStartTime(selection.longValue());
+                                startDateText.setText(collector.getCollectorStartTimeString(), null);
+                            }
+                        });
+                    }
+                });
+
+                endDateCalendarBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        // Use the Material DatePicker from Material Design
+                        MaterialDatePicker.Builder collectorEndDatePickerBuilder = MaterialDatePicker.Builder.datePicker();
+                        collectorEndDatePickerBuilder.setTitleText("COLLECTOR END DATE");
+                        collectorEndDatePickerBuilder.setSelection(MaterialDatePicker.todayInUtcMilliseconds());
+                        final MaterialDatePicker collectorEndDatePicker = collectorEndDatePickerBuilder.build();
+
+                        collectorEndDatePicker.show(((MainActivity) context).getSupportFragmentManager(), "tag");
+
+                        collectorEndDatePicker.addOnPositiveButtonClickListener(new MaterialPickerOnPositiveButtonClickListener<Long>() {
+                            @Override
+                            public void onPositiveButtonClick(Long selection) {
+                                // Validate if the end date is later than the start date,
+                                // otherwise toast a message
+                                long endDateSelectionValue = selection.longValue();
+
+                                if (endDateSelectionValue > collector.getCollectorStartTime()) {
+                                    collector.setCollectorEndTime(endDateSelectionValue);
+                                    endDateText.setText(collector.getCollectorEndTimeString(), null);
+
+                                } else {
+                                    Toast.makeText(context, "Please select a date later than your start date (" + collector.getCollectorStartTimeString() + ")", Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        });
+
+                    }
+                });
+
+                popupCancelBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        dialogConfig.dismiss();
+                    }
+                });
+
+                Dictionary<String, String> finalAppPackageDict = appPackageDict;
+                popupNextBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        // update app info
+                        String appName = appDropDown.getSelectedItem().toString();
+                        String appPackage = finalAppPackageDict.get(appName);
+                        if (appName != " ") {
+                            collector.setAppName(appName);
+                            collector.setAppPackage(appPackage);
+                        } else {
+                            // set the border of spinner to red
+                            Context currentContext = context.getApplicationContext();
+                            Toast.makeText(currentContext, "Please select an app!", Toast.LENGTH_LONG).show();
+                            return;
+                        }
+
+                        // update location info
+//                        String location = locationDropDown.getSelectedItem().toString();
+//                        if (location != " ") {
+//                            collector.setMode(location);
+//                        } else {
+//                            // set the border of spinner to red
+//                            Context currentContext = context.getApplicationContext();
+//                            Toast.makeText(currentContext, "Please select a location!", Toast.LENGTH_LONG).show();
+//                            return;
+//                        }
+
+                        // update date info
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+                        ParsePosition pp1 = new ParsePosition(0);
+                        Date startDate = dateFormat.parse(startDateText.getText().toString(), pp1);
+                        collector.setCollectorStartTime(startDate.getTime());
+
+                        ParsePosition pp2 = new ParsePosition(0);
+                        Date endDate = dateFormat.parse(endDateText.getText().toString(), pp2);
+                        collector.setCollectorEndTime(endDate.getTime());
+
+                        // After successfully set the collector's end time, automatically set its status
+                        collector.autoSetCollectorStatus();
+                        // Update in database as well
+                        dbManager.updateCollectorStatus(collector);
+
+                        // set the id of the collector
+                        // format: userId%appName%timestamp. We will remove any space in the appName
+                        collector.setCollectorId(currentUser.getUserId() + "%" + collector.getAppName().replaceAll(" ", "") + "%" + String.valueOf(System.currentTimeMillis()));
+
+                        // update currentScreen String value
+                        currentScreenState = "buildDialogFromConfigGraphQuery";
+                        dialogConfig.dismiss();
+                        // recursively call itself with new currentScreen String value
+                        updateCurrentViewForEditing();
+
+                    }
+                });
+
+                break;
+
+
+            case "buildDialogFromConfigGraphQuery":
+
+                dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_edit_collector_from_config_graph_query, null);
+                clearDatafields();
+                // retrieve existing dataFields from the databse
+                List<Datafield> datafieldsForCollector = dbManager.getAllDatafieldsForCollector(collector);
+                datafields.addAll(datafieldsForCollector);
+
+                AlertDialog dialogGraphQuery = createNewAlertDialog(dialogMainView);
+                dialogGraphQuery.show();
+
+                Button graphQueryNxtBtn = (Button) dialogMainView.findViewById(R.id.graphQueryNextButton);
+                Button graphQueryBckBtn = (Button) dialogMainView.findViewById(R.id.graphQueryBackButton);
+                LinearLayout datafieldContainerLinearLayout = (LinearLayout) dialogMainView.findViewById(R.id.datafieldContainerLinearLayout);
+//                Button graphQueryAddBtn = (Button) dialogMainView.findViewById(R.id.graphQueryAddAnotherButton);
+                Button openAppButton = (Button) dialogMainView.findViewById(R.id.openAppButton);
+                ImageButton graphQueryCloseImg = (ImageButton) dialogMainView.findViewById(R.id.closeGraphQueryPopupImageButton);
+
+                // update interface elements based on the specified app in the previous popup box
+                TextView commentOnOpenAppButton = (TextView) dialogMainView.findViewById(R.id.commentOnOpenAppButton);
+                String appName = collector.getAppName();
+                openAppButton.setText("Open " + appName);
+                commentOnOpenAppButton.setText("Demonstrate in the " + appName + " app");
+
+                // modify content of the popup box based on current state
+                updateDisplayedDatafieldsFromDemonstration(dialogMainView);
+
+
+                // Open App button
+                openAppButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        // find the package
+                        final Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
+                        mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+                        // get list of all the apps installed
+                        // ril stands for ResolveInfoList
+                        List<ResolveInfo> ril = context.getPackageManager().queryIntentActivities(mainIntent, 0);
+                        String appName = collector.getAppName();
+                        String nameBuffer;
+                        String packageName = "";
+                        for (ResolveInfo ri : ril) {
+                            if (ri.activityInfo != null) {
+                                // get package
+                                Resources res = null;
+                                try {
+                                    res = context.getPackageManager().getResourcesForApplication(ri.activityInfo.applicationInfo);
+                                } catch (PackageManager.NameNotFoundException e) {
+                                    e.printStackTrace();
+                                }
+                                // if activity label res is found
+                                if (ri.activityInfo.labelRes != 0) {
+                                    nameBuffer = res.getString(ri.activityInfo.labelRes);
+                                } else {
+                                    nameBuffer = ri.activityInfo.applicationInfo.loadLabel(
+                                            context.getPackageManager()).toString();
+                                }
+                                if (nameBuffer.equals(appName)) {
+                                    // get package
+                                    packageName = ri.activityInfo.packageName;
+                                    break;
+                                }
+                            }
+                        }
+
+                        // launch the app
+                        Intent launchIntent = context.getPackageManager().getLaunchIntentForPackage(packageName);
+                        if (launchIntent != null) {
+                            context.startActivity(launchIntent);
+                        } else {
+                            Toast.makeText(context, "There is no package available in android", Toast.LENGTH_LONG).show();
+                        }
+
+                        // launch the float widget
+                        WidgetService widgetService = new WidgetService();
+                        Intent intent = new Intent(context, widgetService.getClass());
+                        intent.putExtra("graphQueryCallback", graphQueryCallback);
+                        context.startService(intent);
+                    }
+                });
+
+                graphQueryBckBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        // update currentScreen String value
+                        currentScreenState = "buildDialogFromConfig";
+                        dialogGraphQuery.dismiss();
+                        // recursively call itself with new currentScreen String value
+                        updateCurrentViewForEditing();
+
+                    }
+                });
+
+                graphQueryNxtBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (datafields.size() == 0) {
+                            // remind user to add graph query
+                            Context currentContext = context.getApplicationContext();
+                            Toast.makeText(currentContext, "Please demonstrate the data to collect!", Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                        // update currentScreen String value
+                        currentScreenState = "buildDialogFromConfigDescription";
+                        dialogGraphQuery.dismiss();
+                        // recursively call itself with new currentScreen String value
+                        updateCurrentViewForEditing();
+                    }
+                });
+
+//                graphQueryAddBtn.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {f
+//                        currentScreenState = "buildDialogFromConfigGraphQuery";
+//                    }
+//                });
+
+                graphQueryCloseImg.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        dialogGraphQuery.dismiss();
+                        // clear the current datafields list, since this collector creation process is terminated
+                        clearDatafields();
+                    }
+                });
+                break;
+
+
+            case "buildDialogFromConfigDescription":
+
+                dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_edit_collector_from_config_description, null);
+                AlertDialog dialogDescription = createNewAlertDialog(dialogMainView);
+                dialogDescription.show();
+
+                Button descriptionCreateBtn = (Button) dialogMainView.findViewById(R.id.descriptionCreateButton);
+                Button descriptionBckBtn = (Button) dialogMainView.findViewById(R.id.descriptionBackButton);
+                ImageButton descriptionCloseImg = (ImageButton) dialogMainView.findViewById(R.id.closeDescriptionImageButton);
+                EditText descriptionEditText = (EditText) dialogMainView.findViewById(R.id.descriptionEditText);
+
+                // show description of the collector if available
+                if (collector.getDescription() != null) {
+                    descriptionEditText.setText(collector.getDescription());
+                }
+
+                descriptionBckBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        // update currentScreen String value
+                        currentScreenState = "buildDialogFromConfigGraphQuery";
+                        dialogDescription.dismiss();
+                        // recursively call itself with new currentScreen String value
+                        updateCurrentViewForEditing();
+                    }
+                });
+
+                descriptionCreateBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        // write description into collector
+                        String descriptionText = descriptionEditText.getText().toString();
+
+                        if (descriptionText.equals("")) {
+                            // remind user to add description
+                            Context currentContext = context.getApplicationContext();
+                            Toast.makeText(currentContext, "Please add a description!", Toast.LENGTH_LONG).show();
+                            return;
+                        }
+
+                        collector.setDescription(descriptionText);
+
+                        // save locally
+                        dbManager.updateCollector(collector);
+                        // save to Firebase
+                        firebaseCommunicationManager.putCollector(collector).addOnSuccessListener(suc -> {
+                            Log.i("Firebase", "Successfully added collector " + collector.getCollectorId() + " to firebase.");
+                        }).addOnFailureListener(er -> {
+                            Log.e("Firebase", "Failed to add collector " + collector.getCollectorId() + " to firebase.");
+                        });
+
+                        // store the data fields into database
+                        for (Datafield datafield : datafields) {
+                            dbManager.updateDatafield(datafield);
+                            firebaseCommunicationManager.putDatafield(datafield).addOnCompleteListener(task -> {
+                                Log.i("Firebase", "Successfully added datafield " + datafield.getDatafieldId() + " to firebase.");
+                            }).addOnFailureListener(er -> {
+                                Log.e("Firebase", "Failed to add datafield " + datafield.getDatafieldId() + " to firebase. Error: " + er.getMessage());
+                            });
+                        }
+
+                        // Note: we do not need to update the field "userCollectors" under User (see /database/User.java),
+                        // be cause the user is the creator of this collector, and this piece of info is already stored in the Collector object (see /database/Collector.java) under the field "creatorUserId"
+
+                        // clear the current datafields list, since this collector creation process is done
+                        clearDatafields();
+
+                        // update all collectors' status, before refreshing the collector list
+                        // to make sure we only display active collectors.
+                        CrepeAccessibilityService.getsSharedInstance().refreshAllCollectorStatus();
+                        // a callback to refresh homepage every time
+                        refreshCollectorListRunnable.run();
+
+                        // update currentScreen String value, recursively call itself with new currentScreen String value
+                        currentScreenState = "buildDialogFromConfigSuccessMessage";
+                        dialogDescription.dismiss();
+                        updateCurrentViewForEditing();
+                    }
+                });
+
+                descriptionCloseImg.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        dialogDescription.dismiss();
+                        // clear the current datafields list, since this collector creation process is terminated
+                        clearDatafields();
+                    }
+                });
+
+                break;
+
+
+            case "buildDialogFromConfigSuccessMessage":
+                dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_edit_collector_from_config_success_message, null);
+                AlertDialog dialogSuccess = createNewAlertDialog(dialogMainView);
+                dialogSuccess.show();
+
+                // update the displayed app info
+                TextView successMessageTextView = (TextView) dialogMainView.findViewById(R.id.shareText);
+                successMessageTextView.setText("Your collector for " + collector.getAppName() + " is saved. Share with your participants");
+
+                Button closeSuccessMessage = (Button) dialogMainView.findViewById(R.id.closeSuccessMessagePopupButton);
+                ImageButton shareUrlLinkButton = (ImageButton) dialogMainView.findViewById(R.id.shareUrlImageButton);
+
+//                ImageButton shareEmailLinkButton = (ImageButton) dialogMainView.findViewById(R.id.shareEmailImageButton);
+
+//                shareEmailLinkButton.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        // share email link
+//                        Intent intent = new Intent(Intent.ACTION_SENDTO);
+//                        intent.setType("message/rfc822");
+//                        intent.setData(Uri.parse("mailto:"+"ylu23@nd.edu"));
+//                        //intent.putExtra(Intent.EXTRA_EMAIL, "ylu23@nd.edu");
+//                        intent.putExtra(Intent.EXTRA_SUBJECT, "Data Collector for " + collector.getAppName());
+//                        intent.putExtra(Intent.EXTRA_TEXT, collector.getCollectorId());
+//
+//                        if (intent.resolveActivity(getPackageManager()) != null) {
+//                            startActivity(intent);
+//                        } else {
+//                            Toast.makeText(context,"No email app on this machine",Toast.LENGTH_LONG).show();
+//                        }
+//
+//
+//                    }
+//                });
+
+
+                shareUrlLinkButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        // we will just share the id of the collector for now, instead of a url
+                        ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                        ClipData clip = ClipData.newPlainText("share URL", collector.getCollectorId());
+                        clipboard.setPrimaryClip(clip);
+                        Toast.makeText(context, "collector ID copied. Share with your participants", Toast.LENGTH_LONG).show();
+                        currentScreenState = "dismissed";
+                    }
+                });
+
+
+                closeSuccessMessage.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+
+                        // update currentScreen String value
+                        currentScreenState = "dismissed";
+                        dialogSuccess.dismiss();
+
+                    }
+                });
+                break;
+
+            case "dismissed":
+                break;
+
+            default:
+                throw new IllegalStateException("Unexpected value: " + currentScreenState);
+
+        }
+    }
+
     private AlertDialog createNewAlertDialog(View dialogMainView) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         AlertDialog dialog = builder.create();
@@ -640,6 +1147,10 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
     public void show() {
         updateCurrentView();
+    }
+
+    public void showEdit() {
+        updateCurrentViewForEditing();
     }
 
     private static void updateDisplayedDatafieldsFromDemonstration(View dialogMainView) {
