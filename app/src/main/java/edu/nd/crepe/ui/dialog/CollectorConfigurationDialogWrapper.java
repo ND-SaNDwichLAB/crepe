@@ -797,7 +797,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
                         // set the id of the collector
                         // format: userId%appName%timestamp. We will remove any space in the appName
-                        collector.setCollectorId(currentUser.getUserId() + "%" + collector.getAppName().replaceAll(" ", "") + "%" + String.valueOf(System.currentTimeMillis()));
+//                        collector.setCollectorId(currentUser.getUserId() + "%" + collector.getAppName().replaceAll(" ", "") + "%" + String.valueOf(System.currentTimeMillis()));
 
                         // update currentScreen String value
                         currentScreenState = "buildDialogFromConfigGraphQuery";
