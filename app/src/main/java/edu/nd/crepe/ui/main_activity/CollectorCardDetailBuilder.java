@@ -137,9 +137,10 @@ public class CollectorCardDetailBuilder {
 //                } else {
                     dialog.dismiss();
                     // first, collapse the fab icon
-                    // then, bring up the dialog to create a new collector
-                    wrapper = createCollectorFromConfigDialogBuilder.buildDialogWrapperWithExistingCollector(collector);
-                    wrapper.showEdit();
+                    // then, bring up the dialog to edit the existing collector
+                    wrapper = createCollectorFromConfigDialogBuilder.buildDialogWrapperWithCollector(collector);
+                    boolean isEdit = true;
+                    wrapper.show(isEdit);
 //                }
 
 

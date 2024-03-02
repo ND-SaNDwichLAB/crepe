@@ -21,6 +21,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
+import edu.nd.crepe.database.Collector;
 import edu.nd.crepe.servicemanager.AccessibilityPermissionManager;
 import edu.nd.crepe.servicemanager.CrepeAccessibilityService;
 import edu.nd.crepe.R;
@@ -86,8 +87,9 @@ public class FabModalBottomSheet extends BottomSheetDialogFragment {
                     // first, collapse the fab icon
                     dismiss();
                     // then, bring up the dialog to create a new collector
-                    wrapper = createCollectorFromConfigDialogBuilder.buildDialogWrapperWithNewCollector();
-                    wrapper.show();
+                    wrapper = createCollectorFromConfigDialogBuilder.buildDialogWrapperWithCollector(new Collector());
+                    Boolean isEdit = false;
+                    wrapper.show(isEdit);
                 }
 
 
