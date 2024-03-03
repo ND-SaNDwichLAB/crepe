@@ -403,7 +403,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         if (datafields.size() == 0) {
                             // remind user to add graph query
                             Context currentContext = context.getApplicationContext();
-                            Toast.makeText(currentContext, "Please demonstrate the data to collect!", Toast.LENGTH_LONG).show();
+                            Toast.makeText(currentContext, "Please open the app to demonstrate the data to collect!", Toast.LENGTH_LONG).show();
                             return;
                         }
                         // update currentScreen String value
