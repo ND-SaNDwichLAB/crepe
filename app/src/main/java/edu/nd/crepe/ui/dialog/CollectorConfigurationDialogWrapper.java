@@ -14,8 +14,11 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -139,13 +142,6 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                     appDropDown.setClickable(false);
                     appDropDown.setFocusable(false);
 
-                    appDropDown.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            Toast.makeText(context, "You cannot change the app name in edit mode. Create a new collector if you want to use a new app", Toast.LENGTH_LONG).show();
-                        }
-                    });
-
                     // Title
                     configPopupTitleTextView.setText("EDIT COLLECTOR");
 
@@ -226,7 +222,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                     public void onClick(View view) {
                         // Use the MaterialDatePicker from Material Design
                         MaterialDatePicker.Builder collectorStartDatePickerBuilder = MaterialDatePicker.Builder.datePicker();
-                        collectorStartDatePickerBuilder.setTitleText("COLLECTOR START DATE");
+                        collectorStartDatePickerBuilder.setTitleText("START DATE");
                         collectorStartDatePickerBuilder.setSelection(MaterialDatePicker.todayInUtcMilliseconds());
                         final MaterialDatePicker collectorStartDatePicker = collectorStartDatePickerBuilder.build();
 
@@ -236,11 +232,11 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                             @Override
                             public void onPositiveButtonClick(Long selection) {
                                 long startDateSelectionValue = selection.longValue();
-                                //edit mode thing
-                                collector.setCollectorStartTime(startDateSelectionValue);
-                                if (isEdit == true) {
 
-                                    Log.d("test32", String.valueOf(startDateSelectionValue));
+                                // in either mode, we first update the collector object
+                                collector.setCollectorStartTime(startDateSelectionValue);
+                                // if in edit mode, we make the updates to the collectorUpdates dictionary
+                                if (isEdit == true) {
                                     collectorUpdates.put("collectorStartTime", startDateSelectionValue);
                                     collectorUpdates.put("collectorStartTimeString", collector.getCollectorStartTimeString());
                                 }
@@ -255,8 +251,9 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                     public void onClick(View view) {
                         // Use the Material DatePicker from Material Design
                         MaterialDatePicker.Builder collectorEndDatePickerBuilder = MaterialDatePicker.Builder.datePicker();
-                        collectorEndDatePickerBuilder.setTitleText("COLLECTOR END DATE");
-                        collectorEndDatePickerBuilder.setSelection(MaterialDatePicker.todayInUtcMilliseconds());
+                        collectorEndDatePickerBuilder.setTitleText("END DATE");
+                        Long oneDayMillisOffset = (long) (24 * 60 * 60 * 1000);   // add 24 hours to the current time to get tomorrow's time
+                        collectorEndDatePickerBuilder.setSelection(MaterialDatePicker.todayInUtcMilliseconds() + oneDayMillisOffset);   // set the default selection as tomorrow
                         final MaterialDatePicker collectorEndDatePicker = collectorEndDatePickerBuilder.build();
 
                         collectorEndDatePicker.show(((MainActivity) context).getSupportFragmentManager(), "tag");
@@ -267,12 +264,15 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                                 // Validate if the end date is later than the start date,
                                 // otherwise toast a message
                                 long endDateSelectionValue = selection.longValue();
+                                long endDateSelectionEndOfDay = endDateSelectionValue + oneDayMillisOffset - 1;
 
-                                if (endDateSelectionValue > collector.getCollectorStartTime()) {
-                                    collector.setCollectorEndTime(endDateSelectionValue);
-                                    //edit mode thing
+                                if (endDateSelectionEndOfDay > collector.getCollectorStartTime()) {
+
+                                    // in either mode, we first update the collector object
+                                    collector.setCollectorEndTime(endDateSelectionEndOfDay);
+                                    // if in edit mode, we make the updates to the collectorUpdates dictionary
                                     if (isEdit == true) {
-                                        collectorUpdates.put("collectorEndTime", endDateSelectionValue);
+                                        collectorUpdates.put("collectorEndTime", endDateSelectionEndOfDay);
                                         collectorUpdates.put("collectorEndTimeString", collector.getCollectorEndTimeString());
                                     }
                                     endDateText.setText(collector.getCollectorEndTimeString(), null);
