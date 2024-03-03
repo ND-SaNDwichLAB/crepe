@@ -359,7 +359,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                 dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_build_collector_from_config_graph_query, null);
                 if(isEdit == true) {
                     clearDatafields();
-                    // retrieve existing dataFields from the databse
+                    // retrieve existing dataFields from the database
                     List<Datafield> datafieldsForCollector = dbManager.getAllDatafieldsForCollector(collector);
                     datafields.addAll(datafieldsForCollector);
                 }
