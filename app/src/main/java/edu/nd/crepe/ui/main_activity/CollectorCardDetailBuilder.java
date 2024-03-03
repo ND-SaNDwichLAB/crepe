@@ -7,6 +7,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,6 +24,7 @@ import edu.nd.crepe.database.Datafield;
 import edu.nd.crepe.database.User;
 import edu.nd.crepe.network.FirebaseCallback;
 import edu.nd.crepe.network.FirebaseCommunicationManager;
+import edu.nd.crepe.servicemanager.CrepeDisplayPermissionManager;
 import edu.nd.crepe.ui.dialog.CollectorConfigurationDialogWrapper;
 import edu.nd.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilder;
 
@@ -122,21 +124,19 @@ public class CollectorCardDetailBuilder {
         collectorEditButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // dismiss current dialog
-
-                // TODO Qi Zhao: finish the logic for the edit button
-                // check display over other apps permission
-//                if (!Settings.canDrawOverlays(c)) {
-//                    Dialog enableDisplayServiceDialog = DisplayPermissionManager.getInstance().getEnableDisplayServiceDialog(c);
-//                    enableDisplayServiceDialog.show();
-//                } else {
+//                 check display over other apps permission
+                if (!Settings.canDrawOverlays(c)) {
+                    Dialog enableDisplayServiceDialog = CrepeDisplayPermissionManager.getInstance().getEnableDisplayServiceDialog(c);
+                    enableDisplayServiceDialog.show();
+                } else {
+                    // dismiss current dialog
                     dialog.dismiss();
                     // first, collapse the fab icon
                     // then, bring up the dialog to edit the existing collector
                     wrapper = createCollectorFromConfigDialogBuilder.buildDialogWrapperWithCollector(collector);
                     Boolean isEdit = true;
                     wrapper.show(isEdit);
-//                }
+                }
 
 
             }
