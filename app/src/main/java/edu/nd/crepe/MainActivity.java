@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -52,6 +53,7 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.gson.Gson;
 
 import android.view.Menu;
 import android.view.MenuItem;
@@ -228,16 +230,35 @@ public class MainActivity extends AppCompatActivity {
 
         // we used this to store the state of the activity before moving to demonstrate in another app
         // however, we probably do not need this if do not call finish() inside the activity to kill it
-//        SharedPreferences sharedPreferences = getSharedPreferences("prefs", MODE_PRIVATE);
-//        SharedPreferences.Editor editor = sharedPreferences.edit();
-//
-//        if (!CollectorConfigurationDialogWrapper.isNull()) {
-//            wrapper = CollectorConfigurationDialogWrapper.getInstance();
-//            editor.putString("screen_state", wrapper.getCurrentScreenState());
-//            editor.putString("collector", new Gson().toJson(wrapper.getCurrentCollector()));
-//
-//            editor.apply();
-//        }
+        SharedPreferences sharedPreferences = getSharedPreferences("prefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        if (!CollectorConfigurationDialogWrapper.isNull()) {
+            wrapper = CollectorConfigurationDialogWrapper.getInstance();
+            editor.putString("screen_state", wrapper.getCurrentScreenState());
+            editor.putString("collector", new Gson().toJson(wrapper.getCurrentCollector()));
+            editor.putBoolean("isEdit", wrapper.getIsEdit());
+            editor.apply();
+        }
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        SharedPreferences sharedPreferences = getSharedPreferences("prefs", MODE_PRIVATE);
+
+        String screenState = sharedPreferences.getString("screen_state", null);
+        String collectorJson = sharedPreferences.getString("collector", null);
+        Boolean isEdit = sharedPreferences.getBoolean("isEdit", false);
+
+        if (screenState != null && !screenState.equals("dismissed") && collectorJson != null) {
+            Collector prevCollector = new Gson().fromJson(collectorJson, Collector.class);
+            wrapper = createCollectorFromConfigDialogBuilder.buildDialogWrapperWithCollector(prevCollector);
+            wrapper.setCurrentScreenState(screenState);
+            wrapper.show(isEdit);
+        }
     }
 
     // a function to switch between fragments using the navDrawer
@@ -280,23 +301,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-//        SharedPreferences sharedPreferences = getSharedPreferences("prefs", MODE_PRIVATE);
-//
-//        String screenState = sharedPreferences.getString("screen_state", null);
-//        String collectorJson = sharedPreferences.getString("collector", null);
-//
-//        if (screenState != null && !screenState.equals("dismissed") && collectorJson != null) {
-//            Collector prevCollector = new Gson().fromJson(collectorJson, Collector.class);
-//            wrapper = createCollectorFromConfigDialogBuilder.buildDialogWrapperWithExistingCollector(prevCollector);
-//            wrapper.setCurrentScreenState(screenState);
-
-//            wrapper.show();
-//        }
-    }
 
 
     @Override

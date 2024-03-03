@@ -59,6 +59,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
     private static Context context;
     private static String currentScreenState;
+    private static Boolean isEdit;
     private static Collector collector;
     private Runnable refreshCollectorListRunnable;
     private DatabaseManager dbManager;
@@ -111,7 +112,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
     }
 
 
-    public void updateCurrentView(boolean isEdit) {
+    public void updateCurrentView() {
 
         switch (currentScreenState) {
             case "buildDialogFromConfig":
@@ -346,7 +347,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         currentScreenState = "buildDialogFromConfigGraphQuery";
                         dialogConfig.dismiss();
                         // recursively call itself with new currentScreen String value
-                        updateCurrentView(isEdit);
+                        updateCurrentView();
 
                     }
                 });
@@ -442,7 +443,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         currentScreenState = "buildDialogFromConfig";
                         dialogGraphQuery.dismiss();
                         // recursively call itself with new currentScreen String value
-                        updateCurrentView(isEdit);
+                        updateCurrentView();
 
                     }
                 });
@@ -460,7 +461,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         currentScreenState = "buildDialogFromConfigDescription";
                         dialogGraphQuery.dismiss();
                         // recursively call itself with new currentScreen String value
-                        updateCurrentView(isEdit);
+                        updateCurrentView();
                     }
                 });
 
@@ -505,7 +506,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         currentScreenState = "buildDialogFromConfigGraphQuery";
                         dialogDescription.dismiss();
                         // recursively call itself with new currentScreen String value
-                        updateCurrentView(isEdit);
+                        updateCurrentView();
                     }
                 });
 
@@ -585,7 +586,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         // update currentScreen String value, recursively call itself with new currentScreen String value
                         currentScreenState = "buildDialogFromConfigSuccessMessage";
                         dialogDescription.dismiss();
-                        updateCurrentView(isEdit);
+                        updateCurrentView();
                     }
                 });
 
@@ -719,8 +720,9 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
         return appDict;
     }
 
-    public void show(boolean isEdit) {
-        updateCurrentView(isEdit);
+    public void show(Boolean isEdit) {
+        this.isEdit = isEdit;
+        updateCurrentView();
     }
 
     private static void updateDisplayedDatafieldsFromDemonstration(View dialogMainView) {
@@ -783,7 +785,20 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
         this.currentScreenState = currentScreenState;
     }
 
+    public String getCurrentScreenState() {
+        return currentScreenState;
+    }
+
     public Collector getCurrentCollector() {
         return collector;
+    }
+
+
+    public static Boolean getIsEdit() {
+        return isEdit;
+    }
+
+    public static void setIsEdit(Boolean isEdit) {
+        CollectorConfigurationDialogWrapper.isEdit = isEdit;
     }
 }

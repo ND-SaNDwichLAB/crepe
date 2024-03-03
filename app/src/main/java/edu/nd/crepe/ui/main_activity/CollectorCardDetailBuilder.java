@@ -134,7 +134,7 @@ public class CollectorCardDetailBuilder {
                     // first, collapse the fab icon
                     // then, bring up the dialog to edit the existing collector
                     wrapper = createCollectorFromConfigDialogBuilder.buildDialogWrapperWithCollector(collector);
-                    boolean isEdit = true;
+                    Boolean isEdit = true;
                     wrapper.show(isEdit);
 //                }
 
