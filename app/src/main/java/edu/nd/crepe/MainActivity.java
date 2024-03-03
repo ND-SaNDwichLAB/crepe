@@ -225,6 +225,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // unregister the event bus
+        EventBus.getDefault().unregister(this);
+        // close the database
+        DatabaseManager.getInstance(this.getApplicationContext()).closeDatabase();
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
 
@@ -239,6 +248,9 @@ public class MainActivity extends AppCompatActivity {
             editor.putString("collector", new Gson().toJson(wrapper.getCurrentCollector()));
             editor.putBoolean("isEdit", wrapper.getIsEdit());
             editor.apply();
+
+            // hide the dialog so that we don't have duplicates back in the activity
+            wrapper.hide();
         }
     }
 
@@ -258,6 +270,11 @@ public class MainActivity extends AppCompatActivity {
             wrapper = createCollectorFromConfigDialogBuilder.buildDialogWrapperWithCollector(prevCollector);
             wrapper.setCurrentScreenState(screenState);
             wrapper.show(isEdit);
+
+            // clear the shared preferences
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.clear();
+            editor.apply();
         }
     }
 
@@ -331,13 +348,6 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        DatabaseManager.getInstance(this.getApplicationContext()).closeDatabase();
-    }
-
 
     private void addParticipatingCollectors(ArrayList<String> collectorIds) {
         AtomicInteger collectorCounter = new AtomicInteger(0);

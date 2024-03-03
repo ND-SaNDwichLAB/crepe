@@ -65,6 +65,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
     private DatabaseManager dbManager;
     private FirebaseCommunicationManager firebaseCommunicationManager;
     private static View dialogMainView;
+    private static AlertDialog mainDialog;
 
     private static HashMap<String, Object> collectorUpdates = new HashMap<>();
 
@@ -173,8 +174,8 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                     }
                 }
 
-                AlertDialog dialogConfig = createNewAlertDialog(dialogMainView);
-                dialogConfig.show();
+                mainDialog = createNewAlertDialog(dialogMainView);
+                mainDialog.show();
 
                 collector.setCreatorUserId(currentUser.getUserId());
 
@@ -290,7 +291,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                 popupCancelBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        dialogConfig.dismiss();
+                        mainDialog.dismiss();
                     }
                 });
 
@@ -345,7 +346,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
                         // update currentScreen String value
                         currentScreenState = "buildDialogFromConfigGraphQuery";
-                        dialogConfig.dismiss();
+                        mainDialog.dismiss();
                         // recursively call itself with new currentScreen String value
                         updateCurrentView();
 
@@ -364,8 +365,8 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                     List<Datafield> datafieldsForCollector = dbManager.getAllDatafieldsForCollector(collector);
                     datafields.addAll(datafieldsForCollector);
                 }
-                AlertDialog dialogGraphQuery = createNewAlertDialog(dialogMainView);
-                dialogGraphQuery.show();
+                mainDialog = createNewAlertDialog(dialogMainView);
+                mainDialog.show();
 
                 Button graphQueryNxtBtn = (Button) dialogMainView.findViewById(R.id.graphQueryNextButton);
                 Button graphQueryBckBtn = (Button) dialogMainView.findViewById(R.id.graphQueryBackButton);
@@ -441,7 +442,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                     public void onClick(View view) {
                         // update currentScreen String value
                         currentScreenState = "buildDialogFromConfig";
-                        dialogGraphQuery.dismiss();
+                        mainDialog.dismiss();
                         // recursively call itself with new currentScreen String value
                         updateCurrentView();
 
@@ -459,7 +460,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         }
                         // update currentScreen String value
                         currentScreenState = "buildDialogFromConfigDescription";
-                        dialogGraphQuery.dismiss();
+                        mainDialog.dismiss();
                         // recursively call itself with new currentScreen String value
                         updateCurrentView();
                     }
@@ -475,7 +476,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                 graphQueryCloseImg.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        dialogGraphQuery.dismiss();
+                        mainDialog.dismiss();
                         // clear the current datafields list, since this collector creation process is terminated
                         clearDatafields();
                     }
@@ -486,8 +487,8 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
             case "buildDialogFromConfigDescription":
 
                 dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_build_collector_from_config_description, null);
-                AlertDialog dialogDescription = createNewAlertDialog(dialogMainView);
-                dialogDescription.show();
+                mainDialog = createNewAlertDialog(dialogMainView);
+                mainDialog.show();
 
                 Button descriptionCreateBtn = (Button) dialogMainView.findViewById(R.id.descriptionCreateButton);
                 Button descriptionBckBtn = (Button) dialogMainView.findViewById(R.id.descriptionBackButton);
@@ -504,7 +505,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                     public void onClick(View view) {
                         // update currentScreen String value
                         currentScreenState = "buildDialogFromConfigGraphQuery";
-                        dialogDescription.dismiss();
+                        mainDialog.dismiss();
                         // recursively call itself with new currentScreen String value
                         updateCurrentView();
                     }
@@ -585,7 +586,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
                         // update currentScreen String value, recursively call itself with new currentScreen String value
                         currentScreenState = "buildDialogFromConfigSuccessMessage";
-                        dialogDescription.dismiss();
+                        mainDialog.dismiss();
                         updateCurrentView();
                     }
                 });
@@ -593,7 +594,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                 descriptionCloseImg.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        dialogDescription.dismiss();
+                        mainDialog.dismiss();
                         // clear the current datafields list, since this collector creation process is terminated
                         clearDatafields();
                     }
@@ -604,8 +605,8 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
             case "buildDialogFromConfigSuccessMessage":
                 dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_build_collector_from_config_success_message, null);
-                AlertDialog dialogSuccess = createNewAlertDialog(dialogMainView);
-                dialogSuccess.show();
+                mainDialog = createNewAlertDialog(dialogMainView);
+                mainDialog.show();
 
                 // update the displayed app info
                 TextView successMessageTextView = (TextView) dialogMainView.findViewById(R.id.shareText);
@@ -661,7 +662,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
                         // update currentScreen String value
                         currentScreenState = "dismissed";
-                        dialogSuccess.dismiss();
+                        mainDialog.dismiss();
 
                     }
                 });
@@ -723,6 +724,12 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
     public void show(Boolean isEdit) {
         this.isEdit = isEdit;
         updateCurrentView();
+    }
+
+    public void hide() {
+        if (mainDialog != null) {
+            mainDialog.dismiss();
+        }
     }
 
     private static void updateDisplayedDatafieldsFromDemonstration(View dialogMainView) {
