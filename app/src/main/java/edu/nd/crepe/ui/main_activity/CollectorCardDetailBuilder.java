@@ -124,7 +124,7 @@ public class CollectorCardDetailBuilder {
         collectorEditButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                 check display over other apps permission
+                // check display over other apps permission
                 if (!Settings.canDrawOverlays(c)) {
                     Dialog enableDisplayServiceDialog = CrepeDisplayPermissionManager.getInstance().getEnableDisplayServiceDialog(c);
                     enableDisplayServiceDialog.show();

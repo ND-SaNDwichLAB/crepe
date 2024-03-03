@@ -50,6 +50,7 @@ import androidx.fragment.app.FragmentTransaction;
 import edu.nd.crepe.databinding.ActivityMainBinding;
 
 import com.google.android.material.navigation.NavigationView;
+import com.google.common.reflect.TypeToken;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
@@ -64,6 +65,7 @@ import android.widget.Toast;
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.InputStream;
+import java.lang.reflect.Type;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -264,17 +266,18 @@ public class MainActivity extends AppCompatActivity {
         String screenState = sharedPreferences.getString("screen_state", null);
         String collectorJson = sharedPreferences.getString("collector", null);
         Boolean isEdit = sharedPreferences.getBoolean("isEdit", false);
+        String dataFields = sharedPreferences.getString("datafieldsList", null);
 
         if (screenState != null && !screenState.equals("dismissed") && collectorJson != null) {
             Collector prevCollector = new Gson().fromJson(collectorJson, Collector.class);
+
+            Type type = new TypeToken<ArrayList<Datafield>>() {}.getType();
+            ArrayList<Datafield> datafieldsList = new Gson().fromJson(dataFields, type);
+
             wrapper = createCollectorFromConfigDialogBuilder.buildDialogWrapperWithCollector(prevCollector);
+            wrapper.setDatafields(datafieldsList);
             wrapper.setCurrentScreenState(screenState);
             wrapper.show(isEdit);
-
-            // clear the shared preferences
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.clear();
-            editor.apply();
         }
     }
 
