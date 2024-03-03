@@ -15,15 +15,15 @@ import android.widget.Button;
 
 import edu.nd.crepe.R;
 
-public class DisplayPermissionManager {
-    private static DisplayPermissionManager instance;
+public class CrepeDisplayPermissionManager {
+    private static CrepeDisplayPermissionManager instance;
 
-    private DisplayPermissionManager() {
+    private CrepeDisplayPermissionManager() {
     }
 
-    public static synchronized DisplayPermissionManager getInstance() {
+    public static synchronized CrepeDisplayPermissionManager getInstance() {
         if (instance == null) {
-            instance = new DisplayPermissionManager();
+            instance = new CrepeDisplayPermissionManager();
         }
         return instance;
     }

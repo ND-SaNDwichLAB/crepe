@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ServiceInfo;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
@@ -148,7 +149,13 @@ public class CrepeAccessibilityService extends AccessibilityService {
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .build();
 
-        startForeground(NOTIFICATION_ID, notification);
+
+        // Set the foreground service type
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC);
+        } else {
+            startForeground(NOTIFICATION_ID, notification);
+        }
         handler.post(heartbeatRunnable);
     }
 

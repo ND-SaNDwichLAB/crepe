@@ -169,8 +169,10 @@ public class HomeFragment extends Fragment {
             datafieldListener = new ChildEventListener() {
                 @Override
                 public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                    // when a datafield of current local collector is added, add it to local db
+                    // when a datafield of current local collector is added in firebase, add it to local db
+                    // TODO Yuwen why is it added when i log in???
                     Datafield addedDatafield = snapshot.getValue(Datafield.class);
+                    assert addedDatafield != null;
                     if (collectorIds.contains(addedDatafield.getCollectorId())) {
                         dbManager.addDatafield(addedDatafield);
                         String collectorId = addedDatafield.getCollectorId();

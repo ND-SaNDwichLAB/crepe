@@ -139,10 +139,17 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                     appDropDown.setClickable(false);
                     appDropDown.setFocusable(false);
 
-                    // Title
-                    configPopupTitleTextView.setText("EDIT AN EXISTING COLLECTOR");
+                    appDropDown.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Toast.makeText(context, "You cannot change the app name in edit mode. Create a new collector if you want to use a new app", Toast.LENGTH_LONG).show();
+                        }
+                    });
 
-                } else if (isEdit == false) {
+                    // Title
+                    configPopupTitleTextView.setText("EDIT COLLECTOR");
+
+                } else {
                     // app spinner
                     String[] appItems = {""};
                     try {
