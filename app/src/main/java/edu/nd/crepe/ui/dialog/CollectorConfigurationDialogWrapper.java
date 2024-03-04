@@ -572,15 +572,31 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                                 Log.e("Firebase", "Failed to edited collector " + collector.getCollectorId() + " to firebase.");
                             });
 
+                            // for all of the datafields, it is a little more tricky: we need to check if the datafield already exists in the database
+                            // first, get all existing datafield ids for this collector
+                            List<Datafield> prevDatafieldList = dbManager.getAllDatafieldsForCollector(collector);
+                            List<String> prevDatafieldIdList = new ArrayList<>();
+                            for (Datafield prevDatafield : prevDatafieldList) {
+                                prevDatafieldIdList.add(prevDatafield.getDatafieldId());
+                            }
+                            // then, for each datafield, check if it already exists in the database
                             for (Datafield datafield : datafields) {
-                                dbManager.updateDatafield(datafield);
 
-                                // Since we don't change the inner value of the datafield, just creating or deleting datafield, so we use putDatafield method in this case.
+                                if (prevDatafieldIdList.contains(datafield.getDatafieldId())) {
+                                    // if the datafield already exists in the database, update it
+                                    dbManager.updateDatafield(datafield);
+                                } else {
+                                    // if the datafield does not exist in the database, add it
+                                    dbManager.addOneDatafield(datafield);
+                                }
+
+                                // regardless of whether the datafield already exists in the database, we can use putDatafield to update the datafield in firebase
                                 firebaseCommunicationManager.putDatafield(datafield).addOnCompleteListener(task -> {
-                                    Log.i("Firebase", "Successfully added datafield " + datafield.getDatafieldId() + " to firebase.");
+                                    Log.i("Firebase", "Successfully added/updated datafield " + datafield.getDatafieldId() + " to firebase.");
                                 }).addOnFailureListener(er -> {
-                                    Log.e("Firebase", "Failed to add datafield " + datafield.getDatafieldId() + " to firebase. Error: " + er.getMessage());
+                                    Log.e("Firebase", "Failed to add/update datafield " + datafield.getDatafieldId() + " to firebase. Error: " + er.getMessage());
                                 });
+
                             }
 
                         } else {
