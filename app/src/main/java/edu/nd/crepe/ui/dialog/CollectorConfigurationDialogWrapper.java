@@ -598,6 +598,17 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                                 });
 
                             }
+                            // also, for deleted datafields, we need to remove them from the database
+                            for (String prevDatafieldId : prevDatafieldIdList) {
+                                if (!datafields.contains(prevDatafieldId)) {
+                                    dbManager.removeDatafieldById(prevDatafieldId);
+                                    firebaseCommunicationManager.removeDatafield(prevDatafieldId).addOnCompleteListener(task -> {
+                                        Log.i("Firebase", "Successfully deleted datafield " + prevDatafieldId + " from firebase.");
+                                    }).addOnFailureListener(er -> {
+                                        Log.e("Firebase", "Failed to delete datafield " + prevDatafieldId + " from firebase. Error: " + er.getMessage());
+                                    });
+                                }
+                            }
 
                         } else {
                             // save locally
