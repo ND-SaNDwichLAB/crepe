@@ -258,7 +258,7 @@ public class HomeFragment extends Fragment {
     }
 
     public void initCollectorList() throws PackageManager.NameNotFoundException {
-        // at this time, only collectors for this user are retrieved from firebase to local db
+        // at this time, only active collectors for this user are retrieved from firebase to local db
         // see code in GoogleLoginActivity.java and function addParticipatingCollectors
         collectorList = dbManager.getActiveCollectors();
 

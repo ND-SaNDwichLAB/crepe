@@ -215,10 +215,7 @@ public class FirebaseCommunicationManager {
                         long collectorEndTime = (long) snapshot.child("collectorEndTime").getValue();
 
                         Collector collector = new Collector(collectorId, creatorUserId, appName, appPackage, description, mode, targetServerIp, collectorStartTime, collectorEndTime, collectorStatus);
-                        // TODO Yuwen we would want to show non-active collectors in other tabs in the future
-                        if (collectorStatus.equals(Collector.ACTIVE)) {
-                            collectors.add(collector);
-                        }
+                        collectors.add(collector);
                     }
 
                     // Call firebase callback to update collectors
