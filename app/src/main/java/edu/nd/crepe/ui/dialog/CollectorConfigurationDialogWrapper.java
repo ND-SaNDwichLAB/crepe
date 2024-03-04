@@ -75,6 +75,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
     private static CollectorConfigurationDialogWrapper singletonInstance = null;
 
+
     public static class GraphQueryGraphQueryCallback implements edu.nd.crepe.ui.dialog.GraphQueryCallback, Serializable {
         @Override
         public void onDataReceived(String query, String targetText) {
@@ -91,7 +92,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                 Log.e("CollectorConfigDialog", "Context is null, cannot save datafields to shared preferences");
             }
 
-//            updateDisplayedDatafieldsFromDemonstration();
+            updateDisplayedDatafieldsFromDemonstration();
         }
     }
 
@@ -147,8 +148,13 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                 if (isEdit) {
 
                     String[] singleAppItem = {collector.getAppName()};
+                    TextView commentOnAppSpinner = (TextView) dialogMainView.findViewById(R.id.commentOnAppSpinner);
                     ArrayAdapter<String> singleAppAdapter = new ArrayAdapter<String>(context.getApplicationContext(), android.R.layout.simple_spinner_dropdown_item, singleAppItem);
                     singleAppAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+                    // change the text to notify the user that the app is not editable
+                    commentOnAppSpinner.setText("The target app cannot be changed after creation");
+
                     // Set the adapter to the spinner
                     appDropDown.setAdapter(singleAppAdapter);
 
@@ -374,7 +380,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
             case "buildDialogFromConfigGraphQuery":
 
                 dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_build_collector_from_config_graph_query, null);
-
+                mainDialog = createNewAlertDialog(dialogMainView);
                 // modify content of the popup box based on current state
                 updateDisplayedDatafieldsFromDemonstration();
 //                if (isEdit == true) {
@@ -403,7 +409,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                     commentOnOpenAppButton.setText("Demonstrate in the " + appName + " app");
                 }
 
-                mainDialog = createNewAlertDialog(dialogMainView);
+
                 mainDialog.show();
 
 
@@ -556,7 +562,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         collector.setDescription(descriptionText);
 
 
-                        if (isEdit == true) {
+                        if (isEdit) {
                             collectorUpdates.put("description", descriptionText);
                             // save locally
                             dbManager.updateCollector(collector);
@@ -577,7 +583,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                                 });
                             }
 
-                        } else if (isEdit == false) {
+                        } else {
                             // save locally
                             dbManager.addOneCollector(collector);
                             // save to Firebase
@@ -756,14 +762,20 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
     }
 
     public void hide() {
-        if (mainDialog != null) {
-            mainDialog.dismiss();
+        try {
+            if (mainDialog != null && mainDialog.isShowing()) {
+                mainDialog.dismiss();
+            } else {
+                Log.e("CollectorConfigDialog", "mainDialog is null or not showing");
+            }
+        } catch (Exception e) {
+            Log.e("CollectorConfigDialog", "Error dismissing mainDialog: " + e.getMessage());
         }
     }
 
     private static void updateDisplayedDatafieldsFromDemonstration() {
         // we only update if the current screen is the demonstration screen
-        if (currentScreenState == "buildDialogFromConfigGraphQuery") {
+        if (currentScreenState.equals("buildDialogFromConfigGraphQuery")) {
             refreshDatafieldsList();
         } else {
             Log.e("Dialog", "updateDisplayedDatafieldsFromDemonstration() called when currentScreenState is not buildDialogFromConfigGraphQuery");
@@ -818,6 +830,9 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
         return collector;
     }
 
+    public void setCurrentCollector(Collector collector) {
+        this.collector = collector;
+    }
 
     public static Boolean getIsEdit() {
         return isEdit;

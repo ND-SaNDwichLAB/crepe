@@ -223,12 +223,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
+        Log.i("MainActivity", "onStop called");
         EventBus.getDefault().unregister(this);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        Log.i("MainActivity", "onDestroy called");
         // unregister the event bus
         EventBus.getDefault().unregister(this);
         // close the database
@@ -238,6 +240,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        Log.i("MainActivity", "onPause called");
 
         // we used this to store the state of the activity before moving to demonstrate in another app
         // however, we probably do not need this if do not call finish() inside the activity to kill it
@@ -260,22 +263,27 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
+        Log.i("MainActivity", "onResume called");
         SharedPreferences sharedPreferences = getSharedPreferences("prefs", MODE_PRIVATE);
 
         String screenState = sharedPreferences.getString("screen_state", null);
         String collectorJson = sharedPreferences.getString("collector", null);
         Boolean isEdit = sharedPreferences.getBoolean("isEdit", false);
-        String dataFields = sharedPreferences.getString("datafieldsList", null);
+        String datafields = sharedPreferences.getString("datafieldsList", null);
 
         if (screenState != null && !screenState.equals("dismissed") && collectorJson != null) {
             Collector prevCollector = new Gson().fromJson(collectorJson, Collector.class);
-
             Type type = new TypeToken<ArrayList<Datafield>>() {}.getType();
-            ArrayList<Datafield> datafieldsList = new Gson().fromJson(dataFields, type);
+            ArrayList<Datafield> datafieldsList = new Gson().fromJson(datafields, type);
 
-            wrapper = createCollectorFromConfigDialogBuilder.buildDialogWrapperWithCollector(prevCollector);
+            if (!CollectorConfigurationDialogWrapper.isNull()) {
+                wrapper = CollectorConfigurationDialogWrapper.getInstance();
+            } else {
+                wrapper = createCollectorFromConfigDialogBuilder.buildDialogWrapperWithCollector(prevCollector);
+            }
+
             wrapper.setDatafields(datafieldsList);
+            wrapper.setCurrentCollector(prevCollector);
             wrapper.setCurrentScreenState(screenState);
             wrapper.show(isEdit);
         }
