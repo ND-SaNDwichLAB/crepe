@@ -256,7 +256,7 @@ public class FirebaseCommunicationManager {
                             long collectorEndTime = (long) collectorSnapshot.child("collectorEndTime").getValue();
 
                             // check if the collector time frame contains the current time
-                            if (collectorStatus != Collector.DELETED) {
+                            if (!collectorStatus.equals(Collector.DELETED)) {
                                 String currentStatus = "";
                                 if (currentTime >= collectorStartTime && currentTime <= collectorEndTime) {
                                     currentStatus = Collector.ACTIVE;
