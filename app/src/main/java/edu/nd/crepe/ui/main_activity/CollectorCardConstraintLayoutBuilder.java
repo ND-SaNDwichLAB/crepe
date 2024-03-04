@@ -18,6 +18,7 @@ import edu.nd.crepe.database.Collector;
 import edu.nd.crepe.database.DatabaseManager;
 
 import java.util.Map;
+import java.util.Objects;
 
 public class CollectorCardConstraintLayoutBuilder {
     private Context c;
@@ -58,7 +59,7 @@ public class CollectorCardConstraintLayoutBuilder {
         }
 
         // else
-        if(layoutType == "cardLayout") {
+        if(Objects.equals(layoutType, "cardLayout")) {
             // if for home fragment, build a card layout
             collectorLayout = (ConstraintLayout) LayoutInflater.from(c).inflate(R.layout.collector_card, rootView, false);
         } else {
