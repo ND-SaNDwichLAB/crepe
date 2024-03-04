@@ -71,7 +71,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
     private static HashMap<String, Object> collectorUpdates = new HashMap<>();
 
-    private static List<Datafield> datafields;
+    private static List<Datafield> datafields = new ArrayList<>();
 
     private static CollectorConfigurationDialogWrapper singletonInstance = null;
 
@@ -401,7 +401,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                 TextView commentOnOpenAppButton = (TextView) dialogMainView.findViewById(R.id.commentOnOpenAppButton);
                 String appName = collector.getAppName();
 
-                if (datafields.size() > 0) {
+                if (datafields != null && !datafields.isEmpty()) {
                     openAppButton.setText("Add another");
                     commentOnOpenAppButton.setText("Add another data to collect in the " + appName + " app");
                 } else {
@@ -481,7 +481,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                 graphQueryNxtBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if (datafields.size() == 0) {
+                        if (datafields != null && datafields.isEmpty()) {
                             // remind user to add graph query
                             Context currentContext = context.getApplicationContext();
                             Toast.makeText(currentContext, "Please demonstrate the data to collect!", Toast.LENGTH_LONG).show();
@@ -749,7 +749,9 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
     private void clearDatafields() {
         // remove all elements from datafields
-        datafields.clear();
+        if (datafields != null) {
+            datafields.clear();
+        }
     }
 
     public Dictionary<String, String> getAllInstalledAppNames() throws PackageManager.NameNotFoundException {
@@ -815,31 +817,33 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
         datafieldContainerLinearLayout.removeAllViews();
 
         // inflate datafields into the dialog
-        for (int i = 0; i < datafields.size(); i++) {
-            // inflate datafield
-            View datafieldView = LayoutInflater.from(context).inflate(R.layout.datafield_card, null);
-            // get datafield name
-            TextView datafieldName = (TextView) datafieldView.findViewById(R.id.datafieldTextView);
-            datafieldName.setText(datafields.get(i).getName());
+        if (datafields != null) {
+            for (int i = 0; i < datafields.size(); i++) {
+                // inflate datafield
+                View datafieldView = LayoutInflater.from(context).inflate(R.layout.datafield_card, null);
+                // get datafield name
+                TextView datafieldName = (TextView) datafieldView.findViewById(R.id.datafieldTextView);
+                datafieldName.setText(datafields.get(i).getName());
 
-            // set onclicklistener for datafield remove
-            ImageButton deleteDatafieldButton = (ImageButton) datafieldView.findViewById(R.id.removeDatafieldButton);
-            int finalI = i;
-            deleteDatafieldButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    // remove datafield from datafields list
-                    datafields.remove(finalI);
-                    // update dialog
-                    updateDisplayedDatafieldsFromDemonstration();
+                // set onclicklistener for datafield remove
+                ImageButton deleteDatafieldButton = (ImageButton) datafieldView.findViewById(R.id.removeDatafieldButton);
+                int finalI = i;
+                deleteDatafieldButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        // remove datafield from datafields list
+                        datafields.remove(finalI);
+                        // update dialog
+                        updateDisplayedDatafieldsFromDemonstration();
+                    }
+                });
+
+                // add datafield to dialog
+                if (datafieldContainerLinearLayout != null) {
+                    datafieldContainerLinearLayout.addView(datafieldView);
+                } else {
+                    Log.e("Dialog", "datafieldContainerLinearLayout is null");
                 }
-            });
-
-            // add datafield to dialog
-            if (datafieldContainerLinearLayout != null) {
-                datafieldContainerLinearLayout.addView(datafieldView);
-            } else {
-                Log.e("Dialog", "datafieldContainerLinearLayout is null");
             }
         }
     }

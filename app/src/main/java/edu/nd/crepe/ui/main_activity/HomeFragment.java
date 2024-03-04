@@ -1,7 +1,8 @@
 package edu.nd.crepe.ui.main_activity;
 
-import static edu.nd.crepe.ui.main_activity.CollectorCardConstraintLayoutBuilder.DELETED;
-import static edu.nd.crepe.ui.main_activity.CollectorCardConstraintLayoutBuilder.EXPIRED;
+import static edu.nd.crepe.database.Collector.DELETED;
+import static edu.nd.crepe.database.Collector.EXPIRED;
+import static edu.nd.crepe.database.Collector.ACTIVE;
 
 import android.app.Dialog;
 import android.content.Intent;
@@ -270,7 +271,7 @@ public class HomeFragment extends Fragment {
                                     crepeNotificationManager.showNotification("Your " + currentCollector.getAppName() + " collector has finished. Thank you for your participation!");
                                 }
                                 // if the status changed to active, something is wrong
-                                if (updatedCollector.getCollectorStatus().equals(CollectorCardConstraintLayoutBuilder.ACTIVE)) {
+                                if (updatedCollector.getCollectorStatus().equals(ACTIVE)) {
                                     Log.e("collector childEventListener", "The collector with id " + updatedCollectorId + " status has changed to active. Please check.");
                                 }
                                 Log.e("collector childEventListener", "The collector with id " + updatedCollectorId + " status is changed to " + updatedCollector.getCollectorStatus() + ", but not caught. Please check.");
