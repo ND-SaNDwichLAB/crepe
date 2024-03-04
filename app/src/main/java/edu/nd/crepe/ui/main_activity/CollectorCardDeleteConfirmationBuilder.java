@@ -125,9 +125,9 @@ public class CollectorCardDeleteConfirmationBuilder {
 
     private UserRole getUserRole() {
         List<User> allUsers = dbManager.getAllUsers();
-        if (allUsers.size() > 0) {
+        if (allUsers.size() > 1) {
             Log.e("CollectorCardDeleteConfirmationBuilder", "More than one user found in the database");
-        } else if (allUsers.size() == 0) {
+        } else if (allUsers.isEmpty()) {
             Log.e("CollectorCardDeleteConfirmationBuilder", "No user found in the database");
             return null;
         }

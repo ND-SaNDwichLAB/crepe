@@ -670,9 +670,9 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
                 // update the displayed app info
                 TextView successMessageTextView = (TextView) dialogMainView.findViewById(R.id.shareText);
-                if(isEdit == true) {
+                if (isEdit) {
                     successMessageTextView.setText("Your collector for " + collector.getAppName() + " is saved. Share with your participants");
-                } else if (isEdit == false) {
+                } else {
                     successMessageTextView.setText("Your collector for " + collector.getAppName() + " is created. Share with your participants");
                 }
                 mainDialog = createNewAlertDialog(dialogMainView);

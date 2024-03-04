@@ -24,6 +24,8 @@ import edu.nd.crepe.database.Datafield;
 import edu.nd.crepe.database.User;
 import edu.nd.crepe.network.FirebaseCallback;
 import edu.nd.crepe.network.FirebaseCommunicationManager;
+import edu.nd.crepe.servicemanager.AccessibilityPermissionManager;
+import edu.nd.crepe.servicemanager.CrepeAccessibilityService;
 import edu.nd.crepe.servicemanager.CrepeDisplayPermissionManager;
 import edu.nd.crepe.ui.dialog.CollectorConfigurationDialogWrapper;
 import edu.nd.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilder;
@@ -38,7 +40,7 @@ public class CollectorCardDetailBuilder {
     private DatabaseManager dbManager;
     private FirebaseCommunicationManager fbManager;
 
-    // add for editing function 02/25 qi
+    // add for editing function
     private CreateCollectorFromConfigDialogBuilder createCollectorFromConfigDialogBuilder;
     private CollectorConfigurationDialogWrapper wrapper;
 
@@ -64,19 +66,25 @@ public class CollectorCardDetailBuilder {
         // populate information of the collector
         TextView creatorTitleTextView = (TextView) popupView.findViewById(R.id.collectorCreatorTitle);
         TextView creatorNameTextView = (TextView) popupView.findViewById(R.id.collectorCreatorName);
+        ImageButton collectorEditButton = (ImageButton) popupView.findViewById(R.id.collectorEditButton);
+
         String creatorUserId = collector.getCreatorUserId();
         List<User> allUsers = dbManager.getAllUsers();
         // if it is created by current user, change the title to "Created By You" and show the participant count
         // otherwise, show the creator's name
         Boolean createdByCurrentUser = false;
+        if (allUsers.size() > 1) {
+            Log.i("CollectorCardDetailBuilder", "More than 1 user detected locally. Please check.\nallUsers size: " + allUsers.size());
+        }
         for (User user : allUsers) {
             if (user.getUserId().equals(creatorUserId)) {
-                creatorNameTextView.setText(user.getName() + " (you)");
                 createdByCurrentUser = true;
+                creatorNameTextView.setText(user.getName() + " (you)");
                 break;
             }
         }
         if (!createdByCurrentUser) {
+            // set the creator name by retrieving the creator info from firebase
             fbManager.retrieveUser(creatorUserId, new FirebaseCallback() {
                 @Override
                 public void onResponse (Object user) {
@@ -89,6 +97,36 @@ public class CollectorCardDetailBuilder {
                     Log.e("CollectorCardDetailBuilder", "Error retrieving creator user: " + e.getMessage());
                     creatorTitleTextView.setVisibility(View.GONE);
                     creatorNameTextView.setVisibility(View.GONE);
+                }
+            });
+
+            // if the user is a participant of the collector, they cannot edit the collector, and deletion means dropping out of the collection
+            collectorEditButton.setVisibility(View.GONE);
+
+        } else {
+            // if the collector is created by current user, then they have edit and delete permissions
+            collectorEditButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    // check display over other apps permission
+                    if (!Settings.canDrawOverlays(c)) {
+                        Dialog enableDisplayServiceDialog = CrepeDisplayPermissionManager.getInstance().getEnableDisplayServiceDialog(c);
+                        enableDisplayServiceDialog.show();
+                    } else if (!CrepeAccessibilityService.isAccessibilityServiceEnabled(c, CrepeAccessibilityService.class)) {
+                        // show the accessibility service permission dialog
+                        Dialog dialog = AccessibilityPermissionManager.getInstance().getEnableAccessibilityServiceDialog(c);
+                        dialog.show();
+                    } else {
+                        // dismiss current dialog
+                        dialog.dismiss();
+                        // first, collapse the fab icon
+                        // then, bring up the dialog to edit the existing collector
+                        wrapper = createCollectorFromConfigDialogBuilder.buildDialogWrapperWithCollector(collector);
+                        Boolean isEdit = true;
+                        wrapper.show(isEdit);
+                    }
+
+
                 }
             });
         }
@@ -120,32 +158,10 @@ public class CollectorCardDetailBuilder {
             }
         });
 
-        ImageButton collectorEditButton = (ImageButton) popupView.findViewById(R.id.collectorEditButton);
-        collectorEditButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // check display over other apps permission
-                if (!Settings.canDrawOverlays(c)) {
-                    Dialog enableDisplayServiceDialog = CrepeDisplayPermissionManager.getInstance().getEnableDisplayServiceDialog(c);
-                    enableDisplayServiceDialog.show();
-                } else {
-                    // dismiss current dialog
-                    dialog.dismiss();
-                    // first, collapse the fab icon
-                    // then, bring up the dialog to edit the existing collector
-                    wrapper = createCollectorFromConfigDialogBuilder.buildDialogWrapperWithCollector(collector);
-                    Boolean isEdit = true;
-                    wrapper.show(isEdit);
-                }
-
-
-            }
-        });
-
-
-        Button closeBtn = (Button) popupView.findViewById(R.id.collectorCloseButton);
         ImageButton deleteBtn = (ImageButton) popupView.findViewById(R.id.collectorDeleteButton);
 
+        // we do not need to worry about the user role when deleting the collector here,
+        // because it is implemented in the CollectorCardDeleteConfirmationBuilder
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -159,6 +175,7 @@ public class CollectorCardDetailBuilder {
             }
         });
 
+        Button closeBtn = (Button) popupView.findViewById(R.id.collectorCloseButton);
         closeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
