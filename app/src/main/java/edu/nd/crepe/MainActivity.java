@@ -393,6 +393,8 @@ public class MainActivity extends AppCompatActivity {
                     addDatafieldForCollector(collector);
                 }
 
+                Log.i("Firebase collector", "Fetched collector count: " + collectors.size() + " for user " + userId);
+
                 // After fetching all data, post this event and HomeFragment will update the collector list on home page
                 EventBus.getDefault().post(new DataLoadingEvent(true));
 
