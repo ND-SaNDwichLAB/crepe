@@ -78,16 +78,10 @@ public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
     private FloatingActionButton fabBtn;
-    private LinearLayout addExistingBtn;
-    private LinearLayout createNewBtn;
-
     private ActionBarDrawerToggle sidemenuToggle;
     private DrawerLayout drawerLayout;
     private NavigationView sidebarNavView;
     private View navHeader;
-
-
-
     private DatabaseManager dbManager;
     private FirebaseCommunicationManager firebaseCommunicationManager;
     private AddCollectorFromCollectorIdDialogBuilder addCollectorFromCollectorIdDialogBuilder;
@@ -142,6 +136,17 @@ public class MainActivity extends AppCompatActivity {
                 Log.i("Main Activity", "no user found in database.");
             }
         }
+
+        // get local collectors
+        ArrayList<Collector> existingCollectors = (ArrayList<Collector>) dbManager.getAllCollectors();
+        // we also get a list of collectorIds, easier for checking collector existence
+        ArrayList<String> existingCollectorIds = new ArrayList<>();
+        for (Collector collector : existingCollectors) {
+            existingCollectorIds.add(collector.getCollectorId());
+        }
+
+        // retrieve collectors for this user that are not in local yet
+        retrieveCollectorsForUser(currentUser, existingCollectorIds);
 
 
         // display the home fragment
@@ -287,18 +292,6 @@ public class MainActivity extends AppCompatActivity {
     // a function to switch between fragments using the navDrawer
     private void displaySelectedScreen(int itemId) {
 
-
-        // get the collectors associated with this user
-        // contains 2 types of associations:
-        // 1. collectors that this user is participating in
-        // simply by using the field under User "userCollectors" (see /database/User.java)
-        ArrayList<String> collectorIds = currentUser.getCollectorsForCurrentUser();
-        addParticipatingCollectors(collectorIds);
-
-        // 2. collectors that this user has created
-        // we need to index all collectors on the "creatorUserId" field, find the ones that contain current user's userId (see /database/Collector.java)
-        addCreatedCollectors(currentUser.getUserId());
-
         // initialize a fragment for switching
 
         switch (itemId) {
@@ -355,42 +348,53 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void addParticipatingCollectors(ArrayList<String> collectorIds) {
+    private void addParticipatingCollectors(ArrayList<String> collectorIds, ArrayList<String> existingCollectorIds) {
         AtomicInteger collectorCounter = new AtomicInteger(0);
         int totalCollectorCount = collectorIds.size();
 
         // retrieve all collectors associated with this user from firebase and save to local
         for (String collectorId : collectorIds) {
-            firebaseCommunicationManager.retrieveCollector(collectorId, new FirebaseCallback<Collector>() {
-                public void onResponse(Collector collector) {
-                    dbManager.addOneCollector(collector);
-                    addDatafieldForCollector(collector);
+            if (!existingCollectorIds.contains(collectorId)) {
+                firebaseCommunicationManager.retrieveCollector(collectorId, new FirebaseCallback<Collector>() {
+                    public void onResponse(Collector collector) {
+                        dbManager.addOneCollector(collector);
+                        addDatafieldForCollector(collector);
 
-                    // broadcast an event to HomeFragment to update the collector list
-                    if (collectorCounter.incrementAndGet() == totalCollectorCount) {
-                        // After fetching all data, post this event and HomeFragment will update the collector list on home page
-                        EventBus.getDefault().post(new DataLoadingEvent(true));
+                        // broadcast an event to HomeFragment to update the collector list
+                        if (collectorCounter.incrementAndGet() == totalCollectorCount) {
+                            // After fetching all data, post this event and HomeFragment will update the collector list on home page
+                            EventBus.getDefault().post(new DataLoadingEvent(true));
+                        }
                     }
-                }
 
-                public void onErrorResponse(Exception e) {
-                    try {
-                        Log.e("Firebase collector", e.getMessage());
-                    } catch (NullPointerException ex) {
-                        Log.e("Firebase collector", "An unknown error occurred.");
+                    public void onErrorResponse(Exception e) {
+                        try {
+                            Log.e("Firebase collector", e.getMessage());
+                        } catch (NullPointerException ex) {
+                            Log.e("Firebase collector", "An unknown error occurred.");
+                        }
                     }
+                });
+            } else {
+                Log.i("MainActivity", "Collector already exists in local database. Skipped");
+                // broadcast an event to HomeFragment to update the collector list
+                if (collectorCounter.incrementAndGet() == totalCollectorCount) {
+                    // After fetching all data, post this event and HomeFragment will update the collector list on home page
+                    EventBus.getDefault().post(new DataLoadingEvent(true));
                 }
-            });
+            }
         }
     }
 
-    private void addCreatedCollectors(String userId) {
+    private void addCreatedCollectors(String userId, ArrayList<String> existingCollectorIds) {
         firebaseCommunicationManager.retrieveCollectorWithCreatorUserId(userId, new FirebaseCallback<ArrayList<Collector>>() {
             public void onResponse(ArrayList<Collector> collectors) {
 
                 for (Collector collector : collectors) {
-                    dbManager.addOneCollector(collector);
-                    addDatafieldForCollector(collector);
+                    if (!existingCollectorIds.contains(collector.getCollectorId())) {
+                        dbManager.addOneCollector(collector);
+                        addDatafieldForCollector(collector);
+                    }
                 }
                 // After fetching all data, post this event and HomeFragment will update the collector list on home page
                 EventBus.getDefault().post(new DataLoadingEvent(true));
@@ -467,6 +471,21 @@ public class MainActivity extends AppCompatActivity {
             Log.e("MainActivity", "Error loading user image", e);
             return null;
         }
+    }
+
+    public void retrieveCollectorsForUser(User currentUser, ArrayList<String> existingCollectorIds) {
+
+        // get the collectors associated with this user
+        // contains 2 types of associations:
+        // 1. collectors that this user is participating in
+        // simply by using the field under User "userCollectors" (see /database/User.java)
+        ArrayList<String> collectorIds = currentUser.getCollectorsForCurrentUser();
+        addParticipatingCollectors(collectorIds, existingCollectorIds);
+
+        // 2. collectors that this user has created
+        // we need to index all collectors on the "creatorUserId" field, find the ones that contain current user's userId (see /database/Collector.java)
+        addCreatedCollectors(currentUser.getUserId(), existingCollectorIds);
+
     }
 
     Runnable refreshCollectorListRunnable = new Runnable() {
