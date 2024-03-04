@@ -95,11 +95,8 @@ public class CollectorCardDeleteConfirmationBuilder {
                     // update to firebase too
                     HashMap<String, Object> userUpdates = new HashMap<>();
                     ArrayList<String> updatedUserCollectors = currentUser.getCollectorsForCurrentUser();
-                    updatedUserCollectors.remove(collector.getCollectorId());
                     userUpdates.put("userCollectors", updatedUserCollectors);
                     fbManager.updateUser(currentUser.getUserId(), userUpdates);
-                    // update in the variable too, just in case
-                    currentUser.removeCollectorForCurrentUser(collector);
 
                     // the creator of this collector will be informed of this change, see details in how we set up listeners to firebase changes in HomeFragment onViewCreated
 

@@ -1,6 +1,7 @@
 package edu.nd.crepe.ui.dialog;
 
 import static edu.nd.crepe.MainActivity.currentUser;
+import static edu.nd.crepe.database.Collector.ACTIVE;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -112,7 +113,7 @@ public class AddCollectorFromCollectorIdDialogBuilder {
                 // get all collectorIds from firebase, to make sure the collector exists on firebase
                 firebaseCommunicationManager.retrieveAllCollectors(new FirebaseCallback<List<Collector>>() {
                     public void onResponse(List<Collector> result) {
-                        if (result.size() == 0) {
+                        if (result.isEmpty()) {
                             Log.i("Firebase", "No collectors found in Firebase.");
                         } else {
                             for (Collector collector : result) {
@@ -142,16 +143,23 @@ public class AddCollectorFromCollectorIdDialogBuilder {
                                     }
 
                                     // 1. add collector to local database
-                                    dbManager.addOneCollector(targetCollector);
+                                    // if the collector already exists, we just set the status to active
+                                    if (dbManager.getCollectorById(targetCollector.getCollectorId()) != null) {
+                                        Collector existingCollector = dbManager.getCollectorById(targetCollector.getCollectorId());
+                                        existingCollector.setCollectorStatus(ACTIVE);
+                                        dbManager.updateCollectorStatus(existingCollector);
+                                    } else {
+                                        // otherwise, we add the collector to the database
+                                        dbManager.addOneCollector(targetCollector);
+                                    }
 
                                     // 2a. add collector to user's userCollectors list (local)
-                                    dbManager.addCollectorForUser(targetCollector, currentUser);
                                     currentUser.addCollectorForCurrentUser(targetCollector.getCollectorId());
+                                    dbManager.updateUser(currentUser);
 
                                     // 2b. add collector to user's userCollectors list (firebase)
                                     HashMap<String, Object> userUpdates = new HashMap<>();
                                     ArrayList<String> updatedUserCollectors = currentUser.getCollectorsForCurrentUser();
-                                    updatedUserCollectors.add(targetCollector.getCollectorId());
                                     userUpdates.put("userCollectors", updatedUserCollectors);
                                     firebaseCommunicationManager.updateUser(currentUser.getUserId(), userUpdates);
                                 }
