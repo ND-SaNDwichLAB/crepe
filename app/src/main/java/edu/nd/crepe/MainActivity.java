@@ -69,6 +69,7 @@ import java.lang.reflect.Type;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.json.JsonObject;
@@ -107,16 +108,12 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.i("MainActivity", "onCreate called");
         super.onCreate(savedInstanceState);
 
         dbManager = DatabaseManager.getInstance(this.getApplicationContext());
-
         firebaseCommunicationManager = new FirebaseCommunicationManager(this);
-
-
-
         mAuth = FirebaseAuth.getInstance();
-
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
@@ -176,19 +173,17 @@ public class MainActivity extends AppCompatActivity {
 //        }
 
         // set up the notification channel
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = "crepeChannel";
-            String description = "Crepe app notification channel, delivering information regarding collector status changes.";
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel("CREPE_NOTIFICATION_CHANNEL", name, importance);
-            channel.setDescription(description);
-            // Register the channel with the system
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
-        }
+        CharSequence name = "crepeChannel";
+        String description = "Crepe app notification channel, delivering information regarding collector status changes.";
+        int importance = NotificationManager.IMPORTANCE_DEFAULT;
+        NotificationChannel channel = new NotificationChannel("CREPE_NOTIFICATION_CHANNEL", name, importance);
+        channel.setDescription(description);
+        // Register the channel with the system
+        NotificationManager notificationManager = getSystemService(NotificationManager.class);
+        notificationManager.createNotificationChannel(channel);
 
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
         sidebarNavView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {

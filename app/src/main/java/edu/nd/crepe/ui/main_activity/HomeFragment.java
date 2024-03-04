@@ -44,6 +44,7 @@ import edu.nd.crepe.servicemanager.CrepeNotificationManager;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class HomeFragment extends Fragment {
@@ -53,16 +54,13 @@ public class HomeFragment extends Fragment {
     private ChildEventListener collectorListener;
     private DatabaseReference datafieldReference;
     private ChildEventListener datafieldListener;
-
-
     private List<Collector> collectorList;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        dbManager = DatabaseManager.getInstance(this.getActivity().getApplicationContext());
-
+        dbManager = DatabaseManager.getInstance(Objects.requireNonNull(this.getActivity()).getApplicationContext());
         return inflater.inflate(R.layout.fragment_home, container, false);
     }
 
@@ -70,15 +68,15 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         EventBus.getDefault().register(this);
-        getActivity().setTitle("Crepe");
+        Objects.requireNonNull(getActivity()).setTitle("Crepe");
         try {
             initCollectorList();
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
 
-        if (collectorList.size() > 0) {
-
+        // if there are collectors locally, add listener to firebase to watch for remote updates to these collectors
+        if (!collectorList.isEmpty()) {
             // get all collector ids
             List<String> collectorIds = collectorList.stream().map(Collector::getCollectorId).collect(Collectors.toList());
             // add listener to collector and datafield updates
@@ -95,6 +93,7 @@ public class HomeFragment extends Fragment {
                 public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                     // when a collector of this id is changed, update the collector in local db
                     Collector updatedCollector = snapshot.getValue(Collector.class);
+                    assert updatedCollector != null;
                     String updatedCollectorId = updatedCollector.getCollectorId();
                     if (collectorIds.contains(updatedCollectorId)) {
                         // this updateCollector function can also handle when only the collector status was changed
@@ -268,7 +267,7 @@ public class HomeFragment extends Fragment {
         // clear the collector list
         fragmentInnerLinearLayout.removeAllViews();
 
-        if (collectorList.size() > 0) {
+        if (!collectorList.isEmpty()) {
             // hide the no collector textview
             noCollectorTextView.setVisibility(View.GONE);
 
