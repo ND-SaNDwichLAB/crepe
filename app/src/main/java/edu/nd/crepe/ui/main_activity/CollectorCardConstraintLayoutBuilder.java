@@ -18,6 +18,11 @@ import edu.nd.crepe.database.Collector;
 import edu.nd.crepe.database.DatabaseManager;
 
 import java.util.Map;
+import java.util.Objects;
+
+import static edu.nd.crepe.database.Collector.ACTIVE;
+import static edu.nd.crepe.database.Collector.DELETED;
+import static edu.nd.crepe.database.Collector.EXPIRED;
 
 public class CollectorCardConstraintLayoutBuilder {
     private Context c;
@@ -31,16 +36,6 @@ public class CollectorCardConstraintLayoutBuilder {
     private Runnable refreshCollectorListRunnable;
     private DatabaseManager dbManager;
     private Map<String, Drawable> apps;
-
-
-    // some constants for collector status
-    public static final String DELETED = "deleted";
-    public static final String DISABLED = "disabled";
-    public static final String ACTIVE = "active";
-    public static final String NOTYETSTARTED = "notYetStarted";
-    public static final String EXPIRED = "expired";
-
-
     public CollectorCardConstraintLayoutBuilder(Context c, Runnable refreshCollectorListRunnable, Map<String,Drawable> apps) {
         this.c = c;
         this.refreshCollectorListRunnable = refreshCollectorListRunnable;
@@ -58,7 +53,7 @@ public class CollectorCardConstraintLayoutBuilder {
         }
 
         // else
-        if(layoutType == "cardLayout") {
+        if(Objects.equals(layoutType, "cardLayout")) {
             // if for home fragment, build a card layout
             collectorLayout = (ConstraintLayout) LayoutInflater.from(c).inflate(R.layout.collector_card, rootView, false);
         } else {
@@ -84,25 +79,19 @@ public class CollectorCardConstraintLayoutBuilder {
         collectorStatusImg = (ImageView) collectorLayout.findViewById(R.id.runningLightImageView);
         collectorStatusTxt = (TextView) collectorLayout.findViewById(R.id.collectorStatusText);
 
-        // if the collector is disabled:
-        if (collector.getCollectorStatus().equals(DISABLED)){
-            collectorStatusTxt.setText("Disabled");
+        // if the collector is not deleted, refresh its status based on current time
+        collector.autoSetCollectorStatus();
+        // also update in the database
+        dbManager.updateCollectorStatus(collector);
+        if (collector.getCollectorStatus().equals(ACTIVE)){
+            collectorStatusTxt.setText("Running");
+            collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_24_green);
+        } else if (collector.getCollectorStatus().equals(EXPIRED)){
+            collectorStatusTxt.setText("Expired");
             collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_12_grey);
         } else {
-            // if the collector is neither deleted nor disabled, refresh its status based on current time
-            collector.autoSetCollectorStatus();
-            // also update in the database
-            dbManager.updateCollectorStatus(collector);
-            if (collector.getCollectorStatus().equals(ACTIVE)){
-                collectorStatusTxt.setText("Running");
-                collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_24_green);
-            } else if (collector.getCollectorStatus().equals(EXPIRED)){
-                collectorStatusTxt.setText("Expired");
-                collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_12_grey);
-            } else {
-                collectorStatusTxt.setText("Not yet started");
-                collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_12_yellow);
-            }
+            collectorStatusTxt.setText("Not yet started");
+            collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_12_yellow);
         }
 
         // get App logo

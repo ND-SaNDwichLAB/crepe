@@ -22,8 +22,8 @@ public class CreateCollectorFromConfigDialogBuilder {
         this.refreshCollectorListRunnable = refreshCollectorListRunnable;
     }
 
-    public CollectorConfigurationDialogWrapper buildDialogWrapperWithNewCollector() {
-        CollectorConfigurationDialogWrapper.initializeInstance(c, new Collector(), refreshCollectorListRunnable);
+    public CollectorConfigurationDialogWrapper buildDialogWrapperWithCollector(Collector collector) {
+        CollectorConfigurationDialogWrapper.initializeInstance(c, collector, refreshCollectorListRunnable);
         collectorConfigurationDialogWrapper = CollectorConfigurationDialogWrapper.getInstance();
         return collectorConfigurationDialogWrapper;
     }

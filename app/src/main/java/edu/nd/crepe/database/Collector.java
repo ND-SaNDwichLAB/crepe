@@ -219,7 +219,7 @@ public class Collector implements Serializable {
 
     // We also provide a set status function to manually set the status to an arbitrary value
     public void setCollectorStatus(String collectorStatus) {
-        if (collectorStatus == DELETED || collectorStatus == NOTYETSTARTED || collectorStatus == ACTIVE || collectorStatus == EXPIRED) {
+        if (collectorStatus.equals(DELETED) || collectorStatus.equals(NOTYETSTARTED) || collectorStatus.equals(ACTIVE) || collectorStatus.equals(EXPIRED)) {
             this.collectorStatus = collectorStatus;
         } else {
             Log.e("collector", "The input status is not valid (must be deleted, notYetStarted, active, or expired)");

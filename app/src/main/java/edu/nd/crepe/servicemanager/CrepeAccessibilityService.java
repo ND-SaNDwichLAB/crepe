@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ServiceInfo;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
@@ -82,17 +83,19 @@ public class CrepeAccessibilityService extends AccessibilityService {
     private List<Collector> collectors;
     private List<Datafield> datafields;
     private List<AccessibilityNodeInfo> allNodeList;
+    private AtomicLong lastSavedResultTimestamp = new AtomicLong(0);
     // used for setting a foreground notification channel
     private static final int NOTIFICATION_ID = 1;
     private static final String CHANNEL_ID = "CrepeAccessibilityServiceChannel";
 
-    // implement a heartbeat mechanism to check the service running status
-    private final int HEARTBEAT_INTERVAL = 1000 * 600; // 10 minute
     private Handler handler = new Handler();
     private Runnable heartbeatRunnable = new Runnable() {
         @Override
         public void run() {
             updateHeartbeatTimestamp();
+            // implement a heartbeat mechanism to check the service running status
+            // 10 minute
+            int HEARTBEAT_INTERVAL = 1000 * 600;
             handler.postDelayed(this, HEARTBEAT_INTERVAL);
         }
     };
@@ -120,12 +123,20 @@ public class CrepeAccessibilityService extends AccessibilityService {
         }, 0, REFRESH_INTERVAL, TimeUnit.MINUTES);
         refreshAllCollectorStatus();
 
+        // clear up the prevResults every 10 seconds, so that we do not miss collecting reoccurring data in the same screen
+        scheduler.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                prevResults.clear();
+            }
+        }, 0, 10, TimeUnit.SECONDS);
+
         // Create a notification channel
         createNotificationChannel();
     }
 
     /**
-     * Class used for the client Binder.  Because we know this service always
+     * Class used for the client Binder. Because we know this service always
      * runs in the same process as its clients, we don't need to deal with IPC.
      */
     public class LocalBinder extends Binder {
@@ -148,7 +159,13 @@ public class CrepeAccessibilityService extends AccessibilityService {
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .build();
 
-        startForeground(NOTIFICATION_ID, notification);
+
+        // Set the foreground service type
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC);
+        } else {
+            startForeground(NOTIFICATION_ID, notification);
+        }
         handler.post(heartbeatRunnable);
     }
 
@@ -211,9 +228,6 @@ public class CrepeAccessibilityService extends AccessibilityService {
 
             Log.i("accessibilityEvent", "Accessibility Event Type: " + accessibilityEvent.getEventType() + ", opening a new thread, current count: " + threadPool.getActiveCount());
 
-            // use this as a time window to determine if we should save the result
-            AtomicLong lastSavedResultTimestamp = new AtomicLong(0);
-
             // Submit a task to the thread pool
             threadPool.submit(new Runnable() {
                 @Override
@@ -245,7 +259,8 @@ public class CrepeAccessibilityService extends AccessibilityService {
                             Log.i("query execution", "result: " + result);
                             Log.i("query execution", "prevResults: " + prevResults);
                             Log.i("query execution", "prevResults.contains(result): " + prevResults.contains(result));
-                            if (!prevResults.contains(result) && System.currentTimeMillis() - lastSavedResultTimestamp.get() > 1000) {
+                            if (!prevResults.contains(result) && System.currentTimeMillis() - lastSavedResultTimestamp.get() > 4000) {  // prevent duplicate results from being saved, with the interval of 4 seconds
+                                Log.i("Timestamps", "System.currentTimeMillis(): " + System.currentTimeMillis() + ", lastSavedResultTimestamp: " + lastSavedResultTimestamp.get() + ", difference: " + (System.currentTimeMillis() - lastSavedResultTimestamp.get()));
                                 // if the result is not in the previous results, add it to the database
                                 long timestamp = System.currentTimeMillis();
                                 // the data id is the collector id + "%" + timestamp
@@ -271,10 +286,8 @@ public class CrepeAccessibilityService extends AccessibilityService {
                                 }
                             }
                         }
-                        prevResults = currentResults;
-
+                        prevResults.addAll(currentResults);
                     }
-
                 }
 
             });

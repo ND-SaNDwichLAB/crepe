@@ -1,6 +1,5 @@
 package edu.nd.crepe.demonstration;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -17,7 +16,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityNodeInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,7 +31,7 @@ import edu.nd.crepe.graphquery.ontology.OntologyQuery;
 import edu.nd.crepe.graphquery.ontology.SugiliteEntity;
 import edu.nd.crepe.graphquery.ontology.SugiliteRelation;
 import edu.nd.crepe.graphquery.ontology.UISnapshot;
-import edu.nd.crepe.servicemanager.DisplayPermissionManager;
+import edu.nd.crepe.servicemanager.CrepeDisplayPermissionManager;
 import edu.nd.crepe.ui.dialog.AddDatafieldDescriptionDialogBuilder;
 import edu.nd.crepe.ui.dialog.DatafieldDescriptionCallback;
 import edu.nd.crepe.ui.dialog.GraphQueryCallback;
@@ -161,7 +159,7 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
         if (currentApiVersion >= 23) {
             if (!Settings.canDrawOverlays(context)) {
                 // if not, form up an Intent to launch the permission request
-                DisplayPermissionManager.getInstance().getEnableDisplayServiceDialog(context).show();
+                CrepeDisplayPermissionManager.getInstance().getEnableDisplayServiceDialog(context).show();
             }
         }
     }
@@ -431,7 +429,13 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
                 @Override
                 public void onResponse(String response) {
                     Log.i("ApiCallManager", "API call successful: \n" + response);
-                    int index = Integer.parseInt(response.replaceAll("^\"|\"$", "").trim());
+                    int index = 0;  // by default, the index value would be 0
+                    try {
+                        index = Integer.parseInt(response.replaceAll("^\"|\"$", "").trim());
+                    } catch (NumberFormatException e) {
+                        Log.e("ApiCallManager", "API response is not a number, using index 0 instead: " + e.getMessage());
+                        // by default, the index value would be 0
+                    }
                     if (index >= 0 && index < correctQueries.size()) {
                         bestQuery[0] = correctQueries.get(index);
                     } else {

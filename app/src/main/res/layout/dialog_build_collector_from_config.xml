@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/add_config"
+    android:id="@+id/collector_config"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/rounded_corner">
@@ -74,7 +74,7 @@
         app:layout_constraintTop_toBottomOf="@+id/endDateText" />
 
     <Button
-        android:id="@+id/addCollectorFromConfigDialogCancelButton"
+        android:id="@+id/buildCollectorFromConfigDialogCancelButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -82,11 +82,11 @@
         android:text="CANCEL"
         android:textColor="@color/ND_blue"
         android:textColorHint="@color/ND_blue"
-        app:layout_constraintEnd_toStartOf="@+id/addCollectorFromConfigDialogNextButton"
+        app:layout_constraintEnd_toStartOf="@+id/buildCollectorFromConfigDialogNextButton"
         app:layout_constraintTop_toBottomOf="@+id/commentOnAppSpinner" />
 
     <Button
-        android:id="@+id/addCollectorFromConfigDialogNextButton"
+        android:id="@+id/buildCollectorFromConfigDialogNextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
