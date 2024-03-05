@@ -433,7 +433,7 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
                     try {
                         index = Integer.parseInt(response.replaceAll("^\"|\"$", "").trim());
                     } catch (NumberFormatException e) {
-                        Log.e("ApiCallManager", "API response is not a number: " + e.getMessage());
+                        Log.e("ApiCallManager", "API response is not a number, using index 0 instead: " + e.getMessage());
                         // by default, the index value would be 0
                     }
                     if (index >= 0 && index < correctQueries.size()) {
