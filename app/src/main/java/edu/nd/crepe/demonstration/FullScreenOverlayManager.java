@@ -429,7 +429,13 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
                 @Override
                 public void onResponse(String response) {
                     Log.i("ApiCallManager", "API call successful: \n" + response);
-                    int index = Integer.parseInt(response.replaceAll("^\"|\"$", "").trim());
+                    int index = 0;  // by default, the index value would be 0
+                    try {
+                        index = Integer.parseInt(response.replaceAll("^\"|\"$", "").trim());
+                    } catch (NumberFormatException e) {
+                        Log.e("ApiCallManager", "API response is not a number: " + e.getMessage());
+                        // by default, the index value would be 0
+                    }
                     if (index >= 0 && index < correctQueries.size()) {
                         bestQuery[0] = correctQueries.get(index);
                     } else {
