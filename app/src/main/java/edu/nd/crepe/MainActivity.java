@@ -286,6 +286,14 @@ public class MainActivity extends AppCompatActivity {
             wrapper.setCurrentCollector(prevCollector);
             wrapper.setCurrentScreenState(screenState);
             wrapper.show(isEdit);
+            // do not do the following for now, before we figure out the notification thing.
+            // if notification permission dialog shows up during this process, we will delete these sharedPreferences, leaving no way to recover the state
+            // TODO Yuwen figure out how to handle the notification permission dialog
+//            // clear the shared preferences
+//            SharedPreferences.Editor editor = sharedPreferences.edit();
+//            editor.clear();
+//            editor.apply();
+
         }
     }
 
