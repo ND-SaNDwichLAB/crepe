@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
 
 public class HomeFragment extends Fragment {
 
-    private Long BUFFER_GAP = 500L; // a gap to avoid triggering the onChildAdded Firebase listener when we attach it
+    private Long BUFFER_GAP = 5000L; // a gap to avoid triggering the onChildAdded Firebase listener when we attach it
     private DatabaseManager dbManager;
     private DatabaseReference collectorReference;
     private ChildEventListener collectorListener;

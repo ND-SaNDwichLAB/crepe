@@ -80,11 +80,7 @@ public class AddCollectorFromCollectorIdDialogBuilder {
         popupNextBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // show the keyboard when edittext is clicked
-//                InputMethodManager imm = (InputMethodManager) c.getSystemService(Context.INPUT_METHOD_SERVICE);
-//                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-                String collectorId = collectorIdEditText.getText().toString();
-
+                String collectorId = collectorIdEditText.getText().toString().replaceAll("\\s+", "");
                 // handle edge cases
                 if (collectorId.isEmpty()) {
                     Toast.makeText(c, "Please enter collector ID!", Toast.LENGTH_LONG).show();
@@ -170,7 +166,7 @@ public class AddCollectorFromCollectorIdDialogBuilder {
                     }
 
                     public void onErrorResponse(Exception e) {
-                        Log.e("Firebase", "Failed to retrieve collectors from Firebase.");
+                        Log.e("Firebase", "Failed to retrieve collectors from Firebase. " + e.getMessage());
                     }
 
                     public void onComplete() {
@@ -180,7 +176,7 @@ public class AddCollectorFromCollectorIdDialogBuilder {
 //                            dialog.dismiss();
                         } else {
                             // if the collector is found, then, retrieve the data fields
-                            firebaseCommunicationManager.retrieveDatafieldsWithCollectorId(collectorIdEditText.getText().toString(), new FirebaseCallback<List<Datafield>>() {
+                            firebaseCommunicationManager.retrieveDatafieldsWithCollectorId(collectorId, new FirebaseCallback<List<Datafield>>() {
                                 public void onResponse(List<Datafield> results) {
                                     targetDatafields.addAll(results);
                                     onComplete();
@@ -188,6 +184,7 @@ public class AddCollectorFromCollectorIdDialogBuilder {
 
                                 public void onErrorResponse(Exception e) {
                                     Toast.makeText(c, "Failed to retrieve datafields for the collector.", Toast.LENGTH_LONG).show();
+                                    Log.e("Firebase", "Failed to retrieve datafields from Firebase. " + e.getMessage());
                                     onComplete();
                                 }
 
@@ -223,7 +220,6 @@ public class AddCollectorFromCollectorIdDialogBuilder {
 
     private boolean isValidCollectorId(String collectorId) {
         // Check if collectorId is null or contains invalid characters
-        return collectorId != null && !collectorId.contains(".") && !collectorId.contains("#")
-                && !collectorId.contains("$") && !collectorId.contains("[") && !collectorId.contains("]");
+        return collectorId != null && !collectorId.matches(".*[.#$\\[\\]].*");
     }
 }
