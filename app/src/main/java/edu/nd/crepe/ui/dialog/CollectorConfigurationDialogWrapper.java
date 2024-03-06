@@ -574,7 +574,6 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                             });
 
 
-                            // TODO Yuwen this logic needs correction, editing collector is not working as expected
                             // for all of the datafields, it is a little more tricky: we need to check if the datafield already exists in the database
                             // first, get all existing datafield ids for this collector
                             List<Datafield> prevDatafieldList = dbManager.getAllDatafieldsForCollector(collector);

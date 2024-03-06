@@ -184,7 +184,6 @@ public class HomeFragment extends Fragment {
 
         // get list of all the apps installed
         List<ResolveInfo> ril = getContext().getPackageManager().queryIntentActivities(mainIntent, 0);
-//        List<String> componentList = new ArrayList<String>();
         String name = null;
         Drawable image = null;
         String packageName = "edu.nd.crepe";

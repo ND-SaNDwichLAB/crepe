@@ -23,6 +23,7 @@ import java.util.Objects;
 import static edu.nd.crepe.database.Collector.ACTIVE;
 import static edu.nd.crepe.database.Collector.DELETED;
 import static edu.nd.crepe.database.Collector.EXPIRED;
+import static edu.nd.crepe.database.Collector.NOTYETSTARTED;
 
 public class CollectorCardConstraintLayoutBuilder {
     private Context c;
@@ -36,7 +37,8 @@ public class CollectorCardConstraintLayoutBuilder {
     private Runnable refreshCollectorListRunnable;
     private DatabaseManager dbManager;
     private Map<String, Drawable> apps;
-    public CollectorCardConstraintLayoutBuilder(Context c, Runnable refreshCollectorListRunnable, Map<String,Drawable> apps) {
+
+    public CollectorCardConstraintLayoutBuilder(Context c, Runnable refreshCollectorListRunnable, Map<String, Drawable> apps) {
         this.c = c;
         this.refreshCollectorListRunnable = refreshCollectorListRunnable;
         this.dbManager = DatabaseManager.getInstance(c);
@@ -53,7 +55,7 @@ public class CollectorCardConstraintLayoutBuilder {
         }
 
         // else
-        if(Objects.equals(layoutType, "cardLayout")) {
+        if (Objects.equals(layoutType, "cardLayout")) {
             // if for home fragment, build a card layout
             collectorLayout = (ConstraintLayout) LayoutInflater.from(c).inflate(R.layout.collector_card, rootView, false);
         } else {
@@ -71,9 +73,9 @@ public class CollectorCardConstraintLayoutBuilder {
         }
 
         scheduleStartTextView = (TextView) collectorLayout.findViewById(R.id.startTime);
-        scheduleStartTextView.setText("Start Time: "+collector.getCollectorStartTimeString());
+        scheduleStartTextView.setText("Start Time: " + collector.getCollectorStartTimeString());
         scheduleEndTextView = (TextView) collectorLayout.findViewById(R.id.endTime);
-        scheduleEndTextView.setText("End Time: "+collector.getCollectorEndTimeString());
+        scheduleEndTextView.setText("End Time: " + collector.getCollectorEndTimeString());
 
         // get the app status and display it
         collectorStatusImg = (ImageView) collectorLayout.findViewById(R.id.runningLightImageView);
@@ -83,22 +85,25 @@ public class CollectorCardConstraintLayoutBuilder {
         collector.autoSetCollectorStatus();
         // also update in the database
         dbManager.updateCollectorStatus(collector);
-        if (collector.getCollectorStatus().equals(ACTIVE)){
+        if (collector.getCollectorStatus().equals(ACTIVE)) {
             collectorStatusTxt.setText("Running");
             collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_24_green);
-        } else if (collector.getCollectorStatus().equals(EXPIRED)){
+        } else if (collector.getCollectorStatus().equals(EXPIRED)) {
             collectorStatusTxt.setText("Expired");
             collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_12_grey);
-        } else {
-            collectorStatusTxt.setText("Not yet started");
+        } else if (collector.getCollectorStatus().equals(NOTYETSTARTED)) {
+            collectorStatusTxt.setText("Not Started");
             collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_12_yellow);
         }
 
         // get App logo
         ImageView appImg = (ImageView) collectorLayout.findViewById(R.id.collectorImg);
         Drawable appImage = apps.get(collector.getAppName());
-        if (appImage == null){
+        if (appImage == null) {
             appImg.setImageResource(R.drawable.nd_logo);
+            collectorStatusTxt.setText("Not Installed");
+            collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_12_red);
+            collectorDescriptionTextView.setText("This app is not installed on your device. Please install it to participate in this data collection.");
         } else {
             appImg.setImageDrawable(appImage);
         }
@@ -114,7 +119,6 @@ public class CollectorCardConstraintLayoutBuilder {
                 newDialog.show();
             }
         });
-
 
 
         return collectorLayout;
