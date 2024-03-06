@@ -33,25 +33,25 @@
         app:layout_constraintTop_toBottomOf="@+id/collectorDetailTitle" />
 
     <Button
-        android:id="@+id/confirmDeleteButton"
+        android:id="@+id/confirmCancelButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
         android:background="@android:color/transparent"
-        android:text="DELETE"
-        android:textColor="@color/custom_text_secondary"
+        android:text="CANCEL"
+        android:textColor="@color/ND_blue"
         android:textColorHint="@color/gray"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/confirmCancelButton"
-        app:layout_constraintTop_toTopOf="@+id/confirmCancelButton" />
+        app:layout_constraintEnd_toStartOf="@+id/confirmDeleteButton"
+        app:layout_constraintTop_toTopOf="@+id/confirmDeleteButton" />
 
     <Button
-        android:id="@+id/confirmCancelButton"
+        android:id="@+id/confirmDeleteButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:background="@android:color/transparent"
-        android:text="CANCEL"
+        android:text="DELETE"
         android:textColor="@color/ND_blue"
         android:textColorHint="@color/ND_blue"
         app:layout_constraintEnd_toEndOf="@+id/collectorDetailContent"

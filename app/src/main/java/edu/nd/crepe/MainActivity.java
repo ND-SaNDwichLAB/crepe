@@ -252,6 +252,7 @@ public class MainActivity extends AppCompatActivity {
             editor.putString("screen_state", wrapper.getCurrentScreenState());
             editor.putString("collector", new Gson().toJson(wrapper.getCurrentCollector()));
             editor.putBoolean("isEdit", wrapper.getIsEdit());
+            editor.putString("datafieldsList", new Gson().toJson(wrapper.getDatafields()));
             editor.apply();
 
             // hide the dialog so that we don't have duplicates back in the activity
@@ -271,7 +272,7 @@ public class MainActivity extends AppCompatActivity {
         Boolean isEdit = sharedPreferences.getBoolean("isEdit", false);
         String datafields = sharedPreferences.getString("datafieldsList", null);
 
-        if (screenState != null && !screenState.equals("dismissed") && collectorJson != null) {
+        if (screenState != null && !screenState.equals("dismissed") && collectorJson != null && datafields != null) {
             Collector prevCollector = new Gson().fromJson(collectorJson, Collector.class);
             Type type = new TypeToken<ArrayList<Datafield>>() {}.getType();
             ArrayList<Datafield> datafieldsList = new Gson().fromJson(datafields, type);
@@ -289,10 +290,10 @@ public class MainActivity extends AppCompatActivity {
             // do not do the following for now, before we figure out the notification thing.
             // if notification permission dialog shows up during this process, we will delete these sharedPreferences, leaving no way to recover the state
             // TODO Yuwen figure out how to handle the notification permission dialog
-//            // clear the shared preferences
-//            SharedPreferences.Editor editor = sharedPreferences.edit();
-//            editor.clear();
-//            editor.apply();
+            // clear the shared preferences
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.clear();
+            editor.apply();
 
         }
     }
