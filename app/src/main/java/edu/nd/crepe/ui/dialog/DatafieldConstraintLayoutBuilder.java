@@ -46,7 +46,7 @@ public class DatafieldConstraintLayoutBuilder {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // remove this graph query
-                        // TODO Yuwen figure out what to do here
+                        // TODO potentially add a confirmation dialog
 //                        if (!collector.removeDatafield(text)){
 //                            Toast.makeText(c, "This data field is already removed!", Toast.LENGTH_LONG).show();
 //                        };

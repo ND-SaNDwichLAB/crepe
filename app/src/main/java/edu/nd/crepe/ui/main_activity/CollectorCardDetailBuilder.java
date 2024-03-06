@@ -134,8 +134,6 @@ public class CollectorCardDetailBuilder {
 
         // populate the datafield information
         List<Datafield> datafieldsForCollector = dbManager.getAllDatafieldsForCollector(collector);
-        // TODO Yuwen - retrieve datafields from firebase
-//        List<Datafield> datafieldsForCollectorFromFirebase = fbManager.retrieveDatafieldsWithCollectorId(collector.getCollectorId());
 
         TextView collectorDatafield = (TextView) popupView.findViewById(R.id.collectorDetailDatafield);
         if (datafieldsForCollector.size() > 0) {
