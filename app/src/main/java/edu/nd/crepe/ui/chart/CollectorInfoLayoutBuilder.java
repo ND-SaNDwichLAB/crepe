@@ -33,6 +33,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import static edu.nd.crepe.database.Collector.ACTIVE;
+import static edu.nd.crepe.database.Collector.EXPIRED;
+
 // TODO:
 //  1. calculate the size of all collected data of all time
 //  2. sum the size of all collected data of one day
@@ -42,13 +45,6 @@ import java.util.Random;
 public class CollectorInfoLayoutBuilder {
     Context context;
     Map<String, Drawable> apps;
-
-    public static final String DELETED = "deleted";
-    public static final String DISABLED = "disabled";
-    public static final String ACTIVE = "active";
-    public static final String NOTYETSTARTED = "notYetStarted";
-    public static final String EXPIRED = "expired";
-
 
     // we will use the following constructor more often, because we initialize
     public CollectorInfoLayoutBuilder(Context context, Map<String, Drawable> apps) {
@@ -76,9 +72,6 @@ public class CollectorInfoLayoutBuilder {
         if (collector.getCollectorStatus().equals(ACTIVE)){
             collectorStatusTxt.setText("Running");
             collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_24_green);
-        } else if (collector.getCollectorStatus().equals(DISABLED)){
-            collectorStatusTxt.setText("Disabled");
-            collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_12_grey);
         } else if (collector.getCollectorStatus().equals(EXPIRED)){
             collectorStatusTxt.setText("Expired");
             collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_12_grey);

@@ -22,7 +22,9 @@
            <item
                android:drawable="@drawable/ic_baseline_keyboard_arrow_down_24"
                android:width="36dp"
-               android:gravity="right"
+               android:height="36dp"
+               android:gravity="right|center_vertical"
+               android:right="8dp"
                />
 
        </layer-list>

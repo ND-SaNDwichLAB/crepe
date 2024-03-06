@@ -2,11 +2,8 @@ package edu.nd.crepe.ui.main_activity;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.LayoutInflater;
@@ -19,12 +16,12 @@ import androidx.annotation.Nullable;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
+import edu.nd.crepe.database.Collector;
 import edu.nd.crepe.servicemanager.AccessibilityPermissionManager;
 import edu.nd.crepe.servicemanager.CrepeAccessibilityService;
 import edu.nd.crepe.R;
-import edu.nd.crepe.servicemanager.DisplayPermissionManager;
+import edu.nd.crepe.servicemanager.CrepeDisplayPermissionManager;
 import edu.nd.crepe.ui.dialog.CollectorConfigurationDialogWrapper;
 import edu.nd.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilder;
 import edu.nd.crepe.ui.dialog.AddCollectorFromCollectorIdDialogBuilder;
@@ -80,14 +77,15 @@ public class FabModalBottomSheet extends BottomSheetDialogFragment {
 
                 // check display over other apps permission
                 if (!Settings.canDrawOverlays(context)) {
-                    Dialog enableDisplayServiceDialog = DisplayPermissionManager.getInstance().getEnableDisplayServiceDialog(context);
+                    Dialog enableDisplayServiceDialog = CrepeDisplayPermissionManager.getInstance().getEnableDisplayServiceDialog(context);
                     enableDisplayServiceDialog.show();
                 } else {
                     // first, collapse the fab icon
                     dismiss();
                     // then, bring up the dialog to create a new collector
-                    wrapper = createCollectorFromConfigDialogBuilder.buildDialogWrapperWithNewCollector();
-                    wrapper.show();
+                    wrapper = createCollectorFromConfigDialogBuilder.buildDialogWrapperWithCollector(new Collector());
+                    Boolean isEdit = false;
+                    wrapper.show(isEdit);
                 }
 
 

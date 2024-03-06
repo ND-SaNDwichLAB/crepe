@@ -12,6 +12,8 @@ import androidx.annotation.Nullable;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import org.apache.xpath.operations.Bool;
+
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -213,68 +215,16 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return insert != -1;
     }
 
-    public Boolean addCollectorForUser(Collector collector, User user) {
-        Gson gson = new Gson();
-
-        // First, you retrieve the current list of collectors for the user from the database.
-        Cursor cursor = db.query(USER_TABLE, new String[]{COLUMN_USER_COLLECTORS}, "userId = ?",
-                new String[]{user.getUserId()}, null, null, null);
-
-        if (cursor != null && cursor.moveToFirst()) {
-            String collectorsJson = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USER_COLLECTORS));
-            ArrayList<String> collectors = gson.fromJson(collectorsJson, new TypeToken<ArrayList<String>>() {}.getType());
-
-            // Add the new collector's ID to the user's list of collectors.
-            collectors.add(collector.getCollectorId());
-
-            // Convert the updated list back to a JSON string.
-            collectorsJson = gson.toJson(collectors);
-
-            // Create the new ContentValues object for the update.
-            ContentValues cv = new ContentValues();
-            cv.put(COLUMN_USER_COLLECTORS, collectorsJson);
-
-            // Perform the update.
-            int rows = db.update(USER_TABLE, cv, "userId = ?", new String[]{user.getUserId()});
-
-            cursor.close();
-
-            return (rows > 0);
-        }
-
-        return false;
-    }
-
-    public Boolean removeCollectorForUser(Collector collector, User user) {
-        Gson gson = new Gson();
-
-        // First, you retrieve the current list of collectors for the user from the database.
-        Cursor cursor = db.query(USER_TABLE, new String[]{COLUMN_USER_COLLECTORS}, "userId = ?",
-                new String[]{user.getUserId()}, null, null, null);
-
-        if (cursor != null && cursor.moveToFirst()) {
-            String collectorsJson = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USER_COLLECTORS));
-            ArrayList<String> collectors = gson.fromJson(collectorsJson, new TypeToken<ArrayList<String>>() {}.getType());
-
-            // Remove the collector's ID from the user's list of collectors.
-            collectors.remove(collector.getCollectorId());
-
-            // Convert the updated list back to a JSON string.
-            collectorsJson = gson.toJson(collectors);
-
-            // Create the new ContentValues object for the update.
-            ContentValues cv = new ContentValues();
-            cv.put(COLUMN_USER_COLLECTORS, collectorsJson);
-
-            // Perform the update.
-            int rows = db.update(USER_TABLE, cv, "userId = ?", new String[]{user.getUserId()});
-
-            cursor.close();
-
-            return (rows > 0);
-        }
-
-        return false;
+    public void removeCollectorForUser(Collector collector, User user) {
+        // First, you remove the collector from database
+        collector.setCollectorStatus(Collector.DELETED);
+        updateCollectorStatus(collector);
+        // second you remove the collector from the user's list
+        ArrayList<String> updatedUserCollectors = user.getCollectorsForCurrentUser();
+        updatedUserCollectors.remove(collector.getCollectorId());
+        user.setCollectorsForCurrentUser(updatedUserCollectors);
+        // third, you update the user to the database
+        updateUser(user);
     }
 
 

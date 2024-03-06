@@ -74,7 +74,7 @@ public class User {
         return userCollectors;
     }
 
-    public void overrideCollectorsForCurrentUser(ArrayList<String> collectorIds) {
+    public void setCollectorsForCurrentUser(ArrayList<String> collectorIds) {
         this.userCollectors = collectorIds;
     }
 
