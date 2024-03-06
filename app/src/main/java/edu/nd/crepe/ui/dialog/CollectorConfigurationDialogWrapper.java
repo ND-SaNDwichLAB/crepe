@@ -45,6 +45,7 @@ import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClic
 import com.google.gson.Gson;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -79,8 +80,8 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
     public static class GraphQueryGraphQueryCallback implements edu.nd.crepe.ui.dialog.GraphQueryCallback, Serializable {
         @Override
         public void onDataReceived(String query, String targetText) {
-            // datafield id format: collectorId%[index]
-            String datafieldId = collector.getCollectorId() + "%" + String.valueOf(datafields.size());
+            // datafield id format: collectorId%[timestamp]
+            String datafieldId = collector.getCollectorId() + "%" + String.valueOf(System.currentTimeMillis());
             datafields.add(new Datafield(datafieldId, collector.getCollectorId(), query, targetText, true));
 
             if (context != null) {
@@ -572,12 +573,17 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                                 Log.e("Firebase", "Failed to edited collector " + collector.getCollectorId() + " to firebase.");
                             });
 
+
                             // for all of the datafields, it is a little more tricky: we need to check if the datafield already exists in the database
                             // first, get all existing datafield ids for this collector
                             List<Datafield> prevDatafieldList = dbManager.getAllDatafieldsForCollector(collector);
                             List<String> prevDatafieldIdList = new ArrayList<>();
                             for (Datafield prevDatafield : prevDatafieldList) {
                                 prevDatafieldIdList.add(prevDatafield.getDatafieldId());
+                            }
+                            List<String> datafieldIdList = new ArrayList<>();
+                            for (Datafield currentDatafield : datafields) {
+                                datafieldIdList.add(currentDatafield.getDatafieldId());
                             }
                             // then, for each datafield, check if it already exists in the database
                             for (Datafield datafield : datafields) {
@@ -600,7 +606,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                             }
                             // also, for deleted datafields, we need to remove them from the database
                             for (String prevDatafieldId : prevDatafieldIdList) {
-                                if (!datafields.contains(prevDatafieldId)) {
+                                if (!datafieldIdList.contains(prevDatafieldId)) {
                                     dbManager.removeDatafieldById(prevDatafieldId);
                                     firebaseCommunicationManager.removeDatafield(prevDatafieldId).addOnCompleteListener(task -> {
                                         Log.i("Firebase", "Successfully deleted datafield " + prevDatafieldId + " from firebase.");
@@ -752,6 +758,14 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
         if (datafields != null) {
             datafields.clear();
         }
+    }
+
+    public static List<Datafield> getDatafields() {
+        return datafields;
+    }
+
+    public static void setDatafields(List<Datafield> datafields) {
+        CollectorConfigurationDialogWrapper.datafields = datafields;
     }
 
     public Dictionary<String, String> getAllInstalledAppNames() throws PackageManager.NameNotFoundException {
