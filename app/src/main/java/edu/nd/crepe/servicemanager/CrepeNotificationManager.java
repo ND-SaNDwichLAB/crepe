@@ -2,6 +2,7 @@ package edu.nd.crepe.servicemanager;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Notification;
 import android.content.Context;
 import android.content.pm.PackageManager;
 
@@ -14,16 +15,19 @@ import edu.nd.crepe.R;
 
 public class CrepeNotificationManager {
 
-    public static void showNotification(Context context, String notificationMessage) {
+    public static Notification showNotification(Context context, String notificationMessage) {
         String CHANNEL_ID = "CREPE_NOTIFICATION_CHANNEL";
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, MainActivity.CHANNEL_ID)
-                .setSmallIcon(R.mipmap.ic_launcher_round)
-                .setContentTitle("CREPE")
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setContentTitle("Crepe")
+                .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentText(notificationMessage)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
         // Issue the notification
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-        notificationManager.notify(1, builder.build());
+        Notification notification = builder.build();
+        notificationManager.notify(1, notification);
+        return notification;
     }
 }

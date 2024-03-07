@@ -26,6 +26,7 @@ import edu.nd.crepe.network.ApiCallManager;
 import edu.nd.crepe.network.DataLoadingEvent;
 import edu.nd.crepe.network.FirebaseCallback;
 import edu.nd.crepe.network.FirebaseCommunicationManager;
+import edu.nd.crepe.servicemanager.CrepeNotificationManager;
 import edu.nd.crepe.ui.dialog.CollectorConfigurationDialogWrapper;
 import edu.nd.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilder;
 import edu.nd.crepe.ui.dialog.AddCollectorFromCollectorIdDialogBuilder;
@@ -223,7 +224,6 @@ public class MainActivity extends AppCompatActivity {
 
                 FabModalBottomSheet modalBottomSheet = new FabModalBottomSheet(addCollectorFromCollectorIdDialogBuilder, createCollectorFromConfigDialogBuilder);
                 modalBottomSheet.show(getSupportFragmentManager(), FabModalBottomSheet.TAG);
-
 
             }
         });

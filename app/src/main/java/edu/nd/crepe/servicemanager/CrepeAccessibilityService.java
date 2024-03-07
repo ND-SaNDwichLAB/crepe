@@ -13,8 +13,6 @@ import static edu.nd.crepe.MainActivity.currentUser;
 import android.accessibilityservice.AccessibilityService;
 import android.app.ActivityManager;
 import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -30,10 +28,6 @@ import android.util.Log;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
-
-import androidx.core.app.NotificationCompat;
-
-import edu.nd.crepe.MainActivity;
 import edu.nd.crepe.R;
 import edu.nd.crepe.database.Collector;
 import edu.nd.crepe.database.Data;
@@ -150,12 +144,8 @@ public class CrepeAccessibilityService extends AccessibilityService {
     public void onServiceConnected() {
         sSharedInstance = this;
         // for crepe foreground service
-        Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle("Crepe")
-                .setContentText("Crepe successfully running...")
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .build();
 
+        Notification notification = CrepeNotificationManager.showNotification(this, "Crepe successfully running...");
 
         // Set the foreground service type
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
