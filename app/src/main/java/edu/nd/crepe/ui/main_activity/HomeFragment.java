@@ -33,6 +33,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import edu.nd.crepe.Crepe;
 import edu.nd.crepe.R;
 import edu.nd.crepe.database.Collector;
 import edu.nd.crepe.database.DatabaseManager;
@@ -249,25 +250,24 @@ public class HomeFragment extends Fragment {
                             // do nothing, but log because this should not happen
                             Log.i("collector childEventListener", "The collector with id " + updatedCollectorId + " is changed, but no change is detected. Please check.");
                         } else {
-                            CrepeNotificationManager crepeNotificationManager = new CrepeNotificationManager(getContext(), getActivity());
                             if (changeStatus == Collector.ChangeStatus.DESCRIPTION_CHANGE) {
                                 // if the collector description is changed, we need to notify the participant and researcher
-                                crepeNotificationManager.showNotification("The description of your " + currentCollector.getAppName() + " collector is changed. See details in the app.");
+                                CrepeNotificationManager.showNotification(getContext(), "The description of your " + currentCollector.getAppName() + " collector is changed. See details in the app.");
                             } else if (changeStatus == Collector.ChangeStatus.COLLECTOR_START_TIME_CHANGE) {
                                 // if the collector start time is changed, we don't need to notify the participant and researcher
                                 Log.i("collector childEventListener", "The collector with id " + updatedCollectorId + " start time is changed in Firebase.");
                             } else if (changeStatus == Collector.ChangeStatus.COLLECTOR_END_TIME_CHANGE) {
                                 // if the collector end time is changed, we need to notify the participant and researcher
-                                crepeNotificationManager.showNotification("The end time of your " + currentCollector.getAppName() + " collector has changed. See details in the app.");
+                                CrepeNotificationManager.showNotification(getContext(), "The end time of your " + currentCollector.getAppName() + " collector has changed. See details in the app.");
                             } else if (changeStatus == Collector.ChangeStatus.COLLECTOR_STATUS_CHANGE) {
                                 // if the collector status is changed, we need to notify the participant and researcher
                                 // if the status changed to deleted
                                 if (updatedCollector.getCollectorStatus().equals(DELETED)) {
-                                    crepeNotificationManager.showNotification("Your " + currentCollector.getAppName() + " collector has been deleted by the researcher. No more data will be collected. See details in the app.");
+                                    CrepeNotificationManager.showNotification(getContext(), "Your " + currentCollector.getAppName() + " collector has been deleted by the researcher. No more data will be collected. See details in the app.");
                                 }
                                 // if the status changed to expired, that means the collection is complete
                                 if (updatedCollector.getCollectorStatus().equals(EXPIRED)) {
-                                    crepeNotificationManager.showNotification("Your " + currentCollector.getAppName() + " collector has finished. Thank you for your participation!");
+                                    CrepeNotificationManager.showNotification(getContext(), "Your " + currentCollector.getAppName() + " collector has finished. Thank you for your participation!");
                                 }
                                 // if the status changed to active, something is wrong
                                 if (updatedCollector.getCollectorStatus().equals(ACTIVE)) {
@@ -326,8 +326,7 @@ public class HomeFragment extends Fragment {
                             dbManager.addDatafield(addedDatafield);
                             String collectorId = addedDatafield.getCollectorId();
                             String collectorName = collectorList.stream().filter(collector -> collector.getCollectorId().equals(collectorId)).findFirst().orElse(null).getAppName();
-                            CrepeNotificationManager crepeNotificationManager = new CrepeNotificationManager(getContext(), getActivity());
-                            crepeNotificationManager.showNotification("Datafields added to your " + collectorName + " collector. See details in the app.");
+                            CrepeNotificationManager.showNotification(getContext(), "Datafields added to your " + collectorName + " collector. See details in the app.");
                         }
                     }
                 }
@@ -342,8 +341,7 @@ public class HomeFragment extends Fragment {
                     dbManager.updateDatafield(updatedDatafield);
                     String collectorId = updatedDatafield.getCollectorId();
                     String collectorName = collectorList.stream().filter(collector -> collector.getCollectorId().equals(collectorId)).findFirst().orElse(null).getAppName();
-                    CrepeNotificationManager crepeNotificationManager = new CrepeNotificationManager(getContext(), getActivity());
-                    crepeNotificationManager.showNotification("Datafields are modified for your " + collectorName + " collector. See details in the app.");
+                    CrepeNotificationManager.showNotification(getContext(), "Datafields are modified for your " + collectorName + " collector. See details in the app.");
                 }
             }
 
@@ -355,8 +353,7 @@ public class HomeFragment extends Fragment {
                     dbManager.removeDatafieldById(removedDatafield.getDatafieldId());
                     String collectorId = removedDatafield.getCollectorId();
                     String collectorName = collectorList.stream().filter(collector -> collector.getCollectorId().equals(collectorId)).findFirst().orElse(null).getAppName();
-                    CrepeNotificationManager crepeNotificationManager = new CrepeNotificationManager(getContext(), getActivity());
-                    crepeNotificationManager.showNotification("Datafields removed from your " + collectorName + " collector. See details in the app.");
+                    CrepeNotificationManager.showNotification(getContext(), "Datafields removed from your " + collectorName + " collector. See details in the app.");
                 }
             }
 

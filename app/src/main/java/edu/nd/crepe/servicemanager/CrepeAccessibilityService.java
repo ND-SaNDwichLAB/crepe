@@ -130,9 +130,6 @@ public class CrepeAccessibilityService extends AccessibilityService {
                 prevResults.clear();
             }
         }, 0, 10, TimeUnit.SECONDS);
-
-        // Create a notification channel
-        createNotificationChannel();
     }
 
     /**
@@ -166,6 +163,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
         } else {
             startForeground(NOTIFICATION_ID, notification);
         }
+
         handler.post(heartbeatRunnable);
     }
 
@@ -251,6 +249,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
                         // 1. convert the graph query string to a graph query object
                         OntologyQuery currentQuery = OntologyQuery.deserialize(datafield.getGraphQuery());
                         // 2. run the graph query on the uiSnapshot
+                        assert currentQuery != null;
                         Set<SugiliteEntity> currentResults = currentQuery.executeOn(uiSnapshot);
                         Log.i("query execution", "currentResults: " + currentResults);
 
@@ -259,7 +258,8 @@ public class CrepeAccessibilityService extends AccessibilityService {
                             Log.i("query execution", "result: " + result);
                             Log.i("query execution", "prevResults: " + prevResults);
                             Log.i("query execution", "prevResults.contains(result): " + prevResults.contains(result));
-                            if (!prevResults.contains(result) && System.currentTimeMillis() - lastSavedResultTimestamp.get() > 4000) {  // prevent duplicate results from being saved, with the interval of 4 seconds
+//                            if (!prevResults.contains(result) && System.currentTimeMillis() - lastSavedResultTimestamp.get() > 4000) {  // prevent duplicate results from being saved, with the interval of 4 seconds
+                            if (!prevResults.contains(result)) {  // prevent duplicate results from being saved, prevResults is cleared every 10 seconds (see code on the top of this file)
                                 Log.i("Timestamps", "System.currentTimeMillis(): " + System.currentTimeMillis() + ", lastSavedResultTimestamp: " + lastSavedResultTimestamp.get() + ", difference: " + (System.currentTimeMillis() - lastSavedResultTimestamp.get()));
                                 // if the result is not in the previous results, add it to the database
                                 long timestamp = System.currentTimeMillis();
@@ -400,18 +400,6 @@ public class CrepeAccessibilityService extends AccessibilityService {
             firebaseCommunicationManager.updateAllCollectors();
         }
 
-    }
-
-    private void createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = getString(R.string.channel_name);
-            String description = getString(R.string.channel_description);
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
-            channel.setDescription(description);
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
-        }
     }
 
     private void updateHeartbeatTimestamp() {

@@ -1,5 +1,6 @@
 package edu.nd.crepe;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -42,6 +43,7 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 
+import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
@@ -99,6 +101,8 @@ public class MainActivity extends AppCompatActivity {
     private AlertDialog.Builder dialogBuilder;
 
     private CollectorConfigurationDialogWrapper wrapper;
+
+    public static final String CHANNEL_ID = "CREPE_NOTIFICATION_CHANNEL";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -178,15 +182,20 @@ public class MainActivity extends AppCompatActivity {
 //        }
 
         // set up the notification channel
-        CharSequence name = "crepeChannel";
-        String description = "Crepe app notification channel, delivering information regarding collector status changes.";
-        int importance = NotificationManager.IMPORTANCE_DEFAULT;
-        NotificationChannel channel = new NotificationChannel("CREPE_NOTIFICATION_CHANNEL", name, importance);
-        channel.setDescription(description);
-        // Register the channel with the system
-        NotificationManager notificationManager = getSystemService(NotificationManager.class);
-        notificationManager.createNotificationChannel(channel);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "crepeChannel";
+            String description = "Crepe app notification channel, delivering information regarding collector status changes.";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
 
+        if (ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1);
+        }
 
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
