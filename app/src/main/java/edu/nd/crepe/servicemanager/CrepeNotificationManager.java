@@ -20,7 +20,6 @@ public class CrepeNotificationManager {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, MainActivity.CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setContentTitle("Crepe")
-                .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentText(notificationMessage)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
