@@ -460,8 +460,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         }
 
                         // launch the float widget
-                        WidgetService widgetService = new WidgetService();
-                        Intent intent = new Intent(context, widgetService.getClass());
+                        Intent intent = new Intent(context, WidgetService.class);
                         intent.putExtra("graphQueryCallback", graphQueryCallback);
                         context.startService(intent);
                     }
