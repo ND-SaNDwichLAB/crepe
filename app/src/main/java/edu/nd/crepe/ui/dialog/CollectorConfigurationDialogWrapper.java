@@ -384,18 +384,15 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                 mainDialog = createNewAlertDialog(dialogMainView);
                 // modify content of the popup box based on current state
                 updateDisplayedDatafieldsFromDemonstration();
-//                if (isEdit == true) {
-//                    clearDatafields();
-//                    // retrieve existing dataFields from the database
-//                    List<Datafield> datafieldsForCollector = dbManager.getAllDatafieldsForCollector(collector);
-//                    datafields.addAll(datafieldsForCollector);
-//                }
+
 
                 Button graphQueryNxtBtn = (Button) dialogMainView.findViewById(R.id.graphQueryNextButton);
                 Button graphQueryBckBtn = (Button) dialogMainView.findViewById(R.id.graphQueryBackButton);
                 LinearLayout datafieldContainerLinearLayout = (LinearLayout) dialogMainView.findViewById(R.id.datafieldContainerLinearLayout);
 //                Button graphQueryAddBtn = (Button) dialogMainView.findViewById(R.id.graphQueryAddAnotherButton);
                 Button openAppButton = (Button) dialogMainView.findViewById(R.id.openAppButton);
+                EditText graphQueryInput = (EditText) dialogMainView.findViewById(R.id.graphQueryInput);
+                ImageButton graphQueryAddImg = (ImageButton) dialogMainView.findViewById(R.id.graphQueryAddIcon);
                 ImageButton graphQueryCloseImg = (ImageButton) dialogMainView.findViewById(R.id.closeGraphQueryPopupImageButton);
 
                 // update interface elements based on the specified app in the previous popup box
@@ -466,6 +463,27 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                     }
                 });
 
+                graphQueryAddImg.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        // add datafield to datafields list
+                        String graphQueryInputResult = graphQueryInput.getText().toString();
+                        if (!graphQueryInputResult.isEmpty()) {
+                            // datafield id format: collectorId%[timestamp]
+                            String datafieldId = collector.getCollectorId() + "%" + String.valueOf(System.currentTimeMillis());
+                            datafields.add(new Datafield(datafieldId, collector.getCollectorId(), graphQueryInputResult, graphQueryInputResult, false));
+                            // update dialog
+                            updateDisplayedDatafieldsFromDemonstration();
+                            // clear the input field
+                            graphQueryInput.setText("");
+                            graphQueryInput.setHint("Manually add another query");
+                            Toast.makeText(context, "Datafield added", Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(context, "Please enter a query", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
+
                 graphQueryBckBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -481,6 +499,14 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                 graphQueryNxtBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+
+                        String graphQueryInputResult = graphQueryInput.getText().toString();
+                        if (!graphQueryInputResult.isEmpty()) {
+                            // datafield id format: collectorId%[timestamp]
+                            String datafieldId = collector.getCollectorId() + "%" + String.valueOf(System.currentTimeMillis());
+                            datafields.add(new Datafield(datafieldId, collector.getCollectorId(), graphQueryInputResult, graphQueryInputResult, false));
+                        }
+
                         if (datafields != null && datafields.isEmpty()) {
                             // remind user to add graph query
                             Context currentContext = context.getApplicationContext();
@@ -635,8 +661,6 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                                 });
                             }
                         }
-
-
 
 
                         // Note: we do not need to update the field "userCollectors" under User (see /database/User.java),
