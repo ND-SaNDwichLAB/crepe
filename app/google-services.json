@@ -15,11 +15,51 @@
       },
       "oauth_client": [
         {
+          "client_id": "584330047593-21d8cm2mjl1n7v0cu62o227kpvvbqa5h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "edu.nd.crepe",
+            "certificate_hash": "ca9e182ff1d212fac956414cf5d8f64b566eb999"
+          }
+        },
+        {
+          "client_id": "584330047593-6gbj56q6e3pke0sercpigakvitkajvkv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "edu.nd.crepe",
+            "certificate_hash": "f8d251b1be714602635b8a7a4f4b9608b2abe473"
+          }
+        },
+        {
+          "client_id": "584330047593-81b9uel68g9m30486kptpjl4vd1atd5e.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "edu.nd.crepe",
+            "certificate_hash": "48370c3618b36cebc3415c207452abfd83080023"
+          }
+        },
+        {
           "client_id": "584330047593-fskurpa76ark7n2ntknhv2vgp4kuqdp6.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "edu.nd.crepe",
             "certificate_hash": "480689e76dd11af9fb4160f8d45e607972d57814"
+          }
+        },
+        {
+          "client_id": "584330047593-mss70jqaum88bl6u3q3b812i0ooli11r.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "edu.nd.crepe",
+            "certificate_hash": "c9fe80d3baa8c1100ca8aa533dd01c40cf5961a1"
+          }
+        },
+        {
+          "client_id": "584330047593-qoc2e88eb9dj7fgp06dg8ha1mp7iiqer.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "edu.nd.crepe",
+            "certificate_hash": "fba6077b77d312b13c331412fe8b8321cec1213b"
           }
         },
         {
