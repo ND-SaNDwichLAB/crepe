@@ -4,7 +4,6 @@ import android.Manifest;
 import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -22,11 +21,9 @@ import edu.nd.crepe.database.Collector;
 import edu.nd.crepe.database.DatabaseManager;
 import edu.nd.crepe.database.Datafield;
 import edu.nd.crepe.database.User;
-import edu.nd.crepe.network.ApiCallManager;
 import edu.nd.crepe.network.DataLoadingEvent;
 import edu.nd.crepe.network.FirebaseCallback;
 import edu.nd.crepe.network.FirebaseCommunicationManager;
-import edu.nd.crepe.servicemanager.CrepeNotificationManager;
 import edu.nd.crepe.ui.dialog.CollectorConfigurationDialogWrapper;
 import edu.nd.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilder;
 import edu.nd.crepe.ui.dialog.AddCollectorFromCollectorIdDialogBuilder;
@@ -40,7 +37,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 
@@ -54,14 +50,11 @@ import edu.nd.crepe.databinding.ActivityMainBinding;
 
 import com.google.android.material.navigation.NavigationView;
 import com.google.common.reflect.TypeToken;
-import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
 
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -71,11 +64,8 @@ import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.json.JsonObject;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -151,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // retrieve collectors for this user that are not in local yet
-        retrieveCollectorsForUser(currentUser, existingCollectorIds);
+        retrieveCollectorsAndDatafieldsForUser(currentUser, existingCollectorIds);
 
 
         // display the home fragment
@@ -364,7 +354,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void addParticipatingCollectors(ArrayList<String> collectorIds, ArrayList<String> existingCollectorIds) {
+    private void addParticipatingCollectorsAndDatafields(ArrayList<String> collectorIds, ArrayList<String> existingCollectorIds) {
         AtomicInteger collectorCounter = new AtomicInteger(0);
         int totalCollectorCount = collectorIds.size();
 
@@ -402,7 +392,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void addCreatedCollectors(String userId, ArrayList<String> existingCollectorIds) {
+    private void addCreatedCollectorsAndDatafields(String userId, ArrayList<String> existingCollectorIds) {
         firebaseCommunicationManager.retrieveCollectorWithCreatorUserId(userId, new FirebaseCallback<ArrayList<Collector>>() {
             public void onResponse(ArrayList<Collector> collectors) {
 
@@ -489,18 +479,18 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void retrieveCollectorsForUser(User currentUser, ArrayList<String> existingCollectorIds) {
+    public void retrieveCollectorsAndDatafieldsForUser(User currentUser, ArrayList<String> existingCollectorIds) {
 
         // get the collectors associated with this user
         // contains 2 types of associations:
         // 1. collectors that this user is participating in
         // simply by using the field under User "userCollectors" (see /database/User.java)
         ArrayList<String> collectorIds = currentUser.getCollectorsForCurrentUser();
-        addParticipatingCollectors(collectorIds, existingCollectorIds);
+        addParticipatingCollectorsAndDatafields(collectorIds, existingCollectorIds);
 
         // 2. collectors that this user has created
         // we need to index all collectors on the "creatorUserId" field, find the ones that contain current user's userId (see /database/Collector.java)
-        addCreatedCollectors(currentUser.getUserId(), existingCollectorIds);
+        addCreatedCollectorsAndDatafields(currentUser.getUserId(), existingCollectorIds);
 
     }
 
@@ -509,7 +499,7 @@ public class MainActivity extends AppCompatActivity {
         public void run() {
             if (currentFragment instanceof HomeFragment) {
                 try {
-                    ((HomeFragment) currentFragment).initCollectorList();
+                    ((HomeFragment) currentFragment).initCollectorAndDatafieldLists();
                 } catch (PackageManager.NameNotFoundException e) {
                     e.printStackTrace();
                 }

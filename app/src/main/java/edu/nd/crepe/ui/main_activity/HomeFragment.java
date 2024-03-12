@@ -33,7 +33,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import edu.nd.crepe.Crepe;
 import edu.nd.crepe.R;
 import edu.nd.crepe.database.Collector;
 import edu.nd.crepe.database.DatabaseManager;
@@ -43,7 +42,6 @@ import edu.nd.crepe.servicemanager.AccessibilityPermissionManager;
 import edu.nd.crepe.servicemanager.CrepeAccessibilityService;
 import edu.nd.crepe.servicemanager.CrepeNotificationManager;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,7 +57,6 @@ public class HomeFragment extends Fragment {
     private DatabaseReference datafieldReference;
     private ChildEventListener datafieldListener;
     private List<Collector> collectorList;
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -74,7 +71,7 @@ public class HomeFragment extends Fragment {
         EventBus.getDefault().register(this);
         Objects.requireNonNull(getActivity()).setTitle("Crepe");
         try {
-            initCollectorList();
+            initCollectorAndDatafieldLists();
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
@@ -122,16 +119,16 @@ public class HomeFragment extends Fragment {
     public void onDataLoadingEvent(DataLoadingEvent event) {
         if (event.isCompleted()) {
             try {
-                initCollectorList();
+                initCollectorAndDatafieldLists();
             } catch (PackageManager.NameNotFoundException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    public void initCollectorList() throws PackageManager.NameNotFoundException {
-        // at this time, only active collectors for this user are retrieved from firebase to local db
-        // see code in GoogleLoginActivity.java and function addParticipatingCollectors
+    public void initCollectorAndDatafieldLists() throws PackageManager.NameNotFoundException {
+        // at this time, only active collectors and datafields for these active collectors for this user are retrieved from firebase to local db
+        // see code in GoogleLoginActivity.java and function addParticipatingCollectorsAndDatafields
         collectorList = dbManager.getActiveCollectors();
 
         TextView noCollectorTextView = getView().findViewById(R.id.empty_text_view);
@@ -170,7 +167,7 @@ public class HomeFragment extends Fragment {
         @Override
         public void run() {
             try {
-                initCollectorList();
+                initCollectorAndDatafieldLists();
 
             } catch (PackageManager.NameNotFoundException e) {
                 e.printStackTrace();
