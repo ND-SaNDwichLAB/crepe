@@ -186,9 +186,11 @@ public class CrepeAccessibilityService extends AccessibilityService {
                 TYPE_VIEW_TEXT_SELECTION_CHANGED,
                 TYPE_ANNOUNCEMENT);
 
+        collectors = dbManager.getActiveCollectors();
+
         if (!targetEventTypes.contains(accessibilityEvent.getEventType())) {
             Log.i("accessibilityEvent", accessibilityEvent.getEventType() + " not in the target event list");
-        } else if (collectors.size() == 0) {
+        } else if (collectors.isEmpty()) {
             Log.i("accessibilityEvent", "No collectors to monitor");
         } else {
             // update the list of apps we need to monitor

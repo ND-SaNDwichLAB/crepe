@@ -401,6 +401,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
                 if (datafields != null && !datafields.isEmpty()) {
                     openAppButton.setText("Add another");
+                    graphQueryInput.setHint("Manually add another query");
                     commentOnOpenAppButton.setText("Add another data to collect in the " + appName + " app");
                 } else {
                     openAppButton.setText("Open " + collector.getAppName());
