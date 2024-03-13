@@ -34,13 +34,13 @@ public class CollectorCardConstraintLayoutBuilder {
     private ConstraintLayout collectorLayout;
     private TextView collectorStatusTxt;
     private ImageView collectorStatusImg;
-    private Runnable refreshCollectorListRunnable;
+    private Runnable refreshCollectorDatafieldListsRunnable;
     private DatabaseManager dbManager;
     private Map<String, Drawable> apps;
 
-    public CollectorCardConstraintLayoutBuilder(Context c, Runnable refreshCollectorListRunnable, Map<String, Drawable> apps) {
+    public CollectorCardConstraintLayoutBuilder(Context c, Runnable refreshCollectorDatafieldListsRunnable, Map<String, Drawable> apps) {
         this.c = c;
-        this.refreshCollectorListRunnable = refreshCollectorListRunnable;
+        this.refreshCollectorDatafieldListsRunnable = refreshCollectorDatafieldListsRunnable;
         this.dbManager = DatabaseManager.getInstance(c);
         this.apps = apps;
     }
@@ -114,7 +114,8 @@ public class CollectorCardConstraintLayoutBuilder {
         detailBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                CollectorCardDetailBuilder cardDetailBuilder = new CollectorCardDetailBuilder(c, collector, refreshCollectorListRunnable);
+
+                CollectorCardDetailBuilder cardDetailBuilder = new CollectorCardDetailBuilder(c, collector, refreshCollectorDatafieldListsRunnable);
                 Dialog newDialog = cardDetailBuilder.build();
                 newDialog.show();
             }

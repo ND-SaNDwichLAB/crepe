@@ -142,7 +142,7 @@ public class HomeFragment extends Fragment {
 
             // get all installed apps
             Map<String, Drawable> apps = getAppImage();
-            CollectorCardConstraintLayoutBuilder builder = new CollectorCardConstraintLayoutBuilder(getActivity(), homeFragmentRefreshCollectorListRunnable, apps);
+            CollectorCardConstraintLayoutBuilder builder = new CollectorCardConstraintLayoutBuilder(getActivity(), homeFragmentRefreshCollectorAndDatafieldListsRunnable, apps);
 
 
             for (Collector collector : collectorList) {
@@ -163,7 +163,7 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    Runnable homeFragmentRefreshCollectorListRunnable = new Runnable() {
+    Runnable homeFragmentRefreshCollectorAndDatafieldListsRunnable = new Runnable() {
         @Override
         public void run() {
             try {
