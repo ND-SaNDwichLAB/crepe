@@ -157,6 +157,7 @@ public class Collector implements Serializable {
         Date date = new Date(collectorStartTime);
         DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
         // force the timezone to be utc because of bug in material design. All time operations will be in utc
+        // TODO Yuwen keep following on this UTC thing
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         return dateFormat.format(date);
     }
@@ -175,6 +176,7 @@ public class Collector implements Serializable {
         DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
 //        DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss.SSSZ");
         // force the timezone to be utc because of bug in material design. All time operations will be in utc
+        // TODO Yuwen keep following on this UTC thing
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
         return dateFormat.format(date);

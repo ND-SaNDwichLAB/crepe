@@ -132,6 +132,8 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
     public void updateCurrentView() {
 
+        Long oneDayMillisOffset = (long) (24 * 60 * 60 * 1000);   // add 24 hours to the current time to get tomorrow's time
+
         switch (currentScreenState) {
             case "buildDialogFromConfig":
                 // create a dialog
@@ -276,7 +278,6 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         // Use the Material DatePicker from Material Design
                         MaterialDatePicker.Builder collectorEndDatePickerBuilder = MaterialDatePicker.Builder.datePicker();
                         collectorEndDatePickerBuilder.setTitleText("END DATE");
-                        Long oneDayMillisOffset = (long) (24 * 60 * 60 * 1000);   // add 24 hours to the current time to get tomorrow's time
                         collectorEndDatePickerBuilder.setSelection(MaterialDatePicker.todayInUtcMilliseconds() + oneDayMillisOffset);   // set the default selection as tomorrow
                         final MaterialDatePicker collectorEndDatePicker = collectorEndDatePickerBuilder.build();
 
@@ -324,7 +325,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         // update app info
                         String appName = appDropDown.getSelectedItem().toString();
                         String appPackage = finalAppPackageDict.get(appName);
-                        if (appName != " ") {
+                        if (!appName.equals(" ")) {
                             collector.setAppName(appName);
                             collector.setAppPackage(appPackage);
                         } else {
@@ -353,7 +354,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
                         ParsePosition pp2 = new ParsePosition(0);
                         Date endDate = dateFormat.parse(endDateText.getText().toString(), pp2);
-                        collector.setCollectorEndTime(endDate.getTime());
+                        collector.setCollectorEndTime(endDate.getTime() + oneDayMillisOffset - 1);
 
                         // After successfully set the collector's end time, automatically set its status
                         collector.autoSetCollectorStatus();
@@ -362,7 +363,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 
                         // set the id of the collector in create mode
                         // format: userId%appName%timestamp. We will remove any space in the appName
-                        if (isEdit == false) {
+                        if (!isEdit) {
                             collector.setCollectorId(currentUser.getUserId() + "%" + collector.getAppName().replaceAll(" ", "") + "%" + String.valueOf(System.currentTimeMillis()));
                         }
 
