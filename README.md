@@ -26,9 +26,25 @@ In `CollectorConfigurationDialogWrapper.java`, we are maintaining a state called
 
 ### Setup
 
-
 If you are using Android Studio, you need to install `HAXM installer` to launch the project.
 
-### Problem
+### Collector
 
-No usage of `onDataLoadingEvent()` in `ui/main_activity/HomeFragment.java`
+
+
+### DataField
+
+
+
+### UISnapShot
+
+The innovation part of our app is programming by demonstration.
+
+We pre-define multiple relationships between the elements. 
+
+When user used the demonstration feature.
+
+
+
+(conj (ABOVE (conj (hasText 11:26 AM) (HAS_CLASS_NAME android.widget.TextView) (HAS_PACKAGE_NAME com.google.android.deskclock)) ) (HAS_CLASS_NAME android.widget.TextView) (HAS_PACKAGE_NAME com.google.android.deskclock))
+
