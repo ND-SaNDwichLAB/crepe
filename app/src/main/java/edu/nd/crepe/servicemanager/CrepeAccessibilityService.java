@@ -2,6 +2,8 @@ package edu.nd.crepe.servicemanager;
 
 import static android.view.accessibility.AccessibilityEvent.TYPE_ANNOUNCEMENT;
 import static android.view.accessibility.AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED;
+import static android.view.accessibility.AccessibilityEvent.TYPE_VIEW_CLICKED;
+import static android.view.accessibility.AccessibilityEvent.TYPE_VIEW_LONG_CLICKED;
 import static android.view.accessibility.AccessibilityEvent.TYPE_VIEW_SCROLLED;
 import static android.view.accessibility.AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED;
 import static android.view.accessibility.AccessibilityEvent.TYPE_VIEW_TEXT_SELECTION_CHANGED;
@@ -182,7 +184,12 @@ public class CrepeAccessibilityService extends AccessibilityService {
                 TYPE_WINDOW_STATE_CHANGED,
                 TYPE_NOTIFICATION_STATE_CHANGED,
                 TYPE_WINDOW_CONTENT_CHANGED,
+                // TODO Yuwen: record all user interactions when the target data is present in the current screen
+                // interaction events
+                TYPE_VIEW_CLICKED,
+                TYPE_VIEW_LONG_CLICKED,
                 TYPE_VIEW_SCROLLED,
+
                 TYPE_VIEW_TEXT_SELECTION_CHANGED,
                 TYPE_ANNOUNCEMENT);
 
