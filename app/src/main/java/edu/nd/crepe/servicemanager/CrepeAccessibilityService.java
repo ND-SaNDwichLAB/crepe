@@ -30,19 +30,26 @@ import android.util.Log;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import edu.nd.crepe.R;
 import edu.nd.crepe.database.Collector;
 import edu.nd.crepe.database.Data;
 import edu.nd.crepe.database.DatabaseManager;
 import edu.nd.crepe.database.Datafield;
 import edu.nd.crepe.demonstration.DemonstrationUtil;
+import edu.nd.crepe.graphquery.model.Node;
 import edu.nd.crepe.graphquery.ontology.OntologyQuery;
 import edu.nd.crepe.graphquery.ontology.SugiliteEntity;
 import edu.nd.crepe.graphquery.ontology.UISnapshot;
 import edu.nd.crepe.network.FirebaseCommunicationManager;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -80,6 +87,26 @@ public class CrepeAccessibilityService extends AccessibilityService {
     private List<Datafield> datafields;
     private List<AccessibilityNodeInfo> allNodeList;
     private AtomicLong lastSavedResultTimestamp = new AtomicLong(0);
+
+    private List<Integer> targetEventTypes = Arrays.asList(
+            TYPE_VIEW_TEXT_CHANGED,
+            TYPE_WINDOW_STATE_CHANGED,
+            TYPE_NOTIFICATION_STATE_CHANGED,
+            TYPE_WINDOW_CONTENT_CHANGED,
+            // interaction events
+            TYPE_VIEW_CLICKED,
+            TYPE_VIEW_LONG_CLICKED,
+            TYPE_VIEW_SCROLLED,
+
+            TYPE_VIEW_TEXT_SELECTION_CHANGED,
+            TYPE_ANNOUNCEMENT);
+
+    private List <Integer> interactionEventTypes = Arrays.asList(
+            TYPE_VIEW_CLICKED,
+            TYPE_VIEW_LONG_CLICKED,
+            TYPE_VIEW_SCROLLED
+    );
+
     // used for setting a foreground notification channel
     private static final int NOTIFICATION_ID = 1;
     private static final String CHANNEL_ID = "CrepeAccessibilityServiceChannel";
@@ -179,20 +206,6 @@ public class CrepeAccessibilityService extends AccessibilityService {
     @Override
     public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
 
-        List<Integer> targetEventTypes = Arrays.asList(
-                TYPE_VIEW_TEXT_CHANGED,
-                TYPE_WINDOW_STATE_CHANGED,
-                TYPE_NOTIFICATION_STATE_CHANGED,
-                TYPE_WINDOW_CONTENT_CHANGED,
-                // TODO Yuwen: record all user interactions when the target data is present in the current screen
-                // interaction events
-                TYPE_VIEW_CLICKED,
-                TYPE_VIEW_LONG_CLICKED,
-                TYPE_VIEW_SCROLLED,
-
-                TYPE_VIEW_TEXT_SELECTION_CHANGED,
-                TYPE_ANNOUNCEMENT);
-
         collectors = dbManager.getActiveCollectors();
 
         if (!targetEventTypes.contains(accessibilityEvent.getEventType())) {
@@ -258,12 +271,13 @@ public class CrepeAccessibilityService extends AccessibilityService {
                             Log.i("query execution", "prevResults: " + prevResults);
                             Log.i("query execution", "prevResults.contains(result): " + prevResults.contains(result));
 //                            if (!prevResults.contains(result) && System.currentTimeMillis() - lastSavedResultTimestamp.get() > 4000) {  // prevent duplicate results from being saved, with the interval of 4 seconds
-                            if (!prevResults.contains(result)) {  // prevent duplicate results from being saved, prevResults is cleared every 10 seconds (see code on the top of this file)
+//                            if (!prevResults.contains(result)) {  // prevent duplicate results from being saved, prevResults is cleared every 10 seconds (see code on the top of this file)
                                 Log.i("Timestamps", "System.currentTimeMillis(): " + System.currentTimeMillis() + ", lastSavedResultTimestamp: " + lastSavedResultTimestamp.get() + ", difference: " + (System.currentTimeMillis() - lastSavedResultTimestamp.get()));
                                 // if the result is not in the previous results, add it to the database
                                 long timestamp = System.currentTimeMillis();
+                                String dataString = processDataString(accessibilityEvent, result);
                                 // the data id is the collector id + "%" + timestamp
-                                Data resultData = new Data(datafield.getCollectorId() + "%" + timestamp, datafield.getDatafieldId(), currentUser.getUserId(), result.saveToDatabaseAsString());
+                                Data resultData = new Data(datafield.getCollectorId() + "%" + timestamp, datafield.getDatafieldId(), currentUser.getUserId(), dataString);
 
                                 try {
                                     dbManager.addData(resultData);
@@ -283,7 +297,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
                                     Log.i("database", "failed to add data: " + resultData.toString());
                                     e.printStackTrace();
                                 }
-                            }
+//                            }
                         }
                         prevResults.addAll(currentResults);
                     }
@@ -416,4 +430,32 @@ public class CrepeAccessibilityService extends AccessibilityService {
         firebaseCommunicationManager.updateUser(currentUser.getUserId(), userUpdates);
     }
 
+    private String processDataString(AccessibilityEvent event, SugiliteEntity result) {
+        JSONObject jsonObject = new JSONObject();
+
+        Date date = new Date(event.getEventTime());
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+        String dateString = dateFormat.format(date);
+
+        try {
+            jsonObject.put("eventType", AccessibilityEvent.eventTypeToString(event.getEventType()));
+            jsonObject.put("timestamp", dateString);
+            if (result.getType() == Node.class) {
+                jsonObject.put("text", ((Node) result.getEntityValue()).getText());
+                jsonObject.put("contentDescription", ((Node) result.getEntityValue()).getContentDescription());
+            } else {
+                jsonObject.put("value", ((Node) result.getEntityValue()).toString());
+            }
+            if (interactionEventTypes.contains(event.getEventType())) {
+                jsonObject.put("interaction", event.getEventType());
+                jsonObject.put("interactionSource", event.getSource());
+                jsonObject.put("interactionTargetClass", event.getClassName());
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return jsonObject.toString();
+    }
 }

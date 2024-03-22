@@ -131,12 +131,4 @@ public class SugiliteEntity<T> implements Serializable {
         //type == Node.class
         return "@" + entityId.toString();
     }
-
-    public String saveToDatabaseAsString() {
-        if (type == Node.class) {
-            return "Text: " + ((Node) entityValue).getText() + ", Content description: " + ((Node) entityValue).getContentDescription();
-        } else {
-            return entityValue.toString();
-        }
-    }
 }
