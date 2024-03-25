@@ -433,7 +433,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
     private String processDataString(AccessibilityEvent event, SugiliteEntity result) {
         JSONObject jsonObject = new JSONObject();
 
-        Date date = new Date(event.getEventTime());
+        Date date = new Date(System.currentTimeMillis());
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         String dateString = dateFormat.format(date);

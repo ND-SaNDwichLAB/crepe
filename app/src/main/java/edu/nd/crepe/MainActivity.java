@@ -273,7 +273,8 @@ public class MainActivity extends AppCompatActivity {
 
         if (screenState != null && !screenState.equals("dismissed") && collectorJson != null && datafields != null) {
             Collector prevCollector = new Gson().fromJson(collectorJson, Collector.class);
-            Type type = new TypeToken<ArrayList<Datafield>>() {}.getType();
+            Type type = new TypeToken<ArrayList<Datafield>>() {
+            }.getType();
             ArrayList<Datafield> datafieldsList = new Gson().fromJson(datafields, type);
 
             if (!CollectorConfigurationDialogWrapper.isNull()) {
@@ -292,6 +293,32 @@ public class MainActivity extends AppCompatActivity {
             editor.clear();
             editor.apply();
 
+        }
+
+        if (currentUser != null) {
+            // update the user information
+            Log.i("update user", "getting user from firebase");
+            firebaseCommunicationManager.retrieveUser(currentUser.getUserId(), new FirebaseCallback<User>() {
+                        public void onResponse(User user) {
+                            currentUser = user;
+                            userNameTextView.setText(currentUser.getName());
+                            dbManager.updateUser(currentUser);
+
+                            // retrieve collectors for this user that are not in local yet
+                            ArrayList<Collector> existingCollectors = (ArrayList<Collector>) dbManager.getAllCollectors();
+                            ArrayList<String> existingCollectorIds = new ArrayList<>();
+                            for (Collector collector : existingCollectors) {
+                                existingCollectorIds.add(collector.getCollectorId());
+                            }
+                            addParticipatingCollectorsAndDatafields(currentUser.getCollectorsForCurrentUser(), existingCollectorIds);
+                            Log.i("update user", "User updated successfully. " + currentUser.getCollectorsForCurrentUser());
+                        }
+
+                        public void onErrorResponse(Exception e) {
+                            Log.e("Firebase user", e.getMessage());
+                        }
+                    }
+            );
         }
     }
 
@@ -324,7 +351,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         sidemenuToggle.syncState();
@@ -347,14 +373,15 @@ public class MainActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        if(sidemenuToggle.onOptionsItemSelected(item)) {
+        if (sidemenuToggle.onOptionsItemSelected(item)) {
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    private void addParticipatingCollectorsAndDatafields(ArrayList<String> collectorIds, ArrayList<String> existingCollectorIds) {
+    private void addParticipatingCollectorsAndDatafields
+            (ArrayList<String> collectorIds, ArrayList<String> existingCollectorIds) {
         AtomicInteger collectorCounter = new AtomicInteger(0);
         int totalCollectorCount = collectorIds.size();
 
@@ -392,7 +419,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void addCreatedCollectorsAndDatafields(String userId, ArrayList<String> existingCollectorIds) {
+    private void addCreatedCollectorsAndDatafields(String
+                                                           userId, ArrayList<String> existingCollectorIds) {
         firebaseCommunicationManager.retrieveCollectorWithCreatorUserId(userId, new FirebaseCallback<ArrayList<Collector>>() {
             public void onResponse(ArrayList<Collector> collectors) {
 
@@ -479,7 +507,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void retrieveCollectorsAndDatafieldsForUser(User currentUser, ArrayList<String> existingCollectorIds) {
+    public void retrieveCollectorsAndDatafieldsForUser(User
+                                                               currentUser, ArrayList<String> existingCollectorIds) {
 
         // get the collectors associated with this user
         // contains 2 types of associations:

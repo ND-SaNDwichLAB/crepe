@@ -716,7 +716,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         int rows = db.update(USER_TABLE, cv, "userId = ?", new String[]{currentUser.getUserId()});
 
         if (rows > 0) {
-            Log.i("database", "successfully updated " + rows + " users with id " + currentUser.getUserId());
+            Log.i("database", "successfully updated " + rows + " users with id " + currentUser.getUserId() + " and userCollectors: " + currentUser.getCollectorsForCurrentUser().toString());
         } else {
             Log.i("database", "update user error, current users: " + getAllUsers().toString());
         }
