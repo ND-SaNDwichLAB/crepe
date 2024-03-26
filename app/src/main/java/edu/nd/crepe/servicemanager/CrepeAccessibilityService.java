@@ -1,10 +1,18 @@
 package edu.nd.crepe.servicemanager;
 
 import static android.view.accessibility.AccessibilityEvent.TYPE_ANNOUNCEMENT;
+import static android.view.accessibility.AccessibilityEvent.TYPE_GESTURE_DETECTION_END;
+import static android.view.accessibility.AccessibilityEvent.TYPE_GESTURE_DETECTION_START;
 import static android.view.accessibility.AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED;
+import static android.view.accessibility.AccessibilityEvent.TYPE_TOUCH_EXPLORATION_GESTURE_END;
+import static android.view.accessibility.AccessibilityEvent.TYPE_TOUCH_EXPLORATION_GESTURE_START;
+import static android.view.accessibility.AccessibilityEvent.TYPE_TOUCH_INTERACTION_START;
 import static android.view.accessibility.AccessibilityEvent.TYPE_VIEW_CLICKED;
+import static android.view.accessibility.AccessibilityEvent.TYPE_VIEW_HOVER_ENTER;
+import static android.view.accessibility.AccessibilityEvent.TYPE_VIEW_HOVER_EXIT;
 import static android.view.accessibility.AccessibilityEvent.TYPE_VIEW_LONG_CLICKED;
 import static android.view.accessibility.AccessibilityEvent.TYPE_VIEW_SCROLLED;
+import static android.view.accessibility.AccessibilityEvent.TYPE_VIEW_TARGETED_BY_SCROLL;
 import static android.view.accessibility.AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED;
 import static android.view.accessibility.AccessibilityEvent.TYPE_VIEW_TEXT_SELECTION_CHANGED;
 import static android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED;
@@ -97,6 +105,15 @@ public class CrepeAccessibilityService extends AccessibilityService {
             TYPE_VIEW_CLICKED,
             TYPE_VIEW_LONG_CLICKED,
             TYPE_VIEW_SCROLLED,
+            TYPE_VIEW_HOVER_ENTER,
+            TYPE_VIEW_HOVER_EXIT,
+            TYPE_VIEW_TARGETED_BY_SCROLL,
+            TYPE_TOUCH_INTERACTION_START,
+            TYPE_TOUCH_EXPLORATION_GESTURE_START,
+            TYPE_TOUCH_EXPLORATION_GESTURE_END,
+            TYPE_GESTURE_DETECTION_START,
+            TYPE_GESTURE_DETECTION_END,
+
 
             TYPE_VIEW_TEXT_SELECTION_CHANGED,
             TYPE_ANNOUNCEMENT);
@@ -104,7 +121,15 @@ public class CrepeAccessibilityService extends AccessibilityService {
     private List <Integer> interactionEventTypes = Arrays.asList(
             TYPE_VIEW_CLICKED,
             TYPE_VIEW_LONG_CLICKED,
-            TYPE_VIEW_SCROLLED
+            TYPE_VIEW_SCROLLED,
+            TYPE_VIEW_HOVER_ENTER,
+            TYPE_VIEW_HOVER_EXIT,
+            TYPE_VIEW_TARGETED_BY_SCROLL,
+            TYPE_TOUCH_INTERACTION_START,
+            TYPE_TOUCH_EXPLORATION_GESTURE_START,
+            TYPE_TOUCH_EXPLORATION_GESTURE_END,
+            TYPE_GESTURE_DETECTION_START,
+            TYPE_GESTURE_DETECTION_END
     );
 
     // used for setting a foreground notification channel
@@ -213,6 +238,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
         } else if (collectors.isEmpty()) {
             Log.i("accessibilityEvent", "No collectors to monitor");
         } else {
+            Log.i("accessibilityEvent", "Accessibility Event Type: " + AccessibilityEvent.eventTypeToString(accessibilityEvent.getEventType()) + " currently checking...");
             // update the list of apps we need to monitor
             List<String> monitoredAppPackages = new ArrayList<>();
             for (Collector collector : collectors) {
