@@ -1,50 +1,30 @@
+# CREPE
+
+[![MIT License](https://img.shields.io/badge/License-MIT-green)](https://github.com/codegrits/CodeGRITS/blob/main/LICENSE)
+
+Crepe is an Android application designed to help academic researchers collect data displayed on mobile screens. It's an app developed by the [SaNDwich Lab](https://toby.li/). Crepe is built on top of the accessibility service provided by Android to collect data on Android app.
+
+![workflow](./assets/workflow.png)
+
+Using a programming by demonstration (PBD) paradigm, Crepe enables researchers to collect specific data by simply tapping on the target data on the screen.
 
 
-## File Structure
+## Features
+
+- **Graph Query Technology:** Utilize a custom query language to flexibly and accurately identify and locate target data on UI screens.
+- **Low-Code Interface:** Enable researchers to specify what data to collect through simple no-code demonstrations.
+- **Low-battery Impact:** Minimize its impact on device battery life, ensuring that data collection can proceed for extended periods without significantly affecting the daily usage of participant devices.
+- **Collector Sharing with CollectorID:** Researchers can share the collector with the participants simbly by sharing the collectorID.
 
 
+## Setup
 
-### Database design
+To use this app, the suggested Android Version is `9.0.0+`. If running for the first time, you need to login into the app with a `Google Account`.
 
-We have a local android database using SQLite, and a firebase remote database
+## Privacy Policy
 
-They are synced every hour, to ensure consistency
+This app is mainly used for research purposes. Before using this app to collect data on users' devices, researchers should inform the users what data they want to collect.
 
-When uploading to firebase failed due to connectivity issues, we queue the upload operation until network connection gets established again. (Link to pieces of code)
+## Contact us
 
-When removing collectors, we do not really remove them from database to avoid data loss. Instead, we set their collectorStatus as “deleted” both locally and in firebase. All associated information (datafields and data) will not be queried if the associated collector’s status is deleted, or expired. [View code in FirebaseCommunicationManager.java](https://github.com/yuwen-lu/crepe/blob/5027e372de9bafab421245e5fc2e4b769c5105e0/app/src/main/java/edu/nd/crepe/network/FirebaseCommunicationManager.java#L89)
-
-### Graph Query
-
-Ranking algorithm and the use of LLM
-
-
-## ui
-
-In `CollectorConfigurationDialogWrapper.java`, we are maintaining a state called `currentScreenState`.
-
-
-### Setup
-
-If you are using Android Studio, you need to install `HAXM installer` to launch the project.
-
-### Collector
-
-
-
-### DataField
-
-
-
-### UISnapShot
-
-The innovation part of our app is programming by demonstration.
-
-We pre-define multiple relationships between the elements. 
-
-When user used the demonstration feature.
-
-
-
-(conj (ABOVE (conj (hasText 11:26 AM) (HAS_CLASS_NAME android.widget.TextView) (HAS_PACKAGE_NAME com.google.android.deskclock)) ) (HAS_CLASS_NAME android.widget.TextView) (HAS_PACKAGE_NAME com.google.android.deskclock))
-
+Please feel free to contact Yuwen Lu at ylu23@nd.edu if you have any question.
