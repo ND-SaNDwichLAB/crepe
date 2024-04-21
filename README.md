@@ -44,7 +44,45 @@ In the demonstration process, the system could generate `GraphQuery` through use
 
 ## Setup
 
+### For users
+
 To use this app, the suggested Android Version is `9.0.0+`. If running for the first time, you need to login into the app with a `Google Account`.
+
+### For researchers
+
+To build the `apk` file using this repo, there are several steps:
+
+1. Clone the repository `git clone https://github.com/username/repository-name.git`
+
+2. Set Up Development Environment
+    * In this step, you need to add a virtual device(`tools->Device Manager->Create Virtual Device`) or connect your own device using usb port
+    * You also need to install `HAXM`. Before that, you need to enable `System Configuration->VirtualizationTechnology` in your `Bios` Setup
+    * You can modify your SDK location if you want to in `Tools->SDK Manager-> Android SDK Location`
+
+3. Generate a Keystore File
+
+* Open you command line, go to the path where you want to create a binary file that holds a set of keys, then run the following command:
+
+```
+keytool -genkey -v -keystore your_keystore_name.keystore -alias your_alias_name -keyalg RSA -keysize 2048 -validity 10000
+```
+
+* `your_keystore_name.keystore`: This is the name of the keystore file you want to create.
+* `your_alias_name`: This is an alias name for your key, which you’ll use to reference it.
+* The `-validity` value is how long (in days) the keys are valid. You can set this as needed.
+
+4. Configuring Signing and Build
+
+* Go to `Build->Generate Signed Bundle / APK`
+* Choose `APK` and click `Next`
+* Configure key store infomation
+    * Key store path: Click the folder icon and locate your keystore file.
+    * Key store password: Enter the password for your keystore.
+    * Key alias: Enter the alias for your key.
+    * Key password: Enter the password for your key.
+* Choose the build variant(debug or release)
+* Generate the APK
+
 
 ## Privacy Policy
 
