@@ -55,9 +55,10 @@ To build the `apk` file using this repo, there are several steps:
 1. Clone the repository `git clone https://github.com/username/repository-name.git`
 
 2. Set Up Development Environment
-    * In this step, you need to add a virtual device(`tools->Device Manager->Create Virtual Device`) or connect your own device using usb port
-    * You also need to install `HAXM`. Before that, you need to enable `System Configuration->VirtualizationTechnology` in your `Bios` Setup
-    * You can modify your SDK location if you want to in `Tools->SDK Manager-> Android SDK Location`
+
+* In this step, you need to add a virtual device(`tools->Device Manager->Create Virtual Device`) or connect your own device using usb port
+* You also need to install `HAXM`. Before that, you need to enable `System Configuration->VirtualizationTechnology` in your `Bios` Setup
+* You can modify your SDK location if you want to in `Tools->SDK Manager-> Android SDK Location`
 
 3. Generate a Keystore File
 
