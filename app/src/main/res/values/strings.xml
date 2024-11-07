@@ -25,7 +25,7 @@
     <string name="button_for_add_new_collector">button for add new collector</string>
     <string name="add_new_collector_icon">add new collector icon</string>
     <string name="fab_button_create_new_collector">Initiate collector for new experiment</string>
-    <string name="fab_button_new_collector_title">Create New</string>
+    <string name="fab_button_new_collector_title">Create Study</string>
     <string name="add_existing_collector_icon">add existing collector icon</string>
     <string name="floating_action_button_for_adding_new_collectors">floating action button for adding new collectors</string>
     <string name="service_permission_required_title">Service Permission Required</string>
