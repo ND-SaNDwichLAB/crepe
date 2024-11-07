@@ -24,7 +24,7 @@ public class CombinedOntologyQuery extends OntologyQueryWithSubQueries {
 
     private Set<OntologyQuery> subQueries = null;
 
-    protected SugiliteRelation r = null;    // the r variable is only used for PREV quries, e.g. for (LEFT (conj (numeric_parent_index 1.0) (HAS_CLASS_NAME android.widget.TextView)) ) the r variable is SugiliteRelation.LEFT
+    protected SugiliteRelation r = null;    // the r variable is only used for PREV queries, e.g. for (LEFT (conj (numeric_parent_index 1.0) (HAS_CLASS_NAME android.widget.TextView)) ) the r variable is SugiliteRelation.LEFT
                                             // call the setQueryRelation() method to set the r variable
 
 
