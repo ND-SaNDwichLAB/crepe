@@ -117,7 +117,7 @@ public class AddCollectorFromCollectorIdDialogBuilder {
                                 if (collector.getCollectorId().equals(collectorId)) {
                                     targetCollector = collector;
 
-                                    Boolean isTargetAppInstalled = false;
+                                    boolean isTargetAppInstalled = false;
                                     // 0. first, check if the collector's app exist on the participant's phone
                                     // Get a list of installed apps.
                                     PackageManager packageManager = c.getPackageManager();

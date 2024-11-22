@@ -9,6 +9,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="white_ish">#F9F6FD</color>
+    <color name="crimson">#B80F0A</color>
     <color name="ND_gold">#D39F10</color>
     <color name="ND_blue">#0C2340</color>
     <color name="ND_blue_light">#d4e4ff</color>
