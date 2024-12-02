@@ -22,6 +22,8 @@ import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 
+import org.apache.xpath.operations.Bool;
+
 import edu.nd.crepe.network.ApiCallManager;
 import edu.nd.crepe.servicemanager.CrepeAccessibilityService;
 import edu.nd.crepe.R;
@@ -216,7 +218,7 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
                     // get the current uisnapshot
                     uiSnapshot = CrepeAccessibilityService.getsSharedInstance().generateUISnapshot();
 
-                    List<AccessibilityNodeInfo> matchedAccessibilityNodeList = CrepeAccessibilityService.getsSharedInstance().getMatchingNodeFromClickWithText(rawX, rawY);
+                    List<AccessibilityNodeInfo> matchedAccessibilityNodeList = CrepeAccessibilityService.getsSharedInstance().getMatchingNodeFromClickWithContent(rawX, rawY);
                     // this matchedAccessibilityNode is an AccessibilityNodeInfo, which is not exactly the node stored in the screen's nodeSugiliteEntityMap.
                     // We retrieved that stored node from this screen's uisnapshot
                     AccessibilityNodeInfo matchedNode;
@@ -233,7 +235,7 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
                     }
 
 
-                    if (targetEntity != null) {
+                    if (targetEntity != null && targetEntity.getEntityId() != null) {
                         SugiliteRelation[] relationsToExclude = new SugiliteRelation[1];
                         relationsToExclude[0] = SugiliteRelation.HAS_TEXT;
                         defaultQueries = DemonstrationUtil.generateDefaultQueries(uiSnapshot, targetEntity, relationsToExclude);
@@ -270,7 +272,21 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
                     // set the text of the dialog window
                     String displayText = "";
 
-                    displayText = "You clicked on \"" + targetEntity.getEntityValue().getText() + "\". Do you want to collect this data?";
+                    String collectedContent = "";
+                    String collectedText = targetEntity.getEntityValue().getText();
+                    Boolean textExists = collectedText != null && !collectedText.isEmpty();
+                    String collectedContentDescription = targetEntity.getEntityValue().getContentDescription();
+                    Boolean contentDescriptionExists = collectedContentDescription!= null && !collectedContentDescription.isEmpty();
+
+                    if (textExists) {
+                        collectedContent = collectedText;
+                    } else if (contentDescriptionExists) {
+                        collectedContent = collectedContentDescription;
+                    } else {
+                        Log.e("Demonstration", "The collected entity does not have either text or content description. Check again?");
+                    }
+
+                    displayText = "You clicked on \"" + collectedContent + "\". Do you want to collect this data?";
                     queryTextView.setText(displayText);
 
                     // Create a full-screen black view with a certain transparency

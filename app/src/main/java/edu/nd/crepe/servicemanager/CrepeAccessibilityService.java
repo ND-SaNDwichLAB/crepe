@@ -42,7 +42,6 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import edu.nd.crepe.R;
 import edu.nd.crepe.database.Collector;
 import edu.nd.crepe.database.Data;
 import edu.nd.crepe.database.DatabaseManager;
@@ -388,7 +387,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
         Log.e(TAG, "Accessibility service interrupted");
     }
 
-    public List<AccessibilityNodeInfo> getMatchingNodeFromClickWithText(float clickX, float clickY) {
+    public List<AccessibilityNodeInfo> getMatchingNodeFromClickWithContent(float clickX, float clickY) {
 
         this.allNodeList = getAllNodesOnScreen();
 
@@ -396,10 +395,14 @@ public class CrepeAccessibilityService extends AccessibilityService {
 
         List<AccessibilityNodeInfo> resultNodeList = new ArrayList<>();
 
-        if (matchingNodeInfoList != null) {
+        if (matchingNodeInfoList != null && matchingNodeInfoList.size() > 0) {
             for (AccessibilityNodeInfo matchingNode : matchingNodeInfoList) {
-                // change here
+                // if the target element contains text, we add it
                 if (matchingNode.getText() != null && !matchingNode.getText().toString().isEmpty()) {
+                    resultNodeList.add(matchingNode);
+                }
+                // if the target element contains content description, we also add it
+                if (matchingNode.getContentDescription() != null && !matchingNode.getContentDescription().toString().isEmpty()) {
                     resultNodeList.add(matchingNode);
                 }
             }

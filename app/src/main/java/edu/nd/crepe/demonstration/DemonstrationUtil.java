@@ -91,7 +91,7 @@ public class DemonstrationUtil {
      * @return
      */
     public static List<AccessibilityNodeInfo> findMatchingNodeFromClick(List<AccessibilityNodeInfo> allNodeList, float clickX, float clickY){
-        if(allNodeList != null && allNodeList.size() == 0 || allNodeList == null) return null;
+        if(allNodeList == null || allNodeList.size() == 0) return null;
 
         List<AccessibilityNodeInfo> matchingList = new ArrayList<>();
 
@@ -181,7 +181,7 @@ public class DemonstrationUtil {
         // create uiSnapshot for current screen
         UISnapshot uiSnapshot = CrepeAccessibilityService.getsSharedInstance().generateUISnapshot();
 
-        List<AccessibilityNodeInfo> matchedAccessibilityNodeList = CrepeAccessibilityService.getsSharedInstance().getMatchingNodeFromClickWithText(clickX, clickY);
+        List<AccessibilityNodeInfo> matchedAccessibilityNodeList = CrepeAccessibilityService.getsSharedInstance().getMatchingNodeFromClickWithContent(clickX, clickY);
 
         SugiliteEntity<Node> targetEntity = new SugiliteEntity<>();
         AccessibilityNodeInfo matchedNode;
@@ -201,7 +201,7 @@ public class DemonstrationUtil {
         UISnapshot uiSnapshot = CrepeAccessibilityService.getsSharedInstance().generateUISnapshot();
         // get the matched node
 
-        List<AccessibilityNodeInfo> matchedAccessibilityNodeList = CrepeAccessibilityService.getsSharedInstance().getMatchingNodeFromClickWithText(clickX, clickY);
+        List<AccessibilityNodeInfo> matchedAccessibilityNodeList = CrepeAccessibilityService.getsSharedInstance().getMatchingNodeFromClickWithContent(clickX, clickY);
         // this matchedAccessibilityNode is an AccessibilityNodeInfo, which is not exactly the node stored in the screen's nodeSugiliteEntityMap.
         // We retrieved that stored node from this screen's uisnapshot
 
@@ -219,7 +219,7 @@ public class DemonstrationUtil {
         List<Pair<OntologyQuery, Double>> defaultQueries = null;
         // temporarily change this to a list to store duplicate values from different query results
         List<Set<SugiliteEntity>> results = new ArrayList<>();
-        if(targetEntity != null) {
+        if(targetEntity != null && targetEntity.getEntityId() != null) {
             SugiliteRelation[] relationsToExclude = new SugiliteRelation[1];
             relationsToExclude[0] = SugiliteRelation.HAS_TEXT;
             defaultQueries = generateDefaultQueries(uiSnapshot, targetEntity, relationsToExclude);
