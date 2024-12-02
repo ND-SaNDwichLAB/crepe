@@ -244,7 +244,7 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
                         return false;
                     }
 
-                    if (targetEntity.getEntityValue() == null || defaultQueries.size() == 0) {
+                    if (targetEntity.getEntityValue() == null || defaultQueries.isEmpty()) {
                         Toast.makeText(context, "Sorry! We do not support the data you just clicked. Please try again.", Toast.LENGTH_SHORT).show();
                         return false;
                     }
@@ -272,21 +272,10 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
                     // set the text of the dialog window
                     String displayText = "";
 
-                    String collectedContent = "";
-                    String collectedText = targetEntity.getEntityValue().getText();
-                    Boolean textExists = collectedText != null && !collectedText.isEmpty();
-                    String collectedContentDescription = targetEntity.getEntityValue().getContentDescription();
-                    Boolean contentDescriptionExists = collectedContentDescription!= null && !collectedContentDescription.isEmpty();
+                    String collectedContent = targetEntity.getEntityValue().getEntityContent();
 
-                    if (textExists) {
-                        collectedContent = collectedText;
-                    } else if (contentDescriptionExists) {
-                        collectedContent = collectedContentDescription;
-                    } else {
-                        Log.e("Demonstration", "The collected entity does not have either text or content description. Check again?");
-                    }
 
-                    displayText = "You clicked on \"" + collectedContent + "\". Do you want to collect this data?";
+                    displayText = "You tapped on \"" + collectedContent + "\". Do you want to collect this data?";
                     queryTextView.setText(displayText);
 
                     // Create a full-screen black view with a certain transparency
@@ -312,7 +301,7 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
                     yesButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            //confirm the selection
+                            // confirm the selection
                             // remove the confirmation dialog
                             if (confirmationView != null) {
                                 windowManager.removeView(confirmationView);
@@ -519,7 +508,7 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
             // send the data to MainActivity
             desiredQuery = data;
             SugiliteEntity<Node> finalTargetEntity = targetEntity;
-            processCallback(finalTargetEntity.getEntityValue().getText());
+            processCallback(targetEntity.getEntityValue().getEntityContent());
             // clear the overlay
             disableOverlay();
             // stop widget service

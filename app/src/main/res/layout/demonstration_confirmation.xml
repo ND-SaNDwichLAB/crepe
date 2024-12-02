@@ -27,7 +27,7 @@
         android:layout_marginStart="24dp"
         android:layout_marginTop="12dp"
         android:layout_marginEnd="24dp"
-        android:text="You clicked on xxxx. Is this the information you want to collect?"
+        android:text="You tapped on xxxx. Is this the information you want to collect?"
         android:textColor="@color/custom_text_secondary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

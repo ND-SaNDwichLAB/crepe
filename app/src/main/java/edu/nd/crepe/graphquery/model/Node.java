@@ -2,6 +2,7 @@
 package edu.nd.crepe.graphquery.model;
 
 import android.graphics.Rect;
+import android.util.Log;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 import java.io.Serializable;
@@ -248,5 +249,21 @@ public class Node implements Serializable {
             }
         }
         return super.equals(obj);
+    }
+
+    public String getEntityContent() {
+        String collectedText = this.getText();
+        Boolean textExists = collectedText != null && !collectedText.isEmpty();
+        String collectedContentDescription = this.getContentDescription();
+        Boolean contentDescriptionExists = collectedContentDescription!= null && !collectedContentDescription.isEmpty();
+
+        if (textExists) {
+            return collectedText;
+        } else if (contentDescriptionExists) {
+            return collectedContentDescription;
+        } else {
+            Log.e("Demonstration", "The collected entity does not have either text or content description. Check again?");
+            return "";
+        }
     }
 }
