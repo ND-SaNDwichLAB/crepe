@@ -8,6 +8,9 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.provider.Settings;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.TypefaceSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -138,11 +141,16 @@ public class CollectorCardDetailBuilder {
         TextView collectorDatafield = (TextView) popupView.findViewById(R.id.collectorDetailDatafield);
         if (datafieldsForCollector.size() > 0) {
             for (Datafield datafield : datafieldsForCollector) {
-                collectorDatafield.append("\"" + datafield.getName() + "\"\n\n");
+                SpannableString graphQuery = new SpannableString("Graph Query:\n" + datafield.getGraphQuery() + "\n\n");
+                graphQuery.setSpan(new TypefaceSpan("monospace"), 0, graphQuery.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                collectorDatafield.append(graphQuery);
+
+                collectorDatafield.append("Example: \"" + datafield.getName() + "\"\n\n");
             }
         } else {
             collectorDatafield.setText("No datafields available");
         }
+
 
         ImageButton collectorShareButton = (ImageButton) popupView.findViewById(R.id.collectorShareButton);
         collectorShareButton.setOnClickListener(new View.OnClickListener() {
