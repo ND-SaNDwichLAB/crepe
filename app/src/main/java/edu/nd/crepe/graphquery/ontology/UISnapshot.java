@@ -98,7 +98,7 @@ public class UISnapshot {
         List<Node> allNodes = new ArrayList<>();
         if(allOldNodes != null && activePackageName != null) {
             for (AccessibilityNodeInfo oldNode : allOldNodes) {
-                Node node = new Node(oldNode, activePackageName.equals(oldNode.getPackageName()) ? activeActivityName : null);
+                Node node = new Node(oldNode, activePackageName.contentEquals(oldNode.getPackageName()) ? activeActivityName : null);
                 if (node.getPackageName() != null && (node.getPackageName().contains("com.android.systemui") || node.getPackageName().contains("crepe"))) {
                     continue;
                 }
@@ -157,6 +157,7 @@ public class UISnapshot {
 
         if(allNodes != null){
             for(Node node : allNodes) {
+                Log.i("constructFromListOfNodes", "currently processing " + allNodes.indexOf(node) + ", out of all " + allNodes.size());
                 if(node.getPackageName() != null && (node.getPackageName().contains("com.android.systemui") || node.getPackageName().contains("crepe"))){
                     continue;
                 }

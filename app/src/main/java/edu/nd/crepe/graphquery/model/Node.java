@@ -229,20 +229,34 @@ public class Node implements Serializable {
         return false;
     }
 
-    @Override
     public int hashCode() {
-        return Objects.hash(this.packageName, this.className, this.boundsInScreen, this.viewId);
+        return Objects.hash(
+                this.packageName,
+                this.className,
+                this.boundsInScreen,
+                this.viewId,
+                this.text,
+                this.contentDescription
+        );
     }
 
     @Override
     public boolean equals(Object obj) {
         if(obj instanceof Node){
             try {
-                if (((this.packageName == null && ((Node) obj).packageName == null) || this.packageName.equals(((Node) obj).packageName)) &&
-                        ((this.className == null && ((Node) obj).className == null) || this.className.equals(((Node) obj).className)) &&
-                        ((this.boundsInScreen == null && ((Node) obj).boundsInScreen == null) || this.boundsInScreen.equals(((Node) obj).boundsInScreen)) &&
-                        ((this.viewId == null && ((Node) obj).viewId == null) || this.viewId.equals(((Node) obj).viewId)))
-                    return true;
+                Node other = (Node) obj;
+                return (((this.packageName == null && other.packageName == null) ||
+                        (this.packageName != null && this.packageName.equals(other.packageName))) &&
+                        ((this.className == null && other.className == null) ||
+                                (this.className != null && this.className.equals(other.className))) &&
+                        ((this.boundsInScreen == null && other.boundsInScreen == null) ||
+                                (this.boundsInScreen != null && this.boundsInScreen.equals(other.boundsInScreen))) &&
+                        ((this.viewId == null && other.viewId == null) ||
+                                (this.viewId != null && this.viewId.equals(other.viewId))) &&
+                        ((this.text == null && other.text == null) ||
+                                (this.text != null && this.text.equals(other.text))) &&
+                        ((this.contentDescription == null && other.contentDescription == null) ||
+                                (this.contentDescription != null && this.contentDescription.equals(other.contentDescription))));
             }
             catch (NullPointerException e){
                 return false;

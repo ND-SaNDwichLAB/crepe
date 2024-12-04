@@ -223,13 +223,13 @@ public class DemonstrationUtil {
             SugiliteRelation[] relationsToExclude = new SugiliteRelation[1];
             relationsToExclude[0] = SugiliteRelation.HAS_TEXT;
             defaultQueries = generateDefaultQueries(uiSnapshot, targetEntity, relationsToExclude);
+            Log.i("defaultQueries", defaultQueries.stream()
+                    .map(pair -> pair.first.toString())
+                    .collect(Collectors.joining("\n")));
         } else {
             Log.e("generate queries", "Cannot find the tapped entity!");
         }
 
-        Log.i("defaultQueries", defaultQueries.stream()
-                .map(pair -> pair.first.toString())
-                .collect(Collectors.joining("\n")));
 
         // test if the queries can retrieve components on screen
         if(defaultQueries != null) {
