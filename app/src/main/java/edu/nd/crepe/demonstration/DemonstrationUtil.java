@@ -208,25 +208,31 @@ public class DemonstrationUtil {
         SugiliteEntity<Node> targetEntity = new SugiliteEntity<>();
         AccessibilityNodeInfo matchedNode;
 
-        if(matchedAccessibilityNodeList != null && matchedAccessibilityNodeList.size() == 1) {
-            matchedNode = matchedAccessibilityNodeList.get(0);
-            targetEntity = uiSnapshot.getEntityWithAccessibilityNode(matchedNode);
-        } else {
-            // compare the screen areas of all matched nodes, take the smallest
-            // we assume the smallest matches the user's target best
-            // create a pair of the matched node and its screen area
-            List<Pair<AccessibilityNodeInfo, Integer>> matchedNodeScreenAreaPairs = new ArrayList<>();
-            for (AccessibilityNodeInfo node : matchedAccessibilityNodeList) {
-                Rect nodeRect = new Rect();
-                node.getBoundsInScreen(nodeRect);
-                int nodeArea = nodeRect.width() * nodeRect.height();
-                matchedNodeScreenAreaPairs.add(Pair.create(node, nodeArea));
+        if (matchedAccessibilityNodeList != null && matchedAccessibilityNodeList.size() > 0) {
+
+            if (matchedAccessibilityNodeList.size() == 1) {
+                matchedNode = matchedAccessibilityNodeList.get(0);
+                targetEntity = uiSnapshot.getEntityWithAccessibilityNode(matchedNode);
+            } else {
+                // compare the screen areas of all matched nodes, take the smallest
+                // we assume the smallest matches the user's target best
+                // create a pair of the matched node and its screen area
+                List<Pair<AccessibilityNodeInfo, Integer>> matchedNodeScreenAreaPairs = new ArrayList<>();
+                for (AccessibilityNodeInfo node : matchedAccessibilityNodeList) {
+                    Rect nodeRect = new Rect();
+                    node.getBoundsInScreen(nodeRect);
+                    int nodeArea = nodeRect.width() * nodeRect.height();
+                    matchedNodeScreenAreaPairs.add(Pair.create(node, nodeArea));
+                }
+                // sort the list of pairs by the screen area
+                matchedNodeScreenAreaPairs.sort(Comparator.comparingInt(pair -> pair.second));
+                // get the node with the smallest screen area
+                AccessibilityNodeInfo smallestNode = matchedNodeScreenAreaPairs.get(0).first;
+                targetEntity = uiSnapshot.getEntityWithAccessibilityNode(smallestNode);
             }
-            // sort the list of pairs by the screen area
-            matchedNodeScreenAreaPairs.sort(Comparator.comparingInt(pair -> pair.second));
-            // get the node with the smallest screen area
-            AccessibilityNodeInfo smallestNode = matchedNodeScreenAreaPairs.get(0).first;
-            targetEntity = uiSnapshot.getEntityWithAccessibilityNode(smallestNode);
+        } else {
+            // did not match any node
+            Log.e("generate queries", "Cannot find the tapped entity!");
         }
 
 

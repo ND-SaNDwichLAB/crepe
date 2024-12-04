@@ -422,7 +422,9 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
             String correctQueryAggregated = IntStream.range(0, correctQueries.size())
                     .mapToObj(index -> index + ": " + correctQueries.get(index).first.toString())
                     .collect(Collectors.joining("\n"));
-            String promptPrefix = "We defined this new graph query to locate relevant data on mobile UI structure. Now, we have generated the following potential queries:\n";
+            String promptPrefix = "We defined a Graph Query to locate target data on mobile UI structure. It describes the unique attributes of the data we are targeting.\n" +
+                    "For example, the query " +
+                    "Here are the candidate queries:\n";
             String promptSuffix = "\nWhich one matches the following description the best? \n [insert-user-description] \n Please only return the index number, without any additional information, even periods or comma.\n Example response format: \n0";
 
             final String[] finalPrompt = {promptPrefix + correctQueryAggregated + promptSuffix.replace("[insert-user-description]", datafieldUserDescription)};
