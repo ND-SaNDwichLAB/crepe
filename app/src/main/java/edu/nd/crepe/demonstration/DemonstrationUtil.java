@@ -212,7 +212,21 @@ public class DemonstrationUtil {
             matchedNode = matchedAccessibilityNodeList.get(0);
             targetEntity = uiSnapshot.getEntityWithAccessibilityNode(matchedNode);
         } else {
-            // TODO: Find the node that we actually need
+            // compare the screen areas of all matched nodes, take the smallest
+            // we assume the smallest matches the user's target best
+            // create a pair of the matched node and its screen area
+            List<Pair<AccessibilityNodeInfo, Integer>> matchedNodeScreenAreaPairs = new ArrayList<>();
+            for (AccessibilityNodeInfo node : matchedAccessibilityNodeList) {
+                Rect nodeRect = new Rect();
+                node.getBoundsInScreen(nodeRect);
+                int nodeArea = nodeRect.width() * nodeRect.height();
+                matchedNodeScreenAreaPairs.add(Pair.create(node, nodeArea));
+            }
+            // sort the list of pairs by the screen area
+            matchedNodeScreenAreaPairs.sort(Comparator.comparingInt(pair -> pair.second));
+            // get the node with the smallest screen area
+            AccessibilityNodeInfo smallestNode = matchedNodeScreenAreaPairs.get(0).first;
+            targetEntity = uiSnapshot.getEntityWithAccessibilityNode(smallestNode);
         }
 
 
@@ -371,7 +385,7 @@ public class DemonstrationUtil {
                 clonedQuery.addSubQuery(subQuery);
                 hasNonBoundingBoxFeature = true;
                 hasNonChildFeature = true;
-                queries.add(Pair.create(clonedQuery, 1.2));
+                queries.add(Pair.create(clonedQuery, 10.2));
             }
         }
 
