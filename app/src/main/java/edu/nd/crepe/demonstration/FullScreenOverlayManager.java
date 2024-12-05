@@ -426,7 +426,7 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
                     "For example, the query \n(conj (HAS_CLASS_NAME android.widget.FrameLayout) (RIGHT (conj (hasText \" 6\") (HAS_CLASS_NAME android.widget.TextView) (HAS_PACKAGE_NAME com.ubercab)) ) (HAS_PACKAGE_NAME com.ubercab)) \nstands for: a FrameLayout within Uber, that is located to the right of a TextView in Uber that displays text \"6\"\n." +
                     "\n" +
                     "Here are the candidate queries:\n";
-            String promptSuffix = "\nYour job is to find the best matching query to the user's input. Which one matches the following description the best? \n [insert-user-description] \n Please only return the index number, without any additional information, even periods or comma.\n Example response format: \n0";
+            String promptSuffix = "\nYour job is to find the best matching query to the user's input, and the best query that is generalizable to different data collection scenarios. For example, a screen location of an UI element is less generalizable than having a reference point like \"to the right of a text label that says '6'\". Which one matches the following description the best? \n [insert-user-description] \n Please only return the index number, without any additional information, even periods or comma.\n Example response format: \n0";
 
             final String[] finalPrompt = {promptPrefix + correctQueryAggregated + promptSuffix.replace("[insert-user-description]", datafieldUserDescription)};
 

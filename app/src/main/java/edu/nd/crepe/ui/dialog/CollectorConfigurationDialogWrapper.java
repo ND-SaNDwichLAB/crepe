@@ -862,7 +862,8 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                 View datafieldView = LayoutInflater.from(context).inflate(R.layout.datafield_card, null);
                 // get datafield name
                 TextView datafieldName = (TextView) datafieldView.findViewById(R.id.datafieldTextView);
-                datafieldName.setText(datafields.get(i).getName());
+                // TODO use the user input description here
+                datafieldName.setText(datafields.get(i).getGraphQuery());
 
                 // set onclicklistener for datafield remove
                 ImageButton deleteDatafieldButton = (ImageButton) datafieldView.findViewById(R.id.removeDatafieldButton);

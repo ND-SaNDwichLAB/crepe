@@ -473,6 +473,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
                 jsonObject.put("text", ((Node) result.getEntityValue()).getText());
                 jsonObject.put("contentDescription", ((Node) result.getEntityValue()).getContentDescription());
             } else {
+                Log.i("process results", "result node type: " + result.getType());
                 jsonObject.put("value", ((Node) result.getEntityValue()).toString());
             }
             if (interactionEventTypes.contains(event.getEventType())) {
