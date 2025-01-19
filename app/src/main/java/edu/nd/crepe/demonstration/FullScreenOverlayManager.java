@@ -1,7 +1,5 @@
 package edu.nd.crepe.demonstration;
 
-import static android.content.Context.WINDOW_SERVICE;
-
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -18,7 +16,6 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,7 +29,6 @@ import edu.nd.crepe.graphquery.Const;
 import edu.nd.crepe.graphquery.model.Node;
 import edu.nd.crepe.graphquery.ontology.OntologyQuery;
 import edu.nd.crepe.graphquery.ontology.SugiliteEntity;
-import edu.nd.crepe.graphquery.ontology.SugiliteRelation;
 import edu.nd.crepe.graphquery.ontology.UISnapshot;
 import edu.nd.crepe.servicemanager.CrepeDisplayPermissionManager;
 import edu.nd.crepe.ui.dialog.AddDatafieldDescriptionDialogBuilder;
@@ -59,7 +55,7 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
     private int overlayCurrentHeight;
     private int overlayCurrentWidth;
     private int overlayCurrentFlag;
-    private SelectionOverlayViewManager selectionOverlayViewManager;
+    private OverlayViewManager overlayViewManager;
     private View dimView;
     private List<Pair<OntologyQuery, Double>> defaultQueries;
     private SugiliteEntity<Node> targetEntity = new SugiliteEntity<>();
@@ -76,10 +72,11 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
         this.showingOverlay = false;
         this.navigationBarUtil = new NavigationBarUtil();
         this.overlayCurrentHeight = displayMetrics.heightPixels;
+        this.overlayViewManager= new OverlayViewManager(context);
         //hack -- leave 1px at the right end of the screen so the input method window becomes visible
         this.overlayCurrentWidth = displayMetrics.widthPixels - 1;
         this.overlayCurrentFlag = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
-        this.selectionOverlayViewManager = new SelectionOverlayViewManager(context);
+        this.overlayViewManager = new OverlayViewManager(context);
         this.dimView = new View(context);
     }
 
@@ -185,8 +182,6 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
 
             class MyGestureDetector extends GestureDetector.SimpleOnGestureListener {
 
-                SelectionOverlayView selectionOverlay = null;
-
                 @RequiresApi(api = Build.VERSION_CODES.R)
                 @Override
                 public boolean onSingleTapConfirmed(MotionEvent event) {
@@ -201,16 +196,6 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
                     float navHeight = navigationBarUtil.getStatusBarHeight(context);
                     float adjustedY = rawY - navHeight;
 
-//                    // show the matched item on screen
-//                    windowManager = (WindowManager) context.getSystemService(WINDOW_SERVICE);
-//                    WindowManager.LayoutParams selectionLayoutParams = updateLayoutParams(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.MATCH_PARENT, Const.SELECTION_INDICATOR_COLOR);
-//                    Rect clickedItemBounds = DemonstrationUtil.getBoundingBoxOfClickedItem(rawX, rawY);
-//                    // move the clickedItemBounds up by the navHeight
-//                    if (clickedItemBounds != null) {
-//                        clickedItemBounds.offset(0, -1 * (int) navHeight);
-//                        this.selectionOverlay = selectionOverlayViewManager.getRectOverlay(clickedItemBounds);
-//                        windowManager.addView(this.selectionOverlay, selectionLayoutParams);
-//                    }
 
                     targetEntity = DemonstrationUtil.findTargetEntityFromOverlayClick(rawX, rawY);
 
@@ -224,9 +209,9 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
                     if (clickedItemBounds != null) {
                         clickedItemBounds.offset(0, -1 * (int) navHeight);
                         // TODO THIS NEEDS REFACTOR
-                        this.selectionOverlay = selectionOverlayViewManager.getRectOverlay(clickedItemBounds);
-                        WindowManager.LayoutParams selectionOverlayParams = updateLayoutParams(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, clickedItemBounds.width(), clickedItemBounds.height());
-                        windowManager.addView(this.selectionOverlay, selectionOverlayParams);
+
+                        overlayViewManager.showOverlay(clickedItemBounds, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, Const.SELECTION_INDICATOR_COLOR, 3);
+
                     }
 
                     // generate the default queries
@@ -297,7 +282,7 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
                                 windowManager.removeView(confirmationView);
                             }
                             // show the new view here
-                            AddDatafieldDescriptionDialogBuilder addDatafieldDescriptionDialogBuilder = new AddDatafieldDescriptionDialogBuilder(context, selectionOverlay, windowManager, confirmationView, dialogParams, FullScreenOverlayManager.this);
+                            AddDatafieldDescriptionDialogBuilder addDatafieldDescriptionDialogBuilder = new AddDatafieldDescriptionDialogBuilder(context, windowManager, confirmationView, dialogParams, FullScreenOverlayManager.this);
                             View addDatafieldDescriptionView = addDatafieldDescriptionDialogBuilder.buildDialog();
                             windowManager.addView(addDatafieldDescriptionView, dialogParams);
 
@@ -312,8 +297,8 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
                                 windowManager.removeView(confirmationView);
                             }
                             // remove the selection overlay
-                            if (selectionOverlay != null) {
-                                windowManager.removeView(selectionOverlay);
+                            if (overlayViewManager != null) {
+                                overlayViewManager.removeAllOverlays();
                             }
                             // remove the dim view
                             if (dimView != null) {

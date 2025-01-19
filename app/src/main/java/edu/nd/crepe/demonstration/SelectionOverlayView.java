@@ -7,6 +7,8 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.view.View;
 
+import edu.nd.crepe.graphquery.Const;
+
 
 // This class is to draw the overlay on the screen when there's a selection made during graph query demonstration
 public class SelectionOverlayView extends View {
@@ -24,8 +26,8 @@ public class SelectionOverlayView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        // draw a rectangle with a half-transparent gray color
-        paint.setColor(Color.argb(128, 128, 128, 128));
+        // draw a rectangle
+        paint.setColor(Const.SELECTION_INDICATOR_COLOR);
         canvas.drawRect(bounds, paint);
     }
 }

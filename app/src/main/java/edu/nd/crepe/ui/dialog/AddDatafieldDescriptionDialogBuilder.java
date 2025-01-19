@@ -9,19 +9,16 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import edu.nd.crepe.R;
-import edu.nd.crepe.demonstration.SelectionOverlayView;
 
 public class AddDatafieldDescriptionDialogBuilder {
     private Context context;
-    private SelectionOverlayView selectionOverlayView;
     private WindowManager windowManager;
     private View confirmationView;
     private WindowManager.LayoutParams layoutParams;
     private DatafieldDescriptionCallback datafieldDescriptionCallback;
 
-    public AddDatafieldDescriptionDialogBuilder(Context context, SelectionOverlayView selectionOverlayView, WindowManager windowManager, View confirmationView, WindowManager.LayoutParams layoutParams, DatafieldDescriptionCallback datafieldDescriptionCallback) {
+    public AddDatafieldDescriptionDialogBuilder(Context context, WindowManager windowManager, View confirmationView, WindowManager.LayoutParams layoutParams, DatafieldDescriptionCallback datafieldDescriptionCallback) {
         this.context = context;
-        this.selectionOverlayView = selectionOverlayView;
         this.windowManager = windowManager;
         this.confirmationView = confirmationView;
         this.layoutParams = layoutParams;
