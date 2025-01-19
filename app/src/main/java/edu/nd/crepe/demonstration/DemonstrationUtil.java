@@ -179,7 +179,7 @@ public class DemonstrationUtil {
     public static Rect getBoundingBoxOfClickedItem(float clickX, float clickY) {
         Rect resultBounds = new Rect();
         // create uiSnapshot for current screen
-        UISnapshot uiSnapshot = CrepeAccessibilityService.getsSharedInstance().generateUISnapshot();
+//        UISnapshot uiSnapshot = CrepeAccessibilityService.getsSharedInstance().generateUISnapshot();
 
         List<AccessibilityNodeInfo> matchedAccessibilityNodeList = CrepeAccessibilityService.getsSharedInstance().getMatchingNodeFromClickWithContent(clickX, clickY);
 
@@ -195,72 +195,65 @@ public class DemonstrationUtil {
         }
     }
 
-    public static List<Pair<OntologyQuery, Double>> processOverlayClick(float clickX, float clickY) {
+    public static SugiliteEntity<Node> findTargetEntityFromOverlayClick(float clickX, float clickY) {
+        // Get matched nodes from click position
+        List<AccessibilityNodeInfo> matchedAccessibilityNodeList =
+                CrepeAccessibilityService.getsSharedInstance().getMatchingNodeFromClickWithContent(clickX, clickY);
 
-        // create uiSnapshot for current screen
+        // Create UI snapshot
         UISnapshot uiSnapshot = CrepeAccessibilityService.getsSharedInstance().generateUISnapshot();
-        // get the matched node
 
-        List<AccessibilityNodeInfo> matchedAccessibilityNodeList = CrepeAccessibilityService.getsSharedInstance().getMatchingNodeFromClickWithContent(clickX, clickY);
-        // this matchedAccessibilityNode is an AccessibilityNodeInfo, which is not exactly the node stored in the screen's nodeSugiliteEntityMap.
-        // We retrieved that stored node from this screen's uisnapshot
-
-        SugiliteEntity<Node> targetEntity = new SugiliteEntity<>();
-        AccessibilityNodeInfo matchedNode;
-
-        if (matchedAccessibilityNodeList != null && matchedAccessibilityNodeList.size() > 0) {
-
-            if (matchedAccessibilityNodeList.size() == 1) {
-                matchedNode = matchedAccessibilityNodeList.get(0);
-                targetEntity = uiSnapshot.getEntityWithAccessibilityNode(matchedNode);
-            } else {
-                // compare the screen areas of all matched nodes, take the smallest
-                // we assume the smallest matches the user's target best
-                // create a pair of the matched node and its screen area
-                List<Pair<AccessibilityNodeInfo, Integer>> matchedNodeScreenAreaPairs = new ArrayList<>();
-                for (AccessibilityNodeInfo node : matchedAccessibilityNodeList) {
-                    Rect nodeRect = new Rect();
-                    node.getBoundsInScreen(nodeRect);
-                    int nodeArea = nodeRect.width() * nodeRect.height();
-                    matchedNodeScreenAreaPairs.add(Pair.create(node, nodeArea));
-                }
-                // sort the list of pairs by the screen area
-                matchedNodeScreenAreaPairs.sort(Comparator.comparingInt(pair -> pair.second));
-                // get the node with the smallest screen area
-                AccessibilityNodeInfo smallestNode = matchedNodeScreenAreaPairs.get(0).first;
-                targetEntity = uiSnapshot.getEntityWithAccessibilityNode(smallestNode);
-            }
-        } else {
-            // did not match any node
-            Log.e("generate queries", "Cannot find the tapped entity!");
+        // Handle no matches
+        if (matchedAccessibilityNodeList == null || matchedAccessibilityNodeList.isEmpty()) {
+            Log.e("find target entity", "Cannot find the tapped entity!");
+            return new SugiliteEntity<>();
         }
 
-
-        List<Pair<OntologyQuery, Double>> defaultQueries = null;
-        // temporarily change this to a list to store duplicate values from different query results
-        List<Set<SugiliteEntity>> results = new ArrayList<>();
-        if(targetEntity != null && targetEntity.getEntityId() != null) {
-            SugiliteRelation[] relationsToExclude = new SugiliteRelation[1];
-            relationsToExclude[0] = SugiliteRelation.HAS_TEXT;
-            defaultQueries = generateDefaultQueries(uiSnapshot, targetEntity, relationsToExclude);
-            Log.i("defaultQueries", defaultQueries.stream()
-                    .map(pair -> pair.first.toString())
-                    .collect(Collectors.joining("\n")));
-        } else {
-            Log.e("generate queries", "Cannot find the tapped entity!");
+        // Handle single match
+        if (matchedAccessibilityNodeList.size() == 1) {
+            return uiSnapshot.getEntityWithAccessibilityNode(matchedAccessibilityNodeList.get(0));
         }
 
+        // Handle multiple matches - find smallest area node
+        List<Pair<AccessibilityNodeInfo, Integer>> matchedNodeScreenAreaPairs =
+                matchedAccessibilityNodeList.stream()
+                        .map(node -> {
+                            Rect nodeRect = new Rect();
+                            node.getBoundsInScreen(nodeRect);
+                            return Pair.create(node, nodeRect.width() * nodeRect.height());
+                        })
+                        .sorted(Comparator.comparingInt(pair -> pair.second))
+                        .collect(Collectors.toList());
 
-        // test if the queries can retrieve components on screen
-        if(defaultQueries != null) {
-            for(Pair<OntologyQuery, Double> query : defaultQueries) {
-                Set<SugiliteEntity> queryResult = query.first.executeOn(uiSnapshot);
-                results.add(queryResult);
-            }
+        return uiSnapshot.getEntityWithAccessibilityNode(matchedNodeScreenAreaPairs.get(0).first);
+    }
+
+    public static List<Pair<OntologyQuery, Double>> generateDefaultQueriesFromTargetEntity(SugiliteEntity<Node> targetEntity) {
+        // Handle null or invalid target entity
+        if (targetEntity == null || targetEntity.getEntityId() == null) {
+            Log.e("generate queries", "Invalid target entity!");
+            return Collections.emptyList();
         }
+
+        // Create UI snapshot for current screen
+        UISnapshot uiSnapshot = CrepeAccessibilityService.getsSharedInstance().generateUISnapshot();
+
+        // Generate default queries excluding HAS_TEXT relation
+        SugiliteRelation[] relationsToExclude = new SugiliteRelation[]{SugiliteRelation.HAS_TEXT};
+        List<Pair<OntologyQuery, Double>> defaultQueries =
+                generateDefaultQueries(uiSnapshot, targetEntity, relationsToExclude);
+
+        // Log the generated queries
+        Log.i("defaultQueries", defaultQueries.stream()
+                .map(pair -> pair.first.toString())
+                .collect(Collectors.joining("\n")));
+
+        // Test if queries can retrieve components on screen
+        List<Set<SugiliteEntity>> results = defaultQueries.stream()
+                .map(query -> query.first.executeOn(uiSnapshot))
+                .collect(Collectors.toList());
 
         return defaultQueries;
-
     }
 
     public static String removeScriptExtension (String scriptName) {

@@ -22,8 +22,6 @@ import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 
-import org.apache.xpath.operations.Bool;
-
 import edu.nd.crepe.network.ApiCallManager;
 import edu.nd.crepe.servicemanager.CrepeAccessibilityService;
 import edu.nd.crepe.R;
@@ -202,9 +200,9 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
                     float navHeight = navigationBarUtil.getStatusBarHeight(context);
                     float adjustedY = rawY - navHeight;
 
-                    // show the matched item on screen
+//                    // show the matched item on screen
 //                    windowManager = (WindowManager) context.getSystemService(WINDOW_SERVICE);
-//                    WindowManager.LayoutParams selectionLayoutParams = updateLayoutParams(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
+//                    WindowManager.LayoutParams selectionLayoutParams = updateLayoutParams(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.MATCH_PARENT, Const.SELECTION_INDICATOR_COLOR);
 //                    Rect clickedItemBounds = DemonstrationUtil.getBoundingBoxOfClickedItem(rawX, rawY);
 //                    // move the clickedItemBounds up by the navHeight
 //                    if (clickedItemBounds != null) {
@@ -213,41 +211,17 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
 //                        windowManager.addView(this.selectionOverlay, selectionLayoutParams);
 //                    }
 
-                    defaultQueries = DemonstrationUtil.processOverlayClick(rawX, rawY);
+                    targetEntity = DemonstrationUtil.findTargetEntityFromOverlayClick(rawX, rawY);
 
-                    // get the current uisnapshot
-                    uiSnapshot = CrepeAccessibilityService.getsSharedInstance().generateUISnapshot();
-
-                    List<AccessibilityNodeInfo> matchedAccessibilityNodeList = CrepeAccessibilityService.getsSharedInstance().getMatchingNodeFromClickWithContent(rawX, rawY);
-                    // this matchedAccessibilityNode is an AccessibilityNodeInfo, which is not exactly the node stored in the screen's nodeSugiliteEntityMap.
-                    // We retrieved that stored node from this screen's uisnapshot
-                    AccessibilityNodeInfo matchedNode;
-
-                    if (matchedAccessibilityNodeList != null) {
-                        if (matchedAccessibilityNodeList.size() == 1) {
-                            matchedNode = matchedAccessibilityNodeList.get(0);
-                            targetEntity = uiSnapshot.getEntityWithAccessibilityNode(matchedNode);
-                        } else {
-                            // TODO: Find the node that we actually need
-                            matchedNode = matchedAccessibilityNodeList.get(0);
-                            targetEntity = uiSnapshot.getEntityWithAccessibilityNode(matchedNode);
-                        }
-                    }
-
-
-                    if (targetEntity != null && targetEntity.getEntityId() != null) {
-                        SugiliteRelation[] relationsToExclude = new SugiliteRelation[1];
-                        relationsToExclude[0] = SugiliteRelation.HAS_TEXT;
-                        defaultQueries = DemonstrationUtil.generateDefaultQueries(uiSnapshot, targetEntity, relationsToExclude);
-                    } else {
-                        Log.e("generate queries", "Cannot find the tapped entity!");
-                        return false;
-                    }
+                    defaultQueries = DemonstrationUtil.generateDefaultQueriesFromTargetEntity(targetEntity);
 
                     if (targetEntity.getEntityValue() == null || defaultQueries.isEmpty()) {
                         Toast.makeText(context, "Sorry! We do not support the data you just clicked. Please try again.", Toast.LENGTH_SHORT).show();
                         return false;
                     }
+
+                    // get the current uisnapshot
+                    uiSnapshot = CrepeAccessibilityService.getsSharedInstance().generateUISnapshot();
 
                     // inflate the demonstration_confirmation.xml layout
                     // Specify a layoutparams to display the dialog at the center of the screen
