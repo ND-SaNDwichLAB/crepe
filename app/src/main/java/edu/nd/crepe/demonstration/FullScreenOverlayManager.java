@@ -1,9 +1,12 @@
 package edu.nd.crepe.demonstration;
 
+import static android.content.Context.WINDOW_SERVICE;
+
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
+import android.graphics.Rect;
 import android.os.Build;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
@@ -168,8 +171,6 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
         try {
             overlayCurrentFlag = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
             windowManager.updateViewLayout(overlay, updateLayoutParams(overlayCurrentFlag, overlayCurrentWidth, overlayCurrentHeight));
-            overlay.setBackgroundColor(Const.RECORDING_OVERLAY_COLOR);
-            overlay.invalidate();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -190,7 +191,7 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
                 @Override
                 public boolean onSingleTapConfirmed(MotionEvent event) {
                     //single tap up detected
-                    System.out.println("Single tap detected");
+                    Log.i("overlay tap", "Single tap detected");
 
                     float rawX = event.getRawX();
                     float rawY = event.getRawY();
@@ -213,9 +214,24 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
 
                     targetEntity = DemonstrationUtil.findTargetEntityFromOverlayClick(rawX, rawY);
 
-                    defaultQueries = DemonstrationUtil.generateDefaultQueriesFromTargetEntity(targetEntity);
+                    if (targetEntity.getEntityValue() == null) {
+                        Toast.makeText(context, "Sorry! We do not support the data you just clicked. Please try again.", Toast.LENGTH_SHORT).show();
+                        return false;
+                    }
 
-                    if (targetEntity.getEntityValue() == null || defaultQueries.isEmpty()) {
+                    // add a new overlay to highlight the selected item
+                    Rect clickedItemBounds = Rect.unflattenFromString(targetEntity.getEntityValue().getBoundsInScreen());
+                    if (clickedItemBounds != null) {
+                        clickedItemBounds.offset(0, -1 * (int) navHeight);
+                        // TODO THIS NEEDS REFACTOR
+                        this.selectionOverlay = selectionOverlayViewManager.getRectOverlay(clickedItemBounds);
+                        WindowManager.LayoutParams selectionOverlayParams = updateLayoutParams(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, clickedItemBounds.width(), clickedItemBounds.height());
+                        windowManager.addView(this.selectionOverlay, selectionOverlayParams);
+                    }
+
+                    // generate the default queries
+                    defaultQueries = DemonstrationUtil.generateDefaultQueriesFromTargetEntity(targetEntity);
+                    if (defaultQueries.isEmpty()) {
                         Toast.makeText(context, "Sorry! We do not support the data you just clicked. Please try again.", Toast.LENGTH_SHORT).show();
                         return false;
                     }
