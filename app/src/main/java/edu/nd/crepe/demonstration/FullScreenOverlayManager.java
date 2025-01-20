@@ -6,6 +6,8 @@ import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -102,7 +104,10 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
     }
 
     public void disableOverlay() {
+        // TODO we need to refactor this and put fullscreen overlay part of overlayViewManager
+        // TODO also removing overlay is all over the place, clean up
         windowManager.removeView(overlay);
+        overlayViewManager.removeAllOverlays();
         // set the flag
         showingOverlay = false;
     }
@@ -196,119 +201,136 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
                     float navHeight = navigationBarUtil.getStatusBarHeight(context);
                     float adjustedY = rawY - navHeight;
 
-                    Log.i("click position", "click x: " + rawX + ", click rawY: " + rawY + ", click Y without status bar: " + adjustedY);
-                    Log.i("position", "screen width: " + displayMetrics.widthPixels + ", screen height: " + displayMetrics.heightPixels);
+                    // show click position immediately
+                    overlayViewManager.showDotOverlay((int) rawX, (int) adjustedY, 20,
+                            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                            Const.SELECTION_INDICATOR_COLOR, false);
+
+                    Log.i("click position", "click x: " + rawX + ", click rawY: " + rawY +
+                            ", click Y without status bar: " + adjustedY);
+                    Log.i("position", "screen width: " + displayMetrics.widthPixels +
+                            ", screen height: " + displayMetrics.heightPixels);
 
                     targetEntity = DemonstrationUtil.findTargetEntityFromOverlayClick(rawX, rawY);
 
                     if (targetEntity == null || targetEntity.getEntityValue() == null) {
-                        Toast.makeText(context, "Sorry! We do not support the data you just clicked. Please try again.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context,
+                                "Sorry! We do not support the data you just clicked. Please try again.",
+                                Toast.LENGTH_SHORT).show();
                         return false;
                     }
 
-                    // add a new overlay to highlight the selected item
-                    Rect clickedItemBounds = Rect.unflattenFromString(targetEntity.getEntityValue().getBoundsInScreen());
+                    // Show rect overlay immediately
+                    Rect clickedItemBounds = Rect.unflattenFromString(
+                            targetEntity.getEntityValue().getBoundsInScreen());
                     if (clickedItemBounds != null) {
-                        Log.i("clicked item position", "clicked item x: " + clickedItemBounds.left + ", clicked item y: " + clickedItemBounds.top + ", clicked item width: " + clickedItemBounds.width() + ", clicked item height: " + clickedItemBounds.height());
+                        Log.i("clicked item position", "clicked item x: " + clickedItemBounds.left +
+                                ", clicked item y: " + clickedItemBounds.top +
+                                ", clicked item width: " + clickedItemBounds.width() +
+                                ", clicked item height: " + clickedItemBounds.height());
                         clickedItemBounds.offset(0, -1 * (int) navHeight);
                         // show overlay
-                        overlayViewManager.showRectOverlay(clickedItemBounds, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, Const.SELECTION_INDICATOR_COLOR, 3);
+                        overlayViewManager.showRectOverlay(clickedItemBounds,
+                                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                                Const.SELECTION_INDICATOR_COLOR, 3);
                     }
 
-                    // generate the default queries
-                    defaultQueries = DemonstrationUtil.generateDefaultQueriesFromTargetEntity(targetEntity);
-                    if (defaultQueries.isEmpty()) {
-                        Toast.makeText(context, "Sorry! We do not support the data you just clicked. Please try again.", Toast.LENGTH_SHORT).show();
-                        return false;
-                    }
+                    // Start a new thread for heavy processing operations
+                    new Thread(() -> {
+                        // Generate default queries in background
+                        defaultQueries = DemonstrationUtil.generateDefaultQueriesFromTargetEntity(targetEntity);
 
-                    // get the current uisnapshot
-                    uiSnapshot = CrepeAccessibilityService.getsSharedInstance().generateUISnapshot();
-
-                    // inflate the demonstration_confirmation.xml layout
-                    // Specify a layoutparams to display the dialog at the center of the screen
-
-                    DisplayMetrics metrics = new DisplayMetrics();
-                    windowManager.getDefaultDisplay().getMetrics(metrics);
-                    double currentDensity = metrics.density;
-
-                    int width = metrics.widthPixels;
-                    int height = metrics.heightPixels;
-
-                    WindowManager.LayoutParams dialogParams = new WindowManager.LayoutParams(
-                            (int) ((width / currentDensity - 48) * currentDensity),   // leave 24 dp margin on both sides
-                            WindowManager.LayoutParams.WRAP_CONTENT,
-                            Const.OVERLAY_TYPE,
-                            WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_INSET_DECOR,
-                            PixelFormat.TRANSLUCENT);
-                    LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                    View confirmationView = layoutInflater.inflate(R.layout.demonstration_confirmation, null);
-
-                    TextView queryTextView = confirmationView.findViewById(R.id.confirmationInfo);
-                    // set the text of the dialog window
-                    String displayText = "";
-
-                    String collectedContent = targetEntity.getEntityValue().getEntityContent();
-
-
-                    displayText = "You tapped on \"" + collectedContent + "\". Do you want to collect this data?";
-                    queryTextView.setText(displayText);
-
-                    // Create a full-screen black view with a certain transparency
-                    dimView.setBackgroundColor(Color.parseColor("#99000000")); // change the alpha value to adjust transparency
-
-                    WindowManager.LayoutParams dimParams = new WindowManager.LayoutParams(
-                            WindowManager.LayoutParams.MATCH_PARENT,
-                            WindowManager.LayoutParams.MATCH_PARENT,
-                            Const.OVERLAY_TYPE,
-                            WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_INSET_DECOR | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                            PixelFormat.TRANSLUCENT);
-
-                    // Add the dim view to the window
-                    windowManager.addView(dimView, dimParams);
-                    // Then add the confirmation dialog to the window
-                    windowManager.addView(confirmationView, dialogParams);
-
-
-                    // set the onclick listener for the buttons
-                    Button yesButton = confirmationView.findViewById(R.id.confirmationYesButton);
-                    Button noButton = confirmationView.findViewById(R.id.confirmationNoButton);
-
-                    yesButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            // confirm the selection
-                            // remove the confirmation dialog
-                            if (confirmationView != null) {
-                                windowManager.removeView(confirmationView);
-                            }
-                            // show the new view here
-                            AddDatafieldDescriptionDialogBuilder addDatafieldDescriptionDialogBuilder = new AddDatafieldDescriptionDialogBuilder(context, windowManager, confirmationView, dialogParams, FullScreenOverlayManager.this);
-                            View addDatafieldDescriptionView = addDatafieldDescriptionDialogBuilder.buildDialog();
-                            windowManager.addView(addDatafieldDescriptionView, dialogParams);
-
+                        // Check queries on background thread first
+                        if (defaultQueries.isEmpty()) {
+                            new Handler(Looper.getMainLooper()).post(() -> {
+                                Toast.makeText(context,
+                                        "Sorry! We do not support the data you just clicked. Please try again.",
+                                        Toast.LENGTH_SHORT).show();
+                            });
+                            return;
                         }
-                    });
 
-                    noButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            // remove the confirmation dialog
-                            if (confirmationView != null) {
-                                windowManager.removeView(confirmationView);
-                            }
-                            // remove the selection overlay
-                            if (overlayViewManager != null) {
-                                overlayViewManager.removeAllOverlays();
-                            }
-                            // remove the dim view
-                            if (dimView != null) {
-                                windowManager.removeView(dimView);
-                            }
+                        // Generate UI snapshot in background
+                        uiSnapshot = CrepeAccessibilityService.getsSharedInstance().generateUISnapshot();
 
-                            Toast.makeText(context, "Please tap on the data to collect again", Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                        // After heavy processing is done, handle UI updates on main thread
+                        new Handler(Looper.getMainLooper()).post(() -> {
+                            // inflate the demonstration_confirmation.xml layout
+                            DisplayMetrics metrics = new DisplayMetrics();
+                            windowManager.getDefaultDisplay().getMetrics(metrics);
+                            double currentDensity = metrics.density;
+
+                            int width = metrics.widthPixels;
+                            int height = metrics.heightPixels;
+
+                            WindowManager.LayoutParams dialogParams = new WindowManager.LayoutParams(
+                                    (int) ((width / currentDensity - 48) * currentDensity),
+                                    WindowManager.LayoutParams.WRAP_CONTENT,
+                                    Const.OVERLAY_TYPE,
+                                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN |
+                                            WindowManager.LayoutParams.FLAG_LAYOUT_INSET_DECOR,
+                                    PixelFormat.TRANSLUCENT);
+
+                            LayoutInflater layoutInflater = (LayoutInflater) context
+                                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                            View confirmationView = layoutInflater.inflate(R.layout.demonstration_confirmation, null);
+
+                            TextView queryTextView = confirmationView.findViewById(R.id.confirmationInfo);
+                            String collectedContent = targetEntity.getEntityValue().getEntityContent();
+                            String displayText = "You tapped on \"" + collectedContent +
+                                    "\". Do you want to collect this data?";
+                            queryTextView.setText(displayText);
+
+                            // Create a full-screen black view with transparency
+                            dimView.setBackgroundColor(Color.parseColor("#99000000"));
+
+                            WindowManager.LayoutParams dimParams = new WindowManager.LayoutParams(
+                                    WindowManager.LayoutParams.MATCH_PARENT,
+                                    WindowManager.LayoutParams.MATCH_PARENT,
+                                    Const.OVERLAY_TYPE,
+                                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN |
+                                            WindowManager.LayoutParams.FLAG_LAYOUT_INSET_DECOR |
+                                            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                                    PixelFormat.TRANSLUCENT);
+
+                            // Add views to window
+                            windowManager.addView(dimView, dimParams);
+                            windowManager.addView(confirmationView, dialogParams);
+
+                            // Set button click listeners
+                            Button yesButton = confirmationView.findViewById(R.id.confirmationYesButton);
+                            Button noButton = confirmationView.findViewById(R.id.confirmationNoButton);
+
+                            yesButton.setOnClickListener(v -> {
+                                if (confirmationView != null) {
+                                    windowManager.removeView(confirmationView);
+                                }
+                                if (overlayViewManager != null) {
+                                    overlayViewManager.removeAllOverlays();
+                                }
+                                AddDatafieldDescriptionDialogBuilder builder =
+                                        new AddDatafieldDescriptionDialogBuilder(context, windowManager,
+                                                confirmationView, dialogParams, FullScreenOverlayManager.this);
+                                View addDatafieldDescriptionView = builder.buildDialog();
+                                windowManager.addView(addDatafieldDescriptionView, dialogParams);
+                            });
+
+                            noButton.setOnClickListener(v -> {
+                                if (confirmationView != null) {
+                                    windowManager.removeView(confirmationView);
+                                }
+                                if (overlayViewManager != null) {
+                                    overlayViewManager.removeAllOverlays();
+                                }
+                                if (dimView != null) {
+                                    windowManager.removeView(dimView);
+                                }
+                                Toast.makeText(context, "Please tap on the data to collect again",
+                                        Toast.LENGTH_SHORT).show();
+                            });
+                        });
+                    }).start();
+
                     return true;
                 }
 
