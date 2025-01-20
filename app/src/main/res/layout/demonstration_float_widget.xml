@@ -10,21 +10,77 @@
     <!--    android:background="@color/white"-->
 
 
+<!--    Drag handle-->
+
+    <!-- Drag Handle Container -->
+    <LinearLayout
+        android:id="@+id/drag_handle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:orientation="vertical">
+
+        <!-- First row of dots -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <View
+                android:layout_width="4dp"
+                android:layout_height="4dp"
+                android:layout_margin="2dp"
+                android:background="@drawable/drag_dot" />
+            <View
+                android:layout_width="4dp"
+                android:layout_height="4dp"
+                android:layout_margin="2dp"
+                android:background="@drawable/drag_dot" />
+            <View
+                android:layout_width="4dp"
+                android:layout_height="4dp"
+                android:layout_margin="2dp"
+                android:background="@drawable/drag_dot" />
+        </LinearLayout>
+
+        <!-- Second row of dots -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <View
+                android:layout_width="4dp"
+                android:layout_height="4dp"
+                android:layout_margin="2dp"
+                android:background="@drawable/drag_dot" />
+            <View
+                android:layout_width="4dp"
+                android:layout_height="4dp"
+                android:layout_margin="2dp"
+                android:background="@drawable/drag_dot" />
+            <View
+                android:layout_width="4dp"
+                android:layout_height="4dp"
+                android:layout_margin="2dp"
+                android:background="@drawable/drag_dot" />
+        </LinearLayout>
+    </LinearLayout>
+
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/floating_draw_frame"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
+        android:layout_below="@+id/drag_handle"
         android:layout_marginStart="10dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="4dp"
         android:layout_marginEnd="10dp"
         android:layout_marginBottom="0dp"
         android:backgroundTint="@color/ND_blue"
         android:clickable="true"
         android:visibility="visible"
-        app:layout_constraintTop_toTopOf="@id/floating_close"
+        app:layout_constraintTop_toBottomOf="@id/drag_handle"
         app:srcCompat="@drawable/ic_baseline_draw_24"
         app:tint="@color/white"
         tools:layout_editor_absoluteX="283dp" />
