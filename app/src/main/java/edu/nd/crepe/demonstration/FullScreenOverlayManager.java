@@ -196,10 +196,12 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
                     float navHeight = navigationBarUtil.getStatusBarHeight(context);
                     float adjustedY = rawY - navHeight;
 
+                    Log.i("click position", "click x: " + rawX + ", click rawY: " + rawY + ", click Y without status bar: " + adjustedY);
+                    Log.i("position", "screen width: " + displayMetrics.widthPixels + ", screen height: " + displayMetrics.heightPixels);
 
                     targetEntity = DemonstrationUtil.findTargetEntityFromOverlayClick(rawX, rawY);
 
-                    if (targetEntity.getEntityValue() == null) {
+                    if (targetEntity == null || targetEntity.getEntityValue() == null) {
                         Toast.makeText(context, "Sorry! We do not support the data you just clicked. Please try again.", Toast.LENGTH_SHORT).show();
                         return false;
                     }
@@ -207,11 +209,10 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
                     // add a new overlay to highlight the selected item
                     Rect clickedItemBounds = Rect.unflattenFromString(targetEntity.getEntityValue().getBoundsInScreen());
                     if (clickedItemBounds != null) {
+                        Log.i("clicked item position", "clicked item x: " + clickedItemBounds.left + ", clicked item y: " + clickedItemBounds.top + ", clicked item width: " + clickedItemBounds.width() + ", clicked item height: " + clickedItemBounds.height());
                         clickedItemBounds.offset(0, -1 * (int) navHeight);
-                        // TODO THIS NEEDS REFACTOR
-
-                        overlayViewManager.showOverlay(clickedItemBounds, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, Const.SELECTION_INDICATOR_COLOR, 3);
-
+                        // show overlay
+                        overlayViewManager.showRectOverlay(clickedItemBounds, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, Const.SELECTION_INDICATOR_COLOR, 3);
                     }
 
                     // generate the default queries

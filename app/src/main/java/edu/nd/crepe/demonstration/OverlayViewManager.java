@@ -4,6 +4,8 @@ import android.content.Context;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.os.Handler;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
 
@@ -28,21 +30,19 @@ public class OverlayViewManager {
      * Shows an overlay and returns its unique identifier
      * @return String identifier for the created overlay
      */
-    public String showOverlay(Rect overlayLocation, int flag, int color) {
-        return showOverlay(overlayLocation, flag, color, 0);
+    public String showRectOverlay(Rect overlayLocation, int flag, int color) {
+        return showRectOverlay(overlayLocation, flag, color, 0);
     }
 
     /**
      * Shows an overlay with automatic dissolution after specified time and returns its unique identifier
      * @return String identifier for the created overlay
      */
-    public String showOverlay(Rect overlayLocation, int flag, int color, int lapseTimeInSeconds) {
+    public String showRectOverlay(Rect overlayLocation, int flag, int color, int lapseTimeInSeconds) {
         String overlayId = UUID.randomUUID().toString();
 
         View overlayView = new View(context);
         WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams(
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
                 flag,
                 PixelFormat.TRANSLUCENT);
@@ -51,6 +51,7 @@ public class OverlayViewManager {
         layoutParams.height = overlayLocation.height();
         layoutParams.x = overlayLocation.left;
         layoutParams.y = overlayLocation.top;
+        layoutParams.gravity = Gravity.TOP | Gravity.LEFT;
         overlayView.setLayoutParams(layoutParams);
         overlayView.setBackgroundColor(color);
 
