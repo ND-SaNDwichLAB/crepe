@@ -34,6 +34,7 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.WindowManager;
@@ -307,20 +308,31 @@ public class CrepeAccessibilityService extends AccessibilityService {
 
                             try {
                                 // show overlay
-                                Rect overlayLocation = new Rect();
+
                                 Node resultNode = (Node) result.getEntityValue();
                                 if (resultNode == null) {
                                     Log.e("query execution", "cannot convert result to a Node, null");
                                 }
-                                overlayLocation = Rect.unflattenFromString(resultNode.getBoundsInScreen());
-                                if (overlayLocation == null) {
-                                    Log.e("query execution", "overlay location is null");
-                                }
-                                // adjust for the status bar height
-                                NavigationBarUtil navigationBarUtil = new NavigationBarUtil();
-                                int statusBarHeight = navigationBarUtil.getStatusBarHeight(getApplicationContext());
-                                overlayLocation.offset(0, (-1) * statusBarHeight);
-                                overlayViewManager.showRectOverlay(overlayLocation, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, 0x80FF0000, 5);
+
+                                // Run UI operations on the main thread
+                                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Rect overlayLocation = new Rect();
+                                        overlayLocation = Rect.unflattenFromString(resultNode.getBoundsInScreen());
+                                        if (overlayLocation == null) {
+                                            Log.e("query execution", "overlay location is null");
+                                        }
+                                        // adjust for the status bar height
+                                        NavigationBarUtil navigationBarUtil = new NavigationBarUtil();
+                                        int statusBarHeight = navigationBarUtil.getStatusBarHeight(getApplicationContext());
+                                        overlayLocation.offset(0, (-1) * statusBarHeight);
+                                        overlayViewManager.showRectOverlay(overlayLocation,
+                                                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                                                0x80FF0000,
+                                                2);
+                                    }
+                                });
                             } catch (Exception e) {
                                 Log.e("query execution", "failed to show overlay");
                                 e.printStackTrace();
@@ -338,9 +350,9 @@ public class CrepeAccessibilityService extends AccessibilityService {
 
                                 // send the data to firebase
                                 firebaseCommunicationManager.putData(resultData).addOnSuccessListener(suc -> {
-                                    Log.i("Firebase", "Successfully added collector " + resultData.getDataContent() + " to firebase.");
+                                    Log.i("Firebase", "Successfully added data " + resultData.getDataContent() + " to firebase.");
                                 }).addOnFailureListener(er -> {
-                                    Log.e("Firebase", "Failed to add collector " + resultData.getDataContent() + " to firebase. Error: " + er.getMessage());
+                                    Log.e("Firebase", "Failed to add data " + resultData.getDataContent() + " to firebase. Error: " + er.getMessage());
                                 });
 
                                 // update the last saved result timestamp

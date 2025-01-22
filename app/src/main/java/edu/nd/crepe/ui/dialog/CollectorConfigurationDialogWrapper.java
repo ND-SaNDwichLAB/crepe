@@ -332,12 +332,12 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                             } else {
                                 Log.e("CollectorConfigDialog", "App package is null for app " + appName);
                             }
-                            } else {
+                        } else {
                                 // set the border of spinner to red
                                 Context currentContext = context.getApplicationContext();
                                 Toast.makeText(currentContext, "Please select an app!", Toast.LENGTH_LONG).show();
                                 return;
-                            }
+                        }
 
                             // update location info
 //                        String location = locationDropDown.getSelectedItem().toString();
