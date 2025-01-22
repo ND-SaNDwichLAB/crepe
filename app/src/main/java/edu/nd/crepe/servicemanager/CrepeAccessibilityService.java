@@ -29,6 +29,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ServiceInfo;
+import android.graphics.Rect;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
@@ -39,6 +40,8 @@ import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
+import androidx.navigation.Navigation;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -47,6 +50,8 @@ import edu.nd.crepe.database.Data;
 import edu.nd.crepe.database.DatabaseManager;
 import edu.nd.crepe.database.Datafield;
 import edu.nd.crepe.demonstration.DemonstrationUtil;
+import edu.nd.crepe.demonstration.NavigationBarUtil;
+import edu.nd.crepe.demonstration.OverlayViewManager;
 import edu.nd.crepe.graphquery.model.Node;
 import edu.nd.crepe.graphquery.ontology.OntologyQuery;
 import edu.nd.crepe.graphquery.ontology.SugiliteEntity;
@@ -94,6 +99,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
     private List<Datafield> datafields;
     private List<AccessibilityNodeInfo> allNodeList;
     private AtomicLong lastSavedResultTimestamp = new AtomicLong(0);
+    private OverlayViewManager overlayViewManager;
 
     private List<Integer> targetEventTypes = Arrays.asList(
             TYPE_VIEW_TEXT_CHANGED,
@@ -116,7 +122,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
             TYPE_VIEW_TEXT_SELECTION_CHANGED,
             TYPE_ANNOUNCEMENT);
 
-    private List <Integer> interactionEventTypes = Arrays.asList(
+    private List<Integer> interactionEventTypes = Arrays.asList(
             TYPE_VIEW_CLICKED,
             TYPE_VIEW_LONG_CLICKED,
             TYPE_VIEW_SCROLLED,
@@ -157,7 +163,8 @@ public class CrepeAccessibilityService extends AccessibilityService {
         super.onCreate();
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         dbManager = DatabaseManager.getInstance(this.getApplicationContext());
-        firebaseCommunicationManager = new FirebaseCommunicationManager(this);
+        firebaseCommunicationManager = new FirebaseCommunicationManager(this.getApplicationContext());
+        overlayViewManager = new OverlayViewManager(this.getApplicationContext());
 
         // refresh the collector status for current collectors every REFRESH_INTERVAL minutes
         scheduler = Executors.newScheduledThreadPool(1);
@@ -188,7 +195,6 @@ public class CrepeAccessibilityService extends AccessibilityService {
             return CrepeAccessibilityService.this;
         }
     }   // however, we cannot override the onBind method because it's declared final for accessibilityServices
-
 
 
     // the below 3 functions are used to get around not being able to override onBind for accessibilityServices
@@ -296,31 +302,54 @@ public class CrepeAccessibilityService extends AccessibilityService {
                             Log.i("query execution", "prevResults.contains(result): " + prevResults.contains(result));
 //                            if (!prevResults.contains(result) && System.currentTimeMillis() - lastSavedResultTimestamp.get() > 4000) {  // prevent duplicate results from being saved, with the interval of 4 seconds
 //                            if (!prevResults.contains(result)) {  // prevent duplicate results from being saved, prevResults is cleared every 10 seconds (see code on the top of this file)
-                                Log.i("Timestamps", "System.currentTimeMillis(): " + System.currentTimeMillis() + ", lastSavedResultTimestamp: " + lastSavedResultTimestamp.get() + ", difference: " + (System.currentTimeMillis() - lastSavedResultTimestamp.get()));
-                                // if the result is not in the previous results, add it to the database
-                                long timestamp = System.currentTimeMillis();
-                                String dataString = processDataString(accessibilityEvent, result);
-                                // the data id is the collector id + "%" + timestamp
-                                Data resultData = new Data(datafield.getCollectorId() + "%" + timestamp, datafield.getDatafieldId(), currentUser.getUserId(), dataString);
+                            Log.i("Timestamps", "System.currentTimeMillis(): " + System.currentTimeMillis() + ", lastSavedResultTimestamp: " + lastSavedResultTimestamp.get() + ", difference: " + (System.currentTimeMillis() - lastSavedResultTimestamp.get()));
 
-                                try {
-                                    dbManager.addData(resultData);
-                                    Log.i("database", "added data: " + resultData);
 
-                                    // send the data to firebase
-                                    firebaseCommunicationManager.putData(resultData).addOnSuccessListener(suc -> {
-                                        Log.i("Firebase", "Successfully added collector " + resultData.getDataContent() + " to firebase.");
-                                    }).addOnFailureListener(er -> {
-                                        Log.e("Firebase", "Failed to add collector " + resultData.getDataContent() + " to firebase. Error: " + er.getMessage());
-                                    });
-
-                                    // update the last saved result timestamp
-                                    lastSavedResultTimestamp.set(System.currentTimeMillis());
-
-                                } catch (Exception e) {
-                                    Log.i("database", "failed to add data: " + resultData.toString());
-                                    e.printStackTrace();
+                            try {
+                                // show overlay
+                                Rect overlayLocation = new Rect();
+                                Node resultNode = (Node) result.getEntityValue();
+                                if (resultNode == null) {
+                                    Log.e("query execution", "cannot convert result to a Node, null");
                                 }
+                                overlayLocation = Rect.unflattenFromString(resultNode.getBoundsInScreen());
+                                if (overlayLocation == null) {
+                                    Log.e("query execution", "overlay location is null");
+                                }
+                                // adjust for the status bar height
+                                NavigationBarUtil navigationBarUtil = new NavigationBarUtil();
+                                int statusBarHeight = navigationBarUtil.getStatusBarHeight(getApplicationContext());
+                                overlayLocation.offset(0, (-1) * statusBarHeight);
+                                overlayViewManager.showRectOverlay(overlayLocation, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, 0x80FF0000, 5);
+                            } catch (Exception e) {
+                                Log.e("query execution", "failed to show overlay");
+                                e.printStackTrace();
+                            }
+
+                            // if the result is not in the previous results, add it to the database
+                            long timestamp = System.currentTimeMillis();
+                            String dataString = processDataString(accessibilityEvent, result);
+                            // the data id is the collector id + "%" + timestamp
+                            Data resultData = new Data(datafield.getCollectorId() + "%" + timestamp, datafield.getDatafieldId(), currentUser.getUserId(), dataString);
+
+                            try {
+                                dbManager.addData(resultData);
+                                Log.i("database", "added data: " + resultData);
+
+                                // send the data to firebase
+                                firebaseCommunicationManager.putData(resultData).addOnSuccessListener(suc -> {
+                                    Log.i("Firebase", "Successfully added collector " + resultData.getDataContent() + " to firebase.");
+                                }).addOnFailureListener(er -> {
+                                    Log.e("Firebase", "Failed to add collector " + resultData.getDataContent() + " to firebase. Error: " + er.getMessage());
+                                });
+
+                                // update the last saved result timestamp
+                                lastSavedResultTimestamp.set(System.currentTimeMillis());
+
+                            } catch (Exception e) {
+                                Log.i("database", "failed to add data: " + resultData.toString());
+                                e.printStackTrace();
+                            }
 //                            }
                         }
                         prevResults.addAll(currentResults);
@@ -349,7 +378,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
                 currentPackageName = activityInfo.packageName;
             } catch (PackageManager.NameNotFoundException e) {
                 //e.printStackTrace();
-                Log.e(TAG, "Failed to get the activity name for: " + componentName);
+                Log.e(TAG, "Failed to get the activity name, with an accessibility event, for: " + componentName);
             }
         }
 
@@ -373,7 +402,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
             currentPackageName = activityInfo.packageName;
         } catch (PackageManager.NameNotFoundException e) {
             //e.printStackTrace();
-            Log.e(this.getClass().getName(), "Failed to get the activity name for: " + componentName);
+            Log.e(TAG, "Failed to get the activity name, no accessibility event, for: " + componentName);
         }
 
         uiSnapshot = new UISnapshot(windowManager.getDefaultDisplay(), rootNode, true, currentPackageName, currentAppActivityName);

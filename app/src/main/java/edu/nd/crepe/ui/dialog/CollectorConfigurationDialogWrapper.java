@@ -327,15 +327,19 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         String appPackage = finalAppPackageDict.get(appName);
                         if (!appName.equals(" ")) {
                             collector.setAppName(appName);
-                            collector.setAppPackage(appPackage);
-                        } else {
-                            // set the border of spinner to red
-                            Context currentContext = context.getApplicationContext();
-                            Toast.makeText(currentContext, "Please select an app!", Toast.LENGTH_LONG).show();
-                            return;
-                        }
+                            if (appPackage != null) {
+                                collector.setAppPackage(appPackage);
+                            } else {
+                                Log.e("CollectorConfigDialog", "App package is null for app " + appName);
+                            }
+                            } else {
+                                // set the border of spinner to red
+                                Context currentContext = context.getApplicationContext();
+                                Toast.makeText(currentContext, "Please select an app!", Toast.LENGTH_LONG).show();
+                                return;
+                            }
 
-                        // update location info
+                            // update location info
 //                        String location = locationDropDown.getSelectedItem().toString();
 //                        if (location != " ") {
 //                            collector.setMode(location);
@@ -346,77 +350,89 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 //                            return;
 //                        }
 
-                        // update date info
-                        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
-                        ParsePosition pp1 = new ParsePosition(0);
-                        Date startDate = dateFormat.parse(startDateText.getText().toString(), pp1);
-                        collector.setCollectorStartTime(startDate.getTime());
+                            // update date info
+                            SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+                            ParsePosition pp1 = new ParsePosition(0);
+                            Date startDate = dateFormat.parse(startDateText.getText().toString(), pp1);
+                            collector.setCollectorStartTime(startDate.getTime());
 
-                        ParsePosition pp2 = new ParsePosition(0);
-                        Date endDate = dateFormat.parse(endDateText.getText().toString(), pp2);
-                        collector.setCollectorEndTime(endDate.getTime() + oneDayMillisOffset - 1);
+                            ParsePosition pp2 = new ParsePosition(0);
+                            Date endDate = dateFormat.parse(endDateText.getText().toString(), pp2);
+                            collector.setCollectorEndTime(endDate.getTime() + oneDayMillisOffset - 1);
 
-                        // After successfully set the collector's end time, automatically set its status
-                        collector.autoSetCollectorStatus();
-                        // Update in database as well
-                        dbManager.updateCollectorStatus(collector);
+                            // After successfully set the collector's end time, automatically set its status
+                            collector.autoSetCollectorStatus();
+                            // Update in database as well
+                            dbManager.updateCollectorStatus(collector);
 
-                        // set the id of the collector in create mode
-                        // format: userId%appName%timestamp. We will remove any space in the appName
-                        if (!isEdit) {
-                            collector.setCollectorId(currentUser.getUserId() + "%" + collector.getAppName().replaceAll(" ", "") + "%" + String.valueOf(System.currentTimeMillis()));
+                            // set the id of the collector in create mode
+                            // format: userId%appName%timestamp. We will remove any space in the appName
+                            if (!isEdit) {
+                                collector.setCollectorId(currentUser.getUserId() + "%" + collector.getAppName().replaceAll(" ", "") + "%" + String.valueOf(System.currentTimeMillis()));
+                            }
+
+                            // update currentScreen String value
+                            currentScreenState = "buildDialogFromConfigGraphQuery";
+                            mainDialog.dismiss();
+                            // recursively call itself with new currentScreen String value
+                            updateCurrentView();
+
                         }
-
-                        // update currentScreen String value
-                        currentScreenState = "buildDialogFromConfigGraphQuery";
-                        mainDialog.dismiss();
-                        // recursively call itself with new currentScreen String value
-                        updateCurrentView();
-
-                    }
-                });
+                    });
 
                 break;
 
 
-            case "buildDialogFromConfigGraphQuery":
+            case"buildDialogFromConfigGraphQuery":
 
-                dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_build_collector_from_config_graph_query, null);
-                mainDialog = createNewAlertDialog(dialogMainView);
-                // modify content of the popup box based on current state
-                updateDisplayedDatafieldsFromDemonstration();
+                    dialogMainView =LayoutInflater.from(context).
+
+                    inflate(R.layout.dialog_build_collector_from_config_graph_query, null);
+
+                    mainDialog =
+
+                    createNewAlertDialog(dialogMainView);
+
+                    // modify content of the popup box based on current state
+                    updateDisplayedDatafieldsFromDemonstration();
 
 
-                Button graphQueryNxtBtn = (Button) dialogMainView.findViewById(R.id.graphQueryNextButton);
-                Button graphQueryBckBtn = (Button) dialogMainView.findViewById(R.id.graphQueryBackButton);
-                LinearLayout datafieldContainerLinearLayout = (LinearLayout) dialogMainView.findViewById(R.id.datafieldContainerLinearLayout);
-//                Button graphQueryAddBtn = (Button) dialogMainView.findViewById(R.id.graphQueryAddAnotherButton);
-                Button openAppButton = (Button) dialogMainView.findViewById(R.id.openAppButton);
-                EditText graphQueryInput = (EditText) dialogMainView.findViewById(R.id.graphQueryInput);
-                ImageButton graphQueryAddImg = (ImageButton) dialogMainView.findViewById(R.id.graphQueryAddIcon);
-                ImageButton graphQueryCloseImg = (ImageButton) dialogMainView.findViewById(R.id.closeGraphQueryPopupImageButton);
+                    Button graphQueryNxtBtn = (Button) dialogMainView.findViewById(R.id.graphQueryNextButton);
+                    Button graphQueryBckBtn = (Button) dialogMainView.findViewById(R.id.graphQueryBackButton);
+                    LinearLayout datafieldContainerLinearLayout = (LinearLayout) dialogMainView.findViewById(R.id.datafieldContainerLinearLayout);
+                    //                Button graphQueryAddBtn = (Button) dialogMainView.findViewById(R.id.graphQueryAddAnotherButton);
+                    Button openAppButton = (Button) dialogMainView.findViewById(R.id.openAppButton);
+                    EditText graphQueryInput = (EditText) dialogMainView.findViewById(R.id.graphQueryInput);
+                    ImageButton graphQueryAddImg = (ImageButton) dialogMainView.findViewById(R.id.graphQueryAddIcon);
+                    ImageButton graphQueryCloseImg = (ImageButton) dialogMainView.findViewById(R.id.closeGraphQueryPopupImageButton);
 
-                // update interface elements based on the specified app in the previous popup box
-                TextView commentOnOpenAppButton = (TextView) dialogMainView.findViewById(R.id.commentOnOpenAppButton);
-                String appName = collector.getAppName();
+                    // update interface elements based on the specified app in the previous popup box
+                    TextView commentOnOpenAppButton = (TextView) dialogMainView.findViewById(R.id.commentOnOpenAppButton);
+                    String appName = collector.getAppName();
 
-                if (datafields != null && !datafields.isEmpty()) {
-                    openAppButton.setText("Add another");
-                    graphQueryInput.setHint("Manually add another query");
-                    commentOnOpenAppButton.setText("Add another data to collect in the " + appName + " app");
-                } else {
-                    openAppButton.setText("Open " + collector.getAppName());
-                    commentOnOpenAppButton.setText("Demonstrate in the " + appName + " app");
-                }
+                if(datafields !=null&&!datafields.isEmpty())
+
+                    {
+                        openAppButton.setText("Add another");
+                        graphQueryInput.setHint("Manually add another query");
+                        commentOnOpenAppButton.setText("Add another data to collect in the " + appName + " app");
+                    } else
+
+                    {
+                        openAppButton.setText("Open " + collector.getAppName());
+                        commentOnOpenAppButton.setText("Demonstrate in the " + appName + " app");
+                    }
 
 
                 mainDialog.show();
 
 
-                // Open App button
-                openAppButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
+                    // Open App button
+                openAppButton.setOnClickListener(new View.OnClickListener()
+
+                    {
+                        @Override
+                        public void onClick (View view){
                         // find the package
                         final Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
                         mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
@@ -463,11 +479,13 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         intent.putExtra("graphQueryCallback", graphQueryCallback);
                         context.startService(intent);
                     }
-                });
+                    });
 
-                graphQueryAddImg.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
+                graphQueryAddImg.setOnClickListener(new View.OnClickListener()
+
+                    {
+                        @Override
+                        public void onClick (View view){
                         // add datafield to datafields list
                         String graphQueryInputResult = graphQueryInput.getText().toString();
                         if (!graphQueryInputResult.isEmpty()) {
@@ -484,11 +502,13 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                             Toast.makeText(context, "Please enter a query", Toast.LENGTH_LONG).show();
                         }
                     }
-                });
+                    });
 
-                graphQueryBckBtn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
+                graphQueryBckBtn.setOnClickListener(new View.OnClickListener()
+
+                    {
+                        @Override
+                        public void onClick (View view){
                         // update currentScreen String value
                         currentScreenState = "buildDialogFromConfig";
                         mainDialog.dismiss();
@@ -496,11 +516,13 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         updateCurrentView();
 
                     }
-                });
+                    });
 
-                graphQueryNxtBtn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
+                graphQueryNxtBtn.setOnClickListener(new View.OnClickListener()
+
+                    {
+                        @Override
+                        public void onClick (View view){
 
                         String graphQueryInputResult = graphQueryInput.getText().toString();
                         if (!graphQueryInputResult.isEmpty()) {
@@ -521,7 +543,7 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         // recursively call itself with new currentScreen String value
                         updateCurrentView();
                     }
-                });
+                    });
 
 //                graphQueryAddBtn.setOnClickListener(new View.OnClickListener() {
 //                    @Override
@@ -530,53 +552,67 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 //                    }
 //                });
 
-                graphQueryCloseImg.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
+                graphQueryCloseImg.setOnClickListener(new View.OnClickListener()
+
+                    {
+                        @Override
+                        public void onClick (View view){
                         mainDialog.dismiss();
                         // clear the current datafields list, since this collector creation process is terminated
                         clearDatafields();
                     }
-                });
+                    });
                 break;
 
 
-            case "buildDialogFromConfigDescription":
+            case"buildDialogFromConfigDescription":
 
-                dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_build_collector_from_config_description, null);
+                    dialogMainView =LayoutInflater.from(context).
+
+                    inflate(R.layout.dialog_build_collector_from_config_description, null);
 
 
-                Button descriptionCreateBtn = (Button) dialogMainView.findViewById(R.id.descriptionCreateButton);
-                Button descriptionBckBtn = (Button) dialogMainView.findViewById(R.id.descriptionBackButton);
-                ImageButton descriptionCloseImg = (ImageButton) dialogMainView.findViewById(R.id.closeDescriptionImageButton);
-                EditText descriptionEditText = (EditText) dialogMainView.findViewById(R.id.descriptionEditText);
+                    Button descriptionCreateBtn = (Button) dialogMainView.findViewById(R.id.descriptionCreateButton);
+                    Button descriptionBckBtn = (Button) dialogMainView.findViewById(R.id.descriptionBackButton);
+                    ImageButton descriptionCloseImg = (ImageButton) dialogMainView.findViewById(R.id.closeDescriptionImageButton);
+                    EditText descriptionEditText = (EditText) dialogMainView.findViewById(R.id.descriptionEditText);
 
-                // show description of the collector if available
-                if (collector.getDescription() != null) {
-                    descriptionEditText.setText(collector.getDescription());
-                }
+                    // show description of the collector if available
+                if(collector.getDescription()!=null)
 
-                if (isEdit) {
-                    descriptionCreateBtn.setText("Update");
-                }
+                    {
+                        descriptionEditText.setText(collector.getDescription());
+                    }
 
-                mainDialog = createNewAlertDialog(dialogMainView);
+                if(isEdit)
+
+                    {
+                        descriptionCreateBtn.setText("Update");
+                    }
+
+                    mainDialog =
+
+                    createNewAlertDialog(dialogMainView);
                 mainDialog.show();
 
-                descriptionBckBtn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
+                descriptionBckBtn.setOnClickListener(new View.OnClickListener()
+
+                    {
+                        @Override
+                        public void onClick (View view){
                         // update currentScreen String value
                         currentScreenState = "buildDialogFromConfigGraphQuery";
                         mainDialog.dismiss();
                         // recursively call itself with new currentScreen String value
                         updateCurrentView();
                     }
-                });
+                    });
 
-                descriptionCreateBtn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
+                descriptionCreateBtn.setOnClickListener(new View.OnClickListener()
+
+                    {
+                        @Override
+                        public void onClick (View view){
                         // write description into collector
                         String descriptionText = descriptionEditText.getText().toString();
 
@@ -682,35 +718,46 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         mainDialog.dismiss();
                         updateCurrentView();
                     }
-                });
+                    });
 
-                descriptionCloseImg.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
+                descriptionCloseImg.setOnClickListener(new View.OnClickListener()
+
+                    {
+                        @Override
+                        public void onClick (View view){
                         mainDialog.dismiss();
                         // clear the current datafields list, since this collector creation process is terminated
                         clearDatafields();
                     }
-                });
+                    });
 
                 break;
 
 
-            case "buildDialogFromConfigSuccessMessage":
-                dialogMainView = LayoutInflater.from(context).inflate(R.layout.dialog_build_collector_from_config_success_message, null);
+            case"buildDialogFromConfigSuccessMessage":
+                    dialogMainView =LayoutInflater.from(context).
 
-                // update the displayed app info
-                TextView successMessageTextView = (TextView) dialogMainView.findViewById(R.id.shareText);
-                if (isEdit) {
-                    successMessageTextView.setText("Your collector for " + collector.getAppName() + " is saved. Share with your participants");
-                } else {
-                    successMessageTextView.setText("Your collector for " + collector.getAppName() + " is created. Share with your participants");
-                }
-                mainDialog = createNewAlertDialog(dialogMainView);
+                    inflate(R.layout.dialog_build_collector_from_config_success_message, null);
+
+                    // update the displayed app info
+                    TextView successMessageTextView = (TextView) dialogMainView.findViewById(R.id.shareText);
+                if(isEdit)
+
+                    {
+                        successMessageTextView.setText("Your collector for " + collector.getAppName() + " is saved. Share with your participants");
+                    } else
+
+                    {
+                        successMessageTextView.setText("Your collector for " + collector.getAppName() + " is created. Share with your participants");
+                    }
+
+                    mainDialog =
+
+                    createNewAlertDialog(dialogMainView);
                 mainDialog.show();
 
-                Button closeSuccessMessage = (Button) dialogMainView.findViewById(R.id.closeSuccessMessagePopupButton);
-                ImageButton shareUrlLinkButton = (ImageButton) dialogMainView.findViewById(R.id.shareUrlImageButton);
+                    Button closeSuccessMessage = (Button) dialogMainView.findViewById(R.id.closeSuccessMessagePopupButton);
+                    ImageButton shareUrlLinkButton = (ImageButton) dialogMainView.findViewById(R.id.shareUrlImageButton);
 
 //                ImageButton shareEmailLinkButton = (ImageButton) dialogMainView.findViewById(R.id.shareEmailImageButton);
 
@@ -736,9 +783,11 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
 //                });
 
 
-                shareUrlLinkButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
+                shareUrlLinkButton.setOnClickListener(new View.OnClickListener()
+
+                    {
+                        @Override
+                        public void onClick (View view){
                         // we will just share the id of the collector for now, instead of a url
                         ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
                         ClipData clip = ClipData.newPlainText("share URL", collector.getCollectorId());
@@ -746,174 +795,179 @@ public class CollectorConfigurationDialogWrapper extends AppCompatActivity {
                         Toast.makeText(context, "collector ID copied. Share with your participants", Toast.LENGTH_LONG).show();
                         currentScreenState = "dismissed";
                     }
-                });
+                    });
 
 
-                closeSuccessMessage.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
+                closeSuccessMessage.setOnClickListener(new View.OnClickListener()
+
+                    {
+                        @Override
+                        public void onClick (View view){
 
                         // update currentScreen String value
                         currentScreenState = "dismissed";
                         mainDialog.dismiss();
 
                     }
-                });
+                    });
                 break;
 
-            case "dismissed":
-                break;
+            case"dismissed":
+                    break;
 
-            default:
-                throw new IllegalStateException("Unexpected value: " + currentScreenState);
+                    default:
+                            throw new
 
-        }
-    }
+                    IllegalStateException("Unexpected value: "+currentScreenState);
 
-    private AlertDialog createNewAlertDialog(View dialogMainView) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        AlertDialog dialog = builder.create();
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialog.setView(dialogMainView);
-        return dialog;
-    }
-
-    private void clearDatafields() {
-        // remove all elements from datafields
-        if (datafields != null) {
-            datafields.clear();
-        }
-    }
-
-    public static List<Datafield> getDatafields() {
-        return datafields;
-    }
-
-    public static void setDatafields(List<Datafield> datafields) {
-        CollectorConfigurationDialogWrapper.datafields = datafields;
-    }
-
-    public Dictionary<String, String> getAllInstalledAppNames() throws PackageManager.NameNotFoundException {
-        final Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
-        mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-
-        // get list of all the apps installed
-        // ril stands for ResolveInfoList
-        List<ResolveInfo> ril = context.getPackageManager().queryIntentActivities(mainIntent, 0);
-        String name = null;
-        int i = 0;
-
-        // get size of ril and create a dictionary of app names and package names
-        Dictionary<String, String> appDict = new Hashtable<String, String>();
-        for (ResolveInfo ri : ril) {
-            if (ri.activityInfo != null) {
-                // get package
-                Resources res = context.getPackageManager().getResourcesForApplication(ri.activityInfo.applicationInfo);
-                // if activity label res is found
-                if (ri.activityInfo.labelRes != 0) {
-                    name = res.getString(ri.activityInfo.labelRes);
-                } else {
-                    name = ri.activityInfo.applicationInfo.loadLabel(
-                            context.getPackageManager()).toString();
                 }
-                appDict.put(name, ri.activityInfo.packageName);
-                i++;
+        }
+
+        private AlertDialog createNewAlertDialog (View dialogMainView){
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            AlertDialog dialog = builder.create();
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dialog.setView(dialogMainView);
+            return dialog;
+        }
+
+        private void clearDatafields () {
+            // remove all elements from datafields
+            if (datafields != null) {
+                datafields.clear();
             }
         }
-//        Toast.makeText(context, ril.size() + " apps are installed on this phone", Toast.LENGTH_LONG).show();
-        return appDict;
-    }
 
-    public void show(Boolean isEdit) {
-        this.isEdit = isEdit;
-        updateCurrentView();
-    }
-
-    public void hide() {
-        try {
-            if (mainDialog != null && mainDialog.isShowing()) {
-                mainDialog.dismiss();
-            } else {
-                Log.e("CollectorConfigDialog", "mainDialog is null or not showing");
-            }
-        } catch (Exception e) {
-            Log.e("CollectorConfigDialog", "Error dismissing mainDialog: " + e.getMessage());
+        public static List<Datafield> getDatafields () {
+            return datafields;
         }
-    }
 
-    private static void updateDisplayedDatafieldsFromDemonstration() {
-        // we only update if the current screen is the demonstration screen
-        if (currentScreenState.equals("buildDialogFromConfigGraphQuery")) {
-            refreshDatafieldsList();
-        } else {
-            Log.e("Dialog", "updateDisplayedDatafieldsFromDemonstration() called when currentScreenState is not buildDialogFromConfigGraphQuery");
+        public static void setDatafields (List < Datafield > datafields) {
+            CollectorConfigurationDialogWrapper.datafields = datafields;
         }
-    }
 
-    private static void refreshDatafieldsList() {
-        // remove all subviews from the linearlayout
-        LinearLayout datafieldContainerLinearLayout = (LinearLayout) dialogMainView.findViewById(R.id.datafieldContainerLinearLayout);
-        datafieldContainerLinearLayout.removeAllViews();
+        public Dictionary<String, String> getAllInstalledAppNames () throws
+        PackageManager.NameNotFoundException {
+            final Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
+            mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
 
-        // inflate datafields into the dialog
-        if (datafields != null) {
-            for (int i = 0; i < datafields.size(); i++) {
-                // inflate datafield
-                View datafieldView = LayoutInflater.from(context).inflate(R.layout.datafield_card, null);
-                // get datafield name
-                TextView datafieldName = (TextView) datafieldView.findViewById(R.id.datafieldTextView);
-                // TODO use the user input description here
-                datafieldName.setText(datafields.get(i).getGraphQuery());
+            // get list of all the apps installed
+            // ril stands for ResolveInfoList
+            List<ResolveInfo> ril = context.getPackageManager().queryIntentActivities(mainIntent, 0);
+            String name = null;
+            int i = 0;
 
-                // set onclicklistener for datafield remove
-                ImageButton deleteDatafieldButton = (ImageButton) datafieldView.findViewById(R.id.removeDatafieldButton);
-                int finalI = i;
-                deleteDatafieldButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        // remove datafield from datafields list
-                        datafields.remove(finalI);
-                        // update dialog
-                        updateDisplayedDatafieldsFromDemonstration();
+            // get size of ril and create a dictionary of app names and package names
+            Dictionary<String, String> appDict = new Hashtable<String, String>();
+            for (ResolveInfo ri : ril) {
+                if (ri.activityInfo != null) {
+                    // get package
+                    Resources res = context.getPackageManager().getResourcesForApplication(ri.activityInfo.applicationInfo);
+                    // if activity label res is found
+                    if (ri.activityInfo.labelRes != 0) {
+                        name = res.getString(ri.activityInfo.labelRes);
+                    } else {
+                        name = ri.activityInfo.applicationInfo.loadLabel(
+                                context.getPackageManager()).toString();
                     }
-                });
+                    appDict.put(name, ri.activityInfo.packageName);
+                    i++;
+                }
+            }
+//        Toast.makeText(context, ril.size() + " apps are installed on this phone", Toast.LENGTH_LONG).show();
+            return appDict;
+        }
 
-                // add datafield to dialog
-                if (datafieldContainerLinearLayout != null) {
-                    datafieldContainerLinearLayout.addView(datafieldView);
+        public void show (Boolean isEdit){
+            this.isEdit = isEdit;
+            updateCurrentView();
+        }
+
+        public void hide () {
+            try {
+                if (mainDialog != null && mainDialog.isShowing()) {
+                    mainDialog.dismiss();
                 } else {
-                    Log.e("Dialog", "datafieldContainerLinearLayout is null");
+                    Log.e("CollectorConfigDialog", "mainDialog is null or not showing");
+                }
+            } catch (Exception e) {
+                Log.e("CollectorConfigDialog", "Error dismissing mainDialog: " + e.getMessage());
+            }
+        }
+
+        private static void updateDisplayedDatafieldsFromDemonstration () {
+            // we only update if the current screen is the demonstration screen
+            if (currentScreenState.equals("buildDialogFromConfigGraphQuery")) {
+                refreshDatafieldsList();
+            } else {
+                Log.e("Dialog", "updateDisplayedDatafieldsFromDemonstration() called when currentScreenState is not buildDialogFromConfigGraphQuery");
+            }
+        }
+
+        private static void refreshDatafieldsList () {
+            // remove all subviews from the linearlayout
+            LinearLayout datafieldContainerLinearLayout = (LinearLayout) dialogMainView.findViewById(R.id.datafieldContainerLinearLayout);
+            datafieldContainerLinearLayout.removeAllViews();
+
+            // inflate datafields into the dialog
+            if (datafields != null) {
+                for (int i = 0; i < datafields.size(); i++) {
+                    // inflate datafield
+                    View datafieldView = LayoutInflater.from(context).inflate(R.layout.datafield_card, null);
+                    // get datafield name
+                    TextView datafieldName = (TextView) datafieldView.findViewById(R.id.datafieldTextView);
+                    // TODO use the user input description here
+                    datafieldName.setText(datafields.get(i).getGraphQuery());
+
+                    // set onclicklistener for datafield remove
+                    ImageButton deleteDatafieldButton = (ImageButton) datafieldView.findViewById(R.id.removeDatafieldButton);
+                    int finalI = i;
+                    deleteDatafieldButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            // remove datafield from datafields list
+                            datafields.remove(finalI);
+                            // update dialog
+                            updateDisplayedDatafieldsFromDemonstration();
+                        }
+                    });
+
+                    // add datafield to dialog
+                    if (datafieldContainerLinearLayout != null) {
+                        datafieldContainerLinearLayout.addView(datafieldView);
+                    } else {
+                        Log.e("Dialog", "datafieldContainerLinearLayout is null");
+                    }
                 }
             }
         }
-    }
 
 
-    public void setCurrentScreenState(String currentScreenState) {
-        this.currentScreenState = currentScreenState;
-    }
+        public void setCurrentScreenState (String currentScreenState){
+            this.currentScreenState = currentScreenState;
+        }
 
-    public String getCurrentScreenState() {
-        return currentScreenState;
-    }
+        public String getCurrentScreenState () {
+            return currentScreenState;
+        }
 
-    public Collector getCurrentCollector() {
-        return collector;
-    }
+        public Collector getCurrentCollector () {
+            return collector;
+        }
 
-    public void setCurrentCollector(Collector collector) {
-        this.collector = collector;
-    }
+        public void setCurrentCollector (Collector collector){
+            this.collector = collector;
+        }
 
-    public static Boolean getIsEdit() {
-        return isEdit;
-    }
+        public static Boolean getIsEdit () {
+            return isEdit;
+        }
 
-    public static void setIsEdit(Boolean isEdit) {
-        CollectorConfigurationDialogWrapper.isEdit = isEdit;
-    }
+        public static void setIsEdit (Boolean isEdit){
+            CollectorConfigurationDialogWrapper.isEdit = isEdit;
+        }
 
-    public void setDatafields(ArrayList<Datafield> datafieldsList) {
-        datafields = datafieldsList;
+        public void setDatafields (ArrayList < Datafield > datafieldsList) {
+            datafields = datafieldsList;
+        }
     }
-}
