@@ -63,10 +63,13 @@ import edu.nd.crepe.network.FirebaseCommunicationManager;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -159,6 +162,54 @@ public class CrepeAccessibilityService extends AccessibilityService {
     }
 
     private ScheduledExecutorService scheduler;
+
+    private final Map<String, Long> contentSeenMap = Collections.synchronizedMap(
+            new LinkedHashMap<String, Long>(100, 0.75f, true) {
+                @Override
+                protected boolean removeEldestEntry(Map.Entry<String, Long> eldest) {
+                    return size() > 100; // Keep last 100 entries
+                }
+            });
+
+    private static final long DUPLICATE_THRESHOLD_MS = 2000; // Configurable threshold
+
+    private boolean isDuplicate(SugiliteEntity result, Node resultNode) {
+        try {
+            // Create a hash just based on content
+            String contentHash = createContentHash(result, resultNode);
+
+            // Check if we've seen this content recently
+            Long lastSeenTimestamp = contentSeenMap.get(contentHash);
+            if (lastSeenTimestamp != null) {
+                long timeSinceLastSeen = System.currentTimeMillis() - lastSeenTimestamp;
+                if (timeSinceLastSeen < DUPLICATE_THRESHOLD_MS) {
+                    return true; // It's a duplicate
+                }
+            }
+
+            // Update cache with current timestamp
+            contentSeenMap.put(contentHash, System.currentTimeMillis());
+            return false;
+        } catch (Exception e) {
+            Log.e(TAG, "Error checking for duplicates", e);
+            return false; // On error, assume it's not a duplicate
+        }
+    }
+
+    private String createContentHash(SugiliteEntity result, Node resultNode) {
+        StringBuilder contentBuilder = new StringBuilder();
+
+        // Combine only content-related properties
+        if (resultNode.getText() != null) {
+            contentBuilder.append(resultNode.getText());
+        }
+        if (resultNode.getContentDescription() != null) {
+            contentBuilder.append(resultNode.getContentDescription());
+        }
+        contentBuilder.append(resultNode.getClassName());
+
+        return contentBuilder.toString();
+    }
 
     @Override
     public void onCreate() {
@@ -308,63 +359,70 @@ public class CrepeAccessibilityService extends AccessibilityService {
 
 
                             String dataString = processDataString(accessibilityEvent, result);
-                            try {
-                                // get result node
-                                Node resultNode = (Node) result.getEntityValue();
-                                if (resultNode == null) {
-                                    Log.e("query execution", "cannot convert result to a Node, null");
-                                }
 
-                                // Run UI operations on the main thread
-                                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Rect overlayLocation = new Rect();
-                                        overlayLocation = Rect.unflattenFromString(resultNode.getBoundsInScreen());
-                                        if (overlayLocation == null) {
-                                            Log.e("query execution", "overlay location is null");
-                                        }
-                                        // adjust for the status bar height
-                                        NavigationBarUtil navigationBarUtil = new NavigationBarUtil();
-                                        int statusBarHeight = navigationBarUtil.getStatusBarHeight(getApplicationContext());
-                                        overlayLocation.offset(0, (-1) * statusBarHeight);
-                                        overlayViewManager.showRectOverlay(overlayLocation,
-                                                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                                                Const.SELECTION_INDICATOR_COLOR,
-                                                2);
+                            // get result node
+                            Node resultNode = (Node) result.getEntityValue();
+                            if (resultNode == null) {
+                                Log.e("query execution", "cannot convert result to a Node, null");
+                                continue;
+                            }
+
+                            if (!isDuplicate(result, resultNode)) {
+
+                                try {
+                                    // Run UI operations on the main thread
+                                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Rect overlayLocation = new Rect();
+                                            overlayLocation = Rect.unflattenFromString(resultNode.getBoundsInScreen());
+                                            if (overlayLocation == null) {
+                                                Log.e("query execution", "overlay location is null");
+                                            }
+                                            // adjust for the status bar height
+                                            NavigationBarUtil navigationBarUtil = new NavigationBarUtil();
+                                            int statusBarHeight = navigationBarUtil.getStatusBarHeight(getApplicationContext());
+                                            overlayLocation.offset(0, (-1) * statusBarHeight);
+                                            overlayViewManager.showRectOverlay(overlayLocation,
+                                                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                                                    Const.SELECTION_INDICATOR_COLOR,
+                                                    2);
 
 //                                        overlayViewManager.showTextOverlay(overlayLocation, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, dataString, Const.FETCHED_DATA_TEXT_COLOR, 2);
-                                    }
-                                });
-                            } catch (Exception e) {
-                                Log.e("query execution", "failed to show overlay");
-                                e.printStackTrace();
+                                        }
+                                    });
+
+                                } catch (Exception e) {
+                                    Log.e("query execution", "failed to show overlay");
+                                    e.printStackTrace();
+                                }
+
+                                // if the result is not in the previous results, add it to the database
+                                long timestamp = System.currentTimeMillis();
+                                // the data id is the collector id + "%" + timestamp
+                                Data resultData = new Data(datafield.getCollectorId() + "%" + timestamp, datafield.getDatafieldId(), currentUser.getUserId(), dataString);
+
+                                try {
+                                    dbManager.addData(resultData);
+                                    Log.i("database", "added data: " + resultData);
+
+                                    // send the data to firebase
+                                    firebaseCommunicationManager.putData(resultData).addOnSuccessListener(suc -> {
+                                        Log.i("Firebase", "Successfully added data " + resultData.getDataContent() + " to firebase.");
+                                    }).addOnFailureListener(er -> {
+                                        Log.e("Firebase", "Failed to add data " + resultData.getDataContent() + " to firebase. Error: " + er.getMessage());
+                                    });
+
+                                    // update the last saved result timestamp
+                                    lastSavedResultTimestamp.set(System.currentTimeMillis());
+
+                                } catch (Exception e) {
+                                    Log.i("database", "failed to add data: " + resultData.toString());
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                Log.i("query execution", "duplicate result skipped: " + result);
                             }
-
-                            // if the result is not in the previous results, add it to the database
-                            long timestamp = System.currentTimeMillis();
-                            // the data id is the collector id + "%" + timestamp
-                            Data resultData = new Data(datafield.getCollectorId() + "%" + timestamp, datafield.getDatafieldId(), currentUser.getUserId(), dataString);
-
-                            try {
-                                dbManager.addData(resultData);
-                                Log.i("database", "added data: " + resultData);
-
-                                // send the data to firebase
-                                firebaseCommunicationManager.putData(resultData).addOnSuccessListener(suc -> {
-                                    Log.i("Firebase", "Successfully added data " + resultData.getDataContent() + " to firebase.");
-                                }).addOnFailureListener(er -> {
-                                    Log.e("Firebase", "Failed to add data " + resultData.getDataContent() + " to firebase. Error: " + er.getMessage());
-                                });
-
-                                // update the last saved result timestamp
-                                lastSavedResultTimestamp.set(System.currentTimeMillis());
-
-                            } catch (Exception e) {
-                                Log.i("database", "failed to add data: " + resultData.toString());
-                                e.printStackTrace();
-                            }
-//                            }
                         }
                         prevResults.addAll(currentResults);
                     }
