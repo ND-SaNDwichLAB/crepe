@@ -53,6 +53,7 @@ import edu.nd.crepe.database.Datafield;
 import edu.nd.crepe.demonstration.DemonstrationUtil;
 import edu.nd.crepe.demonstration.NavigationBarUtil;
 import edu.nd.crepe.demonstration.OverlayViewManager;
+import edu.nd.crepe.graphquery.Const;
 import edu.nd.crepe.graphquery.model.Node;
 import edu.nd.crepe.graphquery.ontology.OntologyQuery;
 import edu.nd.crepe.graphquery.ontology.SugiliteEntity;
@@ -306,9 +307,9 @@ public class CrepeAccessibilityService extends AccessibilityService {
                             Log.i("Timestamps", "System.currentTimeMillis(): " + System.currentTimeMillis() + ", lastSavedResultTimestamp: " + lastSavedResultTimestamp.get() + ", difference: " + (System.currentTimeMillis() - lastSavedResultTimestamp.get()));
 
 
+                            String dataString = processDataString(accessibilityEvent, result);
                             try {
-                                // show overlay
-
+                                // get result node
                                 Node resultNode = (Node) result.getEntityValue();
                                 if (resultNode == null) {
                                     Log.e("query execution", "cannot convert result to a Node, null");
@@ -329,8 +330,10 @@ public class CrepeAccessibilityService extends AccessibilityService {
                                         overlayLocation.offset(0, (-1) * statusBarHeight);
                                         overlayViewManager.showRectOverlay(overlayLocation,
                                                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                                                0x80FF0000,
+                                                Const.SELECTION_INDICATOR_COLOR,
                                                 2);
+
+//                                        overlayViewManager.showTextOverlay(overlayLocation, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, dataString, Const.FETCHED_DATA_TEXT_COLOR, 2);
                                     }
                                 });
                             } catch (Exception e) {
@@ -340,7 +343,6 @@ public class CrepeAccessibilityService extends AccessibilityService {
 
                             // if the result is not in the previous results, add it to the database
                             long timestamp = System.currentTimeMillis();
-                            String dataString = processDataString(accessibilityEvent, result);
                             // the data id is the collector id + "%" + timestamp
                             Data resultData = new Data(datafield.getCollectorId() + "%" + timestamp, datafield.getDatafieldId(), currentUser.getUserId(), dataString);
 

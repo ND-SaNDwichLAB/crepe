@@ -1,6 +1,8 @@
 package edu.nd.crepe.demonstration;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.os.Handler;
@@ -8,6 +10,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.TextView;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -140,15 +143,8 @@ public class OverlayViewManager {
     }
 
     /**
-     * Shows an overlay and returns its unique identifier
-     * @return String identifier for the created overlay
-     */
-    public String showRectOverlay(Rect overlayLocation, int flag, int color) {
-        return showRectOverlay(overlayLocation, flag, color, 0);
-    }
-
-    /**
      * Shows an overlay with automatic dissolution after specified time and returns its unique identifier
+     * use lapseTimeInSeconds as 0 for no dissolution
      * @return String identifier for the created overlay
      */
     public String showRectOverlay(Rect overlayLocation, int flag, int color, int lapseTimeInSeconds) {
@@ -232,5 +228,52 @@ public class OverlayViewManager {
      */
     public int getOverlayCount() {
         return overlays.size();
+    }
+
+    public String showTextOverlay(Rect overlayLocation, int flag, String text, int color, int lapseTimeInSeconds) {
+        String overlayId = UUID.randomUUID().toString();
+
+        TextView overlayView = new TextView(context);
+        overlayView.setText(text);
+        overlayView.setTextColor(color);
+        overlayView.setGravity(Gravity.CENTER);
+        overlayView.setPadding(20, 10, 20, 10);  // Add some padding for better readability
+
+        WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams(
+                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+                flag,
+                PixelFormat.TRANSLUCENT);
+
+        // Measure the text size
+        Paint textPaint = overlayView.getPaint();
+        Rect textBounds = new Rect();
+        textPaint.getTextBounds(text, 0, text.length(), textBounds);
+
+        // Add padding to the measured size
+        int textWidth = textBounds.width() + overlayView.getPaddingLeft() + overlayView.getPaddingRight();
+        int textHeight = textBounds.height() + overlayView.getPaddingTop() + overlayView.getPaddingBottom();
+
+        // Use the larger of either the original bounds or the text size
+        layoutParams.width = Math.max(overlayLocation.width(), textWidth);
+        layoutParams.height = Math.max(overlayLocation.height(), textHeight);
+
+        // Center the overlay relative to the original location
+        layoutParams.x = overlayLocation.left - (layoutParams.width - overlayLocation.width()) / 2;
+        layoutParams.y = overlayLocation.top - (layoutParams.height - overlayLocation.height()) / 2;
+        layoutParams.gravity = Gravity.TOP | Gravity.LEFT;
+
+        overlayView.setLayoutParams(layoutParams);
+        overlayView.setBackgroundColor(Color.argb(128, 0, 0, 0));
+
+        windowManager.addView(overlayView, layoutParams);
+        overlays.put(overlayId, overlayView);
+
+        if (lapseTimeInSeconds > 0) {
+            Handler handler = new Handler();
+            handlers.put(overlayId, handler);
+            handler.postDelayed(() -> dissolveOverlay(overlayId), lapseTimeInSeconds * 1000);
+        }
+
+        return overlayId;
     }
 }
