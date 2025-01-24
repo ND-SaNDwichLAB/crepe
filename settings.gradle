@@ -9,3 +9,4 @@ dependencyResolutionManagement {
 }
 rootProject.name = "crepe"
 include ':app'
+include ':eval'
