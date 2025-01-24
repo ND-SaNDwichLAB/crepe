@@ -232,7 +232,7 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
                         // show overlay
                         overlayViewManager.showRectOverlay(clickedItemBounds,
                                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                                Const.SELECTION_INDICATOR_COLOR, 3);
+                                Const.SELECTION_INDICATOR_COLOR, 3000);
                     }
 
                     // Start a new thread for heavy processing operations

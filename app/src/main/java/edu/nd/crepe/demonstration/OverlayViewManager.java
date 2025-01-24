@@ -54,10 +54,10 @@ public class OverlayViewManager {
      * @param flag Window manager flags
      * @param color The color of the dot
      * @param showRipple Whether to show a ripple effect around the dot
-     * @param lapseTimeInSeconds Time after which the overlay should dissolve
+     * @param lapseTimeInMillis Time after which the overlay should dissolve
      * @return String identifier for the created overlay
      */
-    public String showDotOverlay(int x, int y, int radius, int flag, int color, boolean showRipple, int lapseTimeInSeconds) {
+    public String showDotOverlay(int x, int y, int radius, int flag, int color, boolean showRipple, int lapseTimeInMillis) {
         String overlayId = UUID.randomUUID().toString();
 
         // Create container for dot and ripple
@@ -136,10 +136,10 @@ public class OverlayViewManager {
         windowManager.addView(container, layoutParams);
         overlays.put(overlayId, container);
 
-        if (lapseTimeInSeconds > 0) {
+        if (lapseTimeInMillis > 0) {
             Handler handler = new Handler();
             handlers.put(overlayId, handler);
-            handler.postDelayed(() -> dissolveOverlay(overlayId), lapseTimeInSeconds * 1000);
+            handler.postDelayed(() -> dissolveOverlay(overlayId), lapseTimeInMillis);
         }
 
         return overlayId;
@@ -147,10 +147,10 @@ public class OverlayViewManager {
 
     /**
      * Shows an overlay with automatic dissolution after specified time and returns its unique identifier
-     * use lapseTimeInSeconds as 0 for no dissolution
+     * use lapseTimeInMillis as 0 for no dissolution
      * @return String identifier for the created overlay
      */
-    public String showRectOverlay(Rect overlayLocation, int flag, int color, int lapseTimeInSeconds) {
+    public String showRectOverlay(Rect overlayLocation, int flag, int color, int lapseTimeInMillis) {
         String overlayId = UUID.randomUUID().toString();
 
         View overlayView = new View(context);
@@ -187,10 +187,10 @@ public class OverlayViewManager {
         overlays.put(overlayId, overlayView);
 
 
-        if (lapseTimeInSeconds > 0) {
+        if (lapseTimeInMillis > 0) {
             Handler handler = new Handler();
             handlers.put(overlayId, handler);
-            handler.postDelayed(() -> dissolveOverlay(overlayId), lapseTimeInSeconds * 1000);
+            handler.postDelayed(() -> dissolveOverlay(overlayId), lapseTimeInMillis);
         }
 
         return overlayId;

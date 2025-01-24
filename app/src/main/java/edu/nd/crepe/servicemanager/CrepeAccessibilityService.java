@@ -171,11 +171,11 @@ public class CrepeAccessibilityService extends AccessibilityService {
                 }
             });
 
-    private static final long DUPLICATE_THRESHOLD_MS = 5000; // Configurable threshold
+    private static final long DUPLICATE_THRESHOLD_MS = 3000; // Configurable threshold
 
     private boolean isDuplicate(SugiliteEntity result, Node resultNode) {
         try {
-            // Create a hash just based on content
+            // Create a hash based on content
             String contentHash = createContentHash(result, resultNode);
 
             // Check if we've seen this content recently
@@ -351,11 +351,11 @@ public class CrepeAccessibilityService extends AccessibilityService {
                         // 3. store the new results in the database
                         for (SugiliteEntity result : currentResults) {
                             Log.i("query execution", "result: " + result);
-                            Log.i("query execution", "prevResults: " + prevResults);
-                            Log.i("query execution", "prevResults.contains(result): " + prevResults.contains(result));
+//                            Log.i("query execution", "prevResults: " + prevResults);
+//                            Log.i("query execution", "prevResults.contains(result): " + prevResults.contains(result));
 //                            if (!prevResults.contains(result) && System.currentTimeMillis() - lastSavedResultTimestamp.get() > 4000) {  // prevent duplicate results from being saved, with the interval of 4 seconds
 //                            if (!prevResults.contains(result)) {  // prevent duplicate results from being saved, prevResults is cleared every 10 seconds (see code on the top of this file)
-                            Log.i("Timestamps", "System.currentTimeMillis(): " + System.currentTimeMillis() + ", lastSavedResultTimestamp: " + lastSavedResultTimestamp.get() + ", difference: " + (System.currentTimeMillis() - lastSavedResultTimestamp.get()));
+//                            Log.i("Timestamps", "System.currentTimeMillis(): " + System.currentTimeMillis() + ", lastSavedResultTimestamp: " + lastSavedResultTimestamp.get() + ", difference: " + (System.currentTimeMillis() - lastSavedResultTimestamp.get()));
 
 
                             String dataString = processDataString(accessibilityEvent, result);
@@ -368,12 +368,14 @@ public class CrepeAccessibilityService extends AccessibilityService {
                             }
 
                             if (!isDuplicate(result, resultNode)) {
-
                                 try {
                                     // Run UI operations on the main thread
                                     new Handler(Looper.getMainLooper()).post(new Runnable() {
                                         @Override
                                         public void run() {
+                                            // first, when drawing new overlays, the previous ones are likely no longer relevant
+                                            overlayViewManager.removeAllOverlays();
+                                            // show the overlay
                                             Rect overlayLocation = new Rect();
                                             overlayLocation = Rect.unflattenFromString(resultNode.getBoundsInScreen());
                                             if (overlayLocation == null) {
@@ -386,7 +388,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
                                             overlayViewManager.showRectOverlay(overlayLocation,
                                                     WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                                                     Const.SELECTION_INDICATOR_COLOR,
-                                                    2);
+                                                    400);
 
 //                                        overlayViewManager.showTextOverlay(overlayLocation, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, dataString, Const.FETCHED_DATA_TEXT_COLOR, 2);
                                         }
