@@ -95,7 +95,8 @@ public class Const {
     public static final String SCRIPT_PLACEHOLDER_COLOR = "#999999";
 
     public static int RECORDING_OVERLAY_COLOR = 0x20FFFF00;
-    public static int SELECTION_INDICATOR_COLOR = 0x40FF0000;
+    public static int SELECTION_INDICATOR_COLOR = 0xFFFFD700;
+    public static int RECT_OVERLAY_RADIUS_DP = 4;
     public static int FETCHED_DATA_TEXT_COLOR = 0xFF000000;
     public static int RECORDING_OVERLAY_COLOR_STOP = 0x20FF0000;
     public static int PREVIEW_OVERLAY_COLOR = 0xB0000000;

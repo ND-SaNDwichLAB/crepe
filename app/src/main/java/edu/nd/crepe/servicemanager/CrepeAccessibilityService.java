@@ -171,7 +171,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
                 }
             });
 
-    private static final long DUPLICATE_THRESHOLD_MS = 2000; // Configurable threshold
+    private static final long DUPLICATE_THRESHOLD_MS = 5000; // Configurable threshold
 
     private boolean isDuplicate(SugiliteEntity result, Node resultNode) {
         try {

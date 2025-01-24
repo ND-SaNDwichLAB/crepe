@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Handler;
 import android.util.Log;
 import android.view.Gravity;
@@ -15,6 +16,8 @@ import android.widget.TextView;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+
+import edu.nd.crepe.graphquery.Const;
 
 public class OverlayViewManager {
     private Context context;
@@ -162,10 +165,27 @@ public class OverlayViewManager {
         layoutParams.y = overlayLocation.top;
         layoutParams.gravity = Gravity.TOP | Gravity.LEFT;
         overlayView.setLayoutParams(layoutParams);
-        overlayView.setBackgroundColor(color);
+
+        // Create a GradientDrawable for rounded corners and border
+        GradientDrawable shape = new GradientDrawable();
+        shape.setShape(GradientDrawable.RECTANGLE);
+
+        // Set corner radius (adjust the 8dp value as needed)
+        float cornerRadius = context.getResources().getDisplayMetrics().density * Const.RECT_OVERLAY_RADIUS_DP;
+        shape.setCornerRadius(cornerRadius);
+
+        // Set the fill color with some transparency
+        shape.setColor(adjustAlpha(color, 0.3f));  // 30% opacity
+
+        // Set the border (2dp width, gold color like in the image)
+        int borderWidth = (int) (context.getResources().getDisplayMetrics().density * 2);
+        shape.setStroke(borderWidth, color);
+
+        overlayView.setBackground(shape);
 
         windowManager.addView(overlayView, layoutParams);
         overlays.put(overlayId, overlayView);
+
 
         if (lapseTimeInSeconds > 0) {
             Handler handler = new Handler();
@@ -174,6 +194,15 @@ public class OverlayViewManager {
         }
 
         return overlayId;
+    }
+
+    // Helper method to adjust color alpha
+    private int adjustAlpha(int color, float factor) {
+        int alpha = Math.round(Color.alpha(color) * factor);
+        int red = Color.red(color);
+        int green = Color.green(color);
+        int blue = Color.blue(color);
+        return Color.argb(alpha, red, green, blue);
     }
 
     /**
