@@ -105,6 +105,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
     private List<AccessibilityNodeInfo> allNodeList;
     private AtomicLong lastSavedResultTimestamp = new AtomicLong(0);
     private OverlayViewManager overlayViewManager;
+    private Boolean isRecordingBenchmark = false;
 
     private List<Integer> targetEventTypes = Arrays.asList(
             TYPE_VIEW_TEXT_CHANGED,
@@ -287,6 +288,10 @@ public class CrepeAccessibilityService extends AccessibilityService {
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
+
+        // TODO check if we are recording
+//         if (getSharedPreferences("eval_settings", MODE_PRIVATE)
+//            .getBoolean("is_recording", false);)
 
         collectors = dbManager.getActiveCollectors();
 

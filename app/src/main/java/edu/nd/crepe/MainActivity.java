@@ -47,6 +47,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import edu.nd.crepe.databinding.ActivityMainBinding;
+import edu.nd.crepe.ui.main_activity.SettingsFragment;
 
 import com.google.android.material.navigation.NavigationView;
 import com.google.common.reflect.TypeToken;
@@ -331,6 +332,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.nav_menu_home:
                 // Change this back
                 currentFragment = new HomeFragment();
+                break;
+            case R.id.nav_menu_settings:
+                currentFragment = new SettingsFragment();
                 break;
 //            case R.id.nav_menu_data:
 //                currentFragment = new DataFragment();
