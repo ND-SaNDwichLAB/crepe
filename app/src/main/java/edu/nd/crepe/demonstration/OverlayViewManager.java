@@ -212,14 +212,19 @@ public class OverlayViewManager {
     private void dissolveOverlay(String overlayId) {
         View overlayView = overlays.get(overlayId);
         if (overlayView != null) {
+
+            // Use a simple ViewPropertyAnimator
             overlayView.animate()
-                    .alpha(0.0f)
+                    .alpha(0f)
                     .setDuration(1000)
                     .withEndAction(() -> {
-                        removeOverlay(overlayId);
-                    });
+                        // Use a small post delay or post() to ensure final frame is rendered
+                        overlayView.post(() -> removeOverlay(overlayId));
+                    })
+                    .start();
         }
     }
+
 
     /**
      * Removes a specific overlay immediately
