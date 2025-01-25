@@ -98,7 +98,6 @@ public class CrepeAccessibilityService extends AccessibilityService {
     private WindowManager windowManager;
     private String currentAppActivityName;
     private String currentPackageName;
-    private Set<SugiliteEntity> prevResults = new HashSet<>(); // used to check if the retrieved data exists in the previous frame
     private UISnapshot uiSnapshot;
     private List<Collector> collectors;
     private List<Datafield> datafields;
@@ -146,6 +145,23 @@ public class CrepeAccessibilityService extends AccessibilityService {
     private static final int NOTIFICATION_ID = 1;
     private static final String CHANNEL_ID = "CrepeAccessibilityServiceChannel";
 
+    // Below we have two thresholds for data duplicate detection and event throttling
+    // event throttling: prevent the same event from being processed multiple times in a short period, esp for apps like Uber
+    //      that spams a lot of UI updates on the main thread
+    // data duplicate detection: prevent the same data from being saved multiple times in a short period
+    private static final long EVENT_THROTTLE_THRESHOLD_MS = 1000; // Configurable threshold for event throttling
+    private static final long DUPLICATE_THRESHOLD_MS = 3000; // Configurable threshold for duplicate detection
+
+    private Map<Integer, Long> lastEventTimeMap = new HashMap<>();
+
+    private final Map<String, Long> contentSeenMap = Collections.synchronizedMap(
+            new LinkedHashMap<String, Long>(100, 0.75f, true) {
+                @Override
+                protected boolean removeEldestEntry(Map.Entry<String, Long> eldest) {
+                    return size() > 100; // Keep last 100 entries
+                }
+            });
+
     private Handler handler = new Handler();
     private Runnable heartbeatRunnable = new Runnable() {
         @Override
@@ -164,15 +180,6 @@ public class CrepeAccessibilityService extends AccessibilityService {
 
     private ScheduledExecutorService scheduler;
 
-    private final Map<String, Long> contentSeenMap = Collections.synchronizedMap(
-            new LinkedHashMap<String, Long>(100, 0.75f, true) {
-                @Override
-                protected boolean removeEldestEntry(Map.Entry<String, Long> eldest) {
-                    return size() > 100; // Keep last 100 entries
-                }
-            });
-
-    private static final long DUPLICATE_THRESHOLD_MS = 3000; // Configurable threshold
 
     private boolean isDuplicate(SugiliteEntity result, Node resultNode) {
         try {
@@ -230,13 +237,6 @@ public class CrepeAccessibilityService extends AccessibilityService {
         }, 0, REFRESH_INTERVAL, TimeUnit.MINUTES);
         refreshAllCollectorStatus();
 
-        // clear up the prevResults every 10 seconds, so that we do not miss collecting reoccurring data in the same screen
-        scheduler.scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                prevResults.clear();
-            }
-        }, 0, 10, TimeUnit.SECONDS);
     }
 
     /**
@@ -289,9 +289,13 @@ public class CrepeAccessibilityService extends AccessibilityService {
     @Override
     public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
 
-        // TODO check if we are recording
-//         if (getSharedPreferences("eval_settings", MODE_PRIVATE)
-//            .getBoolean("is_recording", false);)
+        // if we are recording
+         if (getApplicationContext().getSharedPreferences("eval_settings", MODE_PRIVATE)
+            .getBoolean("is_recording", false)) {
+             Log.i("recording eval", "recording on");
+         } else {
+             Log.i("recording eval", "recording off");
+         }
 
         collectors = dbManager.getActiveCollectors();
 
@@ -301,6 +305,16 @@ public class CrepeAccessibilityService extends AccessibilityService {
             Log.i("accessibilityEvent", "No collectors to monitor");
         } else {
             Log.i("accessibilityEvent", "Accessibility Event Type: " + AccessibilityEvent.eventTypeToString(accessibilityEvent.getEventType()) + " currently checking...");
+
+            // Throttle events to prevent processing the same event multiple times
+            long currentTime = System.currentTimeMillis();
+            Long lastEventTime = lastEventTimeMap.get(accessibilityEvent.getEventType());
+            Log.i("accessibilityEvent", "lastEventTime: " + lastEventTime + ", currentTime: " + currentTime);
+            if (lastEventTime != null && currentTime - lastEventTime < EVENT_THROTTLE_THRESHOLD_MS) {
+                Log.i("accessibilityEvent", "event: " + accessibilityEvent.getEventType() + " just processed, throttling");
+                return;
+            }
+
             // update the list of apps we need to monitor
             List<String> monitoredAppPackages = new ArrayList<>();
             for (Collector collector : collectors) {
@@ -324,7 +338,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
             uiSnapshot = generateUISnapshot(accessibilityEvent);
             allNodeList = getAllNodesOnScreen();
 
-            Log.i("accessibilityEvent", "Accessibility Event Type: " + accessibilityEvent.getEventType() + ", opening a new thread, current count: " + threadPool.getActiveCount());
+            Log.i("accessibilityEvent", "timestamp: " + System.currentTimeMillis() + ", Accessibility Event Type: " + accessibilityEvent.getEventType() + ", opening a new thread, current count: " + threadPool.getActiveCount());
 
             // Submit a task to the thread pool
             threadPool.submit(new Runnable() {
@@ -353,6 +367,11 @@ public class CrepeAccessibilityService extends AccessibilityService {
                         Set<SugiliteEntity> currentResults = currentQuery.executeOn(uiSnapshot);
                         Log.i("query execution", "currentResults: " + currentResults);
 
+                        if (currentResults != null && !currentResults.isEmpty()) {
+                            // Update last processed time for this event type, only update when there is a result
+                            lastEventTimeMap.put(accessibilityEvent.getEventType(), currentTime);
+                        }
+
                         // 3. store the new results in the database
                         for (SugiliteEntity result : currentResults) {
                             Log.i("query execution", "result: " + result);
@@ -373,13 +392,15 @@ public class CrepeAccessibilityService extends AccessibilityService {
                             }
 
                             if (!isDuplicate(result, resultNode)) {
+                                Log.i("query execution", "not duplicate, showing overlay and saving to database: " + result);
                                 try {
                                     // Run UI operations on the main thread
                                     new Handler(Looper.getMainLooper()).post(new Runnable() {
                                         @Override
                                         public void run() {
+                                            Log.i("query execution", "attempt to add overlay for result: " + result);
                                             // first, when drawing new overlays, the previous ones are likely no longer relevant
-                                            overlayViewManager.removeAllOverlays();
+//                                            overlayViewManager.removeAllOverlays();
                                             // show the overlay
                                             Rect overlayLocation = new Rect();
                                             overlayLocation = Rect.unflattenFromString(resultNode.getBoundsInScreen());
@@ -431,13 +452,11 @@ public class CrepeAccessibilityService extends AccessibilityService {
                                 Log.i("query execution", "duplicate result skipped: " + result);
                             }
                         }
-                        prevResults.addAll(currentResults);
                     }
                 }
 
             });
         }
-
 
     }
 
@@ -591,6 +610,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
             }
 
         } catch (JSONException e) {
+            Log.e("process results", "Error in process data string");
             e.printStackTrace();
         }
         return jsonObject.toString();
