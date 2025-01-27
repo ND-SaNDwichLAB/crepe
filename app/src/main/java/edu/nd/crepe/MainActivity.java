@@ -27,6 +27,7 @@ import edu.nd.crepe.network.FirebaseCommunicationManager;
 import edu.nd.crepe.ui.dialog.CollectorConfigurationDialogWrapper;
 import edu.nd.crepe.ui.dialog.CreateCollectorFromConfigDialogBuilder;
 import edu.nd.crepe.ui.dialog.AddCollectorFromCollectorIdDialogBuilder;
+import edu.nd.crepe.ui.main_activity.DataFragment;
 import edu.nd.crepe.ui.main_activity.FabModalBottomSheet;
 import edu.nd.crepe.ui.main_activity.HomeFragment;
 
@@ -336,9 +337,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.nav_menu_settings:
                 currentFragment = new SettingsFragment();
                 break;
-//            case R.id.nav_menu_data:
-//                currentFragment = new DataFragment();
-//                break;
+            case R.id.nav_menu_data:
+                currentFragment = new DataFragment();
+                break;
             default:
                 Log.i("Menu Selection", "Menu Item Selection Error: no selection detected");
                 break;

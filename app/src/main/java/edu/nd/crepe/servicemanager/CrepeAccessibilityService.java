@@ -149,6 +149,7 @@ public class CrepeAccessibilityService extends AccessibilityService {
     // event throttling: prevent the same event from being processed multiple times in a short period, esp for apps like Uber
     //      that spams a lot of UI updates on the main thread
     // data duplicate detection: prevent the same data from being saved multiple times in a short period
+    // the assumption: the target data will be on screen for at least 1 second, and data repeatedly showed up within a 3 second frame is just the same data
     private static final long EVENT_THROTTLE_THRESHOLD_MS = 1000; // Configurable threshold for event throttling
     private static final long DUPLICATE_THRESHOLD_MS = 3000; // Configurable threshold for duplicate detection
 
