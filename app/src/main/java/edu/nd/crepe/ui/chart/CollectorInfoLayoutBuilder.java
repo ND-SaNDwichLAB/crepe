@@ -43,10 +43,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import static edu.nd.crepe.database.Collector.ACTIVE;
 import static edu.nd.crepe.database.Collector.EXPIRED;
@@ -133,6 +135,7 @@ public class CollectorInfoLayoutBuilder {
 
         return collectorInfoLayout;
     }
+
     public LinearLayout buildDataList(Collector collector) {
         DatabaseManager dbManager = DatabaseManager.getInstance(context);
         List<Data> collectorData = dbManager.getDataForCollector(collector);
@@ -141,9 +144,9 @@ public class CollectorInfoLayoutBuilder {
                 & Configuration.UI_MODE_NIGHT_MASK)
                 == Configuration.UI_MODE_NIGHT_YES;
 
-        int contentTextColor     = isDarkMode ? 0xFFFFFFFF : 0xFF1C2B34;
-        int timestampTextColor   = isDarkMode ? 0xFFCCCCCC : 0xFF666666;
-        int dividerColor         = isDarkMode ? 0xFF444444 : 0xFFDADADA;
+        int contentTextColor = isDarkMode ? 0xFFFFFFFF : 0xFF1C2B34;
+        int timestampTextColor = isDarkMode ? 0xFFCCCCCC : 0xFF666666;
+        int dividerColor = isDarkMode ? 0xFF444444 : 0xFFDADADA;
         int entryBackgroundColor = isDarkMode ? 0xFF2A2A2A : 0xFFD9DFFF;
 
         // Just a vertical container, no scroll
@@ -157,12 +160,23 @@ public class CollectorInfoLayoutBuilder {
         );
 
         if (collectorData != null && !collectorData.isEmpty()) {
+            // Remove duplicates from the data
+            List<Data> uniqueData = removeDuplicatesByContent(collectorData);
+
+            // Add summary at the top
+            TextView summaryView = new TextView(context);
+            summaryView.setText(String.format("Total %d data entries", uniqueData.size()));
+            summaryView.setTextColor(contentTextColor);
+            summaryView.setTextSize(16f);
+            summaryView.setPadding(20, 20, 20, 20);
+            contentLayout.addView(summaryView);
+
             // Sort by timestamp
-            Collections.sort(collectorData,
+            Collections.sort(uniqueData,
                     Comparator.comparingLong(Data::getTimestamp).reversed()
             );
 
-            for (Data data : collectorData) {
+            for (Data data : uniqueData) {
                 // Container for each entry
                 LinearLayout entryLayout = new LinearLayout(context);
                 entryLayout.setOrientation(LinearLayout.VERTICAL);
@@ -240,6 +254,45 @@ public class CollectorInfoLayoutBuilder {
 
         return contentLayout;
     }
+
+    // Function to remove duplicates by comparing content of all fields except eventType and timestamp
+    private List<Data> removeDuplicatesByContent(List<Data> dataList) {
+        List<Data> uniqueData = new ArrayList<>();
+        for (Data data : dataList) {
+            boolean isDuplicate = false;
+            for (Data unique : uniqueData) {
+                if (areDataContentsEqual(data, unique)) {
+                    isDuplicate = true;
+                    break;
+                }
+            }
+            if (!isDuplicate) {
+                uniqueData.add(data);
+            }
+        }
+        return uniqueData;
+    }
+
+    // Helper function to compare contents of two Data objects, ignoring eventType and timestamp
+    private boolean areDataContentsEqual(Data data1, Data data2) {
+        try {
+            JSONObject json1 = new JSONObject(data1.getDataContent());
+            JSONObject json2 = new JSONObject(data2.getDataContent());
+
+            // Remove eventType and timestamp fields for comparison
+            json1.remove("eventType");
+            json1.remove("timestamp");
+            json2.remove("eventType");
+            json2.remove("timestamp");
+
+            // Compare remaining content
+            return json1.toString().equals(json2.toString());
+        } catch (JSONException e) {
+            return false; // In case of parsing errors, treat them as not equal
+        }
+    }
+
+
 
 
 
