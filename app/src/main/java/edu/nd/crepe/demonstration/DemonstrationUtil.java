@@ -228,11 +228,11 @@ public class DemonstrationUtil {
         return uiSnapshot.getEntityWithAccessibilityNode(matchedNodeScreenAreaPairs.get(0).first);
     }
 
-    public static List<Pair<OntologyQuery, Double>> generateDefaultQueriesFromTargetEntity(SugiliteEntity<Node> targetEntity) {
+    public static Pair<UISnapshot, List<Pair<OntologyQuery, Double>>> generateDefaultQueriesFromTargetEntity(SugiliteEntity<Node> targetEntity) {
         // Handle null or invalid target entity
         if (targetEntity == null || targetEntity.getEntityId() == null) {
             Log.e("generate queries", "Invalid target entity!");
-            return Collections.emptyList();
+            return Pair.create(null, Collections.emptyList());
         }
 
         // Create UI snapshot for current screen
@@ -253,7 +253,7 @@ public class DemonstrationUtil {
                 .map(query -> query.first.executeOn(uiSnapshot))
                 .collect(Collectors.toList());
 
-        return defaultQueries;
+        return Pair.create(uiSnapshot, defaultQueries);
     }
 
     public static String removeScriptExtension (String scriptName) {

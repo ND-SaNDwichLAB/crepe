@@ -57,11 +57,6 @@ import static edu.nd.crepe.database.Collector.EXPIRED;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-// TODO:
-//  1. calculate the size of all collected data of all time
-//  2. sum the size of all collected data of one day
-//  3. display the latest collected data
-
 public class CollectorInfoLayoutBuilder {
     Context context;
     Map<String, Drawable> apps;

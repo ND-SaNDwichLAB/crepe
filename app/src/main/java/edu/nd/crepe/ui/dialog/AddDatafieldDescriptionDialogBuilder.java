@@ -25,41 +25,40 @@ public class AddDatafieldDescriptionDialogBuilder {
         this.datafieldDescriptionCallback = datafieldDescriptionCallback;
     }
 
-    public View buildDialog() {
-        View addDatafieldDescriptionView = LayoutInflater.from(context).inflate(R.layout.demonstration_description, null);
-
-        Button confirmationBackBtn = addDatafieldDescriptionView.findViewById(R.id.confirmationBackButton);
-        Button confirmationAddBtn = addDatafieldDescriptionView.findViewById(R.id.confirmationAddButton);
-
-        confirmationBackBtn.setOnClickListener(v -> {
-            if (addDatafieldDescriptionView != null) {
-                windowManager.removeView(addDatafieldDescriptionView);
-            }
-            if (confirmationView != null) {
-                windowManager.addView(confirmationView, layoutParams);
-            }
-        });
-
-        confirmationAddBtn.setOnClickListener(v -> {
-
-            EditText datafieldDescriptionEditText = addDatafieldDescriptionView.findViewById(R.id.datafieldDescriptionEditText);
-            String datafieldDescription = datafieldDescriptionEditText.getText().toString();
-
-            if (datafieldDescription.trim().isEmpty()) {
-                Toast.makeText(context, "Datafield description cannot be blank!", Toast.LENGTH_SHORT).show();
-            } else {
-                if (addDatafieldDescriptionView != null) {
-                    windowManager.removeView(addDatafieldDescriptionView);
-                }
-
-                datafieldDescriptionCallback.onProcessDescriptionEditText(datafieldDescription);
-            }
-        });
-
-
-        return addDatafieldDescriptionView;
+    // NOTE: This is commented out because we no longer ask the user to provide a description of the datafield,
+    // instead, we ask the user to pick the best query for the datafield. Please see PickGraphQueryDialogBuilder.java, the alternative to this file
+    // To re-enable this, uncomment this method and modify DatafieldDescriptionCallback.java to have the correct method name
+//    public View buildDialog() {
+//        View addDatafieldDescriptionView = LayoutInflater.from(context).inflate(R.layout.demonstration_description, null);
+//
+//        Button confirmationBackBtn = addDatafieldDescriptionView.findViewById(R.id.confirmationBackButton);
+//        Button confirmationAddBtn = addDatafieldDescriptionView.findViewById(R.id.confirmationAddButton);
+//
+//        confirmationBackBtn.setOnClickListener(v -> {
+//            if (addDatafieldDescriptionView != null) {
+//                windowManager.removeView(addDatafieldDescriptionView);
+//            }
+//            if (confirmationView != null) {
+//                windowManager.addView(confirmationView, layoutParams);
+//            }
+//        });
+//
+//        confirmationAddBtn.setOnClickListener(v -> {
+//
+//            EditText datafieldDescriptionEditText = addDatafieldDescriptionView.findViewById(R.id.datafieldDescriptionEditText);
+//            String datafieldDescription = datafieldDescriptionEditText.getText().toString();
+//
+//            if (datafieldDescription.trim().isEmpty()) {
+//                Toast.makeText(context, "Datafield description cannot be blank!", Toast.LENGTH_SHORT).show();
+//            } else {
+//                if (addDatafieldDescriptionView != null) {
+//                    windowManager.removeView(addDatafieldDescriptionView);
+//                }
+//
+//                datafieldDescriptionCallback.onProcessDescriptionEditText(datafieldDescription);
+//            }
+//        });
+//
+//
+//        return addDatafieldDescriptionView;
     }
-
-
-
-}

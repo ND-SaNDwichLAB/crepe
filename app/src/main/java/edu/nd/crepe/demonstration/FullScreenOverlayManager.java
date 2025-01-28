@@ -36,6 +36,7 @@ import edu.nd.crepe.servicemanager.CrepeDisplayPermissionManager;
 import edu.nd.crepe.ui.dialog.AddDatafieldDescriptionDialogBuilder;
 import edu.nd.crepe.ui.dialog.DatafieldDescriptionCallback;
 import edu.nd.crepe.ui.dialog.GraphQueryCallback;
+import edu.nd.crepe.ui.dialog.PickGraphQueryDialogBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -237,8 +238,10 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
 
                     // Start a new thread for heavy processing operations
                     new Thread(() -> {
-                        // Generate default queries in background
-                        defaultQueries = DemonstrationUtil.generateDefaultQueriesFromTargetEntity(targetEntity);
+                        // Generate uisnapshot and default queries in background
+                        Pair<UISnapshot, List<Pair<OntologyQuery, Double>>> result = DemonstrationUtil.generateDefaultQueriesFromTargetEntity(targetEntity);
+                        uiSnapshot = result.first;
+                        defaultQueries = result.second;
 
                         // Check queries on background thread first
                         if (defaultQueries.isEmpty()) {
@@ -249,9 +252,6 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
                             });
                             return;
                         }
-
-                        // Generate UI snapshot in background
-                        uiSnapshot = CrepeAccessibilityService.getsSharedInstance().generateUISnapshot();
 
                         // After heavy processing is done, handle UI updates on main thread
                         new Handler(Looper.getMainLooper()).post(() -> {
@@ -308,11 +308,11 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
                                 if (overlayViewManager != null) {
                                     overlayViewManager.removeAllOverlays();
                                 }
-                                AddDatafieldDescriptionDialogBuilder builder =
-                                        new AddDatafieldDescriptionDialogBuilder(context, windowManager,
+                                PickGraphQueryDialogBuilder builder =
+                                        new PickGraphQueryDialogBuilder(context, windowManager,
                                                 confirmationView, dialogParams, FullScreenOverlayManager.this);
-                                View addDatafieldDescriptionView = builder.buildDialog();
-                                windowManager.addView(addDatafieldDescriptionView, dialogParams);
+                                View pickGraphQueryDialogView = builder.buildDialog(defaultQueries);
+                                windowManager.addView(pickGraphQueryDialogView, dialogParams);
                             });
 
                             noButton.setOnClickListener(v -> {
@@ -494,7 +494,7 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
     }
 
     @Override
-    public void onProcessDescriptionEditText(String datafieldDescription) {
+    public void onPickBestQuery(String datafieldDescription) {
         if (datafieldDescription.trim().isEmpty()) {
             Toast.makeText(context, "Datafield description cannot be blank!", Toast.LENGTH_SHORT).show();
         } else {
@@ -533,4 +533,49 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
     private void processCallback(String targetText) {
         this.graphQueryCallback.onDataReceived(desiredQuery, targetText);
     }
+
+
+    // below were the original implementation of datadescriptioncallback, when we asked the user to describe the data,
+    // then ask an LLM to match that to the best query. instead, now we use the above implementation, where we ask the user
+    // to select the best query from a list of candidate queries
+//    @Override
+//    public void onProcessDescriptionEditText(String datafieldDescription) {
+//        if (datafieldDescription.trim().isEmpty()) {
+//            Toast.makeText(context, "Datafield description cannot be blank!", Toast.LENGTH_SHORT).show();
+//        } else {
+//
+//            // deal with the Views
+//            if (dimView != null) {
+//                windowManager.removeView(dimView);
+//            }
+//            // select the correct query that can retrieve our result, using LLM
+//            final String data = selectBestQuery(datafieldDescription);
+//
+//            // send the data to MainActivity
+//            desiredQuery = data;
+//            SugiliteEntity<Node> finalTargetEntity = targetEntity;
+//            processCallback(targetEntity.getEntityValue().getEntityContent());
+//            // clear the overlay
+//            disableOverlay();
+//            // stop widget service
+//            Intent intent = new Intent(context, WidgetService.class);
+//            context.stopService(intent);
+//            // go back to the main activity
+//            Intent mainActivityIntent = context.getPackageManager().getLaunchIntentForPackage("edu.nd.crepe");
+//            mainActivityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+//            if (mainActivityIntent != null) {
+//                context.startActivity(mainActivityIntent);
+//            } else {
+//                Toast.makeText(context, "There is no package available in android", Toast.LENGTH_LONG).show();
+//            }
+//
+//
+//        }
+//    }
+//
+//
+//
+//    private void processCallback(String targetText) {
+//        this.graphQueryCallback.onDataReceived(desiredQuery, targetText);
+//    }
 }
