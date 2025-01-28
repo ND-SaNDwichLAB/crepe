@@ -5,6 +5,7 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
@@ -145,9 +146,7 @@ public class CollectorInfoLayoutBuilder {
                 == Configuration.UI_MODE_NIGHT_YES;
 
         int contentTextColor = isDarkMode ? 0xFFFFFFFF : 0xFF1C2B34;
-        int timestampTextColor = isDarkMode ? 0xFFCCCCCC : 0xFF666666;
         int dividerColor = isDarkMode ? 0xFF444444 : 0xFFDADADA;
-        int entryBackgroundColor = isDarkMode ? 0xFF2A2A2A : 0xFFD9DFFF;
 
         // Just a vertical container, no scroll
         LinearLayout contentLayout = new LinearLayout(context);
@@ -161,7 +160,7 @@ public class CollectorInfoLayoutBuilder {
 
         if (collectorData != null && !collectorData.isEmpty()) {
             // Remove duplicates from the data
-            List<Data> uniqueData = removeDuplicatesByContent(collectorData);
+            List<Data> uniqueData = removeDuplicatesAndEmptyByContent(collectorData);
 
             // Add summary at the top
             TextView summaryView = new TextView(context);
@@ -181,7 +180,6 @@ public class CollectorInfoLayoutBuilder {
                 LinearLayout entryLayout = new LinearLayout(context);
                 entryLayout.setOrientation(LinearLayout.VERTICAL);
                 entryLayout.setPadding(20, 15, 20, 15);
-                entryLayout.setBackground(ContextCompat.getDrawable(context, R.drawable.rounded_corner_transparent));
 
                 // Add margins around each entry
                 LinearLayout.LayoutParams entryLayoutParams = new LinearLayout.LayoutParams(
@@ -190,6 +188,35 @@ public class CollectorInfoLayoutBuilder {
                 );
                 entryLayoutParams.setMargins(0, 10, 0, 10); // Adds spacing around each entry
                 entryLayout.setLayoutParams(entryLayoutParams);
+
+                // Check if the entry is new (within the past 2 minutes)
+                boolean isNew = System.currentTimeMillis() - data.getTimestamp() <= 2 * 60 * 1000;
+
+
+                if (isNew) {
+                    // Add "new" tag at the top-left corner
+                    TextView newTag = new TextView(context);
+                    newTag.setText("NEW");
+                    newTag.setTextColor(contentTextColor);
+
+                    // Rounded background for the "NEW" tag
+                    GradientDrawable newTagBackground = new GradientDrawable();
+                    newTagBackground.setColor(Color.parseColor("#4CAF50")); // Green background
+                    newTagBackground.setCornerRadius(12f); // Rounded corners
+                    newTag.setBackground(newTagBackground);
+
+                    newTag.setPadding(10, 5, 10, 5);
+                    newTag.setTextSize(12f);
+
+                    LinearLayout.LayoutParams newTagParams = new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.WRAP_CONTENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                    );
+                    newTagParams.setMargins(0, 0, 0, 10); // Add some space below the tag
+                    newTag.setLayoutParams(newTagParams);
+
+                    entryLayout.addView(newTag);
+                }
 
                 // Convert data content to a JSONObject for key-value parsing
                 try {
@@ -242,6 +269,7 @@ public class CollectorInfoLayoutBuilder {
                 contentLayout.addView(divider, dividerParams);
             }
 
+
         } else {
             // No data
             TextView noDataView = new TextView(context);
@@ -255,10 +283,25 @@ public class CollectorInfoLayoutBuilder {
         return contentLayout;
     }
 
-    // Function to remove duplicates by comparing content of all fields except eventType and timestamp
-    private List<Data> removeDuplicatesByContent(List<Data> dataList) {
+    // Function to remove duplicates and entries with only eventType and timestamp fields
+    private List<Data> removeDuplicatesAndEmptyByContent(List<Data> dataList) {
         List<Data> uniqueData = new ArrayList<>();
         for (Data data : dataList) {
+            try {
+                JSONObject jsonData = new JSONObject(data.getDataContent());
+                // Remove timestamp and eventType for checking empty content
+                jsonData.remove("timestamp");
+                jsonData.remove("eventType");
+
+                // Skip if the remaining content is empty
+                if (jsonData.length() == 0) {
+                    continue;
+                }
+            } catch (JSONException e) {
+                // Handle invalid JSON, treat it as non-empty to avoid accidental data loss
+                continue;
+            }
+
             boolean isDuplicate = false;
             for (Data unique : uniqueData) {
                 if (areDataContentsEqual(data, unique)) {
@@ -273,7 +316,8 @@ public class CollectorInfoLayoutBuilder {
         return uniqueData;
     }
 
-    // Helper function to compare contents of two Data objects, ignoring eventType and timestamp
+
+    // Helper function to compare contents of two Data objects, ignoring eventType
     private boolean areDataContentsEqual(Data data1, Data data2) {
         try {
             JSONObject json1 = new JSONObject(data1.getDataContent());
@@ -281,9 +325,7 @@ public class CollectorInfoLayoutBuilder {
 
             // Remove eventType and timestamp fields for comparison
             json1.remove("eventType");
-            json1.remove("timestamp");
             json2.remove("eventType");
-            json2.remove("timestamp");
 
             // Compare remaining content
             return json1.toString().equals(json2.toString());
