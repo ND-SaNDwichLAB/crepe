@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
@@ -22,6 +23,9 @@ import androidx.core.content.ContextCompat;
 
 import edu.nd.crepe.R;
 import edu.nd.crepe.database.Collector;
+import edu.nd.crepe.database.Data;
+import edu.nd.crepe.database.DatabaseManager;
+
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
@@ -30,7 +34,12 @@ import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.ValueFormatter;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -116,6 +125,104 @@ public class CollectorInfoLayoutBuilder {
         }
 
         return collectorInfoLayout;
+    }
+
+    public LinearLayout buildDataList(Collector collector) {
+        // Get data from database
+        DatabaseManager dbManager = DatabaseManager.getInstance(context);
+        List<Data> collectorData = dbManager.getDataForCollector(collector);
+
+        // Check if we're in dark mode
+        boolean isDarkMode = (context.getResources().getConfiguration().uiMode &
+                Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
+
+        // Set colors - always keep text dark since it's on a white card
+        int contentTextColor = Color.parseColor("#1C2B34");  // Dark text for content
+        int timestampTextColor = Color.parseColor("#666666"); // Slightly lighter for timestamp
+        int dividerColor = isDarkMode ? Color.parseColor("#E0E0E0") : Color.parseColor("#DADADA");
+
+        // Create main container
+        LinearLayout containerLayout = new LinearLayout(context);
+        containerLayout.setOrientation(LinearLayout.VERTICAL);
+
+        // Create ScrollView
+        ScrollView scrollView = new ScrollView(context);
+        LinearLayout.LayoutParams scrollParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                400  // Fixed height for scroll view
+        );
+        scrollView.setLayoutParams(scrollParams);
+
+        // Create inner LinearLayout for the scrollable content
+        LinearLayout contentLayout = new LinearLayout(context);
+        contentLayout.setOrientation(LinearLayout.VERTICAL);
+        contentLayout.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        ));
+
+        if (collectorData != null && !collectorData.isEmpty()) {
+            // Sort data by timestamp
+            Collections.sort(collectorData, Comparator.comparingLong(Data::getTimestamp));
+
+            // Create text views for each data entry
+            for (Data data : collectorData) {
+                // Container for each entry
+                LinearLayout entryLayout = new LinearLayout(context);
+                entryLayout.setOrientation(LinearLayout.VERTICAL);
+                entryLayout.setPadding(20, 15, 20, 15);
+
+                // Timestamp TextView
+                TextView timestampView = new TextView(context);
+                Date date = new Date(data.getTimestamp());
+                DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+                timestampView.setText(dateFormat.format(date));
+                timestampView.setTextColor(timestampTextColor);
+                timestampView.setTextSize(12f);
+
+                // Content TextView
+                TextView contentView = new TextView(context);
+                contentView.setText(data.getDataContent());
+                contentView.setTextColor(contentTextColor);
+                contentView.setTextSize(14f);
+                LinearLayout.LayoutParams contentParams = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                );
+                contentParams.topMargin = 5;
+                contentView.setLayoutParams(contentParams);
+
+                // Add views to entry layout
+                entryLayout.addView(timestampView);
+                entryLayout.addView(contentView);
+
+                // Add divider
+                View divider = new View(context);
+                divider.setBackgroundColor(dividerColor);
+                LinearLayout.LayoutParams dividerParams = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        1  // 1dp height
+                );
+
+                // Add entry and divider to content layout
+                contentLayout.addView(entryLayout);
+                contentLayout.addView(divider, dividerParams);
+            }
+        } else {
+            // Show "No data" message
+            TextView noDataView = new TextView(context);
+            noDataView.setText("No data available");
+            noDataView.setTextColor(contentTextColor);
+            noDataView.setGravity(Gravity.CENTER);
+            noDataView.setPadding(20, 20, 20, 20);
+            contentLayout.addView(noDataView);
+        }
+
+        // Assemble the views
+        scrollView.addView(contentLayout);
+        containerLayout.addView(scrollView);
+
+        return containerLayout;
     }
 
 
@@ -274,30 +381,36 @@ public class CollectorInfoLayoutBuilder {
         collectorInfoViewLayout.setId(View.generateViewId());
         containerLayout.addView(collectorInfoViewLayout);
 
+        // build data list view with collected data
+        LinearLayout dataListView = buildDataList(collector);
+        dataListView.setId(View.generateViewId());
+        containerLayout.addView(dataListView);
+
+
         // chart title
-        Pair<TextView, LinearLayout.LayoutParams> chartTitlePair = buildChartTitle();
-        chartTitlePair.first.setId(View.generateViewId());
-        containerLayout.addView(chartTitlePair.first, chartTitlePair.second);
-
-        // pair y axis label with its title
-        Pair<TextView, LinearLayout.LayoutParams> chartYAxisLabelPair = buildChartYAxisLabels();
-        chartYAxisLabelPair.first.setId(View.generateViewId());
-        containerLayout.addView(chartYAxisLabelPair.first, chartYAxisLabelPair.second);
-
-        // build chart
-        LinearLayout lineChart = buildChart(collector);
-        lineChart.setId(View.generateViewId());
-        containerLayout.addView(lineChart);
-
-        // sample data piece title
-        Pair<TextView, LinearLayout.LayoutParams> sampleDataTitlePair = buildSampleDataPieceTitle();
-        sampleDataTitlePair.first.setId(View.generateViewId());
-        containerLayout.addView(sampleDataTitlePair.first, sampleDataTitlePair.second);
-
-        // sample data piece content
-        Pair<TextView, LinearLayout.LayoutParams> sampleDataPiecePair = buildSampleDataPiece(collector);
-        sampleDataPiecePair.first.setId(View.generateViewId());
-        containerLayout.addView(sampleDataPiecePair.first, sampleDataPiecePair.second);
+//        Pair<TextView, LinearLayout.LayoutParams> chartTitlePair = buildChartTitle();
+//        chartTitlePair.first.setId(View.generateViewId());
+//        containerLayout.addView(chartTitlePair.first, chartTitlePair.second);
+//
+//        // pair y axis label with its title
+//        Pair<TextView, LinearLayout.LayoutParams> chartYAxisLabelPair = buildChartYAxisLabels();
+//        chartYAxisLabelPair.first.setId(View.generateViewId());
+//        containerLayout.addView(chartYAxisLabelPair.first, chartYAxisLabelPair.second);
+//
+//        // build chart
+//        LinearLayout lineChart = buildChart(collector);
+//        lineChart.setId(View.generateViewId());
+//        containerLayout.addView(lineChart);
+//
+//        // sample data piece title
+//        Pair<TextView, LinearLayout.LayoutParams> sampleDataTitlePair = buildSampleDataPieceTitle();
+//        sampleDataTitlePair.first.setId(View.generateViewId());
+//        containerLayout.addView(sampleDataTitlePair.first, sampleDataTitlePair.second);
+//
+//        // sample data piece content
+//        Pair<TextView, LinearLayout.LayoutParams> sampleDataPiecePair = buildSampleDataPiece(collector);
+//        sampleDataPiecePair.first.setId(View.generateViewId());
+//        containerLayout.addView(sampleDataPiecePair.first, sampleDataPiecePair.second);
 
         return containerLayout;
     }

@@ -420,29 +420,31 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     public List<Data> getDataForCollector(Collector collector) {
         List<Data> dataList = new ArrayList<>();
-        String getAllDataQuery = "SELECT * FROM " + DATA_TABLE + " WHERE " + COLUMN_COLLECTOR_ID + " = \'" + collector.getCollectorId() + "\';";
 
-        Cursor cursor = db.rawQuery(getAllDataQuery, null);
+        // First get all datafields for this collector
+        List<Datafield> datafields = getAllDatafieldsForCollector(collector);
 
-        if(cursor.moveToFirst()) {
-            do {
+        // For each datafield, get its associated data
+        for (Datafield datafield : datafields) {
+            String query = "SELECT * FROM " + DATA_TABLE +
+                    " WHERE " + COLUMN_DATAFIELD_ID + " = ?";
 
-                String dataId = cursor.getString(0);
-                String datafieldId = cursor.getString(1);
-                String userId = cursor.getString(2);
-                Long timestamp = cursor.getLong(3);
-                String dataContent = cursor.getString(4);
+            Cursor cursor = db.rawQuery(query, new String[]{datafield.getDatafieldId()});
 
-                Data receivedData = new Data(dataId, datafieldId, userId, timestamp, dataContent);
+            if (cursor.moveToFirst()) {
+                do {
+                    String dataId = cursor.getString(0);
+                    String datafieldId = cursor.getString(1);
+                    String userId = cursor.getString(2);
+                    Long timestamp = cursor.getLong(3);
+                    String dataContent = cursor.getString(4);
 
-                dataList.add(receivedData);
-
-            } while (cursor.moveToNext());
-        } else {
-            Log.i("", "Cannot find data for the specified collector ID. Try another collector instead?");
+                    Data data = new Data(dataId, datafieldId, userId, timestamp, dataContent);
+                    dataList.add(data);
+                } while (cursor.moveToNext());
+            }
+            cursor.close();
         }
-
-        cursor.close();
 
         return dataList;
     }
