@@ -6,6 +6,9 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.TypefaceSpan;
 import android.util.Pair;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -40,12 +43,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
 import static edu.nd.crepe.database.Collector.ACTIVE;
 import static edu.nd.crepe.database.Collector.EXPIRED;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 // TODO:
 //  1. calculate the size of all collected data of all time
@@ -126,90 +133,103 @@ public class CollectorInfoLayoutBuilder {
 
         return collectorInfoLayout;
     }
-
     public LinearLayout buildDataList(Collector collector) {
-        // Get data from database
         DatabaseManager dbManager = DatabaseManager.getInstance(context);
         List<Data> collectorData = dbManager.getDataForCollector(collector);
 
-        // Check if we're in dark mode
-        boolean isDarkMode = (context.getResources().getConfiguration().uiMode &
-                Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
+        boolean isDarkMode = (context.getResources().getConfiguration().uiMode
+                & Configuration.UI_MODE_NIGHT_MASK)
+                == Configuration.UI_MODE_NIGHT_YES;
 
-        // Set colors - always keep text dark since it's on a white card
-        int contentTextColor = Color.parseColor("#1C2B34");  // Dark text for content
-        int timestampTextColor = Color.parseColor("#666666"); // Slightly lighter for timestamp
-        int dividerColor = isDarkMode ? Color.parseColor("#E0E0E0") : Color.parseColor("#DADADA");
+        int contentTextColor     = isDarkMode ? 0xFFFFFFFF : 0xFF1C2B34;
+        int timestampTextColor   = isDarkMode ? 0xFFCCCCCC : 0xFF666666;
+        int dividerColor         = isDarkMode ? 0xFF444444 : 0xFFDADADA;
+        int entryBackgroundColor = isDarkMode ? 0xFF2A2A2A : 0xFFD9DFFF;
 
-        // Create main container
-        LinearLayout containerLayout = new LinearLayout(context);
-        containerLayout.setOrientation(LinearLayout.VERTICAL);
-
-        // Create ScrollView
-        ScrollView scrollView = new ScrollView(context);
-        LinearLayout.LayoutParams scrollParams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                400  // Fixed height for scroll view
-        );
-        scrollView.setLayoutParams(scrollParams);
-
-        // Create inner LinearLayout for the scrollable content
+        // Just a vertical container, no scroll
         LinearLayout contentLayout = new LinearLayout(context);
         contentLayout.setOrientation(LinearLayout.VERTICAL);
-        contentLayout.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-        ));
+        contentLayout.setLayoutParams(
+                new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+        );
 
         if (collectorData != null && !collectorData.isEmpty()) {
-            // Sort data by timestamp
-            Collections.sort(collectorData, Comparator.comparingLong(Data::getTimestamp));
+            // Sort by timestamp
+            Collections.sort(collectorData,
+                    Comparator.comparingLong(Data::getTimestamp).reversed()
+            );
 
-            // Create text views for each data entry
             for (Data data : collectorData) {
                 // Container for each entry
                 LinearLayout entryLayout = new LinearLayout(context);
                 entryLayout.setOrientation(LinearLayout.VERTICAL);
                 entryLayout.setPadding(20, 15, 20, 15);
+                entryLayout.setBackground(ContextCompat.getDrawable(context, R.drawable.rounded_corner_transparent));
 
-                // Timestamp TextView
-                TextView timestampView = new TextView(context);
-                Date date = new Date(data.getTimestamp());
-                DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-                timestampView.setText(dateFormat.format(date));
-                timestampView.setTextColor(timestampTextColor);
-                timestampView.setTextSize(12f);
-
-                // Content TextView
-                TextView contentView = new TextView(context);
-                contentView.setText(data.getDataContent());
-                contentView.setTextColor(contentTextColor);
-                contentView.setTextSize(14f);
-                LinearLayout.LayoutParams contentParams = new LinearLayout.LayoutParams(
+                // Add margins around each entry
+                LinearLayout.LayoutParams entryLayoutParams = new LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
                         LinearLayout.LayoutParams.WRAP_CONTENT
                 );
-                contentParams.topMargin = 5;
-                contentView.setLayoutParams(contentParams);
+                entryLayoutParams.setMargins(0, 10, 0, 10); // Adds spacing around each entry
+                entryLayout.setLayoutParams(entryLayoutParams);
 
-                // Add views to entry layout
-                entryLayout.addView(timestampView);
-                entryLayout.addView(contentView);
+                // Convert data content to a JSONObject for key-value parsing
+                try {
+                    JSONObject json = new JSONObject(data.getDataContent());
 
-                // Add divider
+                    // Iterate over all keys in the JSON object
+                    Iterator<String> keys = json.keys();
+                    while (keys.hasNext()) {
+                        String key = keys.next();
+                        String value = json.optString(key);
+
+                        // Skip fields with missing or empty values
+                        if (value == null || value.isEmpty()) {
+                            continue;
+                        }
+
+                        // Create a TextView for each key-value pair
+                        TextView rowView = new TextView(context);
+                        rowView.setText(String.format("%s: %s", key, value)); // Format as `key: value`
+                        rowView.setTextSize(14f);
+                        rowView.setPadding(10, 5, 10, 5);
+
+                        // Style the key portion (blue and monospace)
+                        SpannableString styledText = new SpannableString(String.format("%s: %s", key, value));
+                        styledText.setSpan(new ForegroundColorSpan(Color.parseColor("#D39F10")), 0, key.length() + 1, 0); // Blue for the key
+                        styledText.setSpan(new TypefaceSpan("monospace"), 0, key.length() + 1, 0);       // Monospace for the key
+                        rowView.setText(styledText);
+
+                        // Add the row to the entry layout
+                        entryLayout.addView(rowView);
+                    }
+                } catch (JSONException e) {
+                    // Handle invalid JSON or data parsing errors
+                    TextView errorView = new TextView(context);
+                    errorView.setText("Error displaying data.");
+                    errorView.setTextColor(Color.RED);
+                    entryLayout.addView(errorView);
+                }
+
+                // Add a divider to separate entries
                 View divider = new View(context);
                 divider.setBackgroundColor(dividerColor);
                 LinearLayout.LayoutParams dividerParams = new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        1  // 1dp height
+                        LinearLayout.LayoutParams.MATCH_PARENT, 1
                 );
+                dividerParams.setMargins(0, 10, 0, 10); // Add spacing around the divider
 
-                // Add entry and divider to content layout
+                // Add the entry layout and divider to the parent content layout
                 contentLayout.addView(entryLayout);
                 contentLayout.addView(divider, dividerParams);
             }
+
         } else {
-            // Show "No data" message
+            // No data
             TextView noDataView = new TextView(context);
             noDataView.setText("No data available");
             noDataView.setTextColor(contentTextColor);
@@ -218,12 +238,9 @@ public class CollectorInfoLayoutBuilder {
             contentLayout.addView(noDataView);
         }
 
-        // Assemble the views
-        scrollView.addView(contentLayout);
-        containerLayout.addView(scrollView);
-
-        return containerLayout;
+        return contentLayout;
     }
+
 
 
     public LinearLayout buildChart(Collector collector) {
