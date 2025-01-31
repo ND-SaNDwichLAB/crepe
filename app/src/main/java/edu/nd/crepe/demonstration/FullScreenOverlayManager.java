@@ -493,21 +493,54 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
 
     }
 
-    @Override
-    public void onPickBestQuery(String datafieldDescription) {
-        if (datafieldDescription.trim().isEmpty()) {
-            Toast.makeText(context, "Datafield description cannot be blank!", Toast.LENGTH_SHORT).show();
-        } else {
+//    @Override
+//    public void onPickBestQuery(String datafieldDescription) {
+//        if (datafieldDescription.trim().isEmpty()) {
+//            Toast.makeText(context, "Datafield description cannot be blank!", Toast.LENGTH_SHORT).show();
+//        } else {
+//
+//            // deal with the Views
+//            if (dimView != null) {
+//                windowManager.removeView(dimView);
+//            }
+//            // select the correct query that can retrieve our result, using LLM
+//            final String data = selectBestQuery(datafieldDescription);
+//
+//            // send the data to MainActivity
+//            desiredQuery = data;
+//            SugiliteEntity<Node> finalTargetEntity = targetEntity;
+//            processCallback(targetEntity.getEntityValue().getEntityContent());
+//            // clear the overlay
+//            disableOverlay();
+//            // stop widget service
+//            Intent intent = new Intent(context, WidgetService.class);
+//            context.stopService(intent);
+//            // go back to the main activity
+//            Intent mainActivityIntent = context.getPackageManager().getLaunchIntentForPackage("edu.nd.crepe");
+//            mainActivityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+//            if (mainActivityIntent != null) {
+//                context.startActivity(mainActivityIntent);
+//            } else {
+//                Toast.makeText(context, "There is no package available in android", Toast.LENGTH_LONG).show();
+//            }
+//
+//
+//        }
+//    }
 
+    @Override
+    public void onPickBestQuery(String bestQuery) {
+        if (bestQuery == null || bestQuery.isEmpty()) {
+            Toast.makeText(context, "Something wrong. Please try again", Toast.LENGTH_SHORT).show();
+            Log.e("FullScreenOverlayManager",
+                    "onPickBestQuery: bestQuery is null");
+        } else {
             // deal with the Views
             if (dimView != null) {
                 windowManager.removeView(dimView);
             }
-            // select the correct query that can retrieve our result, using LLM
-            final String data = selectBestQuery(datafieldDescription);
-
             // send the data to MainActivity
-            desiredQuery = data;
+            desiredQuery = bestQuery;
             SugiliteEntity<Node> finalTargetEntity = targetEntity;
             processCallback(targetEntity.getEntityValue().getEntityContent());
             // clear the overlay

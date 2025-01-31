@@ -39,10 +39,10 @@ public class PickGraphQueryDialogBuilder {
     }
 
     public View buildDialog(List<Pair<OntologyQuery, Double>> defaultQueries) {
-        View addDatafieldDescriptionView = LayoutInflater.from(context).inflate(R.layout.demonstration_pick_query, null);
+        View pickQueryView = LayoutInflater.from(context).inflate(R.layout.demonstration_pick_query, null);
 
-        Button confirmationBackBtn = addDatafieldDescriptionView.findViewById(R.id.confirmationBackButton);
-        Button confirmationAddBtn = addDatafieldDescriptionView.findViewById(R.id.confirmationAddButton);
+        Button confirmationBackBtn = pickQueryView.findViewById(R.id.confirmationBackButton);
+        Button confirmationAddBtn = pickQueryView.findViewById(R.id.confirmationAddButton);
         // Keep track of selected button
         final Button[] selectedButton = {null};
 
@@ -91,43 +91,43 @@ public class PickGraphQueryDialogBuilder {
             });
 
             // Add the button to the linear layout
-            LinearLayout queryContainerLinearLayout = addDatafieldDescriptionView.findViewById(R.id.queryContainerLinearLayout);
+            LinearLayout queryContainerLinearLayout = pickQueryView.findViewById(R.id.queryContainerLinearLayout);
             queryContainerLinearLayout.addView(queryButton);
         }
 
         // If you want to ensure proper spacing of the container
-        LinearLayout queryContainerLinearLayout = addDatafieldDescriptionView.findViewById(R.id.queryContainerLinearLayout);
+        LinearLayout queryContainerLinearLayout = pickQueryView.findViewById(R.id.queryContainerLinearLayout);
         queryContainerLinearLayout.setPadding(16, 16, 16, 16);
         queryContainerLinearLayout.setOrientation(LinearLayout.VERTICAL);
 
         confirmationBackBtn.setOnClickListener(v -> {
-            if (addDatafieldDescriptionView != null) {
-                windowManager.removeView(addDatafieldDescriptionView);
+            if (pickQueryView != null) {
+                windowManager.removeView(pickQueryView);
             }
             if (confirmationView != null) {
                 windowManager.addView(confirmationView, layoutParams);
             }
         });
 
-        // TODO re-write this to use our new method
         confirmationAddBtn.setOnClickListener(v -> {
 
-            EditText datafieldDescriptionEditText = addDatafieldDescriptionView.findViewById(R.id.datafieldDescriptionEditText);
-            String datafieldDescription = datafieldDescriptionEditText.getText().toString();
+            // Get the selected query
+            OntologyQuery selectedQuery = (OntologyQuery) selectedButton[0].getTag();
+            String selectedQueryString = selectedQuery.toString();
 
-            if (datafieldDescription.trim().isEmpty()) {
-                Toast.makeText(context, "Datafield description cannot be blank!", Toast.LENGTH_SHORT).show();
+            if (selectedQueryString.trim().isEmpty()) {
+                Toast.makeText(context, "Datafield cannot be blank!", Toast.LENGTH_SHORT).show();
             } else {
-                if (addDatafieldDescriptionView != null) {
-                    windowManager.removeView(addDatafieldDescriptionView);
+                if (pickQueryView != null) {
+                    windowManager.removeView(pickQueryView);
                 }
 
-                datafieldDescriptionCallback.onPickBestQuery(datafieldDescription);
+                datafieldDescriptionCallback.onPickBestQuery(selectedQueryString);
             }
         });
 
 
-        return addDatafieldDescriptionView;
+        return pickQueryView;
     }
 
 
