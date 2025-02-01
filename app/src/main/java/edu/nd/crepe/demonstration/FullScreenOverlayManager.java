@@ -311,7 +311,9 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
                                 PickGraphQueryDialogBuilder builder =
                                         new PickGraphQueryDialogBuilder(context, windowManager,
                                                 confirmationView, dialogParams, FullScreenOverlayManager.this);
-                                View pickGraphQueryDialogView = builder.buildDialog(defaultQueries);
+                                // TODO here, before we build the dialog, we translate the default queries to human-readable format
+                                List<Pair<OntologyQuery, String>> translatedQueries = translateQueryToString(defaultQueries);
+                                View pickGraphQueryDialogView = builder.buildDialog(translatedQueries);
                                 windowManager.addView(pickGraphQueryDialogView, dialogParams);
                             });
 
@@ -395,6 +397,62 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
             */
 
         });
+    }
+
+    // use OpenAI API to translate the query to human-readable format
+    private List<Pair<OntologyQuery, String>> translateQueryToString(List<Pair<OntologyQuery, Double>> queries) {
+        if (queries == null || queries.isEmpty()) {
+            return null;
+        }
+
+        // Call OpenAI API to translate the query to human-readable format
+        // Use one API call to translate all queries
+        // Initialize the CountDownLatch, to wait for async callback to finish
+        CountDownLatch latch = new CountDownLatch(1);
+        final List<Pair<OntologyQuery, String>> translatedQueries = new ArrayList<>();
+        // set up API call
+        ApiCallManager apiCallManager = new ApiCallManager(context);
+
+        String allQueries = queries.stream().map(query -> query.first.toString()).collect(Collectors.joining("\n"));
+
+        String translateQueryPrompt = "We defined a Graph Query to locate target data on mobile UI structure. It describes the unique attributes of the data we are targeting.\n" +
+                "For example, the query \n(conj (HAS_CLASS_NAME android.widget.FrameLayout) (RIGHT (conj (hasText \" 6\") (HAS_CLASS_NAME android.widget.TextView) (HAS_PACKAGE_NAME com.ubercab)) ) (HAS_PACKAGE_NAME com.ubercab)) \n" +
+                "stands for: the information that is located to the right of a text \"6\"\n." +
+                "Below I have a few queries, can you help me translate them to human-readable format like above?\n" +
+                allQueries +
+                "\n Leave out app package information (e.g. Uber app, Google Drive app) and UI element information (TextView, FrameLayout). Be as concise as possible. Make sure you return the translation in the order I presented the queries above, separated by new lines. Return nothing else.";
+
+
+        apiCallManager.getResponse(translateQueryPrompt, new ApiCallManager.ApiCallback() {
+            @Override
+            public void onResponse(String response) {
+                Log.i("ApiCallManager", "API call successful: \n" + response);
+                String[] translatedQueryStrings = response.split("\n");
+                if (translatedQueryStrings.length == queries.size()) {
+                    for (int i = 0; i < queries.size(); i++) {
+                        translatedQueries.add(new Pair<>(queries.get(i).first, translatedQueryStrings[i].trim().replaceAll("- ", "")));
+                    }
+
+                } else {
+                    Log.e("ApiCallManager", "API response invalid: number of queries mismatch");
+                }
+                latch.countDown();
+            }
+
+            @Override
+            public void onErrorResponse(Exception e) {
+                Log.e("ApiCallManager", "API call failed: " + e.getMessage());
+                latch.countDown();
+            }
+        });
+
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        return translatedQueries.isEmpty() ? null : translatedQueries;
     }
 
     private String selectBestQuery(String datafieldUserDescription) {
@@ -493,6 +551,8 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
 
     }
 
+    // NOTE: the above is deprecated code when we asked the user to describe the data, then ask an LLM to match that to the best query.
+    // we now use a different approach, where we ask the user to select the best query from a list of candidate queries
 //    @Override
 //    public void onPickBestQuery(String datafieldDescription) {
 //        if (datafieldDescription.trim().isEmpty()) {

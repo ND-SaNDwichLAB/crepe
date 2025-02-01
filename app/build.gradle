@@ -6,6 +6,10 @@ plugins {
 android {
     compileSdkVersion 34
 
+    buildFeatures {
+        buildConfig true
+    }
+
     defaultConfig {
         applicationId "edu.nd.crepe"
         minSdk 20
@@ -16,6 +20,7 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 //        targetSdkVersion 31
         minSdkVersion 27
+        buildConfigField "String", "OPENAI_API_KEY", "\"${getApiKey()}\""
     }
 
     buildTypes {
@@ -36,6 +41,13 @@ android {
     }
     namespace 'edu.nd.crepe'
 }
+
+def getApiKey() {
+    def properties = new Properties()
+    properties.load(project.rootProject.file("local.properties").newDataInputStream())
+    return properties.getProperty("OPENAI_API_KEY")
+}
+
 
 configurations.all {
     resolutionStrategy {

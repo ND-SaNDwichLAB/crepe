@@ -38,7 +38,7 @@ public class PickGraphQueryDialogBuilder {
         this.datafieldDescriptionCallback = datafieldDescriptionCallback;
     }
 
-    public View buildDialog(List<Pair<OntologyQuery, Double>> defaultQueries) {
+    public View buildDialog(List<Pair<OntologyQuery, String>> translatedQueries) {
         View pickQueryView = LayoutInflater.from(context).inflate(R.layout.demonstration_pick_query, null);
 
         Button confirmationBackBtn = pickQueryView.findViewById(R.id.confirmationBackButton);
@@ -46,14 +46,16 @@ public class PickGraphQueryDialogBuilder {
         // Keep track of selected button
         final Button[] selectedButton = {null};
 
-        for (Pair<OntologyQuery, Double> query: defaultQueries) {
+        // take only the first 4 queries for simplicity
+        for (Pair<OntologyQuery, String> query: translatedQueries.subList(0, 4)) {
             OntologyQuery ontologyQuery = query.first;
+            String translatedOntologyQuery = query.second;
 
             // Create a regular Button for each query
             Button queryButton = new Button(context);
 
             // Set the text and tag
-            queryButton.setText(ontologyQuery.toString());
+            queryButton.setText(translatedOntologyQuery);
             queryButton.setTag(ontologyQuery);
 
             // Style the button
