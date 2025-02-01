@@ -420,7 +420,7 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
                 "stands for: the information that is located to the right of a text \"6\"\n." +
                 "Below I have a few queries, can you help me translate them to human-readable format like above?\n" +
                 allQueries +
-                "\n Leave out app package information (e.g. Uber app, Google Drive app). Also leave out UI element names (TextView, FrameLayout). \"With numeric index xx\" should be translated into \"the xx in the list\" (first, second, etc.). Be as concise as possible. Make sure you return the translation in the order I presented the queries above, separated by new lines. Return nothing else.";
+                "\n Leave out UI element names (TextView, FrameLayout) and do not make any reference to \"view\". Users only care about the data and information contained in the view instead of the UI elements themselves. \"With numeric index xx\" should be translated into \"the xx in the list\" (first, second, etc.). Be as concise as possible. Make sure you return the translation in the order I presented the queries above, separated by new lines. Return nothing else.";
 
 
         apiCallManager.getResponse(translateQueryPrompt, new ApiCallManager.ApiCallback() {
