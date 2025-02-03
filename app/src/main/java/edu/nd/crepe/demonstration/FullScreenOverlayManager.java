@@ -428,13 +428,22 @@ public class FullScreenOverlayManager implements DatafieldDescriptionCallback {
             public void onResponse(String response) {
                 Log.i("ApiCallManager", "API call successful: \n" + response);
                 String[] translatedQueryStrings = response.split("\n");
-                if (translatedQueryStrings.length == queries.size()) {
-                    for (int i = 0; i < queries.size(); i++) {
-                        translatedQueries.add(new Pair<>(queries.get(i).first, translatedQueryStrings[i].trim().replaceAll("- ", "")));
-                    }
+                try {
+                    if (translatedQueryStrings.length == queries.size()) {
+                        for (int i = 0; i < queries.size(); i++) {
+                            translatedQueries.add(new Pair<>(queries.get(i).first, translatedQueryStrings[i].trim().replaceAll("- ", "")));
+                        }
 
-                } else {
-                    Log.e("ApiCallManager", "API response invalid: number of queries mismatch");
+                    } else {
+                        Log.e("ApiCallManager", "API response invalid: number of queries mismatch");
+                    }
+                } catch (Error e) {
+                    Log.e("ApiCallManager", "API response invalid: " + e.getMessage());
+                    Toast.makeText(
+                            context,
+                            "Something went wrong. Please try again.",
+                            Toast.LENGTH_SHORT
+                    );
                 }
                 latch.countDown();
             }
