@@ -43,6 +43,14 @@ public class WidgetService extends Service {
             LAYOUT_FLAG = WindowManager.LayoutParams.TYPE_PHONE;
         }
 
+        // Handle null intent case (when service is restarted by system)
+        if (intent == null) {
+            // Service was restarted by system after being killed
+            // We can't continue without the graphQueryCallback, so stop the service
+            stopSelf();
+            return START_NOT_STICKY;
+        }
+
         this.graphQueryCallback = (GraphQueryCallback) intent.getSerializableExtra("graphQueryCallback");
 
         // inflate widget layout
@@ -202,7 +210,7 @@ public class WidgetService extends Service {
             }
         });
 
-        return START_STICKY;
+        return START_NOT_STICKY;
     }
 
     // remove widget
