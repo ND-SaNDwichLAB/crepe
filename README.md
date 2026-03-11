@@ -1,4 +1,11 @@
 
+# 🏅 Crepe: A Mobile Screen Data Collector Using Graph Query 
+
+**Yuwen Lu, Meng Chen, Qi Zhao, Victor Cox, Yang Yang, Meng Jiang, Jay Brockman, Tamara Kay, Toby Jia-Jun Li**
+
+*Proceedings of the 2026 ACM Conference on Human Factors in Computing Systems (CHI 2026)*
+
+[📄 Paper](https://doi.org/10.1145/3772318.3791137)
 
 ## File Structure
 
