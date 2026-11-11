@@ -49,7 +49,7 @@ public class CollectorCardConstraintLayoutBuilder {
 
         // if the collector is deleted, don't display anything.
         // We handle deletion in our app in this way so database manipulation can be easier
-        if (collector.getCollectorStatus().equals(DELETED)) {
+        if (DELETED.equals(collector.getCollectorStatus())) {
             Log.e("collector", "This collector for " + collector.getAppName() + " is deleted, thus will not be displayed.");
             return null;
         }
@@ -85,20 +85,20 @@ public class CollectorCardConstraintLayoutBuilder {
         collector.autoSetCollectorStatus();
         // also update in the database
         dbManager.updateCollectorStatus(collector);
-        if (collector.getCollectorStatus().equals(ACTIVE)) {
+        if (ACTIVE.equals(collector.getCollectorStatus())) {
             collectorStatusTxt.setText("Running");
             collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_24_green);
-        } else if (collector.getCollectorStatus().equals(EXPIRED)) {
+        } else if (EXPIRED.equals(collector.getCollectorStatus())) {
             collectorStatusTxt.setText("Expired");
             collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_12_grey);
-        } else if (collector.getCollectorStatus().equals(NOTYETSTARTED)) {
+        } else if (NOTYETSTARTED.equals(collector.getCollectorStatus())) {
             collectorStatusTxt.setText("Not Started");
             collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_12_yellow);
         }
 
         // get App logo
         ImageView appImg = (ImageView) collectorLayout.findViewById(R.id.collectorImg);
-        Drawable appImage = apps.get(collector.getAppName());
+        Drawable appImage = apps != null ? apps.get(collector.getAppName()) : null;
         if (appImage == null) {
             appImg.setImageResource(R.drawable.nd_logo);
             collectorStatusTxt.setText("Not Installed");
@@ -116,7 +116,12 @@ public class CollectorCardConstraintLayoutBuilder {
             public void onClick(View view) {
                 CollectorCardDetailBuilder cardDetailBuilder = new CollectorCardDetailBuilder(c, collector, refreshCollectorListRunnable);
                 Dialog newDialog = cardDetailBuilder.build();
-                newDialog.show();
+                try {
+                    newDialog.show();
+                } catch (RuntimeException e) {
+                    // the screen is already going away
+                    Log.e("collector", "Could not show the details of " + collector.getAppName(), e);
+                }
             }
         });
 

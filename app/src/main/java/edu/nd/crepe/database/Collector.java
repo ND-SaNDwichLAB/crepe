@@ -2,13 +2,12 @@ package edu.nd.crepe.database;
 
 import android.util.Log;
 
-import com.google.firebase.database.core.view.Change;
-
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
+import java.util.Locale;
+import java.util.Objects;
 import java.util.TimeZone;
 
 public class Collector implements Serializable {
@@ -43,8 +42,12 @@ public class Collector implements Serializable {
         this.description = description;
         this.mode = mode;
         this.targetServerIp = targetServerIp;
-        this.collectorStartTime = Long.parseLong(collectorStartTime);
-        this.collectorEndTime = Long.parseLong(collectorEndTime);
+        try {
+            this.collectorStartTime = Long.parseLong(collectorStartTime);
+            this.collectorEndTime = Long.parseLong(collectorEndTime);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Collector start and end time must be epoch milliseconds, got: " + collectorStartTime + ", " + collectorEndTime, e);
+        }
 
         // auto generate the status of the collector based on current time
         this.autoSetCollectorStatus();
@@ -155,7 +158,7 @@ public class Collector implements Serializable {
 
     public String getCollectorStartTimeString() {
         Date date = new Date(collectorStartTime);
-        DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+        DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
         // force the timezone to be utc because of bug in material design. All time operations will be in utc
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         return dateFormat.format(date);
@@ -172,7 +175,7 @@ public class Collector implements Serializable {
     public String getCollectorEndTimeString() {
 
         Date date = new Date(collectorEndTime);
-        DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+        DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
 //        DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss.SSSZ");
         // force the timezone to be utc because of bug in material design. All time operations will be in utc
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -219,7 +222,7 @@ public class Collector implements Serializable {
 
     // We also provide a set status function to manually set the status to an arbitrary value
     public void setCollectorStatus(String collectorStatus) {
-        if (collectorStatus.equals(DELETED) || collectorStatus.equals(NOTYETSTARTED) || collectorStatus.equals(ACTIVE) || collectorStatus.equals(EXPIRED)) {
+        if (DELETED.equals(collectorStatus) || NOTYETSTARTED.equals(collectorStatus) || ACTIVE.equals(collectorStatus) || EXPIRED.equals(collectorStatus)) {
             this.collectorStatus = collectorStatus;
         } else {
             Log.e("collector", "The input status is not valid (must be deleted, notYetStarted, active, or expired)");
@@ -236,15 +239,19 @@ public class Collector implements Serializable {
 
 
     public Boolean isDeleted() {
-        return this.collectorStatus.equals(DELETED);
+        return DELETED.equals(this.collectorStatus);
     }
 
     public ChangeStatus compareWith(Collector updatedCollector) {
-        if (this.collectorId.equals(updatedCollector.getCollectorId())
-                && this.creatorUserId.equals(updatedCollector.getCreatorUserId())
-                && this.appName.equals(updatedCollector.getAppName())
-                && this.appPackage.equals(updatedCollector.getAppPackage())) {
-            if (!this.description.equals(updatedCollector.getDescription())) {
+        if (updatedCollector == null) {
+            Log.e("collector", "Cannot compare with a null collector");
+            return null;
+        }
+        if (Objects.equals(this.collectorId, updatedCollector.getCollectorId())
+                && Objects.equals(this.creatorUserId, updatedCollector.getCreatorUserId())
+                && Objects.equals(this.appName, updatedCollector.getAppName())
+                && Objects.equals(this.appPackage, updatedCollector.getAppPackage())) {
+            if (!Objects.equals(this.description, updatedCollector.getDescription())) {
                 return ChangeStatus.DESCRIPTION_CHANGE;
             }
             if (this.collectorStartTime != updatedCollector.getCollectorStartTime()) {
@@ -253,7 +260,7 @@ public class Collector implements Serializable {
             if (this.collectorEndTime != updatedCollector.getCollectorEndTime()) {
                 return ChangeStatus.COLLECTOR_END_TIME_CHANGE;
             }
-            if (!this.collectorStatus.equals(updatedCollector.getCollectorStatus())) {
+            if (!Objects.equals(this.collectorStatus, updatedCollector.getCollectorStatus())) {
                 return ChangeStatus.COLLECTOR_STATUS_CHANGE;
             }
             return ChangeStatus.NO_CHANGE;

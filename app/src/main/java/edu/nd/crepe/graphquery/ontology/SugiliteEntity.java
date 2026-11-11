@@ -123,17 +123,20 @@ public class SugiliteEntity<T> implements Serializable {
             return (String)entityValue;
         }
         if(type == Boolean.class || (entityValue instanceof Boolean)) {
-            return ((Boolean)entityValue).toString();
+            return String.valueOf(entityValue);
         }
         if(type == Double.class || (entityValue instanceof Double)) {
-            return ((Double)entityValue).toString();
+            return String.valueOf(entityValue);
         }
         //type == Node.class
-        return "@" + entityId.toString();
+        return "@" + entityId;
     }
 
     public String saveToDatabaseAsString() {
-        if (type == Node.class) {
+        if (entityValue == null) {
+            return "";
+        }
+        if (entityValue instanceof Node) {
             return "Text: " + ((Node) entityValue).getText() + ", Content description: " + ((Node) entityValue).getContentDescription();
         } else {
             return entityValue.toString();

@@ -757,13 +757,14 @@ public class UISnapshot {
     }
 
     public SugiliteEntity<Node> getEntityWithAccessibilityNode(AccessibilityNodeInfo matchedAccessibilityNode) {
-        String stringDifferences = "";
+        if (matchedAccessibilityNode == null) {
+            return null;
+        }
+        String matchedDescription = matchedAccessibilityNode.toString().trim();
         Node matchedNode = null;
         for(Map.Entry<Node, AccessibilityNodeInfo> accessibilityNodeInfo: nodeAccessibilityNodeInfoMap.entrySet()) {
-            if(Objects.equals(accessibilityNodeInfo.getValue().toString().trim(), matchedAccessibilityNode.toString().trim())) {
+            if(accessibilityNodeInfo.getValue() != null && Objects.equals(accessibilityNodeInfo.getValue().toString().trim(), matchedDescription)) {
                 matchedNode = accessibilityNodeInfo.getKey();
-            } else {
-                stringDifferences = StringUtils.difference(accessibilityNodeInfo.toString().trim(), matchedAccessibilityNode.toString().trim());
             }
         }
         if (matchedNode != null) {
@@ -824,7 +825,7 @@ public class UISnapshot {
             Set<SugiliteTriple> triples = new HashSet<>(subjectTriplesMap.get(subjectEntityId));    // here we get a copy of the original Map to avoid changing the original stored values
             triples.removeIf(t -> !t.getPredicate().equals(relation));
             for (SugiliteTriple t : triples) {
-                if (t.getObject() != null & t.getObject().getEntityValue() != null) {
+                if (t.getObject() != null && t.getObject().getEntityValue() != null) {
                     if (t.getObject().getEntityValue() instanceof String) {
                         result.add((String) t.getObject().getEntityValue());
                     }
@@ -844,7 +845,7 @@ public class UISnapshot {
             Set<SugiliteTriple> triples = new HashSet<>(subjectTriplesMap.get(subjectEntityId));
             triples.removeIf(t -> !t.getPredicate().equals(relation));
             for (SugiliteTriple t : triples) {
-                if (t.getObject() != null & t.getObject().getEntityValue() != null) {
+                if (t.getObject() != null && t.getObject().getEntityValue() != null) {
                     if (t.getObject().getEntityValue() instanceof List) {
                         result.add((List) t.getObject().getEntityValue());
                     }
@@ -864,7 +865,7 @@ public class UISnapshot {
             Set<SugiliteTriple> triples = new HashSet<>(subjectTriplesMap.get(subjectEntityId));
             triples.removeIf(t -> !t.getPredicate().equals(relation));
             for (SugiliteTriple t : triples) {
-                if (t.getObject() != null & t.getObject().getEntityValue() != null) {
+                if (t.getObject() != null && t.getObject().getEntityValue() != null) {
                     if (t.getObject().getEntityValue() instanceof Node) {
                         result.add((Node) t.getObject().getEntityValue());
                     }

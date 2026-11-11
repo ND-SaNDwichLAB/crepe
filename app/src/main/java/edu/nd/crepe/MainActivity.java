@@ -21,7 +21,7 @@ import edu.nd.crepe.database.Collector;
 import edu.nd.crepe.database.DatabaseManager;
 import edu.nd.crepe.database.Datafield;
 import edu.nd.crepe.database.User;
-import edu.nd.crepe.network.ApiCallManager;
+import edu.nd.crepe.authentication.GoogleLoginActivity;
 import edu.nd.crepe.network.DataLoadingEvent;
 import edu.nd.crepe.network.FirebaseCallback;
 import edu.nd.crepe.network.FirebaseCommunicationManager;
@@ -50,11 +50,11 @@ import androidx.fragment.app.FragmentTransaction;
 import edu.nd.crepe.databinding.ActivityMainBinding;
 
 import com.google.android.material.navigation.NavigationView;
-import com.google.common.reflect.TypeToken;
-import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.gson.Gson;
+import com.google.gson.JsonParseException;
+import com.google.gson.reflect.TypeToken;
 
 import android.view.Menu;
 import android.view.MenuItem;
@@ -72,9 +72,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.json.JsonObject;
-
 public class MainActivity extends AppCompatActivity {
+
+    private static final String TAG = "MainActivity";
+    private static final Type DATAFIELD_LIST_TYPE = new TypeToken<ArrayList<Datafield>>() {}.getType();
 
     private ActivityMainBinding binding;
     private FloatingActionButton fabBtn;
@@ -108,6 +109,25 @@ public class MainActivity extends AppCompatActivity {
         dbManager = DatabaseManager.getInstance(this.getApplicationContext());
         firebaseCommunicationManager = new FirebaseCommunicationManager(this);
         mAuth = FirebaseAuth.getInstance();
+
+        // Everything on this screen depends on knowing who the user is. If there is no usable profile
+        // (for example the local database was cleared while the Firebase session survived), send the
+        // user back through the sign in flow instead of crashing further down.
+        boolean isFirstResolve = currentUser == null;
+        FirebaseUser firebaseUser = mAuth.getCurrentUser();
+        if (currentUser == null || (firebaseUser != null && !firebaseUser.getUid().equals(currentUser.getUserId()))) {
+            isFirstResolve = true;
+            currentUser = resolveCurrentUser(firebaseUser);
+        }
+        if (currentUser == null) {
+            Log.e(TAG, "No local user profile could be found, returning to sign in");
+            Toast.makeText(this, "Please sign in again.", Toast.LENGTH_LONG).show();
+            mAuth.signOut();
+            startActivity(new Intent(this, GoogleLoginActivity.class));
+            finish();
+            return;
+        }
+
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
@@ -124,21 +144,15 @@ public class MainActivity extends AppCompatActivity {
         userNameTextView = navHeader.findViewById(R.id.userName);
 //        ImageView userImageView = navHeader.findViewById(R.id.userImage);
 
-        if (currentUser == null) {
-            // get the current stored user from the database, which we fetched with google authentication (see authentication/GoogleSignInActivity.java)
-            if (dbManager.getAllUsers().size() == 1) {
-                currentUser = dbManager.getAllUsers().get(0);
-                userNameTextView.setText(currentUser.getName());
-                Toast.makeText(this, "Welcome, " + currentUser.getName().split(" ")[0] + "! 🥳🎉🎊", Toast.LENGTH_SHORT).show();   // only take the first name
-            } else if (dbManager.getAllUsers().size() > 1) {
-                Log.e("Main Activity", "Error: more than 1 user found in database.");
-            } else {
-                Log.i("Main Activity", "no user found in database.");
-            }
+        // the user was fetched with google authentication (see authentication/GoogleLoginActivity.java)
+        String displayName = currentUser.getName() != null ? currentUser.getName().trim() : "";
+        userNameTextView.setText(displayName);
+        if (isFirstResolve && !displayName.isEmpty()) {
+            Toast.makeText(this, "Welcome, " + displayName.split(" ")[0] + "! 🥳🎉🎊", Toast.LENGTH_SHORT).show();   // only take the first name
         }
 
         // get local collectors
-        ArrayList<Collector> existingCollectors = (ArrayList<Collector>) dbManager.getAllCollectors();
+        List<Collector> existingCollectors = dbManager.getAllCollectors();
         // we also get a list of collectorIds, easier for checking collector existence
         ArrayList<String> existingCollectorIds = new ArrayList<>();
         for (Collector collector : existingCollectors) {
@@ -185,11 +199,15 @@ public class MainActivity extends AppCompatActivity {
         channel.setDescription(description);
         // Register the channel with the system
         NotificationManager notificationManager = getSystemService(NotificationManager.class);
-        notificationManager.createNotificationChannel(channel);
+        if (notificationManager != null) {
+            notificationManager.createNotificationChannel(channel);
+        }
 
 
-        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setHomeButtonEnabled(true);
+        }
 
         sidebarNavView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -224,7 +242,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         Log.i("MainActivity", "onStop called");
-        EventBus.getDefault().unregister(this);
+        if (EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().unregister(this);
+        }
     }
 
     @Override
@@ -232,9 +252,11 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         Log.i("MainActivity", "onDestroy called");
         // unregister the event bus
-        EventBus.getDefault().unregister(this);
-        // close the database
-        DatabaseManager.getInstance(this.getApplicationContext()).closeDatabase();
+        if (EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().unregister(this);
+        }
+        // NOTE: the database is deliberately left open. DatabaseManager is shared with the accessibility
+        // service, which keeps collecting data after this activity is gone.
     }
 
     @Override
@@ -251,7 +273,7 @@ public class MainActivity extends AppCompatActivity {
             wrapper = CollectorConfigurationDialogWrapper.getInstance();
             editor.putString("screen_state", wrapper.getCurrentScreenState());
             editor.putString("collector", new Gson().toJson(wrapper.getCurrentCollector()));
-            editor.putBoolean("isEdit", wrapper.getIsEdit());
+            editor.putBoolean("isEdit", Boolean.TRUE.equals(wrapper.getIsEdit()));
             editor.putString("datafieldsList", new Gson().toJson(wrapper.getDatafields()));
             editor.apply();
 
@@ -273,20 +295,27 @@ public class MainActivity extends AppCompatActivity {
         String datafields = sharedPreferences.getString("datafieldsList", null);
 
         if (screenState != null && !screenState.equals("dismissed") && collectorJson != null && datafields != null) {
-            Collector prevCollector = new Gson().fromJson(collectorJson, Collector.class);
-            Type type = new TypeToken<ArrayList<Datafield>>() {}.getType();
-            ArrayList<Datafield> datafieldsList = new Gson().fromJson(datafields, type);
+            try {
+                Gson gson = new Gson();
+                Collector prevCollector = gson.fromJson(collectorJson, Collector.class);
+                ArrayList<Datafield> datafieldsList = gson.fromJson(datafields, DATAFIELD_LIST_TYPE);
+                if (prevCollector == null) {
+                    throw new JsonParseException("The stored collector is empty");
+                }
 
-            if (!CollectorConfigurationDialogWrapper.isNull()) {
-                wrapper = CollectorConfigurationDialogWrapper.getInstance();
-            } else {
+                // Always rebuild the wrapper so that it is bound to this activity instance. A wrapper that
+                // survived from before this activity was recreated would still point at the destroyed one,
+                // and showing a dialog through it would fail.
                 wrapper = createCollectorFromConfigDialogBuilder.buildDialogWrapperWithCollector(prevCollector);
-            }
 
-            wrapper.setDatafields(datafieldsList);
-            wrapper.setCurrentCollector(prevCollector);
-            wrapper.setCurrentScreenState(screenState);
-            wrapper.show(isEdit);
+                wrapper.setDatafields(datafieldsList != null ? datafieldsList : new ArrayList<Datafield>());
+                wrapper.setCurrentCollector(prevCollector);
+                wrapper.setCurrentScreenState(screenState);
+                wrapper.show(isEdit);
+            } catch (RuntimeException e) {
+                // a stale or corrupted snapshot must never keep the app from opening
+                Log.e(TAG, "Could not restore the collector configuration dialog", e);
+            }
 
             // if notification permission dialog shows up during this process, these sharedPreferences will be deleted, leaving no way to recover the state
             // TODO Yuwen figure out how to handle the notification permission dialog
@@ -357,7 +386,14 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void addParticipatingCollectors(ArrayList<String> collectorIds, ArrayList<String> existingCollectorIds) {
+    private static String describe(Exception e) {
+        return e != null && e.getMessage() != null ? e.getMessage() : "An unknown error occurred.";
+    }
+
+    private void addParticipatingCollectors(ArrayList<String> collectorIds, List<String> existingCollectorIds) {
+        if (collectorIds == null || collectorIds.isEmpty()) {
+            return;
+        }
         AtomicInteger collectorCounter = new AtomicInteger(0);
         int totalCollectorCount = collectorIds.size();
 
@@ -366,43 +402,43 @@ public class MainActivity extends AppCompatActivity {
             if (!existingCollectorIds.contains(collectorId)) {
                 firebaseCommunicationManager.retrieveCollector(collectorId, new FirebaseCallback<Collector>() {
                     public void onResponse(Collector collector) {
-                        dbManager.addOneCollector(collector);
-                        addDatafieldForCollector(collector);
-
-                        // broadcast an event to HomeFragment to update the collector list
-                        if (collectorCounter.incrementAndGet() == totalCollectorCount) {
-                            // After fetching all data, post this event and HomeFragment will update the collector list on home page
-                            EventBus.getDefault().post(new DataLoadingEvent(true));
+                        if (collector != null) {
+                            dbManager.addOneCollector(collector);
+                            addDatafieldForCollector(collector);
                         }
+                        notifyWhenAllCollectorsHandled(collectorCounter, totalCollectorCount);
                     }
 
                     public void onErrorResponse(Exception e) {
-                        try {
-                            Log.e("Firebase collector", e.getMessage());
-                        } catch (NullPointerException ex) {
-                            Log.e("Firebase collector", "An unknown error occurred.");
-                        }
+                        Log.e("Firebase collector", describe(e));
+                        // a failed collector still counts, otherwise the home page would never be refreshed for the others
+                        notifyWhenAllCollectorsHandled(collectorCounter, totalCollectorCount);
                     }
                 });
             } else {
                 Log.i("MainActivity", "Collector already exists in local database. Skipped");
-                // broadcast an event to HomeFragment to update the collector list
-                if (collectorCounter.incrementAndGet() == totalCollectorCount) {
-                    // After fetching all data, post this event and HomeFragment will update the collector list on home page
-                    EventBus.getDefault().post(new DataLoadingEvent(true));
-                }
+                notifyWhenAllCollectorsHandled(collectorCounter, totalCollectorCount);
             }
         }
     }
 
-    private void addCreatedCollectors(String userId, ArrayList<String> existingCollectorIds) {
+    // After handling all collectors, post an event and HomeFragment will update the collector list on home page
+    private void notifyWhenAllCollectorsHandled(AtomicInteger collectorCounter, int totalCollectorCount) {
+        if (collectorCounter.incrementAndGet() == totalCollectorCount) {
+            EventBus.getDefault().post(new DataLoadingEvent(true));
+        }
+    }
+
+    private void addCreatedCollectors(String userId, List<String> existingCollectorIds) {
         firebaseCommunicationManager.retrieveCollectorWithCreatorUserId(userId, new FirebaseCallback<ArrayList<Collector>>() {
             public void onResponse(ArrayList<Collector> collectors) {
 
-                for (Collector collector : collectors) {
-                    if (!existingCollectorIds.contains(collector.getCollectorId())) {
-                        dbManager.addOneCollector(collector);
-                        addDatafieldForCollector(collector);
+                if (collectors != null) {
+                    for (Collector collector : collectors) {
+                        if (!existingCollectorIds.contains(collector.getCollectorId())) {
+                            dbManager.addOneCollector(collector);
+                            addDatafieldForCollector(collector);
+                        }
                     }
                 }
                 // After fetching all data, post this event and HomeFragment will update the collector list on home page
@@ -411,11 +447,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             public void onErrorResponse(Exception e) {
-                try {
-                    Log.i("Firebase collector", "No collector is found that is created by current user.\n" + e.getMessage());
-                } catch (NullPointerException ex) {
-                    Log.e("Firebase collector", "No collector is found that is created by current user. An unknown error occurred.");
-                }
+                Log.i("Firebase collector", "No collector is found that is created by current user.\n" + describe(e));
             }
         });
     }
@@ -425,19 +457,44 @@ public class MainActivity extends AppCompatActivity {
     private void addDatafieldForCollector(Collector collector) {
         firebaseCommunicationManager.retrieveDatafieldsWithCollectorId(collector.getCollectorId(), new FirebaseCallback<ArrayList<Datafield>>() {
             public void onResponse(ArrayList<Datafield> datafields) {
+                if (datafields == null) {
+                    return;
+                }
                 for (Datafield datafield : datafields) {
                     dbManager.addOneDatafield(datafield);
                 }
             }
 
             public void onErrorResponse(Exception e) {
-                try {
-                    Log.e("Firebase datafield", e.getMessage());
-                } catch (NullPointerException ex) {
-                    Log.e("Firebase datafield", "An unknown error occurred.");
-                }
+                Log.e("Firebase datafield", describe(e));
             }
         });
+    }
+
+    // Find the local profile that belongs to the signed in account.
+    // Returns null if there is none; the caller then sends the user back to sign in.
+    @Nullable
+    private User resolveCurrentUser(@Nullable FirebaseUser firebaseUser) {
+        List<User> users = dbManager.getAllUsers();
+        if (firebaseUser != null) {
+            // several accounts may have signed in on this device, pick the one that is signed in now
+            for (User user : users) {
+                if (firebaseUser.getUid().equals(user.getUserId())) {
+                    return user;
+                }
+            }
+            Log.e(TAG, "None of the " + users.size() + " local user(s) matches the signed in account.");
+            return null;
+        }
+        if (users.size() == 1) {
+            return users.get(0);
+        }
+        if (users.size() > 1) {
+            Log.e(TAG, "Error: more than 1 user found in database and nobody is signed in.");
+        } else {
+            Log.i(TAG, "no user found in database.");
+        }
+        return null;
     }
 
 
@@ -482,7 +539,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void retrieveCollectorsForUser(User currentUser, ArrayList<String> existingCollectorIds) {
+    public void retrieveCollectorsForUser(User currentUser, List<String> existingCollectorIds) {
+        if (currentUser == null) {
+            Log.e(TAG, "Cannot retrieve collectors without a user");
+            return;
+        }
 
         // get the collectors associated with this user
         // contains 2 types of associations:
@@ -504,7 +565,7 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     ((HomeFragment) currentFragment).initCollectorList();
                 } catch (PackageManager.NameNotFoundException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, "Could not refresh the collector list", e);
                 }
             }
         }

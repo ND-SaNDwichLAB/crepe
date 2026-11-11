@@ -123,7 +123,8 @@ public class DemonstrationUtil {
         // use a variable to store the current closest node and its distance to the matched node
         // initialize it as infinity so the first comparison is easier
         double closestDistToMatchedNode = Double.POSITIVE_INFINITY;
-        AccessibilityNodeInfo closestNode = new AccessibilityNodeInfo();
+        // stays null if there is no sibling with text
+        AccessibilityNodeInfo closestNode = null;
 
         if (parentNode != null) {
             int siblingCnt = parentNode.getChildCount() - 1;
@@ -137,6 +138,9 @@ public class DemonstrationUtil {
                 // the loop here calls for siblingCnt + 1, because the matched node itself is in the tree
                 for(int i = 0; i < siblingCnt + 1; i++) {
                     AccessibilityNodeInfo siblingNode = parentNode.getChild(i);
+                    if (siblingNode == null) {
+                        continue;
+                    }
 
                     // get the center position of the sibling node
                     Rect siblingNodeRect = new Rect();
@@ -152,6 +156,7 @@ public class DemonstrationUtil {
 
                         if (currentSiblingDist < closestDistToMatchedNode) {
                             closestNode = siblingNode;
+                            closestDistToMatchedNode = currentSiblingDist;
                         }
                         Log.d("uisnapshot", "Sibling node text: " + siblingNode.getText().toString());
                         siblingNodeTextList.add(siblingNode.getText().toString());
@@ -159,7 +164,7 @@ public class DemonstrationUtil {
                 }
                 if(siblingNodeTextList.size() > 0) {
                     Log.d("uisnapshot", siblingNodeTextList.toString());
-                    Log.d("uisnapshot", "The closest node contains text: " + closestNode.getText());
+                    Log.d("uisnapshot", "The closest node contains text: " + (closestNode != null ? closestNode.getText() : null));
                 } else {
                     // If all sibling nodes' text fields are empty, we also arrive at the no sibling situation
                     // TODO if there's no sibling, just use the screen position of the node
@@ -178,10 +183,15 @@ public class DemonstrationUtil {
 
     public static Rect getBoundingBoxOfClickedItem(float clickX, float clickY) {
         Rect resultBounds = new Rect();
+        CrepeAccessibilityService accessibilityService = CrepeAccessibilityService.getsSharedInstance();
+        if (accessibilityService == null) {
+            Log.e("generate queries", "The accessibility service is not running");
+            return null;
+        }
         // create uiSnapshot for current screen
-        UISnapshot uiSnapshot = CrepeAccessibilityService.getsSharedInstance().generateUISnapshot();
+        UISnapshot uiSnapshot = accessibilityService.generateUISnapshot();
 
-        List<AccessibilityNodeInfo> matchedAccessibilityNodeList = CrepeAccessibilityService.getsSharedInstance().getMatchingNodeFromClickWithText(clickX, clickY);
+        List<AccessibilityNodeInfo> matchedAccessibilityNodeList = accessibilityService.getMatchingNodeFromClickWithText(clickX, clickY);
 
         SugiliteEntity<Node> targetEntity = new SugiliteEntity<>();
         AccessibilityNodeInfo matchedNode;
@@ -197,11 +207,16 @@ public class DemonstrationUtil {
 
     public static List<Pair<OntologyQuery, Double>> processOverlayClick(float clickX, float clickY) {
 
+        CrepeAccessibilityService accessibilityService = CrepeAccessibilityService.getsSharedInstance();
+        if (accessibilityService == null) {
+            Log.e("generate queries", "The accessibility service is not running");
+            return new ArrayList<>();
+        }
         // create uiSnapshot for current screen
-        UISnapshot uiSnapshot = CrepeAccessibilityService.getsSharedInstance().generateUISnapshot();
+        UISnapshot uiSnapshot = accessibilityService.generateUISnapshot();
         // get the matched node
 
-        List<AccessibilityNodeInfo> matchedAccessibilityNodeList = CrepeAccessibilityService.getsSharedInstance().getMatchingNodeFromClickWithText(clickX, clickY);
+        List<AccessibilityNodeInfo> matchedAccessibilityNodeList = accessibilityService.getMatchingNodeFromClickWithText(clickX, clickY);
         // this matchedAccessibilityNode is an AccessibilityNodeInfo, which is not exactly the node stored in the screen's nodeSugiliteEntityMap.
         // We retrieved that stored node from this screen's uisnapshot
 
@@ -225,6 +240,11 @@ public class DemonstrationUtil {
             defaultQueries = generateDefaultQueries(uiSnapshot, targetEntity, relationsToExclude);
         } else {
             Log.e("generate queries", "Cannot find the tapped entity!");
+        }
+
+        if (defaultQueries == null) {
+            // the tapped entity was not found, there are no queries to offer
+            return new ArrayList<>();
         }
 
         Log.i("defaultQueries", defaultQueries.stream()
@@ -401,7 +421,7 @@ public class DemonstrationUtil {
                 hasNonBoundingBoxFeature = true;
                 hasNonChildFeature = true;
 
-                if (targetEntity.getEntityValue().getEditable()) {
+                if (targetEntity.getEntityValue() != null && Boolean.TRUE.equals(targetEntity.getEntityValue().getEditable())) {
                     //prioritize view id for text boxes
                     queries.add(Pair.create(clonedQuery, 1.0));
                 } else {
@@ -437,6 +457,10 @@ public class DemonstrationUtil {
                 Set<SugiliteTriple> triples2 = uiSnapshot.getSubjectPredicateTriplesMap().get(new AbstractMap.SimpleEntry<>(foundEntity.getEntityId(), SugiliteRelation.HAS_PARENT_WITH_LIST_ORDER.getRelationId()));
                 if (triples2 != null) {
                     for (SugiliteTriple triple : triples2) {
+                        if (!(triple.getObject().getEntityValue() instanceof Double)) {
+                            Log.e("generateDefaultQueries", "The list order of the parent is not a number, skipping it");
+                            continue;
+                        }
                         Double order = (Double) triple.getObject().getEntityValue();
 
                         CombinedOntologyQuery clonedQuery = andQuery.clone();
@@ -456,7 +480,8 @@ public class DemonstrationUtil {
 
         if (! relationsToExclude.contains(SugiliteRelation.HAS_CHILD_TEXT)) {
             //add child text
-            List<String> childTexts = new ArrayList<>(uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_CHILD_TEXT));
+            Collection<String> childTextValues = uiSnapshot.getStringValuesForObjectEntityAndRelation(targetEntity, SugiliteRelation.HAS_CHILD_TEXT);
+            List<String> childTexts = childTextValues != null ? new ArrayList<>(childTextValues) : new ArrayList<String>();
             if (childTexts != null ) {
                 if (childTexts.size() > 0) {
                     int count = 0;
@@ -548,20 +573,24 @@ public class DemonstrationUtil {
                     // using the empty array is because for the subQuery, we assume the restriction for the outer query doesn't apply.
                     // e.g. if we exclude HAS_TEXT for the outer query, we still can use (PREV (LEFT (HAS_TEXT "xxx")))
                     List<Pair<OntologyQuery, Double>> subQueryCandidates = generateDefaultQueries(uiSnapshot, uiSnapshot.getEntityWithNode(targetNode), spatialRelationsToExclude);
-                    // parse the result, for now just take the first query, later we can change this and take a few different reasonable queries
-                    subQuery = subQueryCandidates.get(0).first;
-                    Double subQueryValue = subQueryCandidates.get(0).second;
+                    if (subQueryCandidates == null || subQueryCandidates.isEmpty()) {
+                        Log.e("generateDefaultQueries", "No candidate query for the related node, skipping the spatial relation");
+                    } else {
+                        // parse the result, for now just take the first query, later we can change this and take a few different reasonable queries
+                        subQuery = subQueryCandidates.get(0).first;
+                        Double subQueryValue = subQueryCandidates.get(0).second;
 
-                    // add info for clonedPrevQuery
-                    clonedPrevQuery.setQueryRelation(SugiliteRelation.LEFT);
-                    clonedPrevQuery.addSubQuery(subQuery);
+                        // add info for clonedPrevQuery
+                        clonedPrevQuery.setQueryRelation(SugiliteRelation.LEFT);
+                        clonedPrevQuery.addSubQuery(subQuery);
 
-                    // Second, add info for the outer query, i.e. clondedAndQuery
-                    // the above clonedPrevQuery is the subQuery of the outer query
-                    clonedAndQuery.addSubQuery(clonedPrevQuery);
-                    // HAS_CLASS_NAME and HAS_PACKAGE_NAME are already attributes of the outer query, see the first 2 if statements of this function
+                        // Second, add info for the outer query, i.e. clondedAndQuery
+                        // the above clonedPrevQuery is the subQuery of the outer query
+                        clonedAndQuery.addSubQuery(clonedPrevQuery);
+                        // HAS_CLASS_NAME and HAS_PACKAGE_NAME are already attributes of the outer query, see the first 2 if statements of this function
 
-                    queries.add(Pair.create(clonedAndQuery, subQueryValue + 0.1));
+                        queries.add(Pair.create(clonedAndQuery, subQueryValue + 0.1));
+                    }
                 } else {
                     Log.e("generateDefaultQueries", "Error generate recursive queries: cannot find the corresponding entity for target node");
                 }
@@ -591,20 +620,24 @@ public class DemonstrationUtil {
                     // using the empty array is because for the subQuery, we assume the restriction for the outer query doesn't apply.
                     // e.g. if we exclude HAS_TEXT for the outer query, we still can use (PREV (LEFT (HAS_TEXT "xxx")))
                     List<Pair<OntologyQuery, Double>> subQueryCandidates = generateDefaultQueries(uiSnapshot, uiSnapshot.getEntityWithNode(targetNode), spatialRelationsToExclude);
-                    // parse the result, for now just take the first query, later we can change this and take a few different reasonable queries
-                    subQuery = subQueryCandidates.get(0).first;
-                    Double subQueryValue = subQueryCandidates.get(0).second;
+                    if (subQueryCandidates == null || subQueryCandidates.isEmpty()) {
+                        Log.e("generateDefaultQueries", "No candidate query for the related node, skipping the spatial relation");
+                    } else {
+                        // parse the result, for now just take the first query, later we can change this and take a few different reasonable queries
+                        subQuery = subQueryCandidates.get(0).first;
+                        Double subQueryValue = subQueryCandidates.get(0).second;
 
-                    // add info for clonedPrevQuery
-                    clonedPrevQuery.setQueryRelation(SugiliteRelation.RIGHT);
-                    clonedPrevQuery.addSubQuery(subQuery);
+                        // add info for clonedPrevQuery
+                        clonedPrevQuery.setQueryRelation(SugiliteRelation.RIGHT);
+                        clonedPrevQuery.addSubQuery(subQuery);
 
-                    // Second, add info for the outer query, i.e. clondedAndQuery
-                    // the above clonedPrevQuery is the subQuery of the outer query
-                    clonedAndQuery.addSubQuery(clonedPrevQuery);
-                    // HAS_CLASS_NAME and HAS_PACKAGE_NAME are already attributes of the outer query, see the first 2 if statements of this function
+                        // Second, add info for the outer query, i.e. clondedAndQuery
+                        // the above clonedPrevQuery is the subQuery of the outer query
+                        clonedAndQuery.addSubQuery(clonedPrevQuery);
+                        // HAS_CLASS_NAME and HAS_PACKAGE_NAME are already attributes of the outer query, see the first 2 if statements of this function
 
-                    queries.add(Pair.create(clonedAndQuery, subQueryValue + 0.1));
+                        queries.add(Pair.create(clonedAndQuery, subQueryValue + 0.1));
+                    }
                 } else {
                     Log.e("generateDefaultQueries", "Error generate recursive queries: cannot find the corresponding entity for target node");
                 }
@@ -634,20 +667,24 @@ public class DemonstrationUtil {
                     // using the empty array is because for the subQuery, we assume the restriction for the outer query doesn't apply.
                     // e.g. if we exclude HAS_TEXT for the outer query, we still can use (PREV (LEFT (HAS_TEXT "xxx")))
                     List<Pair<OntologyQuery, Double>> subQueryCandidates = generateDefaultQueries(uiSnapshot, uiSnapshot.getEntityWithNode(targetNode), spatialRelationsToExclude);
-                    // parse the result, for now just take the first query, later we can change this and take a few different reasonable queries
-                    subQuery = subQueryCandidates.get(0).first;
-                    Double subQueryValue = subQueryCandidates.get(0).second;
+                    if (subQueryCandidates == null || subQueryCandidates.isEmpty()) {
+                        Log.e("generateDefaultQueries", "No candidate query for the related node, skipping the spatial relation");
+                    } else {
+                        // parse the result, for now just take the first query, later we can change this and take a few different reasonable queries
+                        subQuery = subQueryCandidates.get(0).first;
+                        Double subQueryValue = subQueryCandidates.get(0).second;
 
-                    // add info for clonedPrevQuery
-                    clonedPrevQuery.setQueryRelation(SugiliteRelation.ABOVE);
-                    clonedPrevQuery.addSubQuery(subQuery);
+                        // add info for clonedPrevQuery
+                        clonedPrevQuery.setQueryRelation(SugiliteRelation.ABOVE);
+                        clonedPrevQuery.addSubQuery(subQuery);
 
-                    // Second, add info for the outer query, i.e. clondedAndQuery
-                    // the above clonedPrevQuery is the subQuery of the outer query
-                    clonedAndQuery.addSubQuery(clonedPrevQuery);
-                    // HAS_CLASS_NAME and HAS_PACKAGE_NAME are already attributes of the outer query, see the first 2 if statements of this function
+                        // Second, add info for the outer query, i.e. clondedAndQuery
+                        // the above clonedPrevQuery is the subQuery of the outer query
+                        clonedAndQuery.addSubQuery(clonedPrevQuery);
+                        // HAS_CLASS_NAME and HAS_PACKAGE_NAME are already attributes of the outer query, see the first 2 if statements of this function
 
-                    queries.add(Pair.create(clonedAndQuery, subQueryValue + 0.1));
+                        queries.add(Pair.create(clonedAndQuery, subQueryValue + 0.1));
+                    }
                 } else {
                     Log.e("generateDefaultQueries", "Error generate recursive queries: cannot find the corresponding entity for target node");
                 }
@@ -677,20 +714,24 @@ public class DemonstrationUtil {
                     // using the empty array is because for the subQuery, we assume the restriction for the outer query doesn't apply.
                     // e.g. if we exclude HAS_TEXT for the outer query, we still can use (PREV (LEFT (HAS_TEXT "xxx")))
                     List<Pair<OntologyQuery, Double>> subQueryCandidates = generateDefaultQueries(uiSnapshot, uiSnapshot.getEntityWithNode(targetNode), spatialRelationsToExclude);
-                    // parse the result, for now just take the first query, later we can change this and take a few different reasonable queries
-                    subQuery = subQueryCandidates.get(0).first;
-                    Double subQueryValue = subQueryCandidates.get(0).second;
+                    if (subQueryCandidates == null || subQueryCandidates.isEmpty()) {
+                        Log.e("generateDefaultQueries", "No candidate query for the related node, skipping the spatial relation");
+                    } else {
+                        // parse the result, for now just take the first query, later we can change this and take a few different reasonable queries
+                        subQuery = subQueryCandidates.get(0).first;
+                        Double subQueryValue = subQueryCandidates.get(0).second;
 
-                    // add info for clonedPrevQuery
-                    clonedPrevQuery.setQueryRelation(SugiliteRelation.BELOW);
-                    clonedPrevQuery.addSubQuery(subQuery);
+                        // add info for clonedPrevQuery
+                        clonedPrevQuery.setQueryRelation(SugiliteRelation.BELOW);
+                        clonedPrevQuery.addSubQuery(subQuery);
 
-                    // Second, add info for the outer query, i.e. clondedAndQuery
-                    // the above clonedPrevQuery is the subQuery of the outer query
-                    clonedAndQuery.addSubQuery(clonedPrevQuery);
-                    // HAS_CLASS_NAME and HAS_PACKAGE_NAME are already attributes of the outer query, see the first 2 if statements of this function
+                        // Second, add info for the outer query, i.e. clondedAndQuery
+                        // the above clonedPrevQuery is the subQuery of the outer query
+                        clonedAndQuery.addSubQuery(clonedPrevQuery);
+                        // HAS_CLASS_NAME and HAS_PACKAGE_NAME are already attributes of the outer query, see the first 2 if statements of this function
 
-                    queries.add(Pair.create(clonedAndQuery, subQueryValue + 0.1));
+                        queries.add(Pair.create(clonedAndQuery, subQueryValue + 0.1));
+                    }
                 } else {
                     Log.e("generateDefaultQueries", "Error generate recursive queries: cannot find the corresponding entity for target node");
                 }

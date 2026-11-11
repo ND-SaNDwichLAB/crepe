@@ -75,6 +75,11 @@ public class Datafield {
         return timeCreated;
     }
 
+    // needed so that Firebase can restore the creation time when it deserializes a datafield
+    public void setTimeCreated(long timeCreated) {
+        this.timeCreated = timeCreated;
+    }
+
     public long getTimelastEdited() {
         return timelastEdited;
     }

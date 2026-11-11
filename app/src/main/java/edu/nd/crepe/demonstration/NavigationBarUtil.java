@@ -48,6 +48,10 @@ public class NavigationBarUtil {
         Resources resources = context.getResources();
         int resourceId = resources.getIdentifier("navigation_bar_height",
                 "dimen", "android");
+        if (resourceId <= 0) {
+            // the device does not define a navigation bar height; looking up id 0 would throw
+            return 0;
+        }
         int height = resources.getDimensionPixelSize(resourceId);
         return height;
     }

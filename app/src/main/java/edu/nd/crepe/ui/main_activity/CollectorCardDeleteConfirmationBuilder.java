@@ -60,7 +60,9 @@ public class CollectorCardDeleteConfirmationBuilder {
         }
         dialogBuilder.setView(deleteCollectorConfirmationView);
         Dialog dialog = dialogBuilder.create();
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
 
         // set the content of the confirmation based on users' role
         TextView confirmationDetail = (TextView) deleteCollectorConfirmationView.findViewById(R.id.collectorDetailContent);
@@ -70,13 +72,22 @@ public class CollectorCardDeleteConfirmationBuilder {
         if (userRole == UserRole.USER) {
             confirmationDetail.setText("Deleting this collector means you'll stop sending data to it. The creator will be informed of this change. Are you sure you wish to proceed?");
         }
+        if (userRole == null) {
+            confirmationDetail.setText("Crepe could not tell whether you created or joined this collector, so it cannot be deleted from here.");
+        }
 
         Button confirmBtn = (Button) deleteCollectorConfirmationView.findViewById(R.id.confirmDeleteButton);
         Button cancelBtn = (Button) deleteCollectorConfirmationView.findViewById(R.id.confirmCancelButton);
+        // without a role there is no way to tell what deleting would mean
+        confirmBtn.setEnabled(userRole != null);
 
         confirmBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (userRole == null) {
+                    return;
+                }
+
                 if (userRole == UserRole.ADMIN) {
                     // This will set the status of collector to deleted instead of directly removing it
                     // it will still be present in database but won't be displayed
@@ -86,17 +97,23 @@ public class CollectorCardDeleteConfirmationBuilder {
                     // once the collector status is set "deleted", the datafields will not be queried anymore
 
                     // also delete the collector from firebase
-                    fbManager.setCollectorStatusDeleted(collector.getCollectorId());
+                    fbManager.setCollectorStatusDeleted(collector.getCollectorId())
+                            .addOnFailureListener(e -> Log.e("CollectorCardDeleteConfirmationBuilder", "Failed to mark the collector as deleted in firebase: " + e.getMessage()));
                 } else if (userRole == UserRole.USER) {
                     // remove the collector from the user's list
-                    User currentUser = dbManager.getAllUsers().get(0);
+                    User user = findCurrentUser();
+                    if (user == null) {
+                        Toast.makeText(c, "Could not find your profile. Please sign in again.", Toast.LENGTH_LONG).show();
+                        return;
+                    }
                     // local database change
-                    dbManager.removeCollectorForUser(collector, currentUser);
+                    dbManager.removeCollectorForUser(collector, user);
                     // update to firebase too
                     HashMap<String, Object> userUpdates = new HashMap<>();
-                    ArrayList<String> updatedUserCollectors = currentUser.getCollectorsForCurrentUser();
+                    ArrayList<String> updatedUserCollectors = user.getCollectorsForCurrentUser();
                     userUpdates.put("userCollectors", updatedUserCollectors);
-                    fbManager.updateUser(currentUser.getUserId(), userUpdates);
+                    fbManager.updateUser(user.getUserId(), userUpdates)
+                            .addOnFailureListener(e -> Log.e("CollectorCardDeleteConfirmationBuilder", "Failed to update the participation in firebase: " + e.getMessage()));
 
                     // the creator of this collector will be informed of this change, see details in how we set up listeners to firebase changes in HomeFragment onViewCreated
 
@@ -120,7 +137,12 @@ public class CollectorCardDeleteConfirmationBuilder {
         return dialog;
     }
 
-    private UserRole getUserRole() {
+    // The signed in user. Prefer the in-memory profile: it is the one that gets written back to the database
+    // (for example by the heartbeat), so changing a copy that was read from the database would be undone by it.
+    private User findCurrentUser() {
+        if (currentUser != null) {
+            return currentUser;
+        }
         List<User> allUsers = dbManager.getAllUsers();
         if (allUsers.size() > 1) {
             Log.e("CollectorCardDeleteConfirmationBuilder", "More than one user found in the database");
@@ -128,12 +150,19 @@ public class CollectorCardDeleteConfirmationBuilder {
             Log.e("CollectorCardDeleteConfirmationBuilder", "No user found in the database");
             return null;
         }
+        return allUsers.get(0);
+    }
 
-        User currentUser = allUsers.get(0);
+    private UserRole getUserRole() {
+        User user = findCurrentUser();
+        if (user == null) {
+            return null;
+        }
+
         // check if the current user has this collector in its userCollector list
-        if (currentUser.getCollectorsForCurrentUser().contains(collector.getCollectorId())) {
+        if (user.getCollectorsForCurrentUser().contains(collector.getCollectorId())) {
             return UserRole.USER;
-        } else if (collector.getCreatorUserId().equals(currentUser.getUserId())) {
+        } else if (user.getUserId() != null && user.getUserId().equals(collector.getCreatorUserId())) {
             return UserRole.ADMIN;
         } else {
             Log.e("CollectorCardDeleteConfirmationBuilder", "User is not admin or user for this collector");
@@ -143,11 +172,3 @@ public class CollectorCardDeleteConfirmationBuilder {
     }
 
 }
-
-
-
-
-
-
-
-

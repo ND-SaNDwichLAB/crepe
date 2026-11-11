@@ -1,6 +1,7 @@
 package edu.nd.crepe.ui.dialog;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
@@ -12,6 +13,8 @@ import edu.nd.crepe.R;
 import edu.nd.crepe.demonstration.SelectionOverlayView;
 
 public class AddDatafieldDescriptionDialogBuilder {
+    private static final String TAG = "AddDatafieldDescDialog";
+
     private Context context;
     private SelectionOverlayView selectionOverlayView;
     private WindowManager windowManager;
@@ -35,11 +38,14 @@ public class AddDatafieldDescriptionDialogBuilder {
         Button confirmationAddBtn = addDatafieldDescriptionView.findViewById(R.id.confirmationAddButton);
 
         confirmationBackBtn.setOnClickListener(v -> {
-            if (addDatafieldDescriptionView != null) {
-                windowManager.removeView(addDatafieldDescriptionView);
-            }
+            removeViewSafely(addDatafieldDescriptionView);
             if (confirmationView != null) {
-                windowManager.addView(confirmationView, layoutParams);
+                try {
+                    windowManager.addView(confirmationView, layoutParams);
+                } catch (RuntimeException e) {
+                    // already showing, or the window manager refuses new windows
+                    Log.e(TAG, "Could not show the confirmation dialog again", e);
+                }
             }
         });
 
@@ -51,9 +57,7 @@ public class AddDatafieldDescriptionDialogBuilder {
             if (datafieldDescription.trim().isEmpty()) {
                 Toast.makeText(context, "Datafield description cannot be blank!", Toast.LENGTH_SHORT).show();
             } else {
-                if (addDatafieldDescriptionView != null) {
-                    windowManager.removeView(addDatafieldDescriptionView);
-                }
+                removeViewSafely(addDatafieldDescriptionView);
 
                 datafieldDescriptionCallback.onProcessDescriptionEditText(datafieldDescription);
             }
@@ -61,6 +65,18 @@ public class AddDatafieldDescriptionDialogBuilder {
 
 
         return addDatafieldDescriptionView;
+    }
+
+    // removing a view that is not attached to the window manager throws
+    private void removeViewSafely(View view) {
+        if (view == null) {
+            return;
+        }
+        try {
+            windowManager.removeView(view);
+        } catch (IllegalArgumentException e) {
+            Log.w(TAG, "The view was not attached to the window manager");
+        }
     }
 
 
