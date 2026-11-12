@@ -39,3 +39,8 @@ If you are using Android Studio, you need to install `HAXM installer` to launch 
 ### Problem
 
 No usage of `onDataLoadingEvent()` in `ui/main_activity/HomeFragment.java`
+
+
+## License
+
+Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) for the full text.
