@@ -1,7 +1,5 @@
 package edu.nd.crepe.authentication;
 
-import static android.content.ContentValues.TAG;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,9 +16,10 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 public class Register extends AppCompatActivity {
+
+    private static final String TAG = "Register";
 
     EditText accountEditTextRegister, passwordEditTextRegister;
     Button registerButtonRegister, loginButtonRegister;
@@ -46,29 +45,30 @@ public class Register extends AppCompatActivity {
         registerButtonRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String email, password;
-                email = accountEditTextRegister.getText().toString();
-                password = passwordEditTextRegister.getText().toString();
+                // the email is trimmed because keyboards like to append a trailing space after autocomplete
+                String email = accountEditTextRegister.getText().toString().trim();
+                String password = passwordEditTextRegister.getText().toString();
 
-
-                if (accountEditTextRegister.getText().toString().isEmpty() || passwordEditTextRegister.getText().toString().isEmpty()) {
+                if (email.isEmpty() || password.isEmpty()) {
                     Toast.makeText(Register.this, "Please fill in all the fields", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
+                registerButtonRegister.setEnabled(false);
                 mAuth.createUserWithEmailAndPassword(email, password)
                         .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
+                                registerButtonRegister.setEnabled(true);
                                 if (task.isSuccessful()) {
-                                    // Sign in success, update UI with the signed-in user's information
+                                    // the account is created and signed in
                                     Log.d(TAG, "createUserWithEmail:success");
-                                    FirebaseUser user = mAuth.getCurrentUser();
+                                    Toast.makeText(Register.this, "Account created.", Toast.LENGTH_SHORT).show();
 
                                 } else {
-                                    // If sign in fails, display a message to the user.
+                                    // If registration fails, display a message to the user.
                                     Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                                    Toast.makeText(Register.this, "Authentication failed.",
+                                    Toast.makeText(Register.this, "Registration failed.",
                                             Toast.LENGTH_SHORT).show();
 
                                 }

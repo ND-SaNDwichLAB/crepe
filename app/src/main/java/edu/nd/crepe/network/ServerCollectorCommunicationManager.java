@@ -3,33 +3,33 @@ package edu.nd.crepe.network;
 import android.content.Context;
 import android.util.Log;
 
-
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import edu.nd.crepe.database.Collector;
+import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
+import com.google.gson.JsonParseException;
 
+import edu.nd.crepe.database.Collector;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import com.android.volley.toolbox.Volley;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class ServerCollectorCommunicationManager extends AppCompatActivity {
+public class ServerCollectorCommunicationManager {
+    private static final String TAG = "ServerCollectorComm";
+
     private Context context;
     private RequestQueue queue;
 
     public ServerCollectorCommunicationManager(Context context){
-        this.context = context;
-        this.queue = Volley.newRequestQueue(context);
+        // the queue lives as long as this manager, do not keep an activity reachable through it
+        this.context = context.getApplicationContext() != null ? context.getApplicationContext() : context;
+        this.queue = Volley.newRequestQueue(this.context);
     }
 
     public void uploadJsonToServer(Collector collector) throws JSONException {
@@ -50,12 +50,12 @@ public class ServerCollectorCommunicationManager extends AppCompatActivity {
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, params, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                Log.e("POST Request", "Sent success");
+                Log.i(TAG, "POST Request: sent successfully");
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.e("POST Request", error.toString());
+                Log.e(TAG, "POST Request failed: " + error);
             }
 
         }){
@@ -72,21 +72,30 @@ public class ServerCollectorCommunicationManager extends AppCompatActivity {
     }
 
     public void downloadJsonFromServer(final VolleyCallback callback, String url){
-        Gson g = new Gson();
-        String[] collectorInfo = new String[1];
+        final Gson g = new Gson();
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                collectorInfo[0] = response.toString();
-                Collector collector = g.fromJson(collectorInfo[0], Collector.class);
+                Collector collector;
+                try {
+                    collector = g.fromJson(response.toString(), Collector.class);
+                } catch (JsonParseException e) {
+                    Log.e(TAG, "GET Request: could not parse the collector", e);
+                    callback.onError(e);
+                    return;
+                }
+                if (collector == null) {
+                    callback.onError(new Exception("The server returned an empty collector"));
+                    return;
+                }
+                Log.i(TAG, "GET Request: received successfully");
                 callback.onSuccess(collector);
-                Log.e("GET Request", "Received success");
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                collectorInfo[0] = error.toString();
-                Log.e("GET Request", error.toString());
+                Log.e(TAG, "GET Request failed: " + error);
+                callback.onError(error);
             }
         });
 

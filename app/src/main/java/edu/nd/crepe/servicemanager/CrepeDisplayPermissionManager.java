@@ -2,6 +2,7 @@ package edu.nd.crepe.servicemanager;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -12,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import edu.nd.crepe.R;
 
@@ -34,12 +36,19 @@ public class CrepeDisplayPermissionManager {
             AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
             dialogBuilder.setView(displayPermissionView);
             Dialog dialog = dialogBuilder.create();
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            if (dialog.getWindow() != null) {
+                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            }
             Button confirmationYesButton = displayPermissionView.findViewById(R.id.confirmationYesButton);
             confirmationYesButton.setOnClickListener(view -> {
                 Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + context.getPackageName()));
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                context.startActivity(intent);
+                try {
+                    context.startActivity(intent);
+                } catch (ActivityNotFoundException e) {
+                    Log.e("DisplayPermissionManager", "No settings screen to allow drawing over other apps", e);
+                    Toast.makeText(context, "Please allow Crepe to display over other apps in your device settings.", Toast.LENGTH_LONG).show();
+                }
                 dialog.dismiss();
             });
             return dialog;

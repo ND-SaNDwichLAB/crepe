@@ -61,7 +61,9 @@ public class CollectorCardDetailBuilder {
         }
         dialogBuilder.setView(popupView);
         Dialog dialog = dialogBuilder.create();
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
 
         // populate information of the collector
         TextView creatorTitleTextView = (TextView) popupView.findViewById(R.id.collectorCreatorTitle);
@@ -77,7 +79,7 @@ public class CollectorCardDetailBuilder {
             Log.i("CollectorCardDetailBuilder", "More than 1 user detected locally. Please check.\nallUsers size: " + allUsers.size());
         }
         for (User user : allUsers) {
-            if (user.getUserId().equals(creatorUserId)) {
+            if (creatorUserId != null && creatorUserId.equals(user.getUserId())) {
                 createdByCurrentUser = true;
                 creatorNameTextView.setText(user.getName() + " (you)");
                 break;
@@ -111,11 +113,15 @@ public class CollectorCardDetailBuilder {
                     // check display over other apps permission
                     if (!Settings.canDrawOverlays(c)) {
                         Dialog enableDisplayServiceDialog = CrepeDisplayPermissionManager.getInstance().getEnableDisplayServiceDialog(c);
-                        enableDisplayServiceDialog.show();
+                        if (enableDisplayServiceDialog != null) {
+                            enableDisplayServiceDialog.show();
+                        }
                     } else if (!CrepeAccessibilityService.isAccessibilityServiceEnabled(c, CrepeAccessibilityService.class)) {
                         // show the accessibility service permission dialog
-                        Dialog dialog = AccessibilityPermissionManager.getInstance().getEnableAccessibilityServiceDialog(c);
-                        dialog.show();
+                        Dialog accessibilityDialog = AccessibilityPermissionManager.getInstance().getEnableAccessibilityServiceDialog(c);
+                        if (accessibilityDialog != null) {
+                            accessibilityDialog.show();
+                        }
                     } else {
                         // dismiss current dialog
                         dialog.dismiss();
@@ -150,6 +156,10 @@ public class CollectorCardDetailBuilder {
             public void onClick(View view) {
                 // we will just share the id of the collector for now, instead of a url
                 ClipboardManager clipboard = (ClipboardManager) c.getSystemService(Context.CLIPBOARD_SERVICE);
+                if (clipboard == null) {
+                    Toast.makeText(c, "Could not access the clipboard.", Toast.LENGTH_LONG).show();
+                    return;
+                }
                 ClipData clip = ClipData.newPlainText("share URL", collector.getCollectorId());
                 clipboard.setPrimaryClip(clip);
                 Toast.makeText(c,"collector ID copied. Share with your participants!", Toast.LENGTH_LONG).show();

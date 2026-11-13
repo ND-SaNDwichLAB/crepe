@@ -7,6 +7,7 @@ import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,7 +36,7 @@ public class DataFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        dbManager = DatabaseManager.getInstance(this.getActivity().getApplicationContext());
+        dbManager = DatabaseManager.getInstance(requireActivity().getApplicationContext());
         collectorList = dbManager.getActiveCollectors();
         return inflater.inflate(R.layout.fragment_data, container, false);
     }
@@ -43,7 +44,9 @@ public class DataFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        getActivity().setTitle("View My Data");
+        if (getActivity() != null) {
+            getActivity().setTitle("View My Data");
+        }
 
     }
 
@@ -54,7 +57,7 @@ public class DataFragment extends Fragment {
         try {
             initCollectorInfoLayout();
         } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
+            Log.e("DataFragment", "Could not show the collector information", e);
         }
 
     }
@@ -62,10 +65,19 @@ public class DataFragment extends Fragment {
     // function to init collector information from database on data fragment
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void initCollectorInfoLayout() throws PackageManager.NameNotFoundException {
+        View root = getView();
+        if (root == null || getContext() == null) {
+            return;
+        }
         Map<String,Drawable> apps = getAppImage();
         CollectorInfoLayoutBuilder collectorInfoLayoutBuilder = new CollectorInfoLayoutBuilder(getContext(),apps);
 
-        LinearLayout fragmentInnerLinearLayout = getView().findViewById(R.id.data_fragment_inner_linear_layout);
+        LinearLayout fragmentInnerLinearLayout = root.findViewById(R.id.data_fragment_inner_linear_layout);
+        if (fragmentInnerLinearLayout == null) {
+            return;
+        }
+        // onStart runs again every time the screen comes back, do not stack the entries on top of each other
+        fragmentInnerLinearLayout.removeAllViews();
 
 
         for(Collector collector: collectorList) {
@@ -98,19 +110,24 @@ public class DataFragment extends Fragment {
         Map<String, Drawable> apps = new HashMap<String, Drawable>();
         for (ResolveInfo ri : ril) {
             if (ri.activityInfo != null) {
-                // get package
-                Resources res = getContext().getPackageManager().getResourcesForApplication(ri.activityInfo.applicationInfo);
-                // if activity label res is found
-                if (ri.activityInfo.labelRes != 0) {
-                    name = res.getString(ri.activityInfo.labelRes);
-                } else {
-                    name = ri.activityInfo.applicationInfo.loadLabel(
-                            getContext().getPackageManager()).toString();
+                // an app that disappeared meanwhile, or has a broken label, is skipped
+                try {
+                    // get package
+                    Resources res = getContext().getPackageManager().getResourcesForApplication(ri.activityInfo.applicationInfo);
+                    // if activity label res is found
+                    if (ri.activityInfo.labelRes != 0) {
+                        name = res.getString(ri.activityInfo.labelRes);
+                    } else {
+                        name = ri.activityInfo.applicationInfo.loadLabel(
+                                getContext().getPackageManager()).toString();
 
+                    }
+                    packageName = ri.activityInfo.packageName;
+                    image = getContext().getPackageManager().getApplicationIcon(packageName);
+                    apps.put(name,image);
+                } catch (PackageManager.NameNotFoundException | Resources.NotFoundException e) {
+                    Log.w("DataFragment", "Skipping app " + ri.activityInfo.packageName + ": " + e.getMessage());
                 }
-                packageName = ri.activityInfo.packageName;
-                image = getContext().getPackageManager().getApplicationIcon(packageName);
-                apps.put(name,image);
             }
         }
         return apps;

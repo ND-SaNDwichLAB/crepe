@@ -1,7 +1,5 @@
 package edu.nd.crepe.authentication;
 
-import static android.content.ContentValues.TAG;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -23,6 +21,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 public class Login extends AppCompatActivity {
+
+    private static final String TAG = "Login";
 
     /*
     Sign in w/ email and password
@@ -65,31 +65,33 @@ public class Login extends AppCompatActivity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String email, password;
-                email = accountEditText.getText().toString();
-                password = passwordEditText.getText().toString();
+                // the email is trimmed because keyboards like to append a trailing space after autocomplete
+                String email = accountEditText.getText().toString().trim();
+                String password = passwordEditText.getText().toString();
 
-                if (accountEditText.getText().toString().isEmpty() || passwordEditText.getText().toString().isEmpty()) {
+                if (email.isEmpty() || password.isEmpty()) {
                     Toast.makeText(Login.this, "Please fill in all the fields", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
+                progressBar.setVisibility(View.VISIBLE);
+                loginButton.setEnabled(false);
                 mAuth.signInWithEmailAndPassword(email, password)
                         .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
-                                progressBar.setVisibility(View.VISIBLE);
+                                progressBar.setVisibility(View.GONE);
+                                loginButton.setEnabled(true);
                                 if (task.isSuccessful()) {
-                                    // Sign in success, update UI with the signed-in user's information
-                                    Log.d(TAG, "createUserWithEmail:success");
-                                    FirebaseUser user = mAuth.getCurrentUser();
+                                    // Sign in success, move on to the main screen
+                                    Log.d(TAG, "signInWithEmail:success");
                                     Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                                     startActivity(intent);
                                     finish();
 
                                 } else {
                                     // If sign in fails, display a message to the user.
-                                    Log.w(TAG, "createUserWithEmail:failure", task.getException());
+                                    Log.w(TAG, "signInWithEmail:failure", task.getException());
                                     Toast.makeText(Login.this, "Authentication failed.",
                                             Toast.LENGTH_SHORT).show();
 

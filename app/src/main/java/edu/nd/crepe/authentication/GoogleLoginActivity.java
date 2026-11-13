@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -15,11 +16,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import edu.nd.crepe.MainActivity;
 import edu.nd.crepe.R;
-import edu.nd.crepe.database.Collector;
 import edu.nd.crepe.database.DatabaseManager;
-import edu.nd.crepe.database.Datafield;
 import edu.nd.crepe.database.User;
-import edu.nd.crepe.network.DataLoadingEvent;
 import edu.nd.crepe.network.FirebaseCallback;
 import edu.nd.crepe.network.FirebaseCommunicationManager;
 
@@ -32,17 +30,14 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AdditionalUserInfo;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
-import org.greenrobot.eventbus.EventBus;
-
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class GoogleLoginActivity extends AppCompatActivity {
 
@@ -52,8 +47,6 @@ public class GoogleLoginActivity extends AppCompatActivity {
     private ActivityResultLauncher<Intent> signInLauncher;
     private SignInButton signInButton;
     private static final String TAG = "GoogleLoginActivity";
-
-    private static final int RC_SIGN_IN = 100;
 
     private DatabaseManager dbManager;
     private FirebaseCommunicationManager fbManager;
@@ -98,37 +91,40 @@ public class GoogleLoginActivity extends AppCompatActivity {
             @Override
             public void onActivityResult(ActivityResult result) {
                 Log.d(TAG, "onActivityResult: Google Sign In Activity Result");
-                Intent data = result.getData();
 
-                Bundle extras = data.getExtras();
-                if (extras != null) {
-                    for (String key : extras.keySet()) {
-                        Log.d(TAG, key + ": " + extras.get(key));
-                    }
+                // the account picker returns no data at all when the user backs out of it
+                Intent data = result.getData();
+                int resultCode = result.getResultCode();
+                if (resultCode != RESULT_OK || data == null) {
+                    Log.d(TAG, "onActivityResult: Google Sign In cancelled or failed, result code: " + resultCode);
+                    return;
                 }
 
-                int resultCode = result.getResultCode();
-                if (resultCode == RESULT_OK) {
-                    Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-                    try {
-                        GoogleSignInAccount account = task.getResult(ApiException.class);
-                        Log.d(TAG, "onActivityResult: Google Sign In Successful");
-                        firebaseAuthWithGoogle(account);
-                        finish();
-                    } catch (ApiException e) {
-                        Log.d(TAG, "onActivityResult: Google Sign In Failed");
-                        e.printStackTrace();
-                    }
-                } else {
-                    Log.d(TAG, "onActivityResult: Google Sign In Failed");
-                    Log.d(TAG, "onActivityResult: Result Code: " + resultCode);
+                Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+                try {
+                    GoogleSignInAccount account = task.getResult(ApiException.class);
+                    Log.d(TAG, "onActivityResult: Google Sign In Successful");
+                    // this activity is finished once the Firebase sign in completes (see firebaseAuthWithGoogle)
+                    firebaseAuthWithGoogle(account);
+                } catch (ApiException e) {
+                    Log.w(TAG, "onActivityResult: Google Sign In Failed, status code " + e.getStatusCode(), e);
+                    showSignInError();
                 }
             }
         });
     }
 
+    private void showSignInError() {
+        Toast.makeText(this, "Sign in failed. Please try again.", Toast.LENGTH_LONG).show();
+    }
 
     private void firebaseAuthWithGoogle(GoogleSignInAccount account) {
+        if (account == null || account.getIdToken() == null) {
+            Log.e(TAG, "firebaseAuthWithGoogle: the Google account has no ID token");
+            showSignInError();
+            return;
+        }
+
         AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
         mAuth.signInWithCredential(credential)
                 .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
@@ -136,11 +132,20 @@ public class GoogleLoginActivity extends AppCompatActivity {
                                           public void onSuccess(AuthResult authResult) {
                                               Log.d(TAG, "firebaseAuthWithGoogle: Sign In Successful");
                                               FirebaseUser user = mAuth.getCurrentUser();
+                                              if (user == null) {
+                                                  Log.e(TAG, "firebaseAuthWithGoogle: signed in, but there is no current user");
+                                                  showSignInError();
+                                                  return;
+                                              }
 
                                               // Get the user's Google name
                                               String googleName = account.getDisplayName();
+                                              if (googleName == null) {
+                                                  googleName = "";
+                                              }
 
-                                              if (authResult.getAdditionalUserInfo().isNewUser()) {
+                                              AdditionalUserInfo additionalUserInfo = authResult.getAdditionalUserInfo();
+                                              if (additionalUserInfo != null && additionalUserInfo.isNewUser()) {
                                                   Log.d(TAG, "onSuccess: New User");
                                                   // only the admin of this application can retrieve user profile from the uid, so users' privacy is protected
                                                   createNewUser(user.getUid(), googleName, "");
@@ -161,8 +166,8 @@ public class GoogleLoginActivity extends AppCompatActivity {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, "firebaseAuthWithGoogle: Sign In Failed");
-                        e.printStackTrace();
+                        Log.w(TAG, "firebaseAuthWithGoogle: Sign In Failed", e);
+                        showSignInError();
                     }
                 });
     }
@@ -173,10 +178,14 @@ public class GoogleLoginActivity extends AppCompatActivity {
 
         try {
             dbManager.addOneUser(user);
-            fbManager.putUser(user);
+            fbManager.putUser(user).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.e(TAG, "createNewUser: Failed to save the new user to Firebase", e);
+                }
+            });
         } catch (Exception e) {
-            Log.e(TAG, "createNewUser: Error creating new user");
-            e.printStackTrace();
+            Log.e(TAG, "createNewUser: Error creating new user", e);
         }
     }
 
@@ -184,7 +193,7 @@ public class GoogleLoginActivity extends AppCompatActivity {
         fbManager.retrieveUser(uid, new FirebaseCallback<User>() {
             public void onResponse(User user) {
 
-                // save this user to local database
+                // save this user to local database (this is a no-op if the user is already stored locally)
                 dbManager.addOneUser(user);
 
                 // move to main activity
@@ -195,25 +204,12 @@ public class GoogleLoginActivity extends AppCompatActivity {
             }
 
             public void onErrorResponse(Exception e) {
-                try {
-                    Log.e("Firebase collector", e.getMessage());
-                } catch (NullPointerException ex) {
-                    Log.e("Firebase collector", "An unknown error occurred.");
-                }
+                Log.e(TAG, "addExistingUserInfo: could not retrieve the user profile: " + (e != null ? e.getMessage() : "unknown error"));
+                // the Firebase session is valid, so tapping the sign in button again simply retries loading the profile
+                Toast.makeText(GoogleLoginActivity.this, "Could not load your profile. Please check your connection and try again.", Toast.LENGTH_LONG).show();
             }
 
         });
     }
-
-    private static String bytesToHex(byte[] hash) {
-        StringBuilder hexString = new StringBuilder(2 * hash.length);
-        for (int i = 0; i < hash.length; i++) {
-            String hex = Integer.toHexString(0xff & hash[i]);
-            if (hex.length() == 1) hexString.append('0');
-            hexString.append(hex);
-        }
-        return hexString.toString();
-    }
-
 
 }

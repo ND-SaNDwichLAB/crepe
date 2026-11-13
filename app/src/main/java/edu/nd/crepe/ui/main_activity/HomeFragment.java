@@ -4,7 +4,9 @@ import static edu.nd.crepe.database.Collector.DELETED;
 import static edu.nd.crepe.database.Collector.EXPIRED;
 import static edu.nd.crepe.database.Collector.ACTIVE;
 
+import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -26,6 +28,7 @@ import androidx.fragment.app.Fragment;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -51,13 +54,15 @@ import java.util.stream.Collectors;
 
 public class HomeFragment extends Fragment {
 
+    private static final String TAG = "HomeFragment";
+
     private Long BUFFER_GAP = 500L; // a gap to avoid triggering the onChildAdded Firebase listener when we attach it
     private DatabaseManager dbManager;
     private DatabaseReference collectorReference;
     private ChildEventListener collectorListener;
     private DatabaseReference datafieldReference;
     private ChildEventListener datafieldListener;
-    private List<Collector> collectorList;
+    private List<Collector> collectorList = new ArrayList<>();
 
     @Nullable
     @Override
@@ -70,17 +75,54 @@ public class HomeFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        EventBus.getDefault().register(this);
-        Objects.requireNonNull(getActivity()).setTitle("Crepe");
+        if (getActivity() != null) {
+            getActivity().setTitle("Crepe");
+        }
         try {
             initCollectorList();
         } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
+            Log.e(TAG, "Could not build the collector list", e);
         }
 
-        // if there are collectors locally, add listener to firebase to watch for remote updates to these collectors
-        if (!collectorList.isEmpty() && collectorListener == null && datafieldListener == null) {
+        // check accessibility service permission
+        Context context = getContext();
+        if (context != null && !CrepeAccessibilityService.isAccessibilityServiceEnabled(context, CrepeAccessibilityService.class)) {
+            // show the accessibility service permission dialog
+            Dialog dialog = AccessibilityPermissionManager.getInstance().getEnableAccessibilityServiceDialog(context);
+            if (dialog != null) {
+                dialog.show();
+            }
+        }
+    }
 
+    // The event bus and the firebase listeners are tied to the started state: they are released in onStop,
+    // so they have to be (re-)acquired in onStart, not just once when the view is created. Otherwise the
+    // screen stops updating after the app has been in the background, for example during a demonstration.
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
+        attachFirebaseListeners();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        detachFirebaseListeners();
+        if (EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().unregister(this);
+        }
+    }
+
+    private void attachFirebaseListeners() {
+        // if there are collectors locally, add listener to firebase to watch for remote updates to these collectors
+        if (collectorList == null || collectorList.isEmpty() || collectorListener != null || datafieldListener != null) {
+            return;
+        }
+
+        try {
             // record the current timestamp
             Long attachTimestamp = System.currentTimeMillis();
 
@@ -93,27 +135,21 @@ public class HomeFragment extends Fragment {
 
             datafieldListener = createNewDatafieldListener(attachTimestamp);
             datafieldReference.addChildEventListener(datafieldListener);
-        }
-
-
-        // check accessibility service permission
-        if (!CrepeAccessibilityService.isAccessibilityServiceEnabled(getContext(), CrepeAccessibilityService.class)) {
-            // show the accessibility service permission dialog
-            Dialog dialog = AccessibilityPermissionManager.getInstance().getEnableAccessibilityServiceDialog(getContext());
-            dialog.show();
+        } catch (RuntimeException e) {
+            Log.e(TAG, "Could not listen to remote collector updates", e);
+            detachFirebaseListeners();
         }
     }
 
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (collectorListener != null) {
+    private void detachFirebaseListeners() {
+        if (collectorListener != null && collectorReference != null) {
             collectorReference.removeEventListener(collectorListener);
         }
-        if (datafieldListener != null) {
+        if (datafieldListener != null && datafieldReference != null) {
             datafieldReference.removeEventListener(datafieldListener);
         }
-        EventBus.getDefault().unregister(this);
+        collectorListener = null;
+        datafieldListener = null;
     }
 
 
@@ -123,18 +159,32 @@ public class HomeFragment extends Fragment {
             try {
                 initCollectorList();
             } catch (PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
+                Log.e(TAG, "Could not refresh the collector list", e);
             }
         }
     }
 
     public void initCollectorList() throws PackageManager.NameNotFoundException {
+        // This can be reached after the fragment's view is gone (a late firebase result, or a refresh
+        // requested by a dialog that outlived the screen). There is nothing to draw on then.
+        View root = getView();
+        Activity activity = getActivity();
+        if (root == null || activity == null || dbManager == null) {
+            Log.w(TAG, "The home screen is not showing, skipping the collector list refresh");
+            return;
+        }
+
+        TextView noCollectorTextView = root.findViewById(R.id.empty_text_view);
+        LinearLayout fragmentInnerLinearLayout = root.findViewById(R.id.fragment_home_inner_linear_layout);
+        if (noCollectorTextView == null || fragmentInnerLinearLayout == null) {
+            Log.e(TAG, "The home screen layout is missing its collector list views");
+            return;
+        }
+
         // at this time, only active collectors for this user are retrieved from firebase to local db
         // see code in GoogleLoginActivity.java and function addParticipatingCollectors
         collectorList = dbManager.getActiveCollectors();
 
-        TextView noCollectorTextView = getView().findViewById(R.id.empty_text_view);
-        LinearLayout fragmentInnerLinearLayout = getView().findViewById(R.id.fragment_home_inner_linear_layout);
         // clear the collector list
         fragmentInnerLinearLayout.removeAllViews();
 
@@ -144,19 +194,24 @@ public class HomeFragment extends Fragment {
 
             // get all installed apps
             Map<String, Drawable> apps = getAppImage();
-            CollectorCardConstraintLayoutBuilder builder = new CollectorCardConstraintLayoutBuilder(getActivity(), homeFragmentRefreshCollectorListRunnable, apps);
+            CollectorCardConstraintLayoutBuilder builder = new CollectorCardConstraintLayoutBuilder(activity, homeFragmentRefreshCollectorListRunnable, apps);
 
 
             for (Collector collector : collectorList) {
 
-                ConstraintLayout collectorCardView = builder.build(collector, fragmentInnerLinearLayout, "cardLayout");
+                // one collector that cannot be drawn must not take the whole list down with it
+                try {
+                    ConstraintLayout collectorCardView = builder.build(collector, fragmentInnerLinearLayout, "cardLayout");
 
-                // if the cardView is not null, meaning the collector is not in deleted status
-                if (collectorCardView != null) {
-                    collectorCardView.setId(View.generateViewId());
+                    // if the cardView is not null, meaning the collector is not in deleted status
+                    if (collectorCardView != null) {
+                        collectorCardView.setId(View.generateViewId());
 
-                    // Toast.makeText(this.getActivity(), fragmentInnerConstraintLayout.toString(), Toast.LENGTH_LONG).show();
-                    fragmentInnerLinearLayout.addView(collectorCardView);
+                        // Toast.makeText(this.getActivity(), fragmentInnerConstraintLayout.toString(), Toast.LENGTH_LONG).show();
+                        fragmentInnerLinearLayout.addView(collectorCardView);
+                    }
+                } catch (RuntimeException e) {
+                    Log.e(TAG, "Could not show the collector " + collector.getCollectorId(), e);
                 }
             }
 
@@ -172,42 +227,69 @@ public class HomeFragment extends Fragment {
                 initCollectorList();
 
             } catch (PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
+                Log.e(TAG, "Could not refresh the collector list", e);
             }
         }
     };
 
 
     public Map<String, Drawable> getAppImage() throws PackageManager.NameNotFoundException {
+        Map<String, Drawable> apps = new HashMap<String, Drawable>();
+        Context context = getContext();
+        if (context == null) {
+            return apps;
+        }
+
         final Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
         mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
 
         // get list of all the apps installed
-        List<ResolveInfo> ril = getContext().getPackageManager().queryIntentActivities(mainIntent, 0);
-        String name = null;
-        Drawable image = null;
-        String packageName = "edu.nd.crepe";
+        PackageManager packageManager = context.getPackageManager();
+        List<ResolveInfo> ril = packageManager.queryIntentActivities(mainIntent, 0);
 
-        // get size of ril and create a list
-        Map<String, Drawable> apps = new HashMap<String, Drawable>();
         for (ResolveInfo ri : ril) {
             if (ri.activityInfo != null) {
-                // get package
-                Resources res = getContext().getPackageManager().getResourcesForApplication(ri.activityInfo.applicationInfo);
-                // if activity label res is found
-                if (ri.activityInfo.labelRes != 0) {
-                    name = res.getString(ri.activityInfo.labelRes);
-                } else {
-                    name = ri.activityInfo.applicationInfo.loadLabel(
-                            getContext().getPackageManager()).toString();
+                // an app that was uninstalled while we are looking, or one with a broken label, is skipped
+                try {
+                    String name;
+                    // get package
+                    Resources res = packageManager.getResourcesForApplication(ri.activityInfo.applicationInfo);
+                    // if activity label res is found
+                    if (ri.activityInfo.labelRes != 0) {
+                        name = res.getString(ri.activityInfo.labelRes);
+                    } else {
+                        name = ri.activityInfo.applicationInfo.loadLabel(packageManager).toString();
 
+                    }
+                    Drawable image = packageManager.getApplicationIcon(ri.activityInfo.packageName);
+                    apps.put(name, image);
+                } catch (PackageManager.NameNotFoundException | Resources.NotFoundException e) {
+                    Log.w(TAG, "Skipping app " + ri.activityInfo.packageName + ": " + e.getMessage());
                 }
-                packageName = ri.activityInfo.packageName;
-                image = getContext().getPackageManager().getApplicationIcon(packageName);
-                apps.put(name, image);
             }
         }
         return apps;
+    }
+
+    // the name of the app of one of the collectors that are shown, or a generic name if it is unknown
+    private String appNameOf(String collectorId) {
+        List<Collector> currentCollectors = collectorList;
+        if (currentCollectors != null) {
+            for (Collector collector : currentCollectors) {
+                if (Objects.equals(collector.getCollectorId(), collectorId) && collector.getAppName() != null) {
+                    return collector.getAppName();
+                }
+            }
+        }
+        return "";
+    }
+
+    private void showNotification(String message) {
+        Context context = getContext();
+        if (context == null) {
+            return;
+        }
+        new CrepeNotificationManager(context, getActivity()).showNotification(message);
     }
 
     private ChildEventListener createNewCollectorListener(Long attachTimestamp) {
@@ -231,15 +313,31 @@ public class HomeFragment extends Fragment {
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                Collector updatedCollector;
+                try {
+                    updatedCollector = snapshot.getValue(Collector.class);
+                } catch (DatabaseException e) {
+                    Log.e("collector childEventListener", "Could not read the changed collector " + snapshot.getKey(), e);
+                    return;
+                }
+                if (updatedCollector == null) {
+                    Log.e("collector childEventListener", "The changed collector " + snapshot.getKey() + " is empty. Please check.");
+                    return;
+                }
+
                 // when a collector of this id is changed, update the collector in local db
-                Collector updatedCollector = snapshot.getValue(Collector.class);
-                assert updatedCollector != null;
                 String updatedCollectorId = updatedCollector.getCollectorId();
-                if (collectorIds.contains(updatedCollectorId)) {
+                if (updatedCollectorId != null && collectorIds.contains(updatedCollectorId)) {
                     // this updateCollector function can also handle when only the collector status was changed
                     dbManager.updateCollector(updatedCollector);
 
-                    Collector currentCollector = collectorList.stream().filter(collector -> collector.getCollectorId().equals(updatedCollectorId)).findFirst().orElse(null);
+                    Collector currentCollector = null;
+                    for (Collector collector : collectorList) {
+                        if (updatedCollectorId.equals(collector.getCollectorId())) {
+                            currentCollector = collector;
+                            break;
+                        }
+                    }
                     if (currentCollector != null) {
 
                         // compare the current collector and the updated collector, return the difference
@@ -248,29 +346,28 @@ public class HomeFragment extends Fragment {
                         if (changeStatus == Collector.ChangeStatus.NO_CHANGE) {
                             // do nothing, but log because this should not happen
                             Log.i("collector childEventListener", "The collector with id " + updatedCollectorId + " is changed, but no change is detected. Please check.");
-                        } else {
-                            CrepeNotificationManager crepeNotificationManager = new CrepeNotificationManager(getContext(), getActivity());
+                        } else if (changeStatus != null) {
                             if (changeStatus == Collector.ChangeStatus.DESCRIPTION_CHANGE) {
                                 // if the collector description is changed, we need to notify the participant and researcher
-                                crepeNotificationManager.showNotification("The description of your " + currentCollector.getAppName() + " collector is changed. See details in the app.");
+                                showNotification("The description of your " + currentCollector.getAppName() + " collector is changed. See details in the app.");
                             } else if (changeStatus == Collector.ChangeStatus.COLLECTOR_START_TIME_CHANGE) {
                                 // if the collector start time is changed, we don't need to notify the participant and researcher
                                 Log.i("collector childEventListener", "The collector with id " + updatedCollectorId + " start time is changed in Firebase.");
                             } else if (changeStatus == Collector.ChangeStatus.COLLECTOR_END_TIME_CHANGE) {
                                 // if the collector end time is changed, we need to notify the participant and researcher
-                                crepeNotificationManager.showNotification("The end time of your " + currentCollector.getAppName() + " collector has changed. See details in the app.");
+                                showNotification("The end time of your " + currentCollector.getAppName() + " collector has changed. See details in the app.");
                             } else if (changeStatus == Collector.ChangeStatus.COLLECTOR_STATUS_CHANGE) {
                                 // if the collector status is changed, we need to notify the participant and researcher
                                 // if the status changed to deleted
-                                if (updatedCollector.getCollectorStatus().equals(DELETED)) {
-                                    crepeNotificationManager.showNotification("Your " + currentCollector.getAppName() + " collector has been deleted by the researcher. No more data will be collected. See details in the app.");
+                                if (DELETED.equals(updatedCollector.getCollectorStatus())) {
+                                    showNotification("Your " + currentCollector.getAppName() + " collector has been deleted by the researcher. No more data will be collected. See details in the app.");
                                 }
                                 // if the status changed to expired, that means the collection is complete
-                                if (updatedCollector.getCollectorStatus().equals(EXPIRED)) {
-                                    crepeNotificationManager.showNotification("Your " + currentCollector.getAppName() + " collector has finished. Thank you for your participation!");
+                                if (EXPIRED.equals(updatedCollector.getCollectorStatus())) {
+                                    showNotification("Your " + currentCollector.getAppName() + " collector has finished. Thank you for your participation!");
                                 }
                                 // if the status changed to active, something is wrong
-                                if (updatedCollector.getCollectorStatus().equals(ACTIVE)) {
+                                if (ACTIVE.equals(updatedCollector.getCollectorStatus())) {
                                     Log.e("collector childEventListener", "The collector with id " + updatedCollectorId + " status has changed to active. Please check.");
                                 }
                                 Log.e("collector childEventListener", "The collector with id " + updatedCollectorId + " status is changed to " + updatedCollector.getCollectorStatus() + ", but not caught. Please check.");
@@ -320,14 +417,10 @@ public class HomeFragment extends Fragment {
                     Long currentTimestamp = System.currentTimeMillis();
                     if (currentTimestamp > attachTimestamp + BUFFER_GAP) { // add a small buffer to avoid duplicate
                         // when a datafield of current local collector is added in firebase, add it to local db
-                        Datafield addedDatafield = snapshot.getValue(Datafield.class);
-                        assert addedDatafield != null;
-                        if (collectorIds.contains(addedDatafield.getCollectorId())) {
+                        Datafield addedDatafield = readDatafield(snapshot);
+                        if (addedDatafield != null && collectorIds.contains(addedDatafield.getCollectorId())) {
                             dbManager.addDatafield(addedDatafield);
-                            String collectorId = addedDatafield.getCollectorId();
-                            String collectorName = collectorList.stream().filter(collector -> collector.getCollectorId().equals(collectorId)).findFirst().orElse(null).getAppName();
-                            CrepeNotificationManager crepeNotificationManager = new CrepeNotificationManager(getContext(), getActivity());
-                            crepeNotificationManager.showNotification("Datafields added to your " + collectorName + " collector. See details in the app.");
+                            showNotification("Datafields added to your " + appNameOf(addedDatafield.getCollectorId()) + " collector. See details in the app.");
                         }
                     }
                 }
@@ -336,27 +429,20 @@ public class HomeFragment extends Fragment {
             @Override
             public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 // when a datafield of this id is changed, update the datafield in local db
-                Datafield updatedDatafield = snapshot.getValue(Datafield.class);
-                String updatedDatafieldId = updatedDatafield.getCollectorId();
-                if (collectorIds.contains(updatedDatafieldId)) {
+                Datafield updatedDatafield = readDatafield(snapshot);
+                if (updatedDatafield != null && collectorIds.contains(updatedDatafield.getCollectorId())) {
                     dbManager.updateDatafield(updatedDatafield);
-                    String collectorId = updatedDatafield.getCollectorId();
-                    String collectorName = collectorList.stream().filter(collector -> collector.getCollectorId().equals(collectorId)).findFirst().orElse(null).getAppName();
-                    CrepeNotificationManager crepeNotificationManager = new CrepeNotificationManager(getContext(), getActivity());
-                    crepeNotificationManager.showNotification("Datafields are modified for your " + collectorName + " collector. See details in the app.");
+                    showNotification("Datafields are modified for your " + appNameOf(updatedDatafield.getCollectorId()) + " collector. See details in the app.");
                 }
             }
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot snapshot) {
                 // datafields should not be removed from firebased based on our setup, but only marked as deleted in datafieldStatus
-                Datafield removedDatafield = snapshot.getValue(Datafield.class);
-                if (collectorIds.contains(removedDatafield.getCollectorId())) {
+                Datafield removedDatafield = readDatafield(snapshot);
+                if (removedDatafield != null && collectorIds.contains(removedDatafield.getCollectorId())) {
                     dbManager.removeDatafieldById(removedDatafield.getDatafieldId());
-                    String collectorId = removedDatafield.getCollectorId();
-                    String collectorName = collectorList.stream().filter(collector -> collector.getCollectorId().equals(collectorId)).findFirst().orElse(null).getAppName();
-                    CrepeNotificationManager crepeNotificationManager = new CrepeNotificationManager(getContext(), getActivity());
-                    crepeNotificationManager.showNotification("Datafields removed from your " + collectorName + " collector. See details in the app.");
+                    showNotification("Datafields removed from your " + appNameOf(removedDatafield.getCollectorId()) + " collector. See details in the app.");
                 }
             }
 
@@ -370,6 +456,21 @@ public class HomeFragment extends Fragment {
                 Log.e("datafield childEventListener", "The read failed: " + error.getCode());
             }
         };
+    }
+
+    // null if the node cannot be converted, instead of an exception inside a firebase listener
+    @Nullable
+    private static Datafield readDatafield(DataSnapshot snapshot) {
+        try {
+            Datafield datafield = snapshot.getValue(Datafield.class);
+            if (datafield == null) {
+                Log.e("datafield childEventListener", "The datafield " + snapshot.getKey() + " is empty. Please check.");
+            }
+            return datafield;
+        } catch (DatabaseException e) {
+            Log.e("datafield childEventListener", "Could not read the datafield " + snapshot.getKey(), e);
+            return null;
+        }
     }
 
 

@@ -69,10 +69,10 @@ public class CollectorInfoLayoutBuilder {
         // get the app status and display it
         ImageView collectorStatusImg = (ImageView) collectorInfoLayout.findViewById(R.id.statusImageView);
         TextView collectorStatusTxt = (TextView) collectorInfoLayout.findViewById(R.id.statusText);
-        if (collector.getCollectorStatus().equals(ACTIVE)){
+        if (ACTIVE.equals(collector.getCollectorStatus())){
             collectorStatusTxt.setText("Running");
             collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_24_green);
-        } else if (collector.getCollectorStatus().equals(EXPIRED)){
+        } else if (EXPIRED.equals(collector.getCollectorStatus())){
             collectorStatusTxt.setText("Expired");
             collectorStatusImg.setImageResource(R.drawable.ic_baseline_circle_12_grey);
         } else {
@@ -82,7 +82,7 @@ public class CollectorInfoLayoutBuilder {
 
         // get App logo
         ImageView appImg = (ImageView) collectorInfoLayout.findViewById(R.id.collectorImg);
-        Drawable appImage = apps.get(collector.getAppName());
+        Drawable appImage = apps != null ? apps.get(collector.getAppName()) : null;
         if (appImage == null){
             appImg.setImageResource(R.drawable.nd_logo);
         } else {

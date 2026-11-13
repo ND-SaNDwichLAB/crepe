@@ -7,12 +7,12 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
-
-import org.apache.xpath.operations.Bool;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -20,10 +20,23 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
+/**
+ * Local SQLite storage for collectors, users, datafields and collected data.
+ *
+ * The manager is a process-wide singleton that is shared by the UI and by the accessibility
+ * service, so it never caches a {@link SQLiteDatabase} handle: every operation asks the
+ * {@link SQLiteOpenHelper} for the current one, which transparently re-opens the database if it
+ * was closed. All queries are parameterized.
+ */
 public class DatabaseManager extends SQLiteOpenHelper {
 
-    private SQLiteDatabase db;
+    private static final String TAG = "DatabaseManager";
+    private static final String DATABASE_NAME = "crepe.db";
+    private static final int DATABASE_VERSION = 1;
+
     private static DatabaseManager instance = null;
+
+    private static final Type STRING_LIST_TYPE = new TypeToken<ArrayList<String>>() {}.getType();
 
     public static final String COLLECTOR_TABLE = "collector";
     public static final String COLUMN_COLLECTOR_ID = "collectorId";
@@ -95,13 +108,12 @@ public class DatabaseManager extends SQLiteOpenHelper {
             "            " + COLUMN_TIMESTAMP + " BIGINT, " +
             "            " + COLUMN_DATA_CONTENT + " VARCHAR, " +
             "            " + "FOREIGN KEY(" + COLUMN_DATAFIELD_ID + ") REFERENCES " + DATAFIELD_TABLE + "(" + COLUMN_DATAFIELD_ID + "), " +
-            "            " + "FOREIGN KEY(" + COLUMN_USER_ID + ") REFERENCES " + USER_TABLE + "(" + COLUMN_USER_ID + "));" ;
+            "            " + "FOREIGN KEY(" + COLUMN_USER_ID + ") REFERENCES " + USER_TABLE + "(" + COLUMN_USER_ID + "));";
 
 
     // constructor
     private DatabaseManager(@Nullable Context context) {
-        super(context, "crepe.db", null, 1);
-        this.db = this.getWritableDatabase();
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     // will be called the first time a database is accessed.
@@ -112,25 +124,61 @@ public class DatabaseManager extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(createUserTableStatement);
         sqLiteDatabase.execSQL(createDatafieldTableStatement);
         sqLiteDatabase.execSQL(createDataTableStatement);
-        System.out.println("create table success");
+        Log.i(TAG, "created tables");
     }
 
-    // called if the database version number changes. prevents the app from crashing
+    // called if the database version number changes. Nothing to migrate yet (version 1 is the only schema).
     @Override
-    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
-
+    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
+        Log.i(TAG, "onUpgrade from " + oldVersion + " to " + newVersion + ": no migration required");
     }
 
     // singleton pattern
     public static synchronized DatabaseManager getInstance(Context context) {
         if (instance == null) {
-            instance = new DatabaseManager(context);
+            // always hold the application context, never an activity
+            Context appContext = context.getApplicationContext() != null ? context.getApplicationContext() : context;
+            instance = new DatabaseManager(appContext);
         }
         return instance;
     }
 
-    // a method to add one collector to the local database
-    public Boolean addOneCollector(Collector collector) {
+    /**
+     * Always go through the helper so that a database that was closed is transparently re-opened.
+     */
+    private SQLiteDatabase db() {
+        return getWritableDatabase();
+    }
+
+    // ---------------------------------------------------------------------------------------
+    // Row <-> object helpers
+    // ---------------------------------------------------------------------------------------
+
+    @Nullable
+    private static String getString(Cursor cursor, String column) {
+        int index = cursor.getColumnIndexOrThrow(column);
+        return cursor.isNull(index) ? null : cursor.getString(index);
+    }
+
+    private static long getLong(Cursor cursor, String column) {
+        return cursor.getLong(cursor.getColumnIndexOrThrow(column));
+    }
+
+    private static Collector readCollector(Cursor cursor) {
+        return new Collector(
+                getString(cursor, COLUMN_COLLECTOR_ID),
+                getString(cursor, COLUMN_CREATOR_USER_ID),
+                getString(cursor, COLUMN_APP_NAME),
+                getString(cursor, COLUMN_APP_PACKAGE),
+                getString(cursor, COLUMN_DESCRIPTION),
+                getString(cursor, COLUMN_MODE),
+                getString(cursor, COLUMN_TARGET_SERVER_IP),
+                getLong(cursor, COLUMN_COLLECTOR_START_TIME),
+                getLong(cursor, COLUMN_COLLECTOR_END_TIME),
+                getString(cursor, COLUMN_COLLECTOR_STATUS));
+    }
+
+    private static ContentValues collectorValues(Collector collector) {
         ContentValues cv = new ContentValues();
         cv.put(COLUMN_COLLECTOR_ID, collector.getCollectorId());
         cv.put(COLUMN_CREATOR_USER_ID, collector.getCreatorUserId());
@@ -142,108 +190,214 @@ public class DatabaseManager extends SQLiteOpenHelper {
         cv.put(COLUMN_COLLECTOR_START_TIME, collector.getCollectorStartTime());
         cv.put(COLUMN_COLLECTOR_END_TIME, collector.getCollectorEndTime());
         cv.put(COLUMN_COLLECTOR_STATUS, collector.getCollectorStatus());
-        long insert = db.insert(COLLECTOR_TABLE, null, cv);
-        if (insert == -1) {
+        return cv;
+    }
+
+    private static ArrayList<String> parseCollectorIds(@Nullable String json) {
+        if (json == null || json.trim().isEmpty()) {
+            return new ArrayList<>();
+        }
+        try {
+            ArrayList<String> ids = new Gson().fromJson(json, STRING_LIST_TYPE);
+            return ids != null ? ids : new ArrayList<String>();
+        } catch (JsonParseException e) {
+            Log.w(TAG, "Could not parse stored collector id list, treating it as empty", e);
+            return new ArrayList<>();
+        }
+    }
+
+    private static User readUser(Cursor cursor) {
+        return new User(
+                getString(cursor, COLUMN_USER_ID),
+                getString(cursor, COLUMN_USER_NAME),
+                getString(cursor, COLUMN_USER_PHOTO_URL),
+                getLong(cursor, COLUMN_USER_TIME_CREATED),
+                getLong(cursor, COLUMN_USER_LAST_HEARTBEAT),
+                parseCollectorIds(getString(cursor, COLUMN_USER_COLLECTORS)));
+    }
+
+    private static ContentValues userValues(User user) {
+        ContentValues cv = new ContentValues();
+        cv.put(COLUMN_USER_ID, user.getUserId());
+        cv.put(COLUMN_USER_NAME, user.getName());
+        cv.put(COLUMN_USER_PHOTO_URL, user.getPhotoUrl());
+        cv.put(COLUMN_USER_TIME_CREATED, user.getTimeCreated());
+        cv.put(COLUMN_USER_LAST_HEARTBEAT, user.getLastHeartBeat());
+        // convert the collectors list to json string
+        cv.put(COLUMN_USER_COLLECTORS, new Gson().toJson(user.getCollectorsForCurrentUser()));
+        return cv;
+    }
+
+    private static Data readData(Cursor cursor) {
+        return new Data(
+                getString(cursor, COLUMN_DATA_ID),
+                getString(cursor, COLUMN_DATAFIELD_ID),
+                getString(cursor, COLUMN_USER_ID),
+                getLong(cursor, COLUMN_TIMESTAMP),
+                getString(cursor, COLUMN_DATA_CONTENT));
+    }
+
+    private static Datafield readDatafield(Cursor cursor) {
+        int demonstratedIndex = cursor.getColumnIndexOrThrow(COLUMN_DATAFIELD_IS_DEMONSTRATED);
+        return new Datafield(
+                getString(cursor, COLUMN_DATAFIELD_ID),
+                getString(cursor, COLUMN_COLLECTOR_ID),
+                getString(cursor, COLUMN_GRAPH_QUERY),
+                getString(cursor, COLUMN_DATAFIELD_NAME),
+                getLong(cursor, COLUMN_DATAFIELD_TIME_CREATED),
+                getLong(cursor, COLUMN_DATAFIELD_TIME_LAST_EDITED),
+                cursor.getInt(demonstratedIndex) != 0);
+    }
+
+    private static ContentValues datafieldValues(Datafield datafield) {
+        ContentValues cv = new ContentValues();
+        cv.put(COLUMN_DATAFIELD_ID, datafield.getDatafieldId());
+        cv.put(COLUMN_COLLECTOR_ID, datafield.getCollectorId());
+        cv.put(COLUMN_GRAPH_QUERY, datafield.getGraphQuery());
+        cv.put(COLUMN_DATAFIELD_NAME, datafield.getName());
+        cv.put(COLUMN_DATAFIELD_TIME_CREATED, datafield.getTimeCreated());
+        cv.put(COLUMN_DATAFIELD_TIME_LAST_EDITED, datafield.getTimelastEdited());
+        cv.put(COLUMN_DATAFIELD_IS_DEMONSTRATED, datafield.getDemonstrated());
+        return cv;
+    }
+
+    private List<Collector> queryCollectors(@Nullable String selection, @Nullable String[] selectionArgs) {
+        List<Collector> collectorList = new ArrayList<>();
+        try (Cursor cursor = db().query(COLLECTOR_TABLE, null, selection, selectionArgs, null, null, null)) {
+            while (cursor.moveToNext()) {
+                collectorList.add(readCollector(cursor));
+            }
+        } catch (RuntimeException e) {
+            Log.e(TAG, "Failed to query collectors", e);
+        }
+        return collectorList;
+    }
+
+    private List<Datafield> queryDatafields(@Nullable String selection, @Nullable String[] selectionArgs) {
+        List<Datafield> datafieldList = new ArrayList<>();
+        try (Cursor cursor = db().query(DATAFIELD_TABLE, null, selection, selectionArgs, null, null, null)) {
+            while (cursor.moveToNext()) {
+                datafieldList.add(readDatafield(cursor));
+            }
+        } catch (RuntimeException e) {
+            Log.e(TAG, "Failed to query datafields", e);
+        }
+        return datafieldList;
+    }
+
+    private int delete(String table, String column, @Nullable String value) {
+        if (value == null) {
+            Log.w(TAG, "Refusing to delete from " + table + " with a null " + column);
+            return 0;
+        }
+        try {
+            return db().delete(table, column + " = ?", new String[]{value});
+        } catch (RuntimeException e) {
+            Log.e(TAG, "Failed to delete from " + table + " where " + column + " = " + value, e);
+            return 0;
+        }
+    }
+
+    // ---------------------------------------------------------------------------------------
+    // Collectors
+    // ---------------------------------------------------------------------------------------
+
+    // a method to add one collector to the local database
+    public Boolean addOneCollector(Collector collector) {
+        if (collector == null || collector.getCollectorId() == null) {
+            Log.w(TAG, "Cannot add a collector without an id");
             return false;
         }
-        return true;
+        try {
+            return db().insert(COLLECTOR_TABLE, null, collectorValues(collector)) != -1;
+        } catch (RuntimeException e) {
+            Log.e(TAG, "Failed to add collector " + collector.getCollectorId(), e);
+            return false;
+        }
     }
 
     // Warning: this method will directly remove the collector from the database. The preferred method: use updateCollectorStatus to set the collector status to "deleted",
     // so that we still have a copy of the collector in the database.
     public void removeCollectorById(String collectorId) {
         // the result equals to the number of entries being deleted in the database
-        int result = db.delete(COLLECTOR_TABLE, "collectorId = " + collectorId, null);
-        if(result > 0) {
-            Log.i("database", "successfully deleted " + result + " collectors with id " + collectorId);
+        int result = delete(COLLECTOR_TABLE, COLUMN_COLLECTOR_ID, collectorId);
+        if (result > 0) {
+            Log.i(TAG, "successfully deleted " + result + " collectors with id " + collectorId);
         } else {
-            Log.i("database", "remove collector error, current collectors: " + getAllCollectors().toString());
+            Log.w(TAG, "remove collector error: no collector with id " + collectorId);
         }
     }
 
     // a method to get all collectors in the database
     public List<Collector> getAllCollectors() {
-        List<Collector> collectorList = new ArrayList<>();
-
-        String sqlString = "SELECT * FROM " + COLLECTOR_TABLE;
-
-        Cursor cursor = db.rawQuery(sqlString, null);
-
-        // if the cursor actually got something
-        if (cursor.moveToFirst()) {
-            do {
-                // parse every info from cursor
-                String collectorID = cursor.getString(0);
-                String creatorUserID = cursor.getString(1);
-                String appName = cursor.getString(2);
-                String appPackage = cursor.getString(3);
-                String description = cursor.getString(4);
-                String mode = cursor.getString(5);
-                String targetServerIP = cursor.getString(6);
-                long collectorStartTime = cursor.getLong(7);
-                long collectorEndTime = cursor.getLong(8);
-                String collectorStatus = cursor.getString(9);
-                Collector receivedCollector = new Collector(collectorID, creatorUserID, appName, appPackage, description, mode, collectorStartTime, collectorEndTime, collectorStatus);
-                collectorList.add(receivedCollector);
-
-            } while(cursor.moveToNext());
-        }
-
-        else {
-            // do nothing since it's empty
-            Log.i("", "The collector list is empty.");
-        }
-        cursor.close();
-        return collectorList;
+        return queryCollectors(null, null);
     }
+
+    public List<Collector> getActiveCollectors() {
+        return queryCollectors(COLUMN_COLLECTOR_STATUS + " = ?", new String[]{Collector.ACTIVE});
+    }
+
+    // query to get one collector by id, returns null if there is no such collector
+    @Nullable
+    public Collector getCollectorById(String collectorId) {
+        if (collectorId == null) {
+            return null;
+        }
+        List<Collector> matches = queryCollectors(COLUMN_COLLECTOR_ID + " = ?", new String[]{collectorId});
+        return matches.isEmpty() ? null : matches.get(0);
+    }
+
+    // update the status of one collector in the database
+    public void updateCollectorStatus(Collector collector) {
+        if (collector == null || collector.getCollectorId() == null) {
+            return;
+        }
+        ContentValues cv = new ContentValues();
+        cv.put(COLUMN_COLLECTOR_STATUS, collector.getCollectorStatus());
+        try {
+            db().update(COLLECTOR_TABLE, cv, COLUMN_COLLECTOR_ID + " = ?", new String[]{collector.getCollectorId()});
+        } catch (RuntimeException e) {
+            Log.e(TAG, "Failed to update status of collector " + collector.getCollectorId(), e);
+        }
+    }
+
+    public void updateCollector(Collector updatedCollector) {
+        if (updatedCollector == null || updatedCollector.getCollectorId() == null) {
+            return;
+        }
+        try {
+            int rows = db().update(COLLECTOR_TABLE, collectorValues(updatedCollector), COLUMN_COLLECTOR_ID + " = ?", new String[]{updatedCollector.getCollectorId()});
+            if (rows > 0) {
+                Log.i(TAG, "successfully updated " + rows + " collectors with id " + updatedCollector.getCollectorId());
+            } else {
+                Log.w(TAG, "update collector error: no collector with id " + updatedCollector.getCollectorId());
+            }
+        } catch (RuntimeException e) {
+            Log.e(TAG, "Failed to update collector " + updatedCollector.getCollectorId(), e);
+        }
+    }
+
+    // ---------------------------------------------------------------------------------------
+    // Users
+    // ---------------------------------------------------------------------------------------
 
     public Boolean addOneUser(User user) {
-        ContentValues cv = new ContentValues();
-
-        cv.put(COLUMN_USER_ID, user.getUserId());
-        cv.put(COLUMN_USER_NAME, user.getName());
-        cv.put(COLUMN_USER_PHOTO_URL, user.getPhotoUrl());
-        cv.put(COLUMN_USER_TIME_CREATED, user.getTimeCreated());
-        cv.put(COLUMN_USER_LAST_HEARTBEAT, user.getLastHeartBeat());
-
-        // convert the collectors list to json string
-        Gson gson = new Gson();
-        String collectorsJson = gson.toJson(user.getCollectorsForCurrentUser());
-        cv.put(COLUMN_USER_COLLECTORS, collectorsJson);
-
-        long insert = db.insert(USER_TABLE, null, cv);
-        return insert != -1;
-    }
-
-    public void removeCollectorForUser(Collector collector, User user) {
-        // First, you remove the collector from database
-        collector.setCollectorStatus(Collector.DELETED);
-        updateCollectorStatus(collector);
-        // second you remove the collector from the user's list
-        ArrayList<String> updatedUserCollectors = user.getCollectorsForCurrentUser();
-        updatedUserCollectors.remove(collector.getCollectorId());
-        user.setCollectorsForCurrentUser(updatedUserCollectors);
-        // third, you update the user to the database
-        updateUser(user);
-    }
-
-
-    public Boolean checkIfUserExists(String userId) {
-
-        String query = "SELECT * FROM " + USER_TABLE + " WHERE " + COLUMN_USER_ID + " = \'" + userId + "\'";
-        Cursor cursor = db.rawQuery(query, null);
-        int cursorCount = cursor.getCount();
-
-        cursor.close();
-
-        if (cursorCount <= 0) {
+        if (user == null || user.getUserId() == null) {
+            Log.w(TAG, "Cannot add a user without an id");
             return false;
-        } else {
-            return true;
+        }
+        try {
+            return db().insert(USER_TABLE, null, userValues(user)) != -1;
+        } catch (RuntimeException e) {
+            Log.e(TAG, "Failed to add user " + user.getUserId(), e);
+            return false;
         }
     }
 
     public Boolean addOneUser(String userId) {
+        if (userId == null) {
+            return false;
+        }
         ContentValues cv = new ContentValues();
 
         long timeCreated = Calendar.getInstance().getTimeInMillis();
@@ -257,93 +411,142 @@ public class DatabaseManager extends SQLiteOpenHelper {
         cv.put(COLUMN_USER_LAST_HEARTBEAT, timeCreated);
         cv.put(COLUMN_USER_COLLECTORS, "");
 
-        long insert = db.insert(USER_TABLE, null, cv);
-        return insert != -1;
+        try {
+            return db().insert(USER_TABLE, null, cv) != -1;
+        } catch (RuntimeException e) {
+            Log.e(TAG, "Failed to add user " + userId, e);
+            return false;
+        }
     }
 
+    public void removeCollectorForUser(Collector collector, User user) {
+        if (collector == null || user == null) {
+            return;
+        }
+        // First, mark the collector as deleted in the database
+        collector.setCollectorStatus(Collector.DELETED);
+        updateCollectorStatus(collector);
+        // second you remove the collector from the user's list
+        ArrayList<String> updatedUserCollectors = user.getCollectorsForCurrentUser();
+        updatedUserCollectors.remove(collector.getCollectorId());
+        user.setCollectorsForCurrentUser(updatedUserCollectors);
+        // third, you update the user to the database
+        updateUser(user);
+    }
+
+    public Boolean checkIfUserExists(String userId) {
+        if (userId == null) {
+            return false;
+        }
+        try (Cursor cursor = db().query(USER_TABLE, new String[]{COLUMN_USER_ID}, COLUMN_USER_ID + " = ?", new String[]{userId}, null, null, null)) {
+            return cursor.getCount() > 0;
+        } catch (RuntimeException e) {
+            Log.e(TAG, "Failed to check if user " + userId + " exists", e);
+            return false;
+        }
+    }
+
+    // returns null if there is no such user
+    @Nullable
     public String getUsername(String userId) {
-        String query = "SELECT " + COLUMN_USER_NAME + " from " + USER_TABLE + " where " + COLUMN_USER_ID + "= \'" + userId + "\'";
-
-        Cursor cursor = db.rawQuery(query, null);
-        cursor.moveToFirst();
-        int usernameColumnIndex = cursor.getColumnIndex(COLUMN_USER_NAME);
-        String username = cursor.getString(usernameColumnIndex);
-
-        cursor.close();
-        return username;
+        if (userId == null) {
+            return null;
+        }
+        try (Cursor cursor = db().query(USER_TABLE, new String[]{COLUMN_USER_NAME}, COLUMN_USER_ID + " = ?", new String[]{userId}, null, null, null)) {
+            if (cursor.moveToFirst()) {
+                return cursor.isNull(0) ? null : cursor.getString(0);
+            }
+        } catch (RuntimeException e) {
+            Log.e(TAG, "Failed to get the name of user " + userId, e);
+        }
+        return null;
     }
 
+    // never returns null: an unknown user, or a user without collectors, yields an empty list
+    @NonNull
     public ArrayList<String> getUserCollectors(String userId) {
-        String query = "SELECT " + COLUMN_USER_COLLECTORS + " from " + USER_TABLE + " where " + COLUMN_USER_ID + "= \'" + userId + "\'";
-
-        Cursor cursor = db.rawQuery(query, null);
-        cursor.moveToFirst();
-        int collectorsColumnIndex = cursor.getColumnIndex(COLUMN_USER_COLLECTORS);
-        String collectorsJson = cursor.getString(collectorsColumnIndex);
-
-        Gson gson = new Gson();
-        Type type = new TypeToken<ArrayList<String>>(){}.getType();
-        ArrayList<String> collectorIds = gson.fromJson(collectorsJson, type);
-
-        cursor.close();
-        return collectorIds;
+        if (userId == null) {
+            return new ArrayList<>();
+        }
+        try (Cursor cursor = db().query(USER_TABLE, new String[]{COLUMN_USER_COLLECTORS}, COLUMN_USER_ID + " = ?", new String[]{userId}, null, null, null)) {
+            if (cursor.moveToFirst()) {
+                return parseCollectorIds(cursor.isNull(0) ? null : cursor.getString(0));
+            }
+        } catch (RuntimeException e) {
+            Log.e(TAG, "Failed to get the collectors of user " + userId, e);
+        }
+        return new ArrayList<>();
     }
 
     // Use this function to update the database when the user set their name in the left panel
     public Boolean updateUserName(String userId, String username) {
+        if (userId == null) {
+            return false;
+        }
         ContentValues cv = new ContentValues();
         cv.put(COLUMN_USER_NAME, username);
-        // rows represent the number of rows updated
-        int rows = db.update(USER_TABLE, cv,  "userId = ?" , new String[] {userId} );
-
-        return (rows > 0);
+        try {
+            // rows represent the number of rows updated
+            int rows = db().update(USER_TABLE, cv, COLUMN_USER_ID + " = ?", new String[]{userId});
+            return rows > 0;
+        } catch (RuntimeException e) {
+            Log.e(TAG, "Failed to update the name of user " + userId, e);
+            return false;
+        }
     }
 
     public void removeUserById(String userId) {
         // the result equals to the number of entries being deleted
-
-        int result = db.delete(USER_TABLE, "userId = " + userId, null);
-        if(result > 0) {
-            Log.i("database", "successfully deleted " + result + " users with id " + userId);
+        int result = delete(USER_TABLE, COLUMN_USER_ID, userId);
+        if (result > 0) {
+            Log.i(TAG, "successfully deleted " + result + " users with id " + userId);
         } else {
-            Log.i("database", "remove user error, current users: " + getAllUsers().toString());
+            Log.w(TAG, "remove user error: no user with id " + userId);
         }
     }
 
     public List<User> getAllUsers() {
         List<User> userList = new ArrayList<>();
-        String getAllUsersQuery = "SELECT * FROM " + USER_TABLE;
-
-        Cursor cursor = db.rawQuery(getAllUsersQuery, null);
-
-        if(cursor.moveToFirst()) {
-            do {
-                String userId = cursor.getString(0);
-                String userName = cursor.getString(1);
-                String PhotoUrl = cursor.getString(2);
-                long userTimeCreated = cursor.getLong(3);
-                long userTimeLastEdited = cursor.getLong(4);
-                String userCollectorsJson = cursor.getString(5);
-
-                // convert the json string to collectors list
-                Gson gson = new Gson();
-                Type type = new TypeToken<ArrayList<String>>(){}.getType();
-                ArrayList<String> userCollectors = gson.fromJson(userCollectorsJson, type);
-
-                User receivedUser = new User(userId, userName, PhotoUrl, userTimeCreated, userTimeLastEdited, userCollectors);
-
-                userList.add(receivedUser);
-
-            } while(cursor.moveToNext());
-        } else {
-            Log.i("", "The user list is empty.");
+        try (Cursor cursor = db().query(USER_TABLE, null, null, null, null, null, null)) {
+            while (cursor.moveToNext()) {
+                userList.add(readUser(cursor));
+            }
+        } catch (RuntimeException e) {
+            Log.e(TAG, "Failed to query users", e);
         }
-
-        cursor.close();
         return userList;
     }
 
+    public void updateUser(User currentUser) {
+        if (currentUser == null || currentUser.getUserId() == null) {
+            return;
+        }
+        try {
+            int rows = db().update(USER_TABLE, userValues(currentUser), COLUMN_USER_ID + " = ?", new String[]{currentUser.getUserId()});
+            if (rows > 0) {
+                Log.i(TAG, "successfully updated " + rows + " users with id " + currentUser.getUserId());
+            } else {
+                Log.w(TAG, "update user error: no user with id " + currentUser.getUserId());
+            }
+        } catch (RuntimeException e) {
+            Log.e(TAG, "Failed to update user " + currentUser.getUserId(), e);
+        }
+    }
+
+    // check if the user is already participating in the collector
+    public boolean userParticipationStatusForCollector(String userId, String collectorId) {
+        return getUserCollectors(userId).contains(collectorId);
+    }
+
+    // ---------------------------------------------------------------------------------------
+    // Data
+    // ---------------------------------------------------------------------------------------
+
     public Boolean addData(Data data) {
+        if (data == null || data.getDataId() == null) {
+            Log.w(TAG, "Cannot add data without an id");
+            return false;
+        }
         ContentValues cv = new ContentValues();
 
         cv.put(COLUMN_DATA_ID, data.getDataId());
@@ -352,378 +555,153 @@ public class DatabaseManager extends SQLiteOpenHelper {
         cv.put(COLUMN_TIMESTAMP, data.getTimestamp());
         cv.put(COLUMN_DATA_CONTENT, data.getDataContent());
 
-        long result = db.insert(DATA_TABLE, null, cv);
-        return result != -1;
+        try {
+            return db().insert(DATA_TABLE, null, cv) != -1;
+        } catch (RuntimeException e) {
+            Log.e(TAG, "Failed to add data " + data.getDataId(), e);
+            return false;
+        }
     }
 
     public void removeDataById(String dataId) {
         // the result equals to the number of entries being deleted
-
-        int result = db.delete(DATA_TABLE, "dataId = " + dataId, null);
-        if(result > 0) {
-            Log.i("database", "successfully deleted " + result + " data entries with id " + dataId);
+        int result = delete(DATA_TABLE, COLUMN_DATA_ID, dataId);
+        if (result > 0) {
+            Log.i(TAG, "successfully deleted " + result + " data entries with id " + dataId);
         } else {
-            Log.i("database", "remove data entry by data id error, current data entries: " + getAllData().toString());
+            Log.w(TAG, "remove data entry by data id error: no data with id " + dataId);
         }
     }
 
     public void removeDataByDatafieldId(String datafieldId) {
         // the result equals to the number of entries being deleted
-
-        int result = db.delete(DATA_TABLE, "datafieldId = " + datafieldId, null);
-        if(result > 0) {
-            Log.i("database", "successfully deleted " + result + " data entries from datafield " + datafieldId);
+        int result = delete(DATA_TABLE, COLUMN_DATAFIELD_ID, datafieldId);
+        if (result > 0) {
+            Log.i(TAG, "successfully deleted " + result + " data entries from datafield " + datafieldId);
         } else {
-            Log.i("database", "remove data entry by datafield Id error, current data entries: " + getAllData().toString());
+            Log.w(TAG, "remove data entry by datafield id error: no data for datafield " + datafieldId);
         }
     }
 
     public void removeDataByUserId(String userId) {
         // the result equals to the number of entries being deleted
-
-        int result = db.delete(DATA_TABLE, "userId = " + userId, null);
-        if(result > 0) {
-            Log.i("database", "successfully deleted " + result + " data entries from user " + userId);
+        int result = delete(DATA_TABLE, COLUMN_USER_ID, userId);
+        if (result > 0) {
+            Log.i(TAG, "successfully deleted " + result + " data entries from user " + userId);
         } else {
-            Log.i("database", "remove data entry by user id error, current data entries: " + getAllData().toString());
+            Log.w(TAG, "remove data entry by user id error: no data for user " + userId);
         }
     }
 
     public List<Data> getAllData() {
         List<Data> dataList = new ArrayList<>();
-        String getAllDataQuery = "SELECT * FROM " + DATA_TABLE;
-
-        Cursor cursor = db.rawQuery(getAllDataQuery, null);
-
-        if(cursor.moveToFirst()) {
-            do {
-
-                String dataId = cursor.getString(0);
-                String datafieldId = cursor.getString(1);
-                String userId = cursor.getString(2);
-                Long timestamp = cursor.getLong(3);
-                String dataContent = cursor.getString(4);
-
-                Data receivedData = new Data(dataId, datafieldId, userId, timestamp, dataContent);
-
-                dataList.add(receivedData);
-
-            } while (cursor.moveToNext());
-        } else {
-            Log.i("", "The data list is empty.");
+        try (Cursor cursor = db().query(DATA_TABLE, null, null, null, null, null, null)) {
+            while (cursor.moveToNext()) {
+                dataList.add(readData(cursor));
+            }
+        } catch (RuntimeException e) {
+            Log.e(TAG, "Failed to query data", e);
         }
-
-        cursor.close();
-
         return dataList;
     }
 
+    // the data table has no collector id of its own, so go through the datafields of the collector
     public List<Data> getDataForCollector(Collector collector) {
         List<Data> dataList = new ArrayList<>();
-        String getAllDataQuery = "SELECT * FROM " + DATA_TABLE + " WHERE " + COLUMN_COLLECTOR_ID + " = \'" + collector.getCollectorId() + "\';";
-
-        Cursor cursor = db.rawQuery(getAllDataQuery, null);
-
-        if(cursor.moveToFirst()) {
-            do {
-
-                String dataId = cursor.getString(0);
-                String datafieldId = cursor.getString(1);
-                String userId = cursor.getString(2);
-                Long timestamp = cursor.getLong(3);
-                String dataContent = cursor.getString(4);
-
-                Data receivedData = new Data(dataId, datafieldId, userId, timestamp, dataContent);
-
-                dataList.add(receivedData);
-
-            } while (cursor.moveToNext());
-        } else {
-            Log.i("", "Cannot find data for the specified collector ID. Try another collector instead?");
+        if (collector == null || collector.getCollectorId() == null) {
+            return dataList;
         }
-
-        cursor.close();
-
+        String sql = "SELECT d.* FROM " + DATA_TABLE + " d INNER JOIN " + DATAFIELD_TABLE + " f ON d." + COLUMN_DATAFIELD_ID + " = f." + COLUMN_DATAFIELD_ID
+                + " WHERE f." + COLUMN_COLLECTOR_ID + " = ?";
+        try (Cursor cursor = db().rawQuery(sql, new String[]{collector.getCollectorId()})) {
+            while (cursor.moveToNext()) {
+                dataList.add(readData(cursor));
+            }
+        } catch (RuntimeException e) {
+            Log.e(TAG, "Failed to query data for collector " + collector.getCollectorId(), e);
+        }
         return dataList;
     }
 
+    // ---------------------------------------------------------------------------------------
+    // Datafields
+    // ---------------------------------------------------------------------------------------
 
     public Boolean addOneDatafield(Datafield datafield) {
-        ContentValues cv = new ContentValues();
-
-        cv.put(COLUMN_DATAFIELD_ID, datafield.getDatafieldId());
-        cv.put(COLUMN_COLLECTOR_ID, datafield.getCollectorId());
-        cv.put(COLUMN_GRAPH_QUERY, datafield.getGraphQuery());
-        cv.put(COLUMN_DATAFIELD_NAME, datafield.getName());
-        cv.put(COLUMN_DATAFIELD_TIME_CREATED, datafield.getTimeCreated());
-        cv.put(COLUMN_DATAFIELD_TIME_LAST_EDITED, datafield.getTimelastEdited());
-        cv.put(COLUMN_DATAFIELD_IS_DEMONSTRATED, datafield.getDemonstrated());
-
-        // catch exception of the insert operation
-        try {
-            long result = db.insert(DATAFIELD_TABLE, null, cv);
-            return result != -1;
-        } catch (Exception e) {
-            Log.i("database", "add one datafield error: " + e.getMessage());
+        if (datafield == null || datafield.getDatafieldId() == null) {
+            Log.w(TAG, "Cannot add a datafield without an id");
             return false;
         }
+        try {
+            return db().insert(DATAFIELD_TABLE, null, datafieldValues(datafield)) != -1;
+        } catch (RuntimeException e) {
+            Log.e(TAG, "add one datafield error: " + e.getMessage(), e);
+            return false;
+        }
+    }
 
+    public void addDatafield(Datafield addedDatafield) {
+        if (addOneDatafield(addedDatafield)) {
+            Log.i(TAG, "successfully added datafield with id " + addedDatafield.getDatafieldId());
+        } else {
+            Log.w(TAG, "add datafield error: could not add datafield " + (addedDatafield != null ? addedDatafield.getDatafieldId() : null));
+        }
     }
 
     public void removeDatafieldById(String datafieldId) {
         // the result equals to the number of entries being deleted
-
-        int result = db.delete(DATAFIELD_TABLE, "datafieldId = \"" + datafieldId + "\"", null);
-        if(result > 0) {
-            Log.i("database", "successfully deleted " + result + " datafield with id " + datafieldId);
+        int result = delete(DATAFIELD_TABLE, COLUMN_DATAFIELD_ID, datafieldId);
+        if (result > 0) {
+            Log.i(TAG, "successfully deleted " + result + " datafield with id " + datafieldId);
         } else {
-            Log.i("database", "remove datafield by id error, current datafields: " + getAllDatafields().toString());
+            Log.w(TAG, "remove datafield by id error: no datafield with id " + datafieldId);
         }
     }
 
     // NOTE: This method is not used in the app, because once a collector is set as "deleted", the datafields will not be queried anymore.
     public void removeDatafieldByCollectorId(String collectorId) {
         // the result equals to the number of entries being deleted
-
-        int result = db.delete(DATAFIELD_TABLE, "collectorId = \'" + collectorId + "\'", null);
-        if(result > 0) {
-            Log.i("database", "successfully deleted " + result + " datafield from collector " + collectorId);
+        int result = delete(DATAFIELD_TABLE, COLUMN_COLLECTOR_ID, collectorId);
+        if (result > 0) {
+            Log.i(TAG, "successfully deleted " + result + " datafield from collector " + collectorId);
         } else {
-            Log.i("database", "remove datafield by collector id error, current datafields: " + getAllDatafields().toString());
+            Log.w(TAG, "remove datafield by collector id error: no datafield for collector " + collectorId);
         }
     }
 
     public List<Datafield> getAllDatafields() {
-        List<Datafield> dataList = new ArrayList<>();
-        String getAllDataQuery = "SELECT * FROM " + DATAFIELD_TABLE;
-
-        Cursor cursor = db.rawQuery(getAllDataQuery, null);
-
-        if(cursor.moveToFirst()) {
-            do {
-
-                String datafieldId = cursor.getString(0);
-                String collectorId = cursor.getString(1);
-                String graphQuery = cursor.getString(2);
-                String name = cursor.getString(3);
-                Long timeCreated = cursor.getLong(4);
-                Long timeLastEdited = cursor.getLong(5);
-                Boolean isDemonstrated = cursor.getInt(6) != 0;
-                Datafield receivedDatafield = new Datafield(datafieldId, collectorId, graphQuery, name, timeCreated, timeLastEdited, isDemonstrated);
-
-                dataList.add(receivedDatafield);
-
-            } while (cursor.moveToNext());
-        } else {
-            Log.i("", "The datafield list is empty.");
-        }
-
-        cursor.close();
-
-        return dataList;
+        return queryDatafields(null, null);
     }
 
     public List<Datafield> getAllDatafieldsForCollector(Collector collector) {
-        List<Datafield> dataList = new ArrayList<>();
-        String getAllDataQuery = "SELECT * FROM " + DATAFIELD_TABLE + " WHERE " + COLUMN_COLLECTOR_ID + " = \'" + collector.getCollectorId() + "\';";
-
-        Cursor cursor = db.rawQuery(getAllDataQuery, null);
-
-        if(cursor.moveToFirst()) {
-            do {
-
-                String datafieldId = cursor.getString(0);
-                String collectorId = cursor.getString(1);
-                String graphQuery = cursor.getString(2);
-                String name = cursor.getString(3);
-                Long timeCreated = cursor.getLong(4);
-                Long timeLastEdited = cursor.getLong(5);
-                Boolean isDemonstrated = cursor.getInt(6) != 0;
-                Datafield receivedDatafield = new Datafield(datafieldId, collectorId, graphQuery, name, timeCreated, timeLastEdited, isDemonstrated);
-
-                dataList.add(receivedDatafield);
-
-            } while (cursor.moveToNext());
-        } else {
-            Log.i("", "Cannot find datafield for the specified collector ID. Try another collector instead?");
+        if (collector == null || collector.getCollectorId() == null) {
+            return new ArrayList<>();
         }
-
-        cursor.close();
-        return dataList;
-    }
-
-    // update statuses for all collectors to database;
-    // this is not the most efficient, but there won't be that many collectors anyways
-    public void updateCollectorStatus(Collector collector) {
-        String updateStatement = "UPDATE " + COLLECTOR_TABLE + " SET " + COLUMN_COLLECTOR_STATUS + " =\'" + collector.getCollectorStatus() + "\' WHERE " + COLUMN_COLLECTOR_ID + "=\'" + collector.getCollectorId() + "\'";
-        Cursor c = db.rawQuery(updateStatement, null);
-        c.moveToFirst();
-    }
-
-
-    public List<Collector> getActiveCollectors() {
-        List<Collector> collectorList = new ArrayList<>();
-        String getActiveCollectorsQuery = "SELECT * FROM " + COLLECTOR_TABLE + " WHERE " + COLUMN_COLLECTOR_STATUS + " = \'active\';";
-
-        Cursor cursor = db.rawQuery(getActiveCollectorsQuery, null);
-
-        if (cursor.moveToFirst()) {
-            do {
-                // parse every info from cursor
-                String collectorID = cursor.getString(0);
-                String creatorUserID = cursor.getString(1);
-                String appName = cursor.getString(2);
-                String appPackage = cursor.getString(3);
-                String description = cursor.getString(4);
-                String mode = cursor.getString(5);
-                String targetServerIP = cursor.getString(6);
-                long collectorStartTime = cursor.getLong(7);
-                long collectorEndTime = cursor.getLong(8);
-                String collectorStatus = cursor.getString(9);
-                Collector receivedCollector = new Collector(collectorID, creatorUserID, appName, appPackage, description, mode, collectorStartTime, collectorEndTime, collectorStatus);
-                collectorList.add(receivedCollector);
-
-            } while(cursor.moveToNext());
-        }
-
-        else {
-            // do nothing since it's empty
-            Log.i("", "The collector list is empty.");
-        }
-        cursor.close();
-        return collectorList;
-    }
-
-    // query to get one collector by id
-    public Collector getCollectorById(String collectorId) {
-        String getCollectorByIdQuery = "SELECT * FROM " + COLLECTOR_TABLE + " WHERE " + COLUMN_COLLECTOR_ID + " = \'" + collectorId + "\';";
-
-        Cursor cursor = db.rawQuery(getCollectorByIdQuery, null);
-
-        if (cursor.moveToFirst()) {
-            // parse every info from cursor
-            String collectorID = cursor.getString(0);
-            String creatorUserID = cursor.getString(1);
-            String appName = cursor.getString(2);
-            String appPackage = cursor.getString(3);
-            String description = cursor.getString(4);
-            String mode = cursor.getString(5);
-            String targetServerIP = cursor.getString(6);
-            long collectorStartTime = cursor.getLong(7);
-            long collectorEndTime = cursor.getLong(8);
-            String collectorStatus = cursor.getString(9);
-            Collector receivedCollector = new Collector(collectorID, creatorUserID, appName, appPackage, description, mode, collectorStartTime, collectorEndTime, collectorStatus);
-            cursor.close();
-            return receivedCollector;
-        }
-
-        else {
-            // do nothing since it's empty
-            Log.i("", "The collector list is empty.");
-            cursor.close();
-            return null;
-        }
-    }
-
-    // check if the user is already participating in the collector
-    public boolean userParticipationStatusForCollector(String userId, String collectorId) {
-        ArrayList<String> userCollectors = getUserCollectors(userId);
-        if (userCollectors.contains(collectorId)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public void closeDatabase() {
-        if (db != null) {
-            db.close();
-        }
-    }
-
-    public void updateCollector(Collector updatedCollector) {
-        ContentValues cv = new ContentValues();
-        cv.put(COLUMN_COLLECTOR_ID, updatedCollector.getCollectorId());
-        cv.put(COLUMN_CREATOR_USER_ID, updatedCollector.getCreatorUserId());
-        cv.put(COLUMN_DESCRIPTION, updatedCollector.getDescription());
-        cv.put(COLUMN_APP_NAME, updatedCollector.getAppName());
-        cv.put(COLUMN_APP_PACKAGE, updatedCollector.getAppPackage());
-        cv.put(COLUMN_MODE, updatedCollector.getMode());
-        cv.put(COLUMN_TARGET_SERVER_IP, updatedCollector.getTargetServerIp());
-        cv.put(COLUMN_COLLECTOR_START_TIME, updatedCollector.getCollectorStartTime());
-        cv.put(COLUMN_COLLECTOR_END_TIME, updatedCollector.getCollectorEndTime());
-        cv.put(COLUMN_COLLECTOR_STATUS, updatedCollector.getCollectorStatus());
-
-        int rows = db.update(COLLECTOR_TABLE, cv, "collectorId = ?", new String[]{updatedCollector.getCollectorId()});
-
-        if (rows > 0) {
-            Log.i("database", "successfully updated " + rows + " collectors with id " + updatedCollector.getCollectorId());
-        } else {
-            Log.i("database", "update collector error, current collectors: " + getAllCollectors().toString());
-        }
+        return queryDatafields(COLUMN_COLLECTOR_ID + " = ?", new String[]{collector.getCollectorId()});
     }
 
     public void updateDatafield(Datafield updatedDatafield) {
-        ContentValues cv = new ContentValues();
-        cv.put(COLUMN_DATAFIELD_ID, updatedDatafield.getDatafieldId());
-        cv.put(COLUMN_COLLECTOR_ID, updatedDatafield.getCollectorId());
-        cv.put(COLUMN_GRAPH_QUERY, updatedDatafield.getGraphQuery());
-        cv.put(COLUMN_DATAFIELD_NAME, updatedDatafield.getName());
-        cv.put(COLUMN_DATAFIELD_TIME_CREATED, updatedDatafield.getTimeCreated());
-        cv.put(COLUMN_DATAFIELD_TIME_LAST_EDITED, updatedDatafield.getTimelastEdited());
-        cv.put(COLUMN_DATAFIELD_IS_DEMONSTRATED, updatedDatafield.getDemonstrated());
-
-        int rows = db.update(DATAFIELD_TABLE, cv, "datafieldId = ?", new String[]{updatedDatafield.getDatafieldId()});
-
-        if (rows > 0) {
-            Log.i("database", "successfully updated " + rows + " datafields with id " + updatedDatafield.getDatafieldId());
-        } else {
-            Log.i("database", "update datafield error, current datafields: " + getAllDatafields().toString());
+        if (updatedDatafield == null || updatedDatafield.getDatafieldId() == null) {
+            return;
+        }
+        try {
+            int rows = db().update(DATAFIELD_TABLE, datafieldValues(updatedDatafield), COLUMN_DATAFIELD_ID + " = ?", new String[]{updatedDatafield.getDatafieldId()});
+            if (rows > 0) {
+                Log.i(TAG, "successfully updated " + rows + " datafields with id " + updatedDatafield.getDatafieldId());
+            } else {
+                Log.w(TAG, "update datafield error: no datafield with id " + updatedDatafield.getDatafieldId());
+            }
+        } catch (RuntimeException e) {
+            Log.e(TAG, "Failed to update datafield " + updatedDatafield.getDatafieldId(), e);
         }
     }
 
-    public void addDatafield(Datafield addedDatafield) {
-        ContentValues cv = new ContentValues();
-        cv.put(COLUMN_DATAFIELD_ID, addedDatafield.getDatafieldId());
-        cv.put(COLUMN_COLLECTOR_ID, addedDatafield.getCollectorId());
-        cv.put(COLUMN_GRAPH_QUERY, addedDatafield.getGraphQuery());
-        cv.put(COLUMN_DATAFIELD_NAME, addedDatafield.getName());
-        cv.put(COLUMN_DATAFIELD_TIME_CREATED, addedDatafield.getTimeCreated());
-        cv.put(COLUMN_DATAFIELD_TIME_LAST_EDITED, addedDatafield.getTimelastEdited());
-        cv.put(COLUMN_DATAFIELD_IS_DEMONSTRATED, addedDatafield.getDemonstrated());
-
-        long result = db.insert(DATAFIELD_TABLE, null, cv);
-        if (result != -1) {
-            Log.i("database", "successfully added datafield with id " + addedDatafield.getDatafieldId());
-        } else {
-            Log.i("database", "add datafield error, current datafields: " + getAllDatafields().toString());
-        }
-    }
-
-    public void updateUser(User currentUser) {
-        ContentValues cv = new ContentValues();
-        cv.put(COLUMN_USER_ID, currentUser.getUserId());
-        cv.put(COLUMN_USER_NAME, currentUser.getName());
-        cv.put(COLUMN_USER_PHOTO_URL, currentUser.getPhotoUrl());
-        cv.put(COLUMN_USER_TIME_CREATED, currentUser.getTimeCreated());
-        cv.put(COLUMN_USER_LAST_HEARTBEAT, currentUser.getLastHeartBeat());
-
-        // convert the collectors list to json string
-        Gson gson = new Gson();
-        String collectorsJson = gson.toJson(currentUser.getCollectorsForCurrentUser());
-        cv.put(COLUMN_USER_COLLECTORS, collectorsJson);
-
-        int rows = db.update(USER_TABLE, cv, "userId = ?", new String[]{currentUser.getUserId()});
-
-        if (rows > 0) {
-            Log.i("database", "successfully updated " + rows + " users with id " + currentUser.getUserId());
-        } else {
-            Log.i("database", "update user error, current users: " + getAllUsers().toString());
-        }
+    /**
+     * Closes the underlying database. Do not call this from a single screen: the manager is shared
+     * with the accessibility service, which keeps using it after the UI is gone. The database is
+     * re-opened on demand by the next operation.
+     */
+    public void closeDatabase() {
+        close();
     }
 }
-
-
-
-
-

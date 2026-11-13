@@ -29,7 +29,9 @@ public class User {
         this.photoUrl = photoUrl;
         this.timeCreated = timeCreated;
         this.lastHeartBeat = lastHeartBeat;
-        this.userCollectors.addAll(userCollectors);
+        if (userCollectors != null) {
+            this.userCollectors.addAll(userCollectors);
+        }
     }
 
     public String getUserId() {
@@ -75,15 +77,21 @@ public class User {
     }
 
     public void setCollectorsForCurrentUser(ArrayList<String> collectorIds) {
-        this.userCollectors = collectorIds;
+        // never let the list become null, callers iterate over it
+        this.userCollectors = collectorIds != null ? collectorIds : new ArrayList<String>();
     }
 
     public void addCollectorForCurrentUser(String collectorId) {
-        this.userCollectors.add(collectorId);
+        if (collectorId != null && !this.userCollectors.contains(collectorId)) {
+            this.userCollectors.add(collectorId);
+        }
     }
 
     public void removeCollectorForCurrentUser(Collector collector) {
-        this.userCollectors.remove(collector);
+        // the list holds collector ids, not Collector objects
+        if (collector != null) {
+            this.userCollectors.remove(collector.getCollectorId());
+        }
     }
 
     public void removeAllCollectorsForCurrentUser() {

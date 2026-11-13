@@ -5,6 +5,8 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,6 +38,12 @@ public class FabModalBottomSheet extends BottomSheetDialogFragment {
 
     private Context context;
 
+    // Fragments need a public no-argument constructor: without it the system crashes when it has to
+    // re-create the fragment (after the process was killed in the background, or on a configuration change).
+    // A fragment that was re-created this way has lost its builders and dismisses itself, see onCreate.
+    public FabModalBottomSheet() {
+    }
+
     public FabModalBottomSheet(AddCollectorFromCollectorIdDialogBuilder addCollectorFromCollectorIdDialogBuilder, CreateCollectorFromConfigDialogBuilder createCollectorFromConfigDialogBuilder) {
         this.addCollectorFromCollectorIdDialogBuilder = addCollectorFromCollectorIdDialogBuilder;
         this.createCollectorFromConfigDialogBuilder = createCollectorFromConfigDialogBuilder;
@@ -45,6 +53,10 @@ public class FabModalBottomSheet extends BottomSheetDialogFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+        if (addCollectorFromCollectorIdDialogBuilder == null || createCollectorFromConfigDialogBuilder == null) {
+            // restored by the system without the builders it needs, there is nothing useful to show
+            return null;
+        }
         View view = inflater.inflate(R.layout.fab_bottom_sheet, container, false);
 
         LinearLayout addExistingBtn = view.findViewById(R.id.add_existing_collector_btn);
@@ -58,7 +70,9 @@ public class FabModalBottomSheet extends BottomSheetDialogFragment {
                 // check accessibility service permission
                 if (!CrepeAccessibilityService.isAccessibilityServiceEnabled(getContext(), CrepeAccessibilityService.class)) {
                     Dialog enableAccessibilityServiceDialog = AccessibilityPermissionManager.getInstance().getEnableAccessibilityServiceDialog(getContext());
-                    enableAccessibilityServiceDialog.show();
+                    if (enableAccessibilityServiceDialog != null) {
+                        enableAccessibilityServiceDialog.show();
+                    }
                 } else {
                     // first, collapse the fab icon
                     dismiss();
@@ -78,7 +92,9 @@ public class FabModalBottomSheet extends BottomSheetDialogFragment {
                 // check display over other apps permission
                 if (!Settings.canDrawOverlays(context)) {
                     Dialog enableDisplayServiceDialog = CrepeDisplayPermissionManager.getInstance().getEnableDisplayServiceDialog(context);
-                    enableDisplayServiceDialog.show();
+                    if (enableDisplayServiceDialog != null) {
+                        enableDisplayServiceDialog.show();
+                    }
                 } else {
                     // first, collapse the fab icon
                     dismiss();
@@ -99,7 +115,9 @@ public class FabModalBottomSheet extends BottomSheetDialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Dialog dialog = super.onCreateDialog(savedInstanceState);
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
         return dialog;
     }
 
@@ -107,14 +125,27 @@ public class FabModalBottomSheet extends BottomSheetDialogFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setStyle(BottomSheetDialogFragment.STYLE_NORMAL, R.style.CustomBottomSheetDialogTheme);
+        if (savedInstanceState != null || addCollectorFromCollectorIdDialogBuilder == null) {
+            // leave it to the fragment manager to finish restoring first, then go away
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    if (isAdded()) {
+                        dismissAllowingStateLoss();
+                    }
+                }
+            });
+        }
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        final BottomSheetBehavior<View> behavior = BottomSheetBehavior.from((View) view.getParent());
-        behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        if (view.getParent() instanceof View) {
+            final BottomSheetBehavior<View> behavior = BottomSheetBehavior.from((View) view.getParent());
+            behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        }
     }
 
 

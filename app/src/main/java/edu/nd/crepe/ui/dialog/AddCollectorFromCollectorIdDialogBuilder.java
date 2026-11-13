@@ -62,7 +62,9 @@ public class AddCollectorFromCollectorIdDialogBuilder {
         final View popupView = LayoutInflater.from(c).inflate(R.layout.dialog_add_collector_from_collector_id, null);
         dialogBuilder.setView(popupView);
         Dialog dialog = dialogBuilder.create();
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
         Button popupCancelBtn = (Button) popupView.findViewById(R.id.addFromUrlCancelButton);
         Button popupNextBtn = (Button) popupView.findViewById(R.id.addFromUrlAddButton);
         EditText collectorIdEditText = (EditText) popupView.findViewById(R.id.collectorIdEditText);
@@ -83,7 +85,12 @@ public class AddCollectorFromCollectorIdDialogBuilder {
                 // show the keyboard when edittext is clicked
 //                InputMethodManager imm = (InputMethodManager) c.getSystemService(Context.INPUT_METHOD_SERVICE);
 //                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-                String collectorId = collectorIdEditText.getText().toString();
+                String collectorId = collectorIdEditText.getText().toString().trim();
+
+                // this builder is reused, so forget the result of the previous attempt. Otherwise an
+                // invalid id would be answered with the collector (and datafields) of the last valid one.
+                targetCollector = null;
+                targetDatafields.clear();
 
                 // handle edge cases
                 if (collectorId.isEmpty()) {
@@ -98,7 +105,11 @@ public class AddCollectorFromCollectorIdDialogBuilder {
 
                 // check if the collector already exists in participant's userCollectors list
                 // if so, do not add it again
-                if (dbManager.userParticipationStatusForCollector(currentUser.getUserId(), collectorIdEditText.getText().toString())) {
+                if (currentUser == null) {
+                    Toast.makeText(c, "Please sign in again to join a collection.", Toast.LENGTH_LONG).show();
+                    return;
+                }
+                if (dbManager.userParticipationStatusForCollector(currentUser.getUserId(), collectorId)) {
                     Toast.makeText(c, "You are already participating in this collection!", Toast.LENGTH_LONG).show();
                     return;
                 }
@@ -118,7 +129,7 @@ public class AddCollectorFromCollectorIdDialogBuilder {
                         } else {
                             for (Collector collector : result) {
                                 // if the collector is found in firebase
-                                if (collector.getCollectorId().equals(collectorId)) {
+                                if (collectorId.equals(collector.getCollectorId())) {
                                     targetCollector = collector;
 
                                     Boolean isTargetAppInstalled = false;
@@ -144,8 +155,8 @@ public class AddCollectorFromCollectorIdDialogBuilder {
 
                                     // 1. add collector to local database
                                     // if the collector already exists, we just set the status to active
-                                    if (dbManager.getCollectorById(targetCollector.getCollectorId()) != null) {
-                                        Collector existingCollector = dbManager.getCollectorById(targetCollector.getCollectorId());
+                                    Collector existingCollector = dbManager.getCollectorById(targetCollector.getCollectorId());
+                                    if (existingCollector != null) {
                                         existingCollector.setCollectorStatus(ACTIVE);
                                         dbManager.updateCollectorStatus(existingCollector);
                                     } else {
@@ -161,7 +172,8 @@ public class AddCollectorFromCollectorIdDialogBuilder {
                                     HashMap<String, Object> userUpdates = new HashMap<>();
                                     ArrayList<String> updatedUserCollectors = currentUser.getCollectorsForCurrentUser();
                                     userUpdates.put("userCollectors", updatedUserCollectors);
-                                    firebaseCommunicationManager.updateUser(currentUser.getUserId(), userUpdates);
+                                    firebaseCommunicationManager.updateUser(currentUser.getUserId(), userUpdates)
+                                            .addOnFailureListener(er -> Log.e("Firebase", "Failed to save the participation to firebase: " + er.getMessage()));
                                 }
                             }
                         }
@@ -171,6 +183,7 @@ public class AddCollectorFromCollectorIdDialogBuilder {
 
                     public void onErrorResponse(Exception e) {
                         Log.e("Firebase", "Failed to retrieve collectors from Firebase.");
+                        Toast.makeText(c, "Could not reach the server. Please check your connection and try again.", Toast.LENGTH_LONG).show();
                     }
 
                     public void onComplete() {
@@ -180,7 +193,7 @@ public class AddCollectorFromCollectorIdDialogBuilder {
 //                            dialog.dismiss();
                         } else {
                             // if the collector is found, then, retrieve the data fields
-                            firebaseCommunicationManager.retrieveDatafieldsWithCollectorId(collectorIdEditText.getText().toString(), new FirebaseCallback<List<Datafield>>() {
+                            firebaseCommunicationManager.retrieveDatafieldsWithCollectorId(collectorId, new FirebaseCallback<List<Datafield>>() {
                                 public void onResponse(List<Datafield> results) {
                                     targetDatafields.addAll(results);
                                     onComplete();
@@ -224,6 +237,7 @@ public class AddCollectorFromCollectorIdDialogBuilder {
     private boolean isValidCollectorId(String collectorId) {
         // Check if collectorId is null or contains invalid characters
         return collectorId != null && !collectorId.contains(".") && !collectorId.contains("#")
-                && !collectorId.contains("$") && !collectorId.contains("[") && !collectorId.contains("]");
+                && !collectorId.contains("$") && !collectorId.contains("[") && !collectorId.contains("]")
+                && !collectorId.contains("/");
     }
 }

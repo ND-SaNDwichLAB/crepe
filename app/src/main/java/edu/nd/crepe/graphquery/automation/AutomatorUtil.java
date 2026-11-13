@@ -23,35 +23,10 @@ import edu.nd.crepe.graphquery.model.variable.VariableValue;
  * @time 1:45 AM
  */
 public class AutomatorUtil {
-    /**
-     * kill a package named packageName
-     * @param packageName
-     */
     static private Set<String> homeScreenPackageNameSet = new HashSet<>(Arrays.asList(HOME_SCREEN_PACKAGE_NAMES));
 
     public static boolean isHomeScreenPackage (String packageName) {
         return homeScreenPackageNameSet.contains(packageName);
-    }
-
-    public static void killPackage(String packageName, ActivityManager am){
-        //don't kill the home screen
-        if(homeScreenPackageNameSet.contains(packageName)) {
-            return;
-        }
-
-        try {
-            Process sh = Runtime.getRuntime().exec("su", null, null);
-            OutputStream os = sh.getOutputStream();
-            os.write(("am force-stop " + packageName).getBytes("ASCII"));
-            os.flush();
-            os.close();
-            System.out.println("KILLING: " + packageName);
-        } catch (Exception e) {
-            System.out.println("FAILED TO KILL RELEVANT PACKAGES");
-            e.printStackTrace();
-            // do nothing, likely this exception is caused by running Sugilite on a non-rooted device
-        }
-
     }
 
     public static List<AccessibilityNodeInfo> preOrderTraverseSiblings(AccessibilityNodeInfo node){
